@@ -728,6 +728,7 @@ assert.match(homepageFilmMediaOpenTag, /data-homepage-film-fallback(?:\s|=|>)/);
 assert.match(homepageFilmFrameOpenTag, /data-film-renderer="video"/);
 assert.match(homepageFilmFrameOpenTag, /data-film-live-status="loading"/);
 assert.match(homepageFilmFrameOpenTag, /data-film-autoplay-status="pending"/);
+assert.match(homepageFilmFrameOpenTag, /data-film-audio-status="pending"/);
 assert.match(
   homepageFilmFrameOpenTag,
   /data-film-live-src="\/assets\/releases\/visual-composition-runtime-demo\.html"/,
@@ -1009,6 +1010,7 @@ function runHomepageLiveFilmBehavior(
       "data-film-live-status": "loading",
       "data-film-renderer": "video",
       "data-film-autoplay-status": "pending",
+      "data-film-audio-status": "pending",
     },
     dataset: {
       filmLiveSrc: "/assets/releases/visual-composition-runtime-demo.html",
@@ -1345,6 +1347,9 @@ function runHomepageLiveFilmBehavior(
       deferredPlayResolvers.shift()?.();
     },
     runReadinessTimeout() {
+      return this.runNextTimeout();
+    },
+    runNextTimeout() {
       const [id, callback] = timeoutCallbacks.entries().next().value ?? [];
       if (!callback) return false;
       timeoutCallbacks.delete(id);
@@ -1734,7 +1739,7 @@ assert.match(homepageFilmClockCss, /pointer-events:\s*none;/);
 assert.doesNotMatch(
   homepageFilmClockCss,
   /(?:clip-path|opacity|visibility|display)\s*:/,
-  "Safari must receive an onscreen rendered video clock instead of a CSS-hidden one",
+  "the soundtrack transport should remain rendered while the live stage is active",
 );
 
 const progressiveFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
@@ -1743,6 +1748,7 @@ assert.equal(progressiveFilmBehavior.controls.hidden, true);
 assert.equal(progressiveFilmBehavior.video.controls, true);
 assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "video");
 assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-autoplay-status"), "pending");
+assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-audio-status"), "pending");
 assert.equal(progressiveFilmBehavior.video.muted, false);
 assert.equal(progressiveFilmBehavior.resizeObserver, undefined);
 assert.ok(progressiveFilmBehavior.timeoutCallbacks.size >= 1);
@@ -1762,6 +1768,7 @@ assert.equal(progressiveFilmBehavior.video.playCalls, 1);
 assert.equal(progressiveFilmBehavior.video.paused, false);
 assert.equal(progressiveFilmBehavior.video.muted, false);
 assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-autoplay-status"), "playing");
+assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-audio-status"), "available");
 
 progressiveFilmBehavior.dispatchReady({}, { origin: "https://evil.example" });
 assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "video");
@@ -2052,6 +2059,202 @@ assert.ok(
   "the independent visual clock must advance after a pre-READY browser suspension",
 );
 
+const livePauseRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
+livePauseRecoveryFilmBehavior.setInView(true);
+await livePauseRecoveryFilmBehavior.settlePlayback();
+livePauseRecoveryFilmBehavior.dispatchReady();
+assert.equal(
+  livePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "available",
+);
+livePauseRecoveryFilmBehavior.video.paused = true;
+livePauseRecoveryFilmBehavior.video.dispatch("pause");
+assert.equal(
+  livePauseRecoveryFilmBehavior.video.playCalls,
+  2,
+  "an unexpected live-media pause should make one bounded soundtrack recovery attempt",
+);
+assert.equal(
+  livePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "recovering",
+);
+await livePauseRecoveryFilmBehavior.settlePlayback();
+assert.equal(livePauseRecoveryFilmBehavior.video.paused, false);
+assert.equal(livePauseRecoveryFilmBehavior.video.muted, false);
+assert.equal(
+  livePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "available",
+  "a successful retry should restore the audible soundtrack state",
+);
+livePauseRecoveryFilmBehavior.video.paused = true;
+livePauseRecoveryFilmBehavior.video.dispatch("pause");
+assert.equal(
+  livePauseRecoveryFilmBehavior.video.playCalls,
+  2,
+  "a second unexpected pause must not start an unbounded retry loop",
+);
+assert.equal(livePauseRecoveryFilmBehavior.video.muted, true);
+assert.equal(
+  livePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "gesture-required",
+  "after the bounded retry is exhausted, the player should state that sound needs a gesture",
+);
+assert.equal(livePauseRecoveryFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute music");
+const exhaustedRecoveryProgress = Number(livePauseRecoveryFilmBehavior.scrubber.value);
+livePauseRecoveryFilmBehavior.advanceAnimationClock(1_000);
+assert.ok(
+  Number(livePauseRecoveryFilmBehavior.scrubber.value) > exhaustedRecoveryProgress,
+  "the live visual should keep progressing after soundtrack recovery is exhausted",
+);
+
+const failedLivePauseRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
+  playOutcomes: ["success", "abort"],
+});
+failedLivePauseRecoveryFilmBehavior.setInView(true);
+await failedLivePauseRecoveryFilmBehavior.settlePlayback();
+failedLivePauseRecoveryFilmBehavior.dispatchReady();
+failedLivePauseRecoveryFilmBehavior.video.paused = true;
+failedLivePauseRecoveryFilmBehavior.video.dispatch("pause");
+assert.equal(failedLivePauseRecoveryFilmBehavior.video.playCalls, 2);
+assert.equal(
+  failedLivePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "recovering",
+);
+await failedLivePauseRecoveryFilmBehavior.settlePlayback();
+assert.equal(failedLivePauseRecoveryFilmBehavior.video.paused, true);
+assert.equal(failedLivePauseRecoveryFilmBehavior.video.muted, true);
+assert.equal(
+  failedLivePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "gesture-required",
+  "a rejected recovery attempt should preserve visual playback and offer sound reattachment",
+);
+assert.equal(
+  failedLivePauseRecoveryFilmBehavior.muteButton.getAttribute("aria-label"),
+  "Unmute music",
+);
+
+const delayedLivePauseRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
+  playOutcomes: ["success", "defer"],
+});
+delayedLivePauseRecoveryFilmBehavior.setInView(true);
+await delayedLivePauseRecoveryFilmBehavior.settlePlayback();
+delayedLivePauseRecoveryFilmBehavior.dispatchReady();
+delayedLivePauseRecoveryFilmBehavior.video.paused = true;
+delayedLivePauseRecoveryFilmBehavior.video.dispatch("pause");
+const delayedRecoveryStartProgress = Number(delayedLivePauseRecoveryFilmBehavior.scrubber.value);
+assert.equal(delayedLivePauseRecoveryFilmBehavior.playButton.getAttribute("aria-label"), "Pause demo");
+delayedLivePauseRecoveryFilmBehavior.advanceAnimationClock(500);
+const delayedRecoveryProgress = Number(delayedLivePauseRecoveryFilmBehavior.scrubber.value);
+assert.ok(
+  delayedRecoveryProgress > delayedRecoveryStartProgress,
+  "the independent clock should advance while a live soundtrack recovery is pending",
+);
+delayedLivePauseRecoveryFilmBehavior.resolveFirstPlay();
+await delayedLivePauseRecoveryFilmBehavior.settlePlayback();
+assert.equal(delayedLivePauseRecoveryFilmBehavior.video.paused, false);
+assert.equal(
+  delayedLivePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "available",
+);
+assert.ok(
+  Math.abs(
+    delayedLivePauseRecoveryFilmBehavior.video.currentTime -
+      (delayedRecoveryProgress / 100) * delayedLivePauseRecoveryFilmBehavior.video.duration,
+  ) < 0.25,
+  "a delayed recovery should adopt the advancing visual playhead instead of resuming stale time",
+);
+assert.equal(
+  delayedLivePauseRecoveryFilmBehavior.runNextTimeout(),
+  false,
+  "successful recovery should cancel its deadline",
+);
+
+const timedOutLivePauseRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
+  playOutcomes: ["success", "defer"],
+});
+timedOutLivePauseRecoveryFilmBehavior.setInView(true);
+await timedOutLivePauseRecoveryFilmBehavior.settlePlayback();
+timedOutLivePauseRecoveryFilmBehavior.dispatchReady();
+timedOutLivePauseRecoveryFilmBehavior.video.paused = true;
+timedOutLivePauseRecoveryFilmBehavior.video.dispatch("pause");
+const timedOutRecoveryStartProgress = Number(timedOutLivePauseRecoveryFilmBehavior.scrubber.value);
+timedOutLivePauseRecoveryFilmBehavior.advanceAnimationClock(500);
+assert.ok(
+  Number(timedOutLivePauseRecoveryFilmBehavior.scrubber.value) > timedOutRecoveryStartProgress,
+);
+assert.equal(timedOutLivePauseRecoveryFilmBehavior.runNextTimeout(), true);
+assert.equal(timedOutLivePauseRecoveryFilmBehavior.video.paused, true);
+assert.equal(timedOutLivePauseRecoveryFilmBehavior.video.muted, true);
+assert.equal(
+  timedOutLivePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "gesture-required",
+  "an unresolved recovery should expire into the explicit silent fallback",
+);
+timedOutLivePauseRecoveryFilmBehavior.resolveFirstPlay();
+await timedOutLivePauseRecoveryFilmBehavior.settlePlayback();
+assert.equal(
+  timedOutLivePauseRecoveryFilmBehavior.video.paused,
+  true,
+  "a play promise settling after the recovery deadline must not reclaim the media clock",
+);
+assert.equal(
+  timedOutLivePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "gesture-required",
+);
+const timedOutLateSettlementProgress = Number(
+  timedOutLivePauseRecoveryFilmBehavior.scrubber.value,
+);
+timedOutLivePauseRecoveryFilmBehavior.advanceAnimationClock(500);
+assert.ok(
+  Number(timedOutLivePauseRecoveryFilmBehavior.scrubber.value) >
+    timedOutLateSettlementProgress,
+  "a stale late settlement must leave the independent visual clock advancing",
+);
+
+const userPausedLiveRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
+  playOutcomes: ["success", "pending"],
+});
+userPausedLiveRecoveryFilmBehavior.setInView(true);
+await userPausedLiveRecoveryFilmBehavior.settlePlayback();
+userPausedLiveRecoveryFilmBehavior.dispatchReady();
+userPausedLiveRecoveryFilmBehavior.video.paused = true;
+userPausedLiveRecoveryFilmBehavior.video.dispatch("pause");
+assert.equal(userPausedLiveRecoveryFilmBehavior.playButton.getAttribute("aria-label"), "Pause demo");
+userPausedLiveRecoveryFilmBehavior.advanceAnimationClock(500);
+userPausedLiveRecoveryFilmBehavior.playButton.dispatch("click");
+assert.equal(userPausedLiveRecoveryFilmBehavior.playButton.getAttribute("aria-label"), "Play demo");
+const userPausedRecoveryProgress = userPausedLiveRecoveryFilmBehavior.scrubber.value;
+userPausedLiveRecoveryFilmBehavior.advanceAnimationClock(500);
+assert.equal(
+  userPausedLiveRecoveryFilmBehavior.scrubber.value,
+  userPausedRecoveryProgress,
+  "a user pause during recovery must stop the independent visual clock",
+);
+assert.equal(userPausedLiveRecoveryFilmBehavior.runNextTimeout(), true);
+assert.equal(userPausedLiveRecoveryFilmBehavior.video.paused, true);
+assert.equal(userPausedLiveRecoveryFilmBehavior.video.muted, true);
+
+const userMutedPauseRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
+userMutedPauseRecoveryFilmBehavior.setInView(true);
+await userMutedPauseRecoveryFilmBehavior.settlePlayback();
+userMutedPauseRecoveryFilmBehavior.dispatchReady();
+userMutedPauseRecoveryFilmBehavior.muteButton.dispatch("click");
+assert.equal(userMutedPauseRecoveryFilmBehavior.video.muted, true);
+assert.equal(
+  userMutedPauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "available",
+);
+userMutedPauseRecoveryFilmBehavior.video.paused = true;
+userMutedPauseRecoveryFilmBehavior.video.dispatch("pause");
+await userMutedPauseRecoveryFilmBehavior.settlePlayback();
+assert.equal(userMutedPauseRecoveryFilmBehavior.video.paused, false);
+assert.equal(userMutedPauseRecoveryFilmBehavior.video.muted, true);
+assert.equal(
+  userMutedPauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "available",
+  "recovering intentionally muted playback must not be mislabeled as policy-blocked audio",
+);
+
 const blockedAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
   blockFirstAudiblePlay: true,
 });
@@ -2106,6 +2309,33 @@ assert.equal(
   fullyBlockedAutoplayFilmBehavior.muteButton.disabled,
   false,
   "an autoplay policy rejection must not make music permanently unavailable to a later user gesture",
+);
+
+const pausedBlockedUnmuteFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
+  playOutcomes: ["not-allowed", "not-allowed"],
+});
+pausedBlockedUnmuteFilmBehavior.setInView(true);
+await pausedBlockedUnmuteFilmBehavior.settlePlayback();
+pausedBlockedUnmuteFilmBehavior.dispatchReady();
+await pausedBlockedUnmuteFilmBehavior.settlePlayback();
+pausedBlockedUnmuteFilmBehavior.playButton.dispatch("click");
+assert.equal(pausedBlockedUnmuteFilmBehavior.playButton.getAttribute("aria-label"), "Play demo");
+const pausedBlockedPlayCalls = pausedBlockedUnmuteFilmBehavior.video.playCalls;
+assert.equal(
+  pausedBlockedUnmuteFilmBehavior.player.getAttribute("data-film-autoplay-status"),
+  "blocked",
+);
+pausedBlockedUnmuteFilmBehavior.muteButton.dispatch("click");
+assert.equal(pausedBlockedUnmuteFilmBehavior.video.muted, false);
+assert.equal(pausedBlockedUnmuteFilmBehavior.video.playCalls, pausedBlockedPlayCalls);
+assert.equal(
+  pausedBlockedUnmuteFilmBehavior.player.getAttribute("data-film-autoplay-status"),
+  "blocked",
+  "unmuting an intentionally paused visual must not claim that playback started",
+);
+assert.equal(
+  pausedBlockedUnmuteFilmBehavior.player.getAttribute("data-film-audio-status"),
+  "available",
 );
 
 const initialSilentProgress = Number(fullyBlockedAutoplayFilmBehavior.scrubber.value);
@@ -5080,7 +5310,7 @@ assert.notDeepEqual(
   "the dark recording must contain independently rendered dark-theme pixels",
 );
 
-function decodedAudioRmsDb(mediaUrl, startSeconds, durationSeconds) {
+function decodedAudioPcm(mediaUrl, startSeconds, durationSeconds) {
   const result = spawnSync(
     "ffmpeg",
     [
@@ -5099,17 +5329,46 @@ function decodedAudioRmsDb(mediaUrl, startSeconds, durationSeconds) {
   assert.equal(
     result.status,
     0,
-    `ffmpeg should decode the homepage soundtrack handoff: ${result.stderr?.toString("utf8") ?? result.error?.message ?? "unknown error"}`,
+    `ffmpeg should decode the homepage soundtrack: ${result.stderr?.toString("utf8") ?? result.error?.message ?? "unknown error"}`,
   );
-  assert.ok(result.stdout.length >= 48000, "the soundtrack handoff window should contain decoded PCM audio");
+  assert.ok(result.stdout.length > 0, "the soundtrack window should contain decoded PCM audio");
+  return result.stdout;
+}
+
+function pcmRmsDb(pcm) {
   let squareSum = 0;
   let sampleCount = 0;
-  for (let offset = 0; offset + 1 < result.stdout.length; offset += 2) {
-    const normalizedSample = result.stdout.readInt16LE(offset) / 32768;
+  for (let offset = 0; offset + 1 < pcm.length; offset += 2) {
+    const normalizedSample = pcm.readInt16LE(offset) / 32768;
     squareSum += normalizedSample * normalizedSample;
     sampleCount += 1;
   }
   return 20 * Math.log10(Math.sqrt(squareSum / sampleCount));
+}
+
+function decodedAudioRmsDb(mediaUrl, startSeconds, durationSeconds) {
+  return pcmRmsDb(decodedAudioPcm(mediaUrl, startSeconds, durationSeconds));
+}
+
+function decodedAudioRmsWindowsDb(
+  mediaUrl,
+  { startSeconds, windowSeconds, hopSeconds, count },
+) {
+  const sampleRate = 48_000;
+  const bytesPerFrame = 4;
+  const durationSeconds = windowSeconds + (count - 1) * hopSeconds;
+  const pcm = decodedAudioPcm(mediaUrl, startSeconds, durationSeconds);
+  const windowFrames = Math.round(windowSeconds * sampleRate);
+  return Array.from({ length: count }, (_, index) => {
+    const startFrame = Math.round(index * hopSeconds * sampleRate);
+    const startByte = startFrame * bytesPerFrame;
+    const endByte = (startFrame + windowFrames) * bytesPerFrame;
+    assert.ok(
+      pcm.length >= endByte,
+      `decoded soundtrack should contain complete ${(windowSeconds * 1000).toFixed(0)}ms analysis windows`,
+    );
+    return pcmRmsDb(pcm.subarray(startByte, endByte));
+  });
 }
 
 function encodedAudioSha256(mediaUrl) {
@@ -5134,26 +5393,85 @@ function encodedAudioSha256(mediaUrl) {
   return result.stdout.trim();
 }
 
-const lightHandoffRmsDb = decodedAudioRmsDb(
-  new URL("../site/assets/releases/judgmentkit-select-field-agent-demo.mp4", import.meta.url),
-  5.6,
-  0.7,
-);
-const darkHandoffRmsDb = decodedAudioRmsDb(
-  new URL("../site/assets/releases/judgmentkit-select-field-agent-demo-dark.mp4", import.meta.url),
-  5.6,
-  0.7,
-);
-for (const [theme, rmsDb] of [["light", lightHandoffRmsDb], ["dark", darkHandoffRmsDb]]) {
+function decodedAudioLoudness(mediaUrl) {
+  const result = spawnSync(
+    "ffmpeg",
+    [
+      "-hide_banner",
+      "-i", mediaUrl.pathname,
+      "-map", "0:a:0",
+      "-af", "loudnorm=print_format=json",
+      "-f", "null",
+      "-",
+    ],
+    { encoding: "utf8", maxBuffer: 4 * 1024 * 1024 },
+  );
+  assert.equal(
+    result.status,
+    0,
+    `ffmpeg should measure homepage soundtrack loudness: ${result.stderr ?? result.error?.message ?? "unknown error"}`,
+  );
+  const reportMatch = result.stderr.match(/\{\s*"input_i"[\s\S]*?\}/);
+  assert.ok(reportMatch, "ffmpeg should return a loudnorm input report");
+  const report = JSON.parse(reportMatch[0]);
+  return {
+    integratedLufs: Number(report.input_i),
+    truePeakDbtp: Number(report.input_tp),
+  };
+}
+
+const homepageSoundtrackUrls = new Map([
+  [
+    "light",
+    new URL("../site/assets/releases/judgmentkit-select-field-agent-demo.mp4", import.meta.url),
+  ],
+  [
+    "dark",
+    new URL("../site/assets/releases/judgmentkit-select-field-agent-demo-dark.mp4", import.meta.url),
+  ],
+]);
+for (const [theme, mediaUrl] of homepageSoundtrackUrls) {
+  const leftAdjacentRmsDb = decodedAudioRmsDb(mediaUrl, 5.2, 0.3);
+  const rightAdjacentRmsDb = decodedAudioRmsDb(mediaUrl, 6.4, 0.3);
+  const quieterAdjacentRmsDb = Math.min(leftAdjacentRmsDb, rightAdjacentRmsDb);
+  const louderAdjacentRmsDb = Math.max(leftAdjacentRmsDb, rightAdjacentRmsDb);
+  const handoff100msRmsDb = decodedAudioRmsWindowsDb(mediaUrl, {
+    startSeconds: 5.5,
+    windowSeconds: 0.1,
+    hopSeconds: 0.05,
+    count: 17,
+  });
+  const handoff200msRmsDb = decodedAudioRmsWindowsDb(mediaUrl, {
+    startSeconds: 5.5,
+    windowSeconds: 0.2,
+    hopSeconds: 0.1,
+    count: 8,
+  });
+  const quietest100msRmsDb = Math.min(...handoff100msRmsDb);
+  const quietest200msRmsDb = Math.min(...handoff200msRmsDb);
+  const loudest100msRmsDb = Math.max(...handoff100msRmsDb);
   assert.ok(
-    rmsDb >= -24,
-    `${theme} soundtrack should maintain an audible bed through the 5.6–6.3s agent handoff; measured ${rmsDb.toFixed(2)} dBFS`,
+    quieterAdjacentRmsDb - quietest100msRmsDb <= 2.5,
+    `${theme} soundtrack must not contain a 100ms dropout through the 5.5–6.4s handoff; adjacent ${quieterAdjacentRmsDb.toFixed(2)} dBFS, quietest window ${quietest100msRmsDb.toFixed(2)} dBFS`,
+  );
+  assert.ok(
+    quieterAdjacentRmsDb - quietest200msRmsDb <= 2,
+    `${theme} soundtrack must not contain a sustained 200ms dip through the 5.5–6.4s handoff; adjacent ${quieterAdjacentRmsDb.toFixed(2)} dBFS, quietest window ${quietest200msRmsDb.toFixed(2)} dBFS`,
+  );
+  assert.ok(
+    loudest100msRmsDb - louderAdjacentRmsDb <= 1,
+    `${theme} soundtrack repair must not create an audible handoff bump; adjacent ${louderAdjacentRmsDb.toFixed(2)} dBFS, loudest window ${loudest100msRmsDb.toFixed(2)} dBFS`,
+  );
+  const { integratedLufs, truePeakDbtp } = decodedAudioLoudness(mediaUrl);
+  assert.ok(
+    integratedLufs >= -18.5 && integratedLufs <= -15,
+    `${theme} soundtrack should remain in the approved integrated loudness range; measured ${integratedLufs.toFixed(2)} LUFS`,
+  );
+  assert.ok(
+    truePeakDbtp <= -1,
+    `${theme} soundtrack should retain true-peak headroom; measured ${truePeakDbtp.toFixed(2)} dBTP`,
   );
 }
-assert.ok(
-  Math.abs(lightHandoffRmsDb - darkHandoffRmsDb) <= 0.1,
-  "light and dark films should preserve the same soundtrack handoff level",
-);
 assert.equal(
   encodedAudioSha256(
     new URL("../site/assets/releases/judgmentkit-select-field-agent-demo.mp4", import.meta.url),

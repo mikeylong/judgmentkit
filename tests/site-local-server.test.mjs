@@ -616,7 +616,7 @@ try {
     assert.doesNotMatch(
       clockCss,
       /(?:clip-path|opacity|visibility|display)\s*:/,
-      "served Safari playback must keep the video clock rendered onscreen",
+      "served soundtrack transport should remain rendered behind the live stage",
     );
   });
 
