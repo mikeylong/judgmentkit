@@ -52,8 +52,6 @@ const VISUAL_COMPOSITION_POSTER_PATH =
   `/assets/releases/${VISUAL_COMPOSITION_POSTER_FILENAME}`;
 const VISUAL_COMPOSITION_DARK_POSTER_PATH =
   `/assets/releases/${VISUAL_COMPOSITION_DARK_POSTER_FILENAME}`;
-const VISUAL_COMPOSITION_LIVE_DEMO_PATH =
-  `/assets/releases/${VISUAL_COMPOSITION_LIVE_DEMO_FILENAME}`;
 const DESIGN_SYSTEM_SPECIMEN_RENDERER = {
   id: "judgmentkit-static-specimens",
   version: "0.1.0",
@@ -1512,7 +1510,6 @@ h2 {
   background: transparent;
   box-shadow: none;
 }
-.homepage-film-stage,
 .homepage-film-source-media {
   display: block;
   width: 100%;
@@ -1522,42 +1519,6 @@ h2 {
   border-radius: 0;
   background: var(--ink);
   box-shadow: none;
-}
-.homepage-film-stage {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-}
-.homepage-film-stage[hidden] {
-  display: none;
-}
-.homepage-film-live-scale {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1440px;
-  height: 900px;
-  transform: scale(var(--homepage-film-scale, 1));
-  transform-origin: 0 0;
-}
-.homepage-film-live {
-  display: block;
-  width: 1440px;
-  height: 900px;
-  border: 0;
-  background: var(--ink);
-  pointer-events: none;
-}
-.homepage-film-source-media--soundtrack {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
 }
 .homepage-film-controls[hidden] {
   display: none;
@@ -4629,7 +4590,6 @@ pre {
 @media (prefers-contrast: more) {
   .homepage-hero-art,
   .hero-action,
-  .homepage-film-stage,
   .homepage-film-source-media {
     border-width: 2px;
     border-color: var(--ink);
@@ -4671,7 +4631,6 @@ pre {
   }
   .homepage-hero-art,
   .hero-action,
-  .homepage-film-stage,
   .homepage-film-source-media {
     border-color: CanvasText;
     box-shadow: none;
@@ -4758,51 +4717,27 @@ function homepage() {
             class="homepage-film-frame"
             data-homepage-film-player
             data-film-renderer="video"
-            data-film-live-status="loading"
-            data-film-autoplay-status="pending"
-            data-film-audio-status="pending"
             data-film-source-light="${VISUAL_COMPOSITION_RECORDING_PATH}"
             data-film-source-dark="${VISUAL_COMPOSITION_DARK_RECORDING_PATH}"
             data-film-poster-light="${VISUAL_COMPOSITION_POSTER_PATH}"
             data-film-poster-dark="${VISUAL_COMPOSITION_DARK_POSTER_PATH}"
-            data-film-live-src="${VISUAL_COMPOSITION_LIVE_DEMO_PATH}"
           >
-            <div
-              id="homepage-film-stage"
-              class="homepage-film-stage"
-              hidden
-              data-homepage-film-stage
-            >
-              <div class="homepage-film-live-scale" data-homepage-film-live-scale>
-                <iframe
-                  class="homepage-film-live"
-                  title="Live JudgmentKit UI generation, diagnosis, and measured repair"
-                  sandbox="allow-scripts"
-                  tabindex="-1"
-                  aria-hidden="true"
-                  src="about:blank"
-                  data-homepage-film-live
-                ></iframe>
-              </div>
-              <span class="sr-only">A live visual replay shows an agent generating a UI, JudgmentKit identifying two composition defects, and the agent applying a measured repair.</span>
-            </div>
             <video
-              class="homepage-film-source-media homepage-film-fallback"
+              id="homepage-film-media"
+              class="homepage-film-source-media"
               controls
-              autoplay
               loop
               playsinline
               preload="auto"
               poster="${VISUAL_COMPOSITION_POSTER_PATH}"
               aria-label="JudgmentKit UI generation, diagnosis, and measured repair"
               data-homepage-film-media
-              data-homepage-film-fallback
             >
               <source src="${VISUAL_COMPOSITION_RECORDING_PATH}" type="video/mp4" data-homepage-film-source>
               Your browser cannot play this video. <a href="${VISUAL_COMPOSITION_RECORDING_PATH}">Download the demo video</a>.
             </video>
             <div class="homepage-film-controls" role="group" aria-label="Video controls" hidden data-homepage-film-controls>
-              <button class="homepage-film-control-button" type="button" aria-label="Play demo" aria-controls="homepage-film-stage" data-film-action="play" data-homepage-film-play>
+              <button class="homepage-film-control-button" type="button" aria-label="Play video" aria-controls="homepage-film-media" data-film-action="play" data-homepage-film-play>
                 ${renderHomepageFilmControlIcon("play", "data-homepage-film-play-icon")}
                 ${renderHomepageFilmControlIcon("pause", "data-homepage-film-pause-icon", true)}
               </button>
@@ -4815,12 +4750,12 @@ function homepage() {
                 value="0"
                 aria-label="Video progress"
                 aria-valuetext="0 percent played"
-                aria-controls="homepage-film-stage"
+                aria-controls="homepage-film-media"
                 disabled
                 data-film-scrubber
                 data-homepage-film-scrubber
               >
-              <button class="homepage-film-control-button" type="button" aria-label="Mute music" aria-controls="homepage-film-stage" data-film-action="mute" data-homepage-film-mute>
+              <button class="homepage-film-control-button" type="button" aria-label="Mute video" aria-controls="homepage-film-media" data-film-action="mute" data-homepage-film-mute>
                 ${renderHomepageFilmControlIcon("volume-2", "data-homepage-film-sound-icon")}
                 ${renderHomepageFilmControlIcon("volume-x", "data-homepage-film-muted-icon", true)}
               </button>
@@ -4954,9 +4889,6 @@ function homepage() {
         const player = document.querySelector("[data-homepage-film-player]");
         if (!player) return;
 
-        const stage = player.querySelector("[data-homepage-film-stage]");
-        const liveScale = player.querySelector("[data-homepage-film-live-scale]");
-        const liveFrame = player.querySelector("[data-homepage-film-live]");
         const video = player.querySelector("[data-homepage-film-media]");
         const source = player.querySelector("[data-homepage-film-source]");
         const controls = player.querySelector("[data-homepage-film-controls]");
@@ -4968,42 +4900,9 @@ function homepage() {
         const soundIcon = player.querySelector("[data-homepage-film-sound-icon]");
         const mutedIcon = player.querySelector("[data-homepage-film-muted-icon]");
 
-        if (!stage || !liveScale || !liveFrame || !video || !source || !controls || !playButton || !playIcon || !pauseIcon || !scrubber || !muteButton || !soundIcon || !mutedIcon) return;
+        if (!video || !source || !controls || !playButton || !playIcon || !pauseIcon || !scrubber || !muteButton || !soundIcon || !mutedIcon) return;
 
-        const MESSAGE_CHANNEL = "judgmentkit-visual-composition-v1";
-        const MESSAGE_VERSION = 1;
-        const LIVE_WIDTH = 1440;
-        const LIVE_HEIGHT = 900;
-        const LIVE_DURATION_MS = 38200;
-        const SOUNDTRACK_RECOVERY_TIMEOUT_MS = 1000;
-        const instanceId = typeof window.crypto?.randomUUID === "function"
-          ? window.crypto.randomUUID()
-          : "homepage-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2);
-        const liveAsset = player.dataset.filmLiveSrc || "";
-        let soundtrackFailed = false;
-        let silentClockActive = false;
-        let silentClockPlaying = false;
-        let silentClockPositionMs = 0;
-        let silentClockStartedAt = 0;
-        let silentClockFrame = null;
-
-        const clockNow = () => window.performance?.now?.() ?? Date.now();
-        const silentClockTimeMs = () => silentClockPlaying
-          ? Math.min(LIVE_DURATION_MS, silentClockPositionMs + clockNow() - silentClockStartedAt)
-          : silentClockPositionMs;
-        const playbackDurationSeconds = () => silentClockActive
-          ? LIVE_DURATION_MS / 1000
-          : video.duration;
-        const playbackCurrentTimeSeconds = () => silentClockActive
-          ? silentClockTimeMs() / 1000
-          : video.currentTime;
-        const playbackIsPlaying = () => silentClockActive
-          ? silentClockPlaying
-          : !video.paused && !video.ended;
-        const hasDuration = () => {
-          const duration = playbackDurationSeconds();
-          return Number.isFinite(duration) && duration > 0;
-        };
+        const hasDuration = () => Number.isFinite(video.duration) && video.duration > 0;
         const setIconHidden = (icon, hidden) => {
           if (hidden) {
             icon.setAttribute("hidden", "");
@@ -5012,15 +4911,15 @@ function homepage() {
           }
         };
         const updatePlayState = () => {
-          const isPlaying = playbackIsPlaying();
+          const isPlaying = !video.paused && !video.ended;
           const action = isPlaying ? "Pause" : "Play";
-          playButton.setAttribute("aria-label", action + " demo");
+          playButton.setAttribute("aria-label", action + " video");
           setIconHidden(playIcon, isPlaying);
           setIconHidden(pauseIcon, !isPlaying);
         };
         const updateProgress = () => {
           const progress = hasDuration()
-            ? Math.min(100, Math.max(0, (playbackCurrentTimeSeconds() / playbackDurationSeconds()) * 100))
+            ? Math.min(100, Math.max(0, (video.currentTime / video.duration) * 100))
             : 0;
           scrubber.disabled = !hasDuration();
           scrubber.value = String(progress);
@@ -5028,9 +4927,9 @@ function homepage() {
           scrubber.setAttribute("aria-valuetext", Math.round(progress) + " percent played");
         };
         const updateMuteState = () => {
-          const isMuted = soundtrackFailed || video.muted || video.volume === 0;
+          const isMuted = video.muted || video.volume === 0;
           const action = isMuted ? "Unmute" : "Mute";
-          muteButton.setAttribute("aria-label", action + " music");
+          muteButton.setAttribute("aria-label", action + " video");
           setIconHidden(soundIcon, isMuted);
           setIconHidden(mutedIcon, !isMuted);
         };
@@ -5042,6 +4941,7 @@ function homepage() {
             return value;
           }
         };
+
         const lightSource = player.dataset.filmSourceLight || source.getAttribute("src") || "";
         const lightPoster = player.dataset.filmPosterLight || video.getAttribute("poster") || "";
         const darkSourceCandidate = player.dataset.filmSourceDark || "";
@@ -5056,391 +4956,88 @@ function homepage() {
         );
         const hasThemeVariant = hasDarkSource || hasDarkPoster;
         let sourceSwapToken = 0;
-        let activeTheme = "light";
-        let liveReady = false;
-        let liveActive = false;
-        let liveFailed = false;
-        let soundtrackErrorBeforeReady = false;
-        let handshakeTimer = null;
-        let scaleObserver = null;
-        let visibilityObserver = null;
-        let userPaused = false;
+        let sourceSwapPending = false;
+        let pendingSourceTimeSeconds = null;
+        let playbackRequestToken = 0;
+        let playbackRequestPending = false;
+        let userPaused = true;
         let pausedForVisibility = false;
-        let autoplayAttempted = false;
-        let isInView = typeof window.IntersectionObserver !== "function";
-        let playbackAttemptToken = 0;
-        let pendingPlaybackAttemptToken = null;
-        let policyMutedFallback = false;
-        let autoplayVisualFallbackPending = false;
-        let userMuted = false;
-        let nativePlaybackInteractionAt = Number.NEGATIVE_INFINITY;
-        let previousVideoTimeSeconds = 0;
-        let loopResetPending = false;
-        let unexpectedPauseRecoveryAttempted = false;
-        let discardUnownedPlayback = false;
 
-        const setAutoplayStatus = (status) => {
-          player.setAttribute("data-film-autoplay-status", status);
+        const cancelPlaybackRequest = () => {
+          playbackRequestToken += 1;
+          playbackRequestPending = false;
         };
-        const markNativePlaybackInteraction = () => {
-          if (!liveActive && !liveFailed && video.controls) {
-            nativePlaybackInteractionAt = clockNow();
-          }
-        };
-        const hasRecentNativePlaybackInteraction = () =>
-          clockNow() - nativePlaybackInteractionAt <= 1000;
-        const clearNativePlaybackInteraction = () => {
-          nativePlaybackInteractionAt = Number.NEGATIVE_INFINITY;
-        };
-        const cancelPlaybackAttempt = () => {
-          playbackAttemptToken += 1;
-          pendingPlaybackAttemptToken = null;
-        };
-        const restorePolicyAudioState = () => {
-          if (!silentClockActive || soundtrackFailed) return;
-          policyMutedFallback = true;
-          video.muted = true;
-          setAutoplayStatus("blocked");
-          player.setAttribute("data-film-audio-status", "gesture-required");
-          muteButton.disabled = false;
-          updateMuteState();
-        };
-        const attemptVideoPlayback = ({
-          allowMutedFallback = false,
-          preferAudible = false,
-          timeoutMs = 0,
-        } = {}) => {
-          if (soundtrackFailed) return;
-          const attemptToken = ++playbackAttemptToken;
-          let playbackTimeout = null;
-          discardUnownedPlayback = false;
-          const clearPendingPlaybackAttempt = () => {
-            if (pendingPlaybackAttemptToken === attemptToken) {
-              pendingPlaybackAttemptToken = null;
-            }
-          };
-          const clearPlaybackTimeout = () => {
-            if (playbackTimeout !== null) window.clearTimeout(playbackTimeout);
-            playbackTimeout = null;
-          };
-          autoplayAttempted = true;
-          if (silentClockActive) {
-            try {
-              video.currentTime = silentClockTimeMs() / 1000;
-            } catch {
-              // The live visual clock remains authoritative until media can seek.
-            }
-          }
-          if (preferAudible && !userMuted && !policyMutedFallback) {
-            video.muted = false;
-          }
-          updateMuteState();
-
-          const handlePlaybackFailure = () => {
-            clearPlaybackTimeout();
-            if (attemptToken !== playbackAttemptToken) return;
-            if (!isInView || userPaused || pausedForVisibility) {
-              restorePolicyAudioState();
-              updatePlayState();
-              return;
-            }
-            autoplayVisualFallbackPending = true;
-            policyMutedFallback = true;
-            video.muted = true;
-            setAutoplayStatus("blocked");
-            player.setAttribute("data-film-audio-status", "gesture-required");
-            updateMuteState();
-            if (liveActive) {
-              autoplayVisualFallbackPending = false;
-              enterSilentLiveMode({ playing: true, audioUnavailable: false });
-            } else {
-              updatePlayState();
-            }
-          };
-          const schedulePlaybackTimeout = () => {
-            if (!(timeoutMs > 0)) return;
-            clearPlaybackTimeout();
-            playbackTimeout = window.setTimeout(() => {
-              playbackTimeout = null;
-              if (attemptToken !== playbackAttemptToken) return;
-              clearPendingPlaybackAttempt();
-              discardUnownedPlayback = true;
-              handlePlaybackFailure();
-            }, timeoutMs);
-          };
-
-          const attemptMutedPlayback = () => {
-            policyMutedFallback = true;
-            video.muted = true;
-            setAutoplayStatus("blocked");
-            player.setAttribute("data-film-audio-status", "gesture-required");
-            updateMuteState();
-            let mutedRequest;
-            try {
-              mutedRequest = video.play();
-            } catch {
-              handlePlaybackFailure();
-              return;
-            }
-            if (!mutedRequest || typeof mutedRequest.then !== "function") return;
-            pendingPlaybackAttemptToken = attemptToken;
-            schedulePlaybackTimeout();
-            mutedRequest.then(() => {
-              clearPlaybackTimeout();
-              clearPendingPlaybackAttempt();
-              if (attemptToken !== playbackAttemptToken) {
-                if (silentClockActive && (!isInView || userPaused || pausedForVisibility)) {
-                  video.pause();
-                  restorePolicyAudioState();
-                }
-                return;
-              }
-              if (!isInView || userPaused) {
-                video.pause();
-                restorePolicyAudioState();
-                return;
-              }
-              if (silentClockActive) adoptVideoClock();
-              player.setAttribute(
-                "data-film-audio-status",
-                policyMutedFallback ? "gesture-required" : "available",
-              );
-              updatePlayState();
-              updateMuteState();
-            }).catch((error) => {
-              clearPlaybackTimeout();
-              clearPendingPlaybackAttempt();
-              handlePlaybackFailure(error);
-            });
-          };
-
+        const requestPlayback = () => {
+          const requestToken = ++playbackRequestToken;
           let request;
+
           try {
             request = video.play();
-          } catch (error) {
-            if (
-              error?.name === "NotAllowedError"
-              && allowMutedFallback
-              && isInView
-              && !userPaused
-              && !pausedForVisibility
-              && !userMuted
-            ) {
-              attemptMutedPlayback();
-            } else {
-              handlePlaybackFailure();
-            }
+          } catch {
+            if (requestToken !== playbackRequestToken) return;
+            userPaused = true;
+            updatePlayState();
             return;
           }
-          if (!request || typeof request.then !== "function") return;
 
-          pendingPlaybackAttemptToken = attemptToken;
-          schedulePlaybackTimeout();
-          request.then(() => {
-            clearPlaybackTimeout();
-            clearPendingPlaybackAttempt();
-            if (attemptToken !== playbackAttemptToken) {
-              if (silentClockActive && (!isInView || userPaused || pausedForVisibility)) {
-                video.pause();
-                restorePolicyAudioState();
-              }
-              return;
-            }
-            if (!isInView || userPaused) {
-              video.pause();
-              restorePolicyAudioState();
-              return;
-            }
-            if (silentClockActive) adoptVideoClock();
-            if (!policyMutedFallback) setAutoplayStatus("playing");
-            player.setAttribute(
-              "data-film-audio-status",
-              policyMutedFallback ? "gesture-required" : "available",
-            );
+          if (!request || typeof request.then !== "function") {
             updatePlayState();
-            updateMuteState();
-          }).catch((error) => {
-            clearPlaybackTimeout();
-            clearPendingPlaybackAttempt();
-            if (attemptToken !== playbackAttemptToken) return;
-            if (error?.name !== "NotAllowedError") {
-              handlePlaybackFailure();
+            return;
+          }
+          playbackRequestPending = true;
+          request.then(() => {
+            if (requestToken !== playbackRequestToken) {
+              if (sourceSwapPending || userPaused || pausedForVisibility) video.pause();
               return;
             }
-
-            setAutoplayStatus("blocked");
-            if (!allowMutedFallback || !isInView || userPaused || pausedForVisibility || userMuted) {
-              handlePlaybackFailure();
+            playbackRequestPending = false;
+            if (userPaused || pausedForVisibility) {
+              video.pause();
               return;
             }
-            attemptMutedPlayback();
+            updatePlayState();
+          }).catch(() => {
+            if (requestToken !== playbackRequestToken) return;
+            playbackRequestPending = false;
+            userPaused = true;
+            updatePlayState();
           });
         };
-
-        const postToLive = (type, payload = {}) => {
-          if (!liveFrame.contentWindow || liveFailed) return;
-          liveFrame.contentWindow.postMessage({
-            channel: MESSAGE_CHANNEL,
-            version: MESSAGE_VERSION,
-            instance: instanceId,
-            type,
-            payload,
-          }, "*");
-        };
-
-        const cancelSilentClockFrame = () => {
-          if (silentClockFrame !== null && typeof window.cancelAnimationFrame === "function") {
-            window.cancelAnimationFrame(silentClockFrame);
-          }
-          silentClockFrame = null;
-        };
-        const renderSilentClock = () => {
-          silentClockFrame = null;
-          if (!silentClockActive || !silentClockPlaying) return;
-          const timeMs = silentClockTimeMs();
-          if (timeMs >= LIVE_DURATION_MS) {
-            silentClockPositionMs = 0;
-            silentClockStartedAt = clockNow();
-            updateProgress();
-            updatePlayState();
-            postToLive("SYNC", { timeMs: 0, playing: true });
-            if (typeof window.requestAnimationFrame === "function") {
-              silentClockFrame = window.requestAnimationFrame(renderSilentClock);
-            }
-            return;
-          }
-          updateProgress();
-          if (typeof window.requestAnimationFrame === "function") {
-            silentClockFrame = window.requestAnimationFrame(renderSilentClock);
-          }
-        };
-        const setSilentClock = (timeMs, playing) => {
-          cancelSilentClockFrame();
-          silentClockPositionMs = Math.min(LIVE_DURATION_MS, Math.max(0, Number(timeMs) || 0));
-          silentClockPlaying = Boolean(playing) && silentClockPositionMs < LIVE_DURATION_MS;
-          silentClockStartedAt = clockNow();
-          updateProgress();
-          updatePlayState();
-          postToLive("SYNC", { timeMs: silentClockPositionMs, playing: silentClockPlaying });
-          if (silentClockPlaying && typeof window.requestAnimationFrame === "function") {
-            silentClockFrame = window.requestAnimationFrame(renderSilentClock);
-          }
-        };
-        const beginLiveSoundtrackRecovery = () => {
-          if (!liveActive || silentClockActive) return false;
-          const currentTimeMs = Number.isFinite(video.currentTime)
-            ? Math.min(LIVE_DURATION_MS, Math.max(0, video.currentTime * 1000))
-            : 0;
-          silentClockActive = true;
-          autoplayVisualFallbackPending = false;
-          setSilentClock(currentTimeMs, true);
-          return true;
-        };
-        const adoptVideoClock = () => {
-          if (!silentClockActive || soundtrackFailed) return false;
-          const targetTimeMs = silentClockTimeMs();
-          let mediaAligned = Number.isFinite(video.currentTime)
-            && Math.abs(video.currentTime * 1000 - targetTimeMs) <= 250;
-          try {
-            video.currentTime = targetTimeMs / 1000;
-            mediaAligned = Number.isFinite(video.currentTime)
-              && Math.abs(video.currentTime * 1000 - targetTimeMs) <= 250;
-          } catch {
-            // Keep the decoded media position when this browser cannot seek yet.
-          }
-          if (!mediaAligned) {
-            video.pause();
-            restorePolicyAudioState();
-            updatePlayState();
-            return false;
-          }
-          const currentTimeMs = Number.isFinite(video.currentTime)
-            ? Math.min(LIVE_DURATION_MS, Math.max(0, video.currentTime * 1000))
-            : targetTimeMs;
-          cancelSilentClockFrame();
-          silentClockPositionMs = currentTimeMs;
-          silentClockPlaying = false;
-          silentClockActive = false;
-          autoplayVisualFallbackPending = false;
-          player.setAttribute("data-film-audio-status", "available");
-          updateProgress();
-          updatePlayState();
-          updateMuteState();
-          postToLive("SYNC", { timeMs: currentTimeMs, playing: true });
-          return true;
-        };
-        const enterSilentLiveMode = ({ playing, audioUnavailable = true } = {}) => {
-          if (!liveActive) return false;
-          const currentTimeMs = silentClockActive
-            ? silentClockTimeMs()
-            : Number.isFinite(video.currentTime)
-              ? Math.min(LIVE_DURATION_MS, Math.max(0, video.currentTime * 1000))
-              : 0;
-          const wasPlaying = typeof playing === "boolean"
-            ? playing
-            : !userPaused
-              && !pausedForVisibility
-              && !video.ended
-              && (!video.paused || autoplayAttempted);
-          silentClockActive = true;
-          cancelPlaybackAttempt();
-          video.pause();
-          if (audioUnavailable) {
-            soundtrackFailed = true;
-            video.muted = true;
-            player.setAttribute("data-film-audio-status", "unavailable");
-            muteButton.disabled = true;
-            muteButton.setAttribute("aria-label", "Music unavailable");
-            setIconHidden(soundIcon, true);
-            setIconHidden(mutedIcon, false);
-          } else {
-            autoplayVisualFallbackPending = false;
-            restorePolicyAudioState();
-          }
-          setSilentClock(currentTimeMs, wasPlaying);
-          return true;
-        };
-
-        const updateLiveScale = () => {
-          const width = stage.getBoundingClientRect().width;
-          if (!(width > 0)) return;
-          const scale = width / LIVE_WIDTH;
-          liveScale.style.setProperty("--homepage-film-scale", String(scale));
-          player.style.setProperty("--homepage-film-scale", String(scale));
-        };
-
         const applyVideoSource = (nextSource, nextPoster) => {
           if (nextPoster) video.poster = nextPoster;
           if (!nextSource) return;
-          const sourceChanged = normalizeAssetUrl(source.getAttribute("src")) !== normalizeAssetUrl(nextSource);
+
+          const sourceChanged =
+            normalizeAssetUrl(source.getAttribute("src")) !== normalizeAssetUrl(nextSource);
           if (!sourceChanged) return;
 
-          const savedTime = Number.isFinite(video.currentTime) ? video.currentTime : 0;
-          const wasPlaying = !video.paused && !video.ended;
-          const wasMuted = video.muted;
+          const savedTime = sourceSwapPending && Number.isFinite(pendingSourceTimeSeconds)
+            ? pendingSourceTimeSeconds
+            : Number.isFinite(video.currentTime)
+              ? video.currentTime
+              : 0;
           const swapToken = ++sourceSwapToken;
 
-          cancelPlaybackAttempt();
-          const stateRestorePlaybackToken = playbackAttemptToken;
+          sourceSwapPending = true;
+          pendingSourceTimeSeconds = savedTime;
+          cancelPlaybackRequest();
           video.pause();
           source.setAttribute("src", nextSource);
           video.load();
 
           const restorePlaybackState = () => {
             if (swapToken !== sourceSwapToken) return;
-            if (hasDuration()) video.currentTime = Math.min(savedTime, video.duration);
-            if (stateRestorePlaybackToken !== playbackAttemptToken) {
-              updateProgress();
-              updatePlayState();
-              updateMuteState();
-              return;
-            }
+            sourceSwapPending = false;
+            const restoredTime = Number.isFinite(pendingSourceTimeSeconds)
+              ? pendingSourceTimeSeconds
+              : savedTime;
+            pendingSourceTimeSeconds = null;
+            if (hasDuration()) video.currentTime = Math.min(restoredTime, video.duration);
             updateProgress();
             updateMuteState();
-            if (wasPlaying) {
-              attemptVideoPlayback({
-                allowMutedFallback: !wasMuted && !userMuted,
-              });
+            if (!userPaused && !pausedForVisibility) {
+              if (video.paused && !playbackRequestPending) requestPlayback();
+              else updatePlayState();
             } else {
               updatePlayState();
             }
@@ -5452,384 +5049,99 @@ function homepage() {
             video.addEventListener("loadedmetadata", restorePlaybackState, { once: true });
           }
         };
-
-        const applyFilmTheme = (useDarkTheme, { forceFallback = false } = {}) => {
-          activeTheme = useDarkTheme ? "dark" : "light";
-
+        const applyFilmTheme = (useDarkTheme) => {
+          const theme = useDarkTheme ? "dark" : "light";
           const nextSource = useDarkTheme && hasDarkSource ? darkSourceCandidate : lightSource;
           const nextPoster = useDarkTheme && hasDarkPoster ? darkPosterCandidate : lightPoster;
-          player.setAttribute("data-film-theme", activeTheme);
-          if (liveReady) postToLive("SET_THEME", { theme: activeTheme });
-          if (!liveActive || forceFallback) applyVideoSource(nextSource, nextPoster);
-        };
 
-        const restoreNativeFallback = (reason = "error") => {
-          if (liveFailed) return;
-          liveFailed = true;
-          liveActive = false;
-          soundtrackErrorBeforeReady = false;
-          player.setAttribute("data-film-live-status", reason);
-          if (handshakeTimer !== null) window.clearTimeout(handshakeTimer);
-          handshakeTimer = null;
-          cancelSilentClockFrame();
-          silentClockActive = false;
-          silentClockPlaying = false;
-          autoplayVisualFallbackPending = false;
-          scaleObserver?.disconnect();
-          scaleObserver = null;
-          stage.hidden = true;
-          video.classList.remove("homepage-film-source-media--soundtrack");
-          video.removeAttribute("aria-hidden");
-          video.removeAttribute("tabindex");
-          video.controls = true;
+          player.setAttribute("data-film-theme", theme);
+          applyVideoSource(nextSource, nextPoster);
+        };
+        const restoreNativeControls = () => {
           controls.hidden = true;
-          muteButton.disabled = false;
-          player.setAttribute("data-film-renderer", "video");
+          video.controls = true;
           player.removeAttribute("data-homepage-film-ready");
-          applyFilmTheme(activeTheme === "dark", { forceFallback: true });
-        };
-
-        const activateLive = () => {
-          if (liveActive || liveFailed) return;
-          liveActive = true;
-          stage.hidden = false;
-          video.classList.add("homepage-film-source-media--soundtrack");
-          video.setAttribute("aria-hidden", "true");
-          video.setAttribute("tabindex", "-1");
-          video.controls = false;
-          controls.hidden = false;
-          player.setAttribute("data-film-renderer", "live");
-          player.setAttribute("data-homepage-film-ready", "true");
-          updateLiveScale();
-          if (typeof window.ResizeObserver === "function") {
-            scaleObserver = new window.ResizeObserver(updateLiveScale);
-            scaleObserver.observe(stage);
-          } else {
-            window.addEventListener("resize", updateLiveScale);
-          }
         };
 
         try {
-          video.addEventListener("pointerdown", markNativePlaybackInteraction);
-          video.addEventListener("touchstart", markNativePlaybackInteraction, { passive: true });
-          video.addEventListener("keydown", (event) => {
-            if ([" ", "Spacebar", "Enter", "k", "K", "MediaPlayPause"].includes(event.key)) {
-              markNativePlaybackInteraction();
-            }
-          });
           playButton.addEventListener("click", () => {
-            if (silentClockActive) {
-              const timeMs = silentClockTimeMs();
-              const restartTimeMs = !silentClockPlaying && timeMs >= LIVE_DURATION_MS - 0.5
-                ? 0
-                : timeMs;
-              const shouldPlay = !silentClockPlaying;
-              userPaused = !shouldPlay;
-              pausedForVisibility = false;
-              setSilentClock(restartTimeMs, shouldPlay);
-              if (!shouldPlay) {
-                cancelPlaybackAttempt();
-                video.pause();
-                restorePolicyAudioState();
-              }
-              if (shouldPlay && !soundtrackFailed && isInView) {
-                unexpectedPauseRecoveryAttempted = false;
-                player.setAttribute("data-film-audio-status", "recovering");
-                if (!userMuted) {
-                  policyMutedFallback = false;
-                  video.muted = false;
-                }
-                attemptVideoPlayback({ preferAudible: !userMuted });
-              }
-              return;
-            }
             if (video.paused || video.ended) {
               userPaused = false;
               pausedForVisibility = false;
-              unexpectedPauseRecoveryAttempted = false;
-              player.setAttribute("data-film-audio-status", "recovering");
               if (video.ended) video.currentTime = 0;
-              if (!userMuted) {
-                policyMutedFallback = false;
-                video.muted = false;
-              }
-              attemptVideoPlayback({ preferAudible: !userMuted });
+              requestPlayback();
             } else {
               userPaused = true;
-              cancelPlaybackAttempt();
+              cancelPlaybackRequest();
               video.pause();
             }
           });
           scrubber.addEventListener("input", () => {
             if (!hasDuration()) return;
-            const nextTimeSeconds = (Number(scrubber.value) / 100) * playbackDurationSeconds();
-            if (silentClockActive) {
-              setSilentClock(nextTimeSeconds * 1000, silentClockPlaying);
-              return;
-            }
-            video.currentTime = nextTimeSeconds;
+            video.currentTime = (Number(scrubber.value) / 100) * video.duration;
             updateProgress();
           });
           muteButton.addEventListener("click", () => {
-            if (soundtrackFailed) return;
             if (video.muted || video.volume === 0) {
-              userMuted = false;
-              policyMutedFallback = false;
-              unexpectedPauseRecoveryAttempted = false;
               video.muted = false;
               if (video.volume === 0) video.volume = 1;
-              if ((silentClockActive || video.paused) && !userPaused && isInView) {
-                player.setAttribute("data-film-audio-status", "recovering");
-                attemptVideoPlayback({ preferAudible: true });
-              } else {
-                player.setAttribute("data-film-audio-status", "available");
-                if (!video.paused) setAutoplayStatus("playing");
-              }
             } else {
-              userMuted = true;
-              policyMutedFallback = false;
               video.muted = true;
-              player.setAttribute("data-film-audio-status", "available");
             }
           });
 
-          video.addEventListener("play", () => {
-            if (!liveActive && video.controls && hasRecentNativePlaybackInteraction()) {
-              userPaused = false;
-              pausedForVisibility = false;
-              autoplayVisualFallbackPending = false;
-              clearNativePlaybackInteraction();
-            }
-            if (!isInView || userPaused || pausedForVisibility) {
-              video.pause();
-              if (silentClockActive) restorePolicyAudioState();
-              return;
-            }
-            if (silentClockActive) {
-              if (discardUnownedPlayback && pendingPlaybackAttemptToken === null) {
-                video.pause();
-                restorePolicyAudioState();
-              }
-              return;
-            }
-            if (!policyMutedFallback) setAutoplayStatus("playing");
-            updatePlayState();
-            if (liveReady) postToLive("PLAY", { timeMs: video.currentTime * 1000 });
-          });
-          video.addEventListener("pause", () => {
-            if (!video.paused) return;
-            if (
-              !liveActive
-              && !liveFailed
-              && video.controls
-              && isInView
-              && autoplayAttempted
-              && !pausedForVisibility
-              && hasRecentNativePlaybackInteraction()
-            ) {
-              userPaused = true;
-              clearNativePlaybackInteraction();
-              autoplayVisualFallbackPending = false;
-              cancelPlaybackAttempt();
-              updatePlayState();
-              return;
-            }
-            if (silentClockActive) return;
-            if (liveActive && isInView && !userPaused && !pausedForVisibility) {
-              if (!soundtrackFailed && !unexpectedPauseRecoveryAttempted) {
-                unexpectedPauseRecoveryAttempted = true;
-                player.setAttribute("data-film-audio-status", "recovering");
-                beginLiveSoundtrackRecovery();
-                attemptVideoPlayback({
-                  preferAudible: !userMuted,
-                  timeoutMs: SOUNDTRACK_RECOVERY_TIMEOUT_MS,
-                });
-                return;
-              }
-              enterSilentLiveMode({ playing: true, audioUnavailable: false });
-              return;
-            }
-            updatePlayState();
-            if (liveReady) postToLive("PAUSE", { timeMs: video.currentTime * 1000 });
-          });
-          video.addEventListener("ended", () => {
-            if (silentClockActive) return;
-            updatePlayState();
-            if (liveReady) postToLive("SEEK", { timeMs: video.currentTime * 1000 });
-          });
-          video.addEventListener("timeupdate", () => {
-            if (silentClockActive) return;
-            const currentTimeSeconds = Number.isFinite(video.currentTime) ? video.currentTime : 0;
-            const durationSeconds = hasDuration() ? playbackDurationSeconds() : 0;
-            const looped = durationSeconds > 0
-              && previousVideoTimeSeconds >= durationSeconds - 1
-              && currentTimeSeconds <= 1
-              && currentTimeSeconds < previousVideoTimeSeconds;
-            if (looped) {
-              loopResetPending = true;
-            } else if (loopResetPending && currentTimeSeconds > 1) {
-              loopResetPending = false;
-            }
-            previousVideoTimeSeconds = currentTimeSeconds;
-            updateProgress();
-            if (liveReady) {
-              postToLive("SYNC", {
-                timeMs: looped ? 0 : currentTimeSeconds * 1000,
-                playing: !video.paused && !video.ended,
-              });
-            }
-          });
+          video.addEventListener("play", updatePlayState);
+          video.addEventListener("pause", updatePlayState);
+          video.addEventListener("ended", updatePlayState);
+          video.addEventListener("timeupdate", updateProgress);
           video.addEventListener("loadedmetadata", updateProgress);
           video.addEventListener("durationchange", updateProgress);
-          video.addEventListener("seeked", () => {
-            if (silentClockActive) return;
-            previousVideoTimeSeconds = Number.isFinite(video.currentTime) ? video.currentTime : 0;
-            updateProgress();
-            if (!liveReady) return;
-            if (!video.paused && !video.ended) {
-              const synchronizedTimeMs = loopResetPending && video.currentTime <= 1
-                ? 0
-                : video.currentTime * 1000;
-              loopResetPending = false;
-              postToLive("SYNC", { timeMs: synchronizedTimeMs, playing: true });
-              return;
-            }
-            loopResetPending = false;
-            postToLive("SEEK", { timeMs: video.currentTime * 1000 });
-          });
-          video.addEventListener("error", () => {
-            if (!liveReady && !liveFailed) {
-              soundtrackErrorBeforeReady = true;
-              player.setAttribute("data-film-audio-status", "unavailable");
-              return;
-            }
-            if (!enterSilentLiveMode()) restoreNativeFallback("error");
-          });
           video.addEventListener("emptied", updateProgress);
-          video.addEventListener("volumechange", () => {
-            if (!soundtrackFailed) updateMuteState();
-          });
+          video.addEventListener("volumechange", updateMuteState);
+          video.addEventListener("error", restoreNativeControls);
 
           if (hasThemeVariant && typeof window.matchMedia === "function") {
             const themeQuery = window.matchMedia("(prefers-color-scheme: dark)");
             const handleThemeChange = (event) => applyFilmTheme(event.matches);
-            themeQuery.addEventListener("change", handleThemeChange);
+            if (typeof themeQuery.addEventListener === "function") {
+              themeQuery.addEventListener("change", handleThemeChange);
+            } else if (typeof themeQuery.addListener === "function") {
+              themeQuery.addListener(handleThemeChange);
+            }
             applyFilmTheme(themeQuery.matches);
           } else {
             applyFilmTheme(false);
           }
 
-          window.addEventListener("message", (event) => {
-            if (event.source !== liveFrame.contentWindow) return;
-            if (event.origin !== "null") return;
-            const message = event.data;
-            if (!message || message.channel !== MESSAGE_CHANNEL || message.version !== MESSAGE_VERSION || message.instance !== instanceId) return;
-
-            if (message.type === "READY") {
-              if (liveFailed) return;
-              const durationMs = Number(message.payload?.durationMs);
-              const frameWidth = Number(message.payload?.frame?.width);
-              const frameHeight = Number(message.payload?.frame?.height);
-              if (!(durationMs >= 38000 && durationMs <= 38300) || frameWidth !== LIVE_WIDTH || frameHeight !== LIVE_HEIGHT) {
-                restoreNativeFallback("error");
-                return;
-              }
-              liveReady = true;
-              player.setAttribute("data-film-live-status", "ready");
-              if (handshakeTimer !== null) window.clearTimeout(handshakeTimer);
-              handshakeTimer = null;
-              const playbackAttemptPending = pendingPlaybackAttemptToken === playbackAttemptToken;
-              activateLive();
-              const silentAutoplay = !userPaused && !pausedForVisibility;
-              const shouldStartSilentClock = soundtrackErrorBeforeReady
-                || autoplayVisualFallbackPending
-                || (
-                  (playbackAttemptPending || autoplayAttempted)
-                  && isInView
-                  && video.paused
-                  && !userPaused
-                  && !pausedForVisibility
-                );
-              postToLive("INIT", {
-                theme: activeTheme,
-                timeMs: playbackCurrentTimeSeconds() * 1000,
-                playing: shouldStartSilentClock
-                  ? silentAutoplay
-                  : !video.paused && !video.ended,
-                reducedMotion: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true,
-              });
-              if (shouldStartSilentClock) {
-                const audioUnavailable = soundtrackErrorBeforeReady;
-                soundtrackErrorBeforeReady = false;
-                autoplayVisualFallbackPending = false;
-                enterSilentLiveMode({ playing: silentAutoplay, audioUnavailable });
-              }
-              return;
-            }
-
-            if (message.type === "ERROR") restoreNativeFallback("error");
-          });
-
-          liveFrame.addEventListener("error", () => restoreNativeFallback("error"));
-          if (liveAsset) {
-            const liveUrl = new URL(liveAsset, document.baseURI);
-            liveUrl.searchParams.set("embed", "homepage");
-            liveUrl.searchParams.set("instance", instanceId);
-            liveUrl.searchParams.set("theme", activeTheme);
-            liveFrame.src = liveUrl.href;
-            handshakeTimer = window.setTimeout(() => restoreNativeFallback("timeout"), 5000);
-          } else {
-            restoreNativeFallback("error");
-          }
-
           if (typeof window.IntersectionObserver === "function") {
-            visibilityObserver = new window.IntersectionObserver((entries) => {
+            const visibilityObserver = new window.IntersectionObserver((entries) => {
               const inView = entries.some((entry) => entry.isIntersecting);
-              isInView = inView;
-              if (silentClockActive) {
-                if (!inView) {
-                  cancelPlaybackAttempt();
-                  video.pause();
-                  restorePolicyAudioState();
-                }
-                if (!inView && silentClockPlaying) {
-                  pausedForVisibility = true;
-                  setSilentClock(silentClockTimeMs(), false);
-                  return;
-                }
-                if (inView && !userPaused && pausedForVisibility) {
-                  pausedForVisibility = false;
-                  setSilentClock(silentClockTimeMs(), true);
-                }
-                return;
-              }
               if (!inView) {
-                cancelPlaybackAttempt();
-                pausedForVisibility = true;
-                if (!video.paused) video.pause();
+                const shouldResume = !video.ended && !userPaused;
+                pausedForVisibility = shouldResume;
+                if (shouldResume) {
+                  cancelPlaybackRequest();
+                  if (!video.paused) video.pause();
+                }
                 return;
               }
-              if (inView && !userPaused && !video.ended && (!autoplayAttempted || pausedForVisibility)) {
+
+              if (pausedForVisibility && !userPaused) {
                 pausedForVisibility = false;
-                unexpectedPauseRecoveryAttempted = false;
-                player.setAttribute("data-film-audio-status", "recovering");
-                const preferAudible = !policyMutedFallback && !userMuted;
-                attemptVideoPlayback({
-                  allowMutedFallback: preferAudible,
-                  preferAudible,
-                });
+                requestPlayback();
               }
             }, { threshold: 0.1 });
             visibilityObserver.observe(player);
-          } else {
-            attemptVideoPlayback({ allowMutedFallback: true, preferAudible: true });
           }
 
           updatePlayState();
           updateProgress();
           updateMuteState();
+          controls.hidden = false;
+          video.controls = false;
+          player.setAttribute("data-homepage-film-ready", "true");
         } catch {
-          restoreNativeFallback();
+          restoreNativeControls();
         }
       })();
     </script>

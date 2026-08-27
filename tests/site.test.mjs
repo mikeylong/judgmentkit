@@ -683,76 +683,87 @@ const homepageFilmFrameMatch = homepage.match(
 const homepageFilmFrame = homepageFilmFrameMatch?.[0];
 assert.ok(homepageFilmFrame, "homepage should expose the film in one stable frame");
 const homepageFilmFrameOpenTag = homepageFilmFrame?.match(/^<(?:div|section)\b[^>]*>/i)?.[0] ?? "";
-const homepageFilmStageOpenTag = homepageMain.match(
-  /<(?:div|section)\b[^>]*class="[^"]*\bhomepage-film-stage\b[^"]*"[^>]*>/,
-)?.[0] ?? "";
-assert.ok(homepageFilmStageOpenTag, "homepage should expose a fixed live-demo stage");
-assert.match(homepageFilmStageOpenTag, /id="homepage-film-stage"/);
-assert.match(homepageFilmStageOpenTag, /data-homepage-film-stage(?:\s|=|>)/);
-assert.match(
-  homepageFilmStageOpenTag,
-  /(?:\s|^)hidden(?:\s|>)/,
-  "the live stage should not replace the progressive fallback before its ready handshake",
-);
-assert.match(
-  homepageMain,
-  /<span class="sr-only">A live visual replay shows an agent generating a UI, JudgmentKit identifying two composition defects, and the agent applying a measured repair\.<\/span>/,
-  "the visual-only live stage should retain an accessible semantic fallback",
-);
-const homepageFilmLiveScaleOpenTag = homepageMain.match(
-  /<div\b[^>]*class="[^"]*\bhomepage-film-live-scale\b[^"]*"[^>]*>/,
-)?.[0] ?? "";
-assert.match(homepageFilmLiveScaleOpenTag, /data-homepage-film-live-scale(?:\s|=|>)/);
-const homepageFilmLiveOpenTag = homepageMain.match(
-  /<iframe\b[^>]*class="[^"]*\bhomepage-film-live\b[^"]*"[^>]*>/,
-)?.[0] ?? "";
-assert.ok(homepageFilmLiveOpenTag, "homepage should load the authored live composition demo");
-assert.match(homepageFilmLiveOpenTag, /data-homepage-film-live(?:\s|=|>)/);
-assert.match(homepageFilmLiveOpenTag, /src="about:blank"/);
-assert.match(
-  homepageFilmLiveOpenTag,
-  /title="Live JudgmentKit UI generation, diagnosis, and measured repair"/,
-);
-assert.match(homepageFilmLiveOpenTag, /sandbox="allow-scripts"/);
-assert.doesNotMatch(homepageFilmLiveOpenTag, /allow-same-origin/);
-assert.match(homepageFilmLiveOpenTag, /tabindex="-1"/);
-assert.match(homepageFilmLiveOpenTag, /aria-hidden="true"/);
-const homepageFilmMedia = homepageMain.match(
+const homepageFilmMedia = homepageFilmFrame.match(
   /<video\b[^>]*class="[^"]*\bhomepage-film-source-media\b[^"]*"[^>]*>[\s\S]*?<\/video>/,
 )?.[0];
 const homepageFilmMediaOpenTag = homepageFilmMedia?.match(/<video\b[^>]*>/)?.[0] ?? "";
-assert.ok(homepageFilmMedia, "homepage should retain a native video fallback and soundtrack clock");
-assert.match(homepageFilmMediaOpenTag, /\bhomepage-film-fallback\b/);
+assert.ok(homepageFilmMedia, "homepage should expose one native video as the complete film");
+assert.match(homepageFilmMediaOpenTag, /id="homepage-film-media"/);
 assert.match(homepageFilmMediaOpenTag, /data-homepage-film-media(?:\s|=|>)/);
-assert.match(homepageFilmMediaOpenTag, /data-homepage-film-fallback(?:\s|=|>)/);
-assert.match(homepageFilmFrameOpenTag, /data-film-renderer="video"/);
-assert.match(homepageFilmFrameOpenTag, /data-film-live-status="loading"/);
-assert.match(homepageFilmFrameOpenTag, /data-film-autoplay-status="pending"/);
-assert.match(homepageFilmFrameOpenTag, /data-film-audio-status="pending"/);
-assert.match(
-  homepageFilmFrameOpenTag,
-  /data-film-live-src="\/assets\/releases\/visual-composition-runtime-demo\.html"/,
-);
 assert.equal(
   (homepageMain.match(/<video\b/g) ?? []).length,
   1,
-  "homepage should contain exactly one fallback and soundtrack media engine",
+  "homepage should contain exactly one media clock",
 );
 assert.equal(
-  (homepageMain.match(/<canvas\b/g) ?? []).length,
+  (homepageMain.match(/<iframe\b/g) ?? []).length,
   0,
-  "the live HTML renderer should replace the canvas presentation surface",
+  "homepage must not hand playback to a live iframe",
 );
-assert.equal((homepageMain.match(/<iframe\b/g) ?? []).length, 1);
+assert.equal((homepageMain.match(/<canvas\b/g) ?? []).length, 0);
+assert.doesNotMatch(
+  homepageFilmFrame,
+  /data-homepage-film-(?:stage|live|live-scale|fallback)|data-film-live-(?:src|status)|visual-composition-runtime-demo\.html/,
+  "the homepage film must not reference the retired live renderer",
+);
+assert.doesNotMatch(
+  homepageFilmFrameOpenTag,
+  /data-film-(?:autoplay|audio)-status=/,
+  "the single native video should not expose split-clock recovery state",
+);
 assert.doesNotMatch(
   homepageMain,
-  /homepage-film-scroll-cue|data-homepage-film-scroll-icon|Continue to JudgmentKit overview/,
-  "the homepage should not place a jump control over or after the live demo",
+  /homepage-film-(?:stage|live|live-scale)|homepage-film-source-media--soundtrack/,
+  "the single-video renderer must not retain hidden live or soundtrack surfaces",
 );
+assert.match(
+  homepageFilmFrameOpenTag,
+  /data-film-source-light="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
+);
+assert.match(
+  homepageFilmFrameOpenTag,
+  /data-film-source-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-dark\.mp4"/,
+);
+assert.match(
+  homepageFilmFrameOpenTag,
+  /data-film-poster-light="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
+);
+assert.match(
+  homepageFilmFrameOpenTag,
+  /data-film-poster-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster-dark\.png"/,
+);
+assert.match(
+  homepageFilmMediaOpenTag,
+  /(?:\s|^)controls(?:\s|>)/,
+  "native controls must remain available before progressive enhancement",
+);
+assert.match(homepageFilmMediaOpenTag, /(?:\s|^)loop(?:\s|>)/);
+assert.match(homepageFilmMediaOpenTag, /(?:\s|^)playsinline(?:\s|>)/);
+assert.match(homepageFilmMediaOpenTag, /preload="auto"/);
+assert.doesNotMatch(
+  homepageFilmMediaOpenTag,
+  /(?:\s|^)autoplay(?:\s|>)/,
+  "the film should begin only after the visitor presses Play",
+);
+assert.doesNotMatch(homepageFilmMediaOpenTag, /(?:\s|^)muted(?:\s|>)/);
+assert.match(
+  homepageFilmMediaOpenTag,
+  /aria-label="JudgmentKit UI generation, diagnosis, and measured repair"/,
+);
+assert.match(
+  homepageFilmMediaOpenTag,
+  /poster="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
+);
+const homepageFilmSource = homepageFilmMedia.match(/<source\b[^>]*>/)?.[0] ?? "";
+assert.match(
+  homepageFilmSource,
+  /src="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
+);
+assert.match(homepageFilmSource, /type="video\/mp4"/);
+assert.doesNotMatch(homepageFilmMedia, /<track\b/i);
 assert.doesNotMatch(
   homepageMain,
-  /id="homepage-overview"/,
-  "the retired jump control should not leave an unused overview target",
+  /homepage-film-scroll-cue|data-homepage-film-scroll-icon|Continue to JudgmentKit overview|id="homepage-overview"/,
 );
 const homepageFilmSectionIndex = homepageMain.search(
   /class="[^"]*\bhomepage-film-section\b[^"]*"/,
@@ -762,94 +773,28 @@ assert.ok(
   homepageFilmSectionIndex >= 0 &&
     homepageHeroIndex >= 0 &&
     homepageFilmSectionIndex < homepageHeroIndex,
-  "the live film should remain immediately ahead of the existing homepage story",
+  "the film should remain immediately ahead of the homepage story",
 );
-assert.match(
-  homepageFilmMediaOpenTag,
-  /(?:\s|^)controls(?:\s|>)/,
-  "native controls must remain available before live-demo enhancement",
-);
-assert.match(homepageFilmMediaOpenTag, /(?:\s|^)playsinline(?:\s|>)/);
-assert.match(homepageFilmMediaOpenTag, /preload="auto"/);
-assert.match(
-  homepageFilmMediaOpenTag,
-  /aria-label="JudgmentKit UI generation, diagnosis, and measured repair"/,
-  "the native fallback should retain the same film description",
-);
-assert.match(
-  homepageFilmMediaOpenTag,
-  /poster="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
-);
-assert.match(
-  homepageFilmFrameOpenTag,
-  /data-film-poster-light="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
-  "the current poster should be declared as the light-theme fallback",
-);
-assert.match(
-  homepageFilmFrameOpenTag,
-  /data-film-poster-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster-dark\.png"/,
-  "the dark-theme poster should be declared independently from the light fallback",
-);
-assert.match(homepageFilmMediaOpenTag, /(?:\s|^)autoplay(?:\s|>)/);
-assert.match(homepageFilmMediaOpenTag, /(?:\s|^)loop(?:\s|>)/);
-assert.doesNotMatch(
-  homepageFilmMediaOpenTag,
-  /(?:\s|^)muted(?:\s|>)/,
-  "sound should be the preferred default; audible autoplay may fail but must not begin muted",
-);
-const homepageFilmSource = homepageFilmMedia.match(/<source\b[^>]*>/)?.[0] ?? "";
-assert.match(
-  homepageFilmSource,
-  /src="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
-);
-assert.match(homepageFilmSource, /type="video\/mp4"/);
-assert.match(
-  homepageFilmFrameOpenTag,
-  /data-film-source-light="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
-  "the current recording should be declared as the light-theme fallback",
-);
-assert.match(
-  homepageFilmFrameOpenTag,
-  /data-film-source-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-dark\.mp4"/,
-  "the dark-theme recording should be declared independently from the light fallback",
-);
-assert.doesNotMatch(
-  homepageFilmMedia,
-  /<track\b/i,
-  "homepage film should not expose a caption track that browsers can reactivate",
-);
+
 const homepageFilmControlGroups = [
   ...homepageMain.matchAll(
     /<div\b[^>]*class="[^"]*\bhomepage-film-controls\b[^"]*"[^>]*>[\s\S]*?<\/div>/gi,
   ),
 ].map((match) => match[0]);
-assert.equal(
-  homepageFilmControlGroups.length,
-  1,
-  "homepage should expose exactly one custom film-control group",
-);
+assert.equal(homepageFilmControlGroups.length, 1);
 const homepageFilmControls = homepageFilmControlGroups[0];
-assert.equal(
-  homepageFilmControls.includes("data-homepage-film-scroll-cue"),
-  false,
-  "the scroll cue must not become a fourth video control",
-);
 const homepageFilmControlsOpenTag = homepageFilmControls.match(/<div\b[^>]*>/i)?.[0] ?? "";
 assert.match(
   homepageFilmControlsOpenTag,
   /(?:\s|^)hidden(?:\s|>)/,
-  "custom controls should remain hidden until their behavior is bound",
+  "custom controls should remain hidden until all behavior is bound",
 );
 assert.match(homepageFilmControlsOpenTag, /role="group"/);
 assert.match(homepageFilmControlsOpenTag, /aria-label="Video controls"/);
 const homepageFilmControlElements = [
   ...homepageFilmControls.matchAll(/<(button|input)\b[^>]*>/gi),
 ].map((match) => match[0]);
-assert.equal(
-  homepageFilmControlElements.length,
-  3,
-  "custom player should expose only Play/Pause, a scrubber, and Mute/Unmute",
-);
+assert.equal(homepageFilmControlElements.length, 3);
 assert.equal((homepageFilmControls.match(/<button\b/gi) ?? []).length, 2);
 assert.equal((homepageFilmControls.match(/<input\b/gi) ?? []).length, 1);
 assert.doesNotMatch(homepageFilmControls, /<(?:a|select)\b/i);
@@ -859,17 +804,16 @@ const homepageFilmScrubber =
   homepageFilmControlElements.find((tag) => /data-film-scrubber(?:\s|=|>)/.test(tag)) ?? "";
 const homepageFilmMuteControl =
   homepageFilmControlElements.find((tag) => /data-film-action="mute"/.test(tag)) ?? "";
-const homepageFilmButtonMarkup = [
-  ...homepageFilmControls.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/gi),
-].map((match) => match[0]);
-const homepageFilmPlayButtonMarkup =
-  homepageFilmButtonMarkup.find((button) => /data-film-action="play"/.test(button)) ?? "";
-const homepageFilmMuteButtonMarkup =
-  homepageFilmButtonMarkup.find((button) => /data-film-action="mute"/.test(button)) ?? "";
+for (const control of [
+  homepageFilmPlayControl,
+  homepageFilmScrubber,
+  homepageFilmMuteControl,
+]) {
+  assert.match(control, /aria-controls="homepage-film-media"/);
+}
 assert.match(homepageFilmPlayControl, /^<button\b/i);
 assert.match(homepageFilmPlayControl, /type="button"/);
-assert.match(homepageFilmPlayControl, /aria-label="Play demo"/);
-assert.match(homepageFilmPlayControl, /aria-controls="homepage-film-stage"/);
+assert.match(homepageFilmPlayControl, /aria-label="Play video"/);
 assert.match(homepageFilmScrubber, /^<input\b/i);
 assert.match(homepageFilmScrubber, /type="range"/);
 assert.match(homepageFilmScrubber, /min="0"/);
@@ -878,67 +822,57 @@ assert.match(homepageFilmScrubber, /step="0\.1"/);
 assert.match(homepageFilmScrubber, /value="0"/);
 assert.match(homepageFilmScrubber, /(?:\s|^)disabled(?:\s|>)/);
 assert.match(homepageFilmScrubber, /aria-label="Video progress"/);
-assert.match(homepageFilmScrubber, /aria-controls="homepage-film-stage"/);
 assert.match(homepageFilmMuteControl, /^<button\b/i);
 assert.match(homepageFilmMuteControl, /type="button"/);
-assert.match(homepageFilmMuteControl, /aria-label="Mute music"/);
-assert.match(homepageFilmMuteControl, /aria-controls="homepage-film-stage"/);
+assert.match(homepageFilmMuteControl, /aria-label="Mute video"/);
+const homepageFilmButtonMarkup = [
+  ...homepageFilmControls.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/gi),
+].map((match) => match[0]);
+const homepageFilmPlayButtonMarkup =
+  homepageFilmButtonMarkup.find((button) => /data-film-action="play"/.test(button)) ?? "";
+const homepageFilmMuteButtonMarkup =
+  homepageFilmButtonMarkup.find((button) => /data-film-action="mute"/.test(button)) ?? "";
 assert.deepEqual(
   [...homepageFilmPlayButtonMarkup.matchAll(/data-icon-id="([^"]+)"/g)].map(
     (match) => match[1],
   ),
   ["play", "pause"],
-  "play control should use only the canonical JudgmentKit play and pause icons",
 );
 assert.deepEqual(
   [...homepageFilmMuteButtonMarkup.matchAll(/data-icon-id="([^"]+)"/g)].map(
     (match) => match[1],
   ),
   ["volume-2", "volume-x"],
-  "mute control should use only the canonical JudgmentKit volume icons",
 );
 const homepageFilmIconTags = [
   ...homepageFilmControls.matchAll(/<svg\b[^>]*data-icon-id="[^"]+"[^>]*>/gi),
 ].map((match) => match[0]);
 const homepageFilmIconTag = (id) =>
-  homepageFilmIconTags.find((tag) => tag.includes(`data-icon-id="${id}"`)) ?? "";
+  homepageFilmIconTags.find((tag) => tag.includes('data-icon-id="' + id + '"')) ?? "";
 for (const iconId of ["play", "pause", "volume-2", "volume-x"]) {
-  assert.match(
-    homepageFilmIconTag(iconId),
-    /^<svg\b/i,
-    `${iconId} should render as an inline JudgmentKit icon`,
-  );
+  assert.match(homepageFilmIconTag(iconId), /^<svg\b/i);
 }
 assert.doesNotMatch(homepageFilmIconTag("play"), /(?:\s|^)hidden(?:\s|>)/);
 assert.match(homepageFilmIconTag("pause"), /(?:\s|^)hidden(?:\s|>)/);
 assert.doesNotMatch(homepageFilmIconTag("volume-2"), /(?:\s|^)hidden(?:\s|>)/);
 assert.match(homepageFilmIconTag("volume-x"), /(?:\s|^)hidden(?:\s|>)/);
-assert.doesNotMatch(
-  homepageFilmPlayButtonMarkup + homepageFilmMuteButtonMarkup,
-  /<span\b/i,
-  "icon-only film controls should not render visible label spans",
-);
-assert.doesNotMatch(
-  homepageFilmControls,
-  /(?:fullscreen|caption|playback[_-]?rate|speed)/i,
-  "custom controls should not add fullscreen, caption, or playback-speed actions",
-);
+assert.doesNotMatch(homepageFilmPlayButtonMarkup + homepageFilmMuteButtonMarkup, /<span\b/i);
+assert.doesNotMatch(homepageFilmControls, /(?:fullscreen|caption|playback[_-]?rate|speed)/i);
 assert.doesNotMatch(homepageFilmFrame, /<(?:h[1-6]|p|figcaption)\b/i);
+
 const homepageFilmScripts = [...homepage.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
   .map((match) => match[1])
   .filter((script) => script.includes("homepage-film"))
   .join("\n");
 
-function runHomepageLiveFilmBehavior(
+function runHomepageVideoBehavior(
   script,
   {
     darkSource = "",
     darkPoster = "",
-    blockFirstAudiblePlay = false,
-    deferFirstPlay = false,
+    darkPreference = false,
     deferThemeMetadata = false,
-    ignoreVideoCurrentTimeAssignments = false,
-    playOutcomes = [],
+    omitScrubber = false,
   } = {},
 ) {
   class FakeNode {
@@ -946,20 +880,8 @@ function runHomepageLiveFilmBehavior(
       this.attributes = new Map(Object.entries(attributes));
       this.dataset = { ...dataset };
       this.listeners = new Map();
-      this.hidden = false;
+      this.hidden = this.attributes.has("hidden");
       this.styleValues = new Map();
-      const classes = new Set(String(attributes.class ?? "").split(/\s+/).filter(Boolean));
-      this.classList = {
-        add: (...tokens) => {
-          for (const token of tokens) classes.add(token);
-          this.attributes.set("class", [...classes].join(" "));
-        },
-        contains: (token) => classes.has(token),
-        remove: (...tokens) => {
-          for (const token of tokens) classes.delete(token);
-          this.attributes.set("class", [...classes].join(" "));
-        },
-      };
       this.style = {
         setProperty: (name, value) => this.styleValues.set(name, String(value)),
       };
@@ -1006,74 +928,35 @@ function runHomepageLiveFilmBehavior(
   }
 
   const player = new FakeNode({
-    attributes: {
-      "data-film-live-status": "loading",
-      "data-film-renderer": "video",
-      "data-film-autoplay-status": "pending",
-      "data-film-audio-status": "pending",
-    },
     dataset: {
-      filmLiveSrc: "/assets/releases/visual-composition-runtime-demo.html",
       filmSourceLight: "/light.mp4",
       filmPosterLight: "/light.png",
       ...(darkSource ? { filmSourceDark: darkSource } : {}),
       ...(darkPoster ? { filmPosterDark: darkPoster } : {}),
     },
   });
-  const stage = new FakeNode({
-    attributes: {
-      class: "homepage-film-stage",
-      hidden: "",
-      id: "homepage-film-stage",
-    },
-  });
-  stage.hidden = true;
-  stage.clientWidth = 1440;
-  stage.getBoundingClientRect = () => ({
-    width: stage.clientWidth,
-    height: stage.clientWidth * 0.625,
-  });
-  const liveMessages = [];
-  const liveWindow = {
-    postMessage(message, targetOrigin) {
-      liveMessages.push({ message, targetOrigin });
-    },
-  };
-  const liveScale = new FakeNode({
-    attributes: { class: "homepage-film-live-scale" },
-  });
-  const live = new FakeNode({
-    attributes: {
-      class: "homepage-film-live",
-      src: "about:blank",
-    },
-  });
-  live.src = "about:blank";
-  live.contentWindow = liveWindow;
   const video = new FakeNode({
     attributes: {
+      id: "homepage-film-media",
       class: "homepage-film-source-media",
       controls: "",
       poster: "/light.png",
     },
   });
   const source = new FakeNode({ attributes: { src: "/light.mp4" } });
-  const controls = new FakeNode();
-  const playButton = new FakeNode({ attributes: { "aria-label": "Play demo" } });
+  const controls = new FakeNode({ attributes: { hidden: "" } });
+  const playButton = new FakeNode({ attributes: { "aria-label": "Play video" } });
   const playIcon = new FakeNode();
   const pauseIcon = new FakeNode({ attributes: { hidden: "" } });
   const scrubber = new FakeNode({ attributes: { "aria-valuetext": "0 percent played" } });
-  const muteButton = new FakeNode({ attributes: { "aria-label": "Mute music" } });
+  const muteButton = new FakeNode({ attributes: { "aria-label": "Mute video" } });
   const soundIcon = new FakeNode();
   const mutedIcon = new FakeNode({ attributes: { hidden: "" } });
 
-  controls.hidden = true;
-  scrubber.disabled = true;
-  scrubber.value = "0";
   video.controls = true;
   video.paused = true;
   video.ended = false;
-  video.duration = 38;
+  video.duration = 38.2;
   video.currentTime = 0;
   video.readyState = deferThemeMetadata ? 0 : 1;
   video.poster = "/light.png";
@@ -1082,30 +965,7 @@ function runHomepageLiveFilmBehavior(
   video.loadCalls = 0;
   let videoMuted = false;
   let videoVolume = 1;
-  let videoCurrentTime = 0;
-  const deferredPlayResolvers = [];
-  const queuedPlayOutcomes = [...playOutcomes];
-  const rejectedPlay = (name, message) => {
-    const error = new Error(message);
-    error.name = name;
-    return Promise.reject(error);
-  };
-  const deferredPlay = () =>
-    new Promise((resolve) => {
-      deferredPlayResolvers.push(() => {
-        video.paused = false;
-        video.ended = false;
-        video.dispatch("play");
-        resolve();
-      });
-    });
   Object.defineProperties(video, {
-    currentTime: {
-      get: () => videoCurrentTime,
-      set: (value) => {
-        if (!ignoreVideoCurrentTimeAssignments) videoCurrentTime = Number(value);
-      },
-    },
     muted: {
       get: () => videoMuted,
       set: (value) => {
@@ -1123,32 +983,6 @@ function runHomepageLiveFilmBehavior(
   });
   video.play = () => {
     video.playCalls += 1;
-    const queuedOutcome = queuedPlayOutcomes.shift();
-    if (queuedOutcome === "not-allowed") {
-      return rejectedPlay("NotAllowedError", "Playback is not allowed");
-    }
-    if (queuedOutcome === "abort") {
-      return rejectedPlay("AbortError", "Playback was interrupted");
-    }
-    if (queuedOutcome === "throw-not-allowed") {
-      const error = new Error("Playback is not allowed");
-      error.name = "NotAllowedError";
-      throw error;
-    }
-    if (queuedOutcome === "pending") {
-      return new Promise(() => {});
-    }
-    if (queuedOutcome === "defer") {
-      return deferredPlay();
-    }
-    if (deferFirstPlay && video.playCalls === 1) {
-      return deferredPlay();
-    }
-    if (blockFirstAudiblePlay && video.playCalls === 1) {
-      const error = new Error("Audible autoplay is not allowed");
-      error.name = "NotAllowedError";
-      return Promise.reject(error);
-    }
     video.paused = false;
     video.ended = false;
     video.dispatch("play");
@@ -1161,20 +995,19 @@ function runHomepageLiveFilmBehavior(
   };
   video.load = () => {
     video.loadCalls += 1;
+    video.paused = true;
+    video.currentTime = 0;
+    video.readyState = deferThemeMetadata ? 0 : 1;
   };
 
   const selectorMap = new Map([
     ["[data-homepage-film-media]", video],
-    ["[data-homepage-film-fallback]", video],
-    ["[data-homepage-film-live]", live],
-    ["[data-homepage-film-live-scale]", liveScale],
-    ["[data-homepage-film-stage]", stage],
     ["[data-homepage-film-source]", source],
     ["[data-homepage-film-controls]", controls],
     ["[data-homepage-film-play]", playButton],
     ["[data-homepage-film-play-icon]", playIcon],
     ["[data-homepage-film-pause-icon]", pauseIcon],
-    ["[data-homepage-film-scrubber]", scrubber],
+    ["[data-homepage-film-scrubber]", omitScrubber ? null : scrubber],
     ["[data-homepage-film-mute]", muteButton],
     ["[data-homepage-film-sound-icon]", soundIcon],
     ["[data-homepage-film-muted-icon]", mutedIcon],
@@ -1182,76 +1015,15 @@ function runHomepageLiveFilmBehavior(
   player.querySelector = (selector) => selectorMap.get(selector) ?? null;
 
   const themeQuery = new FakeNode();
-  themeQuery.matches = true;
+  themeQuery.matches = darkPreference;
   let matchMediaCalls = 0;
-  const timeoutCallbacks = new Map();
-  let nextTimeoutId = 1;
-  const fakeWindow = new FakeNode();
-  fakeWindow.crypto = { randomUUID: () => "homepage-test-instance" };
-  fakeWindow.location = { origin: "https://judgmentkit.test" };
-  let animationClockNow = 0;
-  let nextAnimationFrameId = 1;
-  const animationFrameCallbacks = new Map();
-  fakeWindow.performance = { now: () => animationClockNow };
-  fakeWindow.requestAnimationFrame = (callback) => {
-    const id = nextAnimationFrameId++;
-    animationFrameCallbacks.set(id, callback);
-    return id;
-  };
-  fakeWindow.cancelAnimationFrame = (id) => {
-    animationFrameCallbacks.delete(id);
-  };
-  fakeWindow.matchMedia = (query) => {
-    if (query === "(prefers-color-scheme: dark)") {
+  const fakeWindow = {
+    matchMedia(query) {
+      assert.equal(query, "(prefers-color-scheme: dark)");
       matchMediaCalls += 1;
       return themeQuery;
-    }
-    if (query === "(prefers-reduced-motion: reduce)") {
-      return { matches: false };
-    }
-    throw new Error(`Unexpected media query: ${query}`);
+    },
   };
-  fakeWindow.setTimeout = (callback) => {
-    const id = nextTimeoutId++;
-    timeoutCallbacks.set(id, callback);
-    return id;
-  };
-  fakeWindow.clearTimeout = (id) => {
-    timeoutCallbacks.delete(id);
-  };
-  let resizeObserver;
-  class FakeResizeObserver {
-    constructor(callback) {
-      this.callback = callback;
-      this.observed = [];
-      this.disconnected = false;
-      resizeObserver = this;
-    }
-
-    observe(node) {
-      this.observed.push(node);
-    }
-
-    disconnect() {
-      this.disconnected = true;
-    }
-  }
-  fakeWindow.ResizeObserver = FakeResizeObserver;
-  let intersectionObserver;
-  class FakeIntersectionObserver {
-    constructor(callback) {
-      this.callback = callback;
-      this.observed = [];
-      intersectionObserver = this;
-    }
-
-    observe(node) {
-      this.observed.push(node);
-    }
-
-    disconnect() {}
-  }
-  fakeWindow.IntersectionObserver = FakeIntersectionObserver;
   const fakeDocument = {
     baseURI: "https://judgmentkit.test/",
     querySelector(selector) {
@@ -1259,28 +1031,10 @@ function runHomepageLiveFilmBehavior(
     },
   };
 
-  Function(
-    "document",
-    "window",
-    "URL",
-    "ResizeObserver",
-    "setTimeout",
-    "clearTimeout",
-    script,
-  )(
-    fakeDocument,
-    fakeWindow,
-    URL,
-    FakeResizeObserver,
-    fakeWindow.setTimeout,
-    fakeWindow.clearTimeout,
-  );
+  Function("document", "window", "URL", script)(fakeDocument, fakeWindow, URL);
 
   return {
     controls,
-    live,
-    liveScale,
-    liveMessages,
     matchMediaCalls: () => matchMediaCalls,
     muteButton,
     mutedIcon,
@@ -1288,99 +1042,24 @@ function runHomepageLiveFilmBehavior(
     playButton,
     playIcon,
     player,
-    get resizeObserver() {
-      return resizeObserver;
-    },
     scrubber,
     source,
     soundIcon,
-    stage,
     themeQuery,
-    timeoutCallbacks,
     video,
-    advanceAnimationClock(milliseconds) {
-      animationClockNow += milliseconds;
-      const callbacks = [...animationFrameCallbacks.values()];
-      animationFrameCallbacks.clear();
-      for (const callback of callbacks) callback(animationClockNow);
-    },
-    async settlePlayback() {
-      for (let turn = 0; turn < 4; turn += 1) {
-        await Promise.resolve();
-      }
-    },
-    setInView(isIntersecting) {
-      intersectionObserver?.callback([{ target: player, isIntersecting }]);
-    },
-    dispatchMessage(data, { origin = "null", sourceWindow = liveWindow } = {}) {
-      fakeWindow.dispatch("message", { data, origin, source: sourceWindow });
-    },
-    dispatchReady(
-      overrides = {},
-      { origin = "null", sourceWindow = liveWindow } = {},
-    ) {
-      fakeWindow.dispatch("message", {
-        data: {
-          channel: "judgmentkit-visual-composition-v1",
-          version: 1,
-          instance: "homepage-test-instance",
-          type: "READY",
-          payload: {
-            durationMs: 38_000,
-            frame: { width: 1440, height: 900 },
-          },
-          ...overrides,
-        },
-        origin,
-        source: sourceWindow,
-      });
-    },
     dispatchVideoMetadata() {
       video.readyState = 1;
       video.dispatch("loadedmetadata");
     },
-    resize(width) {
-      stage.clientWidth = width;
-      resizeObserver?.callback([{ target: stage, contentRect: { width, height: width * 0.625 } }]);
-    },
-    resolveFirstPlay() {
-      deferredPlayResolvers.shift()?.();
-    },
-    runReadinessTimeout() {
-      return this.runNextTimeout();
-    },
-    runNextTimeout() {
-      const [id, callback] = timeoutCallbacks.entries().next().value ?? [];
-      if (!callback) return false;
-      timeoutCallbacks.delete(id);
-      callback();
-      return true;
+    async settlePlayback() {
+      for (let turn = 0; turn < 4; turn += 1) await Promise.resolve();
     },
   };
-}
-
-function homepageFilmControllerCommands(behavior) {
-  return behavior.liveMessages
-    .map(({ message }) => message)
-    .filter(
-      (message) =>
-        message?.channel === "judgmentkit-visual-composition-v1" &&
-        message?.version === 1 &&
-        message?.instance === "homepage-test-instance",
-    );
-}
-
-function controllerCommandPlays(message) {
-  return (
-    message?.type === "PLAY" ||
-    (["INIT", "SYNC"].includes(message?.type) && message?.payload?.playing === true)
-  );
 }
 
 assert.doesNotMatch(
   homepageFilmScripts,
   /addEventListener\(\s*["'](?:wheel|touchmove|scroll)["']/,
-  "homepage film should use natural document scrolling instead of intercepting scroll input",
 );
 for (const eventName of [
   "click",
@@ -1390,67 +1069,70 @@ for (const eventName of [
   "ended",
   "timeupdate",
   "durationchange",
-  "error",
-  "message",
+  "volumechange",
 ]) {
   assert.match(
     homepageFilmScripts,
-    new RegExp(`addEventListener\\(\\s*["']${eventName}["']`),
-    `film behavior should respond to ${eventName}`,
+    new RegExp("addEventListener\\(\\s*[\"']" + eventName + "[\"']"),
+    "film behavior should respond to " + eventName,
   );
 }
 assert.match(homepageFilmScripts, /\.play\(\)/);
 assert.match(homepageFilmScripts, /\.pause\(\)/);
 assert.match(homepageFilmScripts, /\.muted\s*=/);
-assert.doesNotMatch(
-  homepageFilmScripts,
-  /\.defaultMuted\s*=/,
-  "the muted retry must remain a runtime exception, not become the media default",
-);
 assert.match(homepageFilmScripts, /\.currentTime\s*=/);
 assert.match(homepageFilmScripts, /\.duration\b/);
 assert.match(homepageFilmScripts, /aria-label/);
-assert.doesNotMatch(homepageFilmScripts, /getContext\(\s*["']2d["']/);
-assert.doesNotMatch(homepageFilmScripts, /drawImage\(/);
-assert.match(homepageFilmScripts, /judgmentkit-visual-composition-v1/);
-assert.match(homepageFilmScripts, /postMessage\(/);
-assert.match(
-  homepageFilmScripts,
-  /(?:\binstance\s*,|instance:\s*instanceId)/,
-  "parent commands should use the embedded demo's canonical instance envelope field",
-);
-assert.match(
-  homepageFilmScripts,
-  /message\.instance\s*!==\s*instance(?:Id)?/,
-  "the ready handshake should validate the same canonical instance field it sends",
-);
-assert.match(homepageFilmScripts, /ResizeObserver/);
-assert.match(homepageFilmScripts, /setTimeout\(/);
 assert.match(homepageFilmScripts, /filmPosterDark/);
 assert.match(homepageFilmScripts, /filmSourceDark/);
 assert.match(
   homepageFilmScripts,
   /matchMedia\(\s*["']\(prefers-color-scheme:\s*dark\)["']\s*\)/,
-  "live film behavior should derive an initial appearance from the visitor preference",
 );
-assert.match(
-  homepageFilmScripts,
-  /addEventListener\(\s*["']change["']\s*,/,
-  "film behavior should react if a supplied dark-theme preference later changes",
-);
+for (const retiredRuntimePattern of [
+  /judgmentkit-visual-composition-v1/,
+  /postMessage\(/,
+  /addEventListener\(\s*["']message["']/,
+  /data-homepage-film-(?:stage|live|live-scale|fallback)/,
+  /data-film-live-(?:src|status)/,
+  /SOUNDTRACK_RECOVERY_TIMEOUT_MS/,
+  /\bsilentClock/,
+  /enterSilentLiveMode/,
+  /beginLiveSoundtrackRecovery/,
+  /requestAnimationFrame/,
+  /ResizeObserver/,
+]) {
+  assert.doesNotMatch(
+    homepageFilmScripts,
+    retiredRuntimePattern,
+    "homepage script must not retain live-handoff or synthetic-clock behavior",
+  );
+}
 assert.equal(
   homepageFilmFrameOpenTag.includes(
     'data-film-source-dark="/assets/releases/judgmentkit-select-field-agent-demo.mp4"',
   ),
   false,
-  "dark and light film source URLs must remain distinct",
 );
 assert.equal(
   homepageFilmFrameOpenTag.includes(
     'data-film-poster-dark="/assets/releases/judgmentkit-select-field-agent-demo-poster.png"',
   ),
   false,
-  "dark and light poster URLs must remain distinct",
+);
+const homepageFilmLastBindingIndex = homepageFilmScripts.lastIndexOf("addEventListener");
+const homepageFilmNativeControlsRemovalIndex = homepageFilmScripts.search(
+  /(?:removeAttribute\(\s*["']controls["']\s*\)|\.controls\s*=\s*false)/,
+);
+const homepageFilmControlsRevealIndex = homepageFilmScripts.search(/\.hidden\s*=\s*false/);
+assert.ok(homepageFilmLastBindingIndex >= 0);
+assert.ok(
+  homepageFilmNativeControlsRemovalIndex > homepageFilmLastBindingIndex,
+  "native controls should be removed only after every custom handler is bound",
+);
+assert.ok(
+  homepageFilmControlsRevealIndex > homepageFilmLastBindingIndex,
+  "custom controls should be revealed only after every custom handler is bound",
 );
 assert.match(
   siteCss,
@@ -1622,23 +1304,12 @@ assert.doesNotMatch(
   /\.homepage-film-scroll-cue|homepage-film-scroll-cue-bob/,
   "retired jump-control styling and motion should be removed from the site bundle",
 );
-const homepageFilmStageCss = cssRuleBody(siteCss, ".homepage-film-stage");
-const homepageFilmSurfaceCss = cssRuleBody(
-  siteCss,
-  ".homepage-film-stage,\n.homepage-film-source-media",
-);
-const homepageFilmLiveScaleCss = cssRuleBody(siteCss, ".homepage-film-live-scale");
-const homepageFilmLiveCss = cssRuleBody(siteCss, ".homepage-film-live");
-const homepageFilmFallbackCss = cssRuleBody(siteCss, ".homepage-film-source-media");
-const homepageFilmClockCss = cssRuleBody(
-  siteCss,
-  ".homepage-film-source-media--soundtrack",
-);
+const homepageFilmMediaCss = cssRuleBody(siteCss, ".homepage-film-source-media");
 for (const property of ["padding", "border", "background", "box-shadow"]) {
   const value = cssDeclarationValue(homepageFilmFrameCss, property);
   assert.ok(
     value === undefined || /^(?:0|none|transparent)$/i.test(value),
-    `the homepage film wrapper must not render decorative ${property} chrome`,
+    "the homepage film wrapper must not render decorative " + property + " chrome",
   );
 }
 assert.doesNotMatch(
@@ -1654,32 +1325,21 @@ assert.doesNotMatch(
 assert.match(
   homepageFilmSectionCss,
   /padding:\s*0 clamp\(8px,\s*1\.5vw,\s*24px\) clamp\(18px,\s*2\.4vw,\s*34px\);/,
-  "the wide-viewport continuation calculation should stay bound to the film section gutters",
 );
 const homepageFilmMaxWidth = Number.parseFloat(
   cssDeclarationValue(homepageFilmShellCss, "max-width") ?? "0",
 );
-assert.ok(
-  homepageFilmMaxWidth === 1440,
-  "the homepage live stage should grow to but not upscale beyond its 1440px source width",
+assert.equal(
+  homepageFilmMaxWidth,
+  1440,
+  "the native video should grow to but not upscale beyond its 1440px source width",
 );
 const homepageFilmWideViewportCap = siteCss.match(
   /@media \(min-width: 821px\) and \(min-height: 600px\)\s*\{\s*\.homepage-film-shell\s*\{([^}]*)\}/,
 );
-assert.ok(
-  homepageFilmWideViewportCap,
-  "standard-height wide viewports should cap the film so the next section remains discoverable without shrinking phone landscape",
-);
-assert.match(
-  homepageFilmWideViewportCap[1],
-  /max-width:\s*min\(1440px,\s*108vh\);/,
-  "the film should retain a viewport-height fallback before the small-viewport unit override",
-);
-assert.match(
-  homepageFilmWideViewportCap[1],
-  /max-width:\s*min\(1440px,\s*108svh\);/,
-  "the film should use the stable viewport height without changing its internal composition",
-);
+assert.ok(homepageFilmWideViewportCap);
+assert.match(homepageFilmWideViewportCap[1], /max-width:\s*min\(1440px,\s*108vh\);/);
+assert.match(homepageFilmWideViewportCap[1], /max-width:\s*min\(1440px,\s*108svh\);/);
 const homepageFilmViewportWidthFactor = Number.parseFloat(
   homepageFilmWideViewportCap[1].match(/min\(1440px,\s*([\d.]+)svh\)/)?.[1] ?? "0",
 ) / 100;
@@ -1700,1187 +1360,197 @@ for (const [viewportWidth, viewportHeight] of [
     - (renderedWidth * 10 / 16);
   assert.ok(
     followingSectionVisibleHeight >= 100,
-    `${viewportWidth}x${viewportHeight} should reveal a meaningful slice of the following homepage section`,
+    viewportWidth + "x" + viewportHeight + " should reveal the following homepage section",
   );
 }
-assert.match(homepageFilmStageCss, /position:\s*relative;/);
-assert.match(homepageFilmStageCss, /z-index:\s*1;/);
-assert.match(homepageFilmSurfaceCss, /width:\s*100%;/);
-assert.match(homepageFilmSurfaceCss, /aspect-ratio:\s*16\s*\/\s*10;/);
-assert.match(homepageFilmStageCss, /overflow:\s*hidden;/);
-assert.match(homepageFilmLiveScaleCss, /position:\s*absolute;/);
-assert.match(homepageFilmLiveScaleCss, /width:\s*1440px;/);
-assert.match(homepageFilmLiveScaleCss, /height:\s*900px;/);
-assert.match(
-  homepageFilmLiveScaleCss,
-  /transform:\s*scale\(var\(--homepage-film-scale,\s*1\)\);/,
-);
-assert.match(homepageFilmLiveScaleCss, /transform-origin:\s*(?:0 0|top left);/);
-assert.match(homepageFilmLiveCss, /width:\s*1440px;/);
-assert.match(homepageFilmLiveCss, /height:\s*900px;/);
-assert.match(homepageFilmLiveCss, /border:\s*0;/);
-assert.match(homepageFilmLiveCss, /pointer-events:\s*none;/);
-assert.match(
-  siteCss,
-  /\.homepage-film-stage\[hidden\]\s*\{[^}]*display:\s*none;/s,
-  "the live presentation should remain absent before its trusted ready handshake",
-);
-assert.match(homepageFilmFallbackCss, /display:\s*block;/);
-assert.match(homepageFilmFallbackCss, /width:\s*100%;/);
-assert.match(homepageFilmFallbackCss, /height:\s*auto;/);
-assert.match(homepageFilmFallbackCss, /border-radius:\s*0;/);
-assert.match(homepageFilmClockCss, /position:\s*absolute;/);
-assert.match(homepageFilmClockCss, /inset:\s*0;/);
-assert.match(homepageFilmClockCss, /z-index:\s*0;/);
-assert.match(homepageFilmClockCss, /width:\s*100%;/);
-assert.match(homepageFilmClockCss, /height:\s*100%;/);
-assert.match(homepageFilmClockCss, /object-fit:\s*cover;/);
-assert.match(homepageFilmClockCss, /pointer-events:\s*none;/);
+assert.match(homepageFilmMediaCss, /display:\s*block;/);
+assert.match(homepageFilmMediaCss, /width:\s*100%;/);
+assert.match(homepageFilmMediaCss, /height:\s*auto;/);
+assert.match(homepageFilmMediaCss, /aspect-ratio:\s*16\s*\/\s*10;/);
+assert.match(homepageFilmMediaCss, /border-radius:\s*0;/);
 assert.doesNotMatch(
-  homepageFilmClockCss,
-  /(?:clip-path|opacity|visibility|display)\s*:/,
-  "the soundtrack transport should remain rendered while the live stage is active",
+  siteCss,
+  /\.homepage-film-(?:stage|live|live-scale)\b|\.homepage-film-source-media--soundtrack\b/,
+  "the stylesheet must not retain a second renderer behind or above the video",
 );
-
-const progressiveFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
-assert.equal(progressiveFilmBehavior.stage.hidden, true);
-assert.equal(progressiveFilmBehavior.controls.hidden, true);
-assert.equal(progressiveFilmBehavior.video.controls, true);
-assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "video");
-assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-autoplay-status"), "pending");
-assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-audio-status"), "pending");
-assert.equal(progressiveFilmBehavior.video.muted, false);
-assert.equal(progressiveFilmBehavior.resizeObserver, undefined);
-assert.ok(progressiveFilmBehavior.timeoutCallbacks.size >= 1);
-assert.match(
-  progressiveFilmBehavior.live.src,
-  /^https:\/\/judgmentkit\.test\/assets\/releases\/visual-composition-runtime-demo\.html\?/,
-);
-assert.equal(new URL(progressiveFilmBehavior.live.src).searchParams.get("embed"), "homepage");
+const missingControlFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
+  omitScrubber: true,
+});
+assert.equal(missingControlFilmBehavior.controls.hidden, true);
 assert.equal(
-  new URL(progressiveFilmBehavior.live.src).searchParams.get("instance"),
-  "homepage-test-instance",
-);
-
-progressiveFilmBehavior.setInView(true);
-await progressiveFilmBehavior.settlePlayback();
-assert.equal(progressiveFilmBehavior.video.playCalls, 1);
-assert.equal(progressiveFilmBehavior.video.paused, false);
-assert.equal(progressiveFilmBehavior.video.muted, false);
-assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-autoplay-status"), "playing");
-assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-audio-status"), "available");
-
-progressiveFilmBehavior.dispatchReady({}, { origin: "https://evil.example" });
-assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "video");
-progressiveFilmBehavior.dispatchMessage(
-  {
-    channel: "judgmentkit-visual-composition-v1",
-    version: 1,
-    instance: "homepage-test-instance",
-    type: "READY",
-    payload: { durationMs: 38_000, frame: { width: 1440, height: 900 } },
-  },
-  { sourceWindow: {} },
-);
-assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "video");
-progressiveFilmBehavior.dispatchMessage(
-  {
-    channel: "wrong-protocol",
-    version: 1,
-    instance: "homepage-test-instance",
-    type: "READY",
-    payload: { durationMs: 38_000, frame: { width: 1440, height: 900 } },
-  },
-);
-assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "video");
-progressiveFilmBehavior.dispatchReady();
-assert.equal(progressiveFilmBehavior.stage.hidden, false);
-assert.equal(progressiveFilmBehavior.controls.hidden, false);
-assert.equal(progressiveFilmBehavior.video.controls, false);
-assert.equal(progressiveFilmBehavior.video.getAttribute("aria-hidden"), "true");
-assert.equal(
-  progressiveFilmBehavior.video.classList.contains(
-    "homepage-film-source-media--soundtrack",
-  ),
+  missingControlFilmBehavior.video.controls,
   true,
+  "native controls must survive when custom enhancement cannot bind",
 );
-assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "live");
-assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-live-status"), "ready");
-assert.equal(progressiveFilmBehavior.player.getAttribute("data-homepage-film-ready"), "true");
-assert.equal(progressiveFilmBehavior.timeoutCallbacks.size, 0);
-assert.ok(progressiveFilmBehavior.resizeObserver?.observed.includes(progressiveFilmBehavior.stage));
-progressiveFilmBehavior.resize(720);
-assert.equal(
-  progressiveFilmBehavior.liveScale.styleValues.get("--homepage-film-scale"),
-  "0.5",
-);
-const liveCommands = () =>
-  homepageFilmControllerCommands(progressiveFilmBehavior);
-assert.ok(
-  liveCommands().some(
-    (message) => message.type === "INIT" && message.payload?.theme === "light",
-  ),
-);
-assert.ok(
-  progressiveFilmBehavior.liveMessages.every(
-    ({ targetOrigin }) => targetOrigin === "*",
-  ),
-);
-assert.equal(progressiveFilmBehavior.muteButton.getAttribute("aria-label"), "Mute music");
-assert.equal(progressiveFilmBehavior.soundIcon.hasAttribute("hidden"), false);
-assert.equal(progressiveFilmBehavior.mutedIcon.hasAttribute("hidden"), true);
-assert.equal(progressiveFilmBehavior.playButton.getAttribute("aria-label"), "Pause demo");
+assert.equal(missingControlFilmBehavior.video.playCalls, 0);
 
-const commandsBeforePause = liveCommands().length;
-progressiveFilmBehavior.playButton.dispatch("click");
-assert.ok(
-  liveCommands().slice(commandsBeforePause).some(
-    (message) => message.type === "PAUSE" && message.payload?.timeMs === 0,
-  ),
-  "Pause should stop both the soundtrack clock and live timeline",
-);
-assert.equal(progressiveFilmBehavior.playButton.getAttribute("aria-label"), "Play demo");
-const commandsBeforePlay = liveCommands().length;
-progressiveFilmBehavior.playButton.dispatch("click");
-assert.equal(progressiveFilmBehavior.video.playCalls, 2);
-assert.equal(progressiveFilmBehavior.video.muted, false);
-assert.ok(
-  liveCommands().slice(commandsBeforePlay).some(
-    (message) => message.type === "PLAY" && message.payload?.timeMs === 0,
-  ),
-  "a user Play gesture should restart both clocks with sound still on",
-);
-progressiveFilmBehavior.scrubber.value = "50";
-progressiveFilmBehavior.scrubber.dispatch("input");
-assert.equal(progressiveFilmBehavior.video.currentTime, 19);
-progressiveFilmBehavior.video.dispatch("seeked");
-assert.ok(
-  liveCommands().some(
-    (message) =>
-      message.type === "SYNC"
-      && message.payload?.timeMs === 19_000
-      && message.payload?.playing === true,
-  ),
-  "scrubbing during playback should move both clocks without pausing the live timeline",
-);
-progressiveFilmBehavior.muteButton.dispatch("click");
-assert.equal(progressiveFilmBehavior.video.muted, true);
-assert.equal(progressiveFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute music");
-
-const liveSourceBeforeLoop = progressiveFilmBehavior.live.src;
-progressiveFilmBehavior.video.currentTime = progressiveFilmBehavior.video.duration - 0.01;
-progressiveFilmBehavior.video.paused = false;
-progressiveFilmBehavior.video.ended = false;
-progressiveFilmBehavior.video.dispatch("timeupdate");
-const commandsBeforeLoop = liveCommands().length;
-progressiveFilmBehavior.video.currentTime = 0;
-progressiveFilmBehavior.video.dispatch("timeupdate");
-progressiveFilmBehavior.video.dispatch("seeked");
-assert.equal(progressiveFilmBehavior.video.currentTime, 0);
-assert.equal(progressiveFilmBehavior.video.paused, false);
-assert.equal(progressiveFilmBehavior.stage.hidden, false);
+const directFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts);
+assert.equal(directFilmBehavior.controls.hidden, false);
 assert.equal(
-  progressiveFilmBehavior.live.src,
-  liveSourceBeforeLoop,
-  "looping should reset the existing live document instead of reloading or flashing it",
-);
-assert.ok(
-  liveCommands().slice(commandsBeforeLoop).some(
-    (message) =>
-      message.type === "SYNC"
-      && message.payload?.timeMs === 0,
-  ),
-  "looping should restart the live timeline at the same zero point as the media clock",
-);
-assert.equal(
-  liveCommands().slice(commandsBeforeLoop).some(
-    (message) => message.type === "SEEK" && message.payload?.timeMs === 0,
-  ),
+  directFilmBehavior.video.controls,
   false,
-  "the browser's loop-generated seek must not rebuild the live timeline in a paused state",
+  "custom controls may replace native controls only after successful binding",
+);
+assert.equal(directFilmBehavior.player.getAttribute("data-homepage-film-ready"), "true");
+assert.equal(directFilmBehavior.video.paused, true);
+assert.equal(directFilmBehavior.video.muted, false);
+assert.equal(directFilmBehavior.video.playCalls, 0);
+assert.equal(directFilmBehavior.playButton.getAttribute("aria-label"), "Play video");
+assert.equal(directFilmBehavior.scrubber.value, "0");
+assert.equal(
+  directFilmBehavior.matchMediaCalls(),
+  0,
+  "theme detection should be skipped when no distinct theme assets are supplied",
 );
 
-const nativePauseBeforeReadyFilmBehavior = runHomepageLiveFilmBehavior(
-  homepageFilmScripts,
-);
-nativePauseBeforeReadyFilmBehavior.setInView(true);
-await nativePauseBeforeReadyFilmBehavior.settlePlayback();
-assert.equal(nativePauseBeforeReadyFilmBehavior.video.paused, false);
-nativePauseBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
-nativePauseBeforeReadyFilmBehavior.video.paused = true;
-nativePauseBeforeReadyFilmBehavior.video.dispatch("pause", { isTrusted: true });
-nativePauseBeforeReadyFilmBehavior.dispatchReady();
-const nativePauseBeforeReadyCommands = homepageFilmControllerCommands(
-  nativePauseBeforeReadyFilmBehavior,
-);
-assert.ok(
-  nativePauseBeforeReadyCommands.some(
-    (message) => message.type === "INIT" && message.payload?.playing === false,
-  ),
-  "a native-control pause before READY must initialize the live renderer paused",
-);
+directFilmBehavior.playButton.dispatch("click");
+await directFilmBehavior.settlePlayback();
+assert.equal(directFilmBehavior.video.playCalls, 1);
+assert.equal(directFilmBehavior.video.paused, false);
 assert.equal(
-  nativePauseBeforeReadyCommands.some(controllerCommandPlays),
+  directFilmBehavior.video.muted,
   false,
-  "the live handoff must not reinterpret a native-control pause as failed autoplay",
+  "the user-initiated Play action must request audible playback",
 );
+assert.equal(directFilmBehavior.playButton.getAttribute("aria-label"), "Pause video");
+assert.equal(directFilmBehavior.playIcon.hasAttribute("hidden"), true);
+assert.equal(directFilmBehavior.pauseIcon.hasAttribute("hidden"), false);
+
+directFilmBehavior.video.currentTime = 9.55;
+directFilmBehavior.video.dispatch("timeupdate");
+assert.equal(Number(directFilmBehavior.scrubber.value), 25);
+directFilmBehavior.playButton.dispatch("click");
+assert.equal(directFilmBehavior.video.paused, true);
+assert.equal(directFilmBehavior.playButton.getAttribute("aria-label"), "Play video");
+const pausedProgress = directFilmBehavior.scrubber.value;
+await directFilmBehavior.settlePlayback();
 assert.equal(
-  nativePauseBeforeReadyFilmBehavior.playButton.getAttribute("aria-label"),
-  "Play demo",
-);
-const nativePausedProgress = nativePauseBeforeReadyFilmBehavior.scrubber.value;
-nativePauseBeforeReadyFilmBehavior.advanceAnimationClock(1_000);
-assert.equal(
-  nativePauseBeforeReadyFilmBehavior.scrubber.value,
-  nativePausedProgress,
-  "the independent visual clock must not restart after a native-control pause",
-);
-nativePauseBeforeReadyFilmBehavior.setInView(false);
-nativePauseBeforeReadyFilmBehavior.setInView(true);
-assert.equal(
-  homepageFilmControllerCommands(nativePauseBeforeReadyFilmBehavior).some(controllerCommandPlays),
-  false,
-  "visibility re-entry must preserve the visitor's native pause intent",
+  directFilmBehavior.scrubber.value,
+  pausedProgress,
+  "progress must not advance from a synthetic clock while the video is paused",
 );
 
-const pendingNativePauseBeforeReadyFilmBehavior = runHomepageLiveFilmBehavior(
-  homepageFilmScripts,
-  { playOutcomes: ["defer"] },
-);
-pendingNativePauseBeforeReadyFilmBehavior.setInView(true);
-assert.equal(pendingNativePauseBeforeReadyFilmBehavior.video.playCalls, 1);
-pendingNativePauseBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
-pendingNativePauseBeforeReadyFilmBehavior.video.pause();
-pendingNativePauseBeforeReadyFilmBehavior.dispatchReady();
-const pendingNativePauseCommands = homepageFilmControllerCommands(
-  pendingNativePauseBeforeReadyFilmBehavior,
-);
-assert.ok(
-  pendingNativePauseCommands.some(
-    (message) => message.type === "INIT" && message.payload?.playing === false,
-  ),
-  "a native pause must cancel a still-pending autoplay request before live handoff",
-);
-assert.equal(
-  pendingNativePauseCommands.some(controllerCommandPlays),
-  false,
-);
-pendingNativePauseBeforeReadyFilmBehavior.setInView(false);
-pendingNativePauseBeforeReadyFilmBehavior.setInView(true);
-assert.equal(
-  homepageFilmControllerCommands(pendingNativePauseBeforeReadyFilmBehavior).some(
-    controllerCommandPlays,
-  ),
-  false,
-  "visibility re-entry must not resume a demo paused during a pending native autoplay request",
-);
-pendingNativePauseBeforeReadyFilmBehavior.resolveFirstPlay();
-await pendingNativePauseBeforeReadyFilmBehavior.settlePlayback();
-assert.equal(
-  pendingNativePauseBeforeReadyFilmBehavior.video.paused,
-  true,
-  "a stale autoplay promise must not override native pause intent after live handoff",
-);
-assert.equal(
-  homepageFilmControllerCommands(pendingNativePauseBeforeReadyFilmBehavior).some(
-    controllerCommandPlays,
-  ),
-  false,
-);
+directFilmBehavior.scrubber.value = "50";
+directFilmBehavior.scrubber.dispatch("input");
+assert.equal(directFilmBehavior.video.currentTime, 19.1);
+assert.equal(Number(directFilmBehavior.scrubber.value), 50);
 
-const pendingNativeResumeBeforeReadyFilmBehavior = runHomepageLiveFilmBehavior(
-  homepageFilmScripts,
-  { playOutcomes: ["defer"] },
-);
-pendingNativeResumeBeforeReadyFilmBehavior.setInView(true);
-pendingNativeResumeBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
-pendingNativeResumeBeforeReadyFilmBehavior.video.pause();
-pendingNativeResumeBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
-pendingNativeResumeBeforeReadyFilmBehavior.video.paused = false;
-pendingNativeResumeBeforeReadyFilmBehavior.video.dispatch("play", { isTrusted: true });
-pendingNativeResumeBeforeReadyFilmBehavior.dispatchReady();
-assert.ok(
-  homepageFilmControllerCommands(pendingNativeResumeBeforeReadyFilmBehavior).some(
-    (message) => message.type === "INIT" && message.payload?.playing === true,
-  ),
-  "native resume before READY must clear pause intent even after canceling a pending autoplay",
-);
+directFilmBehavior.muteButton.dispatch("click");
+assert.equal(directFilmBehavior.video.muted, true);
+assert.equal(directFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute video");
+assert.equal(directFilmBehavior.soundIcon.hasAttribute("hidden"), true);
+assert.equal(directFilmBehavior.mutedIcon.hasAttribute("hidden"), false);
+directFilmBehavior.muteButton.dispatch("click");
+assert.equal(directFilmBehavior.video.muted, false);
+assert.equal(directFilmBehavior.muteButton.getAttribute("aria-label"), "Mute video");
 
-const nativeResumeBeforeReadyFilmBehavior = runHomepageLiveFilmBehavior(
-  homepageFilmScripts,
-);
-nativeResumeBeforeReadyFilmBehavior.setInView(true);
-await nativeResumeBeforeReadyFilmBehavior.settlePlayback();
-nativeResumeBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
-nativeResumeBeforeReadyFilmBehavior.video.paused = true;
-nativeResumeBeforeReadyFilmBehavior.video.dispatch("pause", { isTrusted: true });
-nativeResumeBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
-nativeResumeBeforeReadyFilmBehavior.video.paused = false;
-nativeResumeBeforeReadyFilmBehavior.video.dispatch("play", { isTrusted: true });
-nativeResumeBeforeReadyFilmBehavior.dispatchReady();
-assert.ok(
-  homepageFilmControllerCommands(nativeResumeBeforeReadyFilmBehavior).some(
-    (message) => message.type === "INIT" && message.payload?.playing === true,
-  ),
-  "native play before READY should clear the earlier pause intent",
-);
-const nativeResumeCommandCount = homepageFilmControllerCommands(
-  nativeResumeBeforeReadyFilmBehavior,
-).length;
-nativeResumeBeforeReadyFilmBehavior.video.dispatch("pause");
-assert.equal(
-  homepageFilmControllerCommands(nativeResumeBeforeReadyFilmBehavior).length,
-  nativeResumeCommandCount,
-  "a delayed pause event from an older programmatic pause must not stop resumed playback",
-);
-assert.equal(
-  nativeResumeBeforeReadyFilmBehavior.playButton.getAttribute("aria-label"),
-  "Pause demo",
-);
+directFilmBehavior.video.currentTime = directFilmBehavior.video.duration;
+directFilmBehavior.video.ended = true;
+directFilmBehavior.video.paused = true;
+directFilmBehavior.video.dispatch("ended");
+directFilmBehavior.playButton.dispatch("click");
+await directFilmBehavior.settlePlayback();
+assert.equal(directFilmBehavior.video.currentTime, 0);
+assert.equal(directFilmBehavior.video.paused, false);
+assert.equal(directFilmBehavior.video.playCalls, 2);
 
-const preReadyBrowserSuspensionFilmBehavior = runHomepageLiveFilmBehavior(
-  homepageFilmScripts,
-);
-preReadyBrowserSuspensionFilmBehavior.setInView(true);
-await preReadyBrowserSuspensionFilmBehavior.settlePlayback();
-preReadyBrowserSuspensionFilmBehavior.video.paused = true;
-preReadyBrowserSuspensionFilmBehavior.video.dispatch("pause");
-preReadyBrowserSuspensionFilmBehavior.dispatchReady();
-assert.ok(
-  homepageFilmControllerCommands(preReadyBrowserSuspensionFilmBehavior).some(
-    (message) => message.type === "INIT" && message.payload?.playing === true,
-  ),
-  "a browser suspension without native-control interaction must start the independent visual clock",
-);
-const preReadySuspensionProgress = Number(preReadyBrowserSuspensionFilmBehavior.scrubber.value);
-preReadyBrowserSuspensionFilmBehavior.advanceAnimationClock(1_000);
-assert.ok(
-  Number(preReadyBrowserSuspensionFilmBehavior.scrubber.value) > preReadySuspensionProgress,
-  "the independent visual clock must advance after a pre-READY browser suspension",
-);
-
-const livePauseRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
-livePauseRecoveryFilmBehavior.setInView(true);
-await livePauseRecoveryFilmBehavior.settlePlayback();
-livePauseRecoveryFilmBehavior.dispatchReady();
-assert.equal(
-  livePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "available",
-);
-livePauseRecoveryFilmBehavior.video.paused = true;
-livePauseRecoveryFilmBehavior.video.dispatch("pause");
-assert.equal(
-  livePauseRecoveryFilmBehavior.video.playCalls,
-  2,
-  "an unexpected live-media pause should make one bounded soundtrack recovery attempt",
-);
-assert.equal(
-  livePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "recovering",
-);
-await livePauseRecoveryFilmBehavior.settlePlayback();
-assert.equal(livePauseRecoveryFilmBehavior.video.paused, false);
-assert.equal(livePauseRecoveryFilmBehavior.video.muted, false);
-assert.equal(
-  livePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "available",
-  "a successful retry should restore the audible soundtrack state",
-);
-livePauseRecoveryFilmBehavior.video.paused = true;
-livePauseRecoveryFilmBehavior.video.dispatch("pause");
-assert.equal(
-  livePauseRecoveryFilmBehavior.video.playCalls,
-  2,
-  "a second unexpected pause must not start an unbounded retry loop",
-);
-assert.equal(livePauseRecoveryFilmBehavior.video.muted, true);
-assert.equal(
-  livePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "gesture-required",
-  "after the bounded retry is exhausted, the player should state that sound needs a gesture",
-);
-assert.equal(livePauseRecoveryFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute music");
-const exhaustedRecoveryProgress = Number(livePauseRecoveryFilmBehavior.scrubber.value);
-livePauseRecoveryFilmBehavior.advanceAnimationClock(1_000);
-assert.ok(
-  Number(livePauseRecoveryFilmBehavior.scrubber.value) > exhaustedRecoveryProgress,
-  "the live visual should keep progressing after soundtrack recovery is exhausted",
-);
-
-const failedLivePauseRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  playOutcomes: ["success", "abort"],
-});
-failedLivePauseRecoveryFilmBehavior.setInView(true);
-await failedLivePauseRecoveryFilmBehavior.settlePlayback();
-failedLivePauseRecoveryFilmBehavior.dispatchReady();
-failedLivePauseRecoveryFilmBehavior.video.paused = true;
-failedLivePauseRecoveryFilmBehavior.video.dispatch("pause");
-assert.equal(failedLivePauseRecoveryFilmBehavior.video.playCalls, 2);
-assert.equal(
-  failedLivePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "recovering",
-);
-await failedLivePauseRecoveryFilmBehavior.settlePlayback();
-assert.equal(failedLivePauseRecoveryFilmBehavior.video.paused, true);
-assert.equal(failedLivePauseRecoveryFilmBehavior.video.muted, true);
-assert.equal(
-  failedLivePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "gesture-required",
-  "a rejected recovery attempt should preserve visual playback and offer sound reattachment",
-);
-assert.equal(
-  failedLivePauseRecoveryFilmBehavior.muteButton.getAttribute("aria-label"),
-  "Unmute music",
-);
-
-const delayedLivePauseRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  playOutcomes: ["success", "defer"],
-});
-delayedLivePauseRecoveryFilmBehavior.setInView(true);
-await delayedLivePauseRecoveryFilmBehavior.settlePlayback();
-delayedLivePauseRecoveryFilmBehavior.dispatchReady();
-delayedLivePauseRecoveryFilmBehavior.video.paused = true;
-delayedLivePauseRecoveryFilmBehavior.video.dispatch("pause");
-const delayedRecoveryStartProgress = Number(delayedLivePauseRecoveryFilmBehavior.scrubber.value);
-assert.equal(delayedLivePauseRecoveryFilmBehavior.playButton.getAttribute("aria-label"), "Pause demo");
-delayedLivePauseRecoveryFilmBehavior.advanceAnimationClock(500);
-const delayedRecoveryProgress = Number(delayedLivePauseRecoveryFilmBehavior.scrubber.value);
-assert.ok(
-  delayedRecoveryProgress > delayedRecoveryStartProgress,
-  "the independent clock should advance while a live soundtrack recovery is pending",
-);
-delayedLivePauseRecoveryFilmBehavior.resolveFirstPlay();
-await delayedLivePauseRecoveryFilmBehavior.settlePlayback();
-assert.equal(delayedLivePauseRecoveryFilmBehavior.video.paused, false);
-assert.equal(
-  delayedLivePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "available",
-);
-assert.ok(
-  Math.abs(
-    delayedLivePauseRecoveryFilmBehavior.video.currentTime -
-      (delayedRecoveryProgress / 100) * delayedLivePauseRecoveryFilmBehavior.video.duration,
-  ) < 0.25,
-  "a delayed recovery should adopt the advancing visual playhead instead of resuming stale time",
-);
-assert.equal(
-  delayedLivePauseRecoveryFilmBehavior.runNextTimeout(),
-  false,
-  "successful recovery should cancel its deadline",
-);
-
-const timedOutLivePauseRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  playOutcomes: ["success", "defer"],
-});
-timedOutLivePauseRecoveryFilmBehavior.setInView(true);
-await timedOutLivePauseRecoveryFilmBehavior.settlePlayback();
-timedOutLivePauseRecoveryFilmBehavior.dispatchReady();
-timedOutLivePauseRecoveryFilmBehavior.video.paused = true;
-timedOutLivePauseRecoveryFilmBehavior.video.dispatch("pause");
-const timedOutRecoveryStartProgress = Number(timedOutLivePauseRecoveryFilmBehavior.scrubber.value);
-timedOutLivePauseRecoveryFilmBehavior.advanceAnimationClock(500);
-assert.ok(
-  Number(timedOutLivePauseRecoveryFilmBehavior.scrubber.value) > timedOutRecoveryStartProgress,
-);
-assert.equal(timedOutLivePauseRecoveryFilmBehavior.runNextTimeout(), true);
-assert.equal(timedOutLivePauseRecoveryFilmBehavior.video.paused, true);
-assert.equal(timedOutLivePauseRecoveryFilmBehavior.video.muted, true);
-assert.equal(
-  timedOutLivePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "gesture-required",
-  "an unresolved recovery should expire into the explicit silent fallback",
-);
-timedOutLivePauseRecoveryFilmBehavior.resolveFirstPlay();
-await timedOutLivePauseRecoveryFilmBehavior.settlePlayback();
-assert.equal(
-  timedOutLivePauseRecoveryFilmBehavior.video.paused,
-  true,
-  "a play promise settling after the recovery deadline must not reclaim the media clock",
-);
-assert.equal(
-  timedOutLivePauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "gesture-required",
-);
-const timedOutLateSettlementProgress = Number(
-  timedOutLivePauseRecoveryFilmBehavior.scrubber.value,
-);
-timedOutLivePauseRecoveryFilmBehavior.advanceAnimationClock(500);
-assert.ok(
-  Number(timedOutLivePauseRecoveryFilmBehavior.scrubber.value) >
-    timedOutLateSettlementProgress,
-  "a stale late settlement must leave the independent visual clock advancing",
-);
-
-const userPausedLiveRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  playOutcomes: ["success", "pending"],
-});
-userPausedLiveRecoveryFilmBehavior.setInView(true);
-await userPausedLiveRecoveryFilmBehavior.settlePlayback();
-userPausedLiveRecoveryFilmBehavior.dispatchReady();
-userPausedLiveRecoveryFilmBehavior.video.paused = true;
-userPausedLiveRecoveryFilmBehavior.video.dispatch("pause");
-assert.equal(userPausedLiveRecoveryFilmBehavior.playButton.getAttribute("aria-label"), "Pause demo");
-userPausedLiveRecoveryFilmBehavior.advanceAnimationClock(500);
-userPausedLiveRecoveryFilmBehavior.playButton.dispatch("click");
-assert.equal(userPausedLiveRecoveryFilmBehavior.playButton.getAttribute("aria-label"), "Play demo");
-const userPausedRecoveryProgress = userPausedLiveRecoveryFilmBehavior.scrubber.value;
-userPausedLiveRecoveryFilmBehavior.advanceAnimationClock(500);
-assert.equal(
-  userPausedLiveRecoveryFilmBehavior.scrubber.value,
-  userPausedRecoveryProgress,
-  "a user pause during recovery must stop the independent visual clock",
-);
-assert.equal(userPausedLiveRecoveryFilmBehavior.runNextTimeout(), true);
-assert.equal(userPausedLiveRecoveryFilmBehavior.video.paused, true);
-assert.equal(userPausedLiveRecoveryFilmBehavior.video.muted, true);
-
-const userMutedPauseRecoveryFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
-userMutedPauseRecoveryFilmBehavior.setInView(true);
-await userMutedPauseRecoveryFilmBehavior.settlePlayback();
-userMutedPauseRecoveryFilmBehavior.dispatchReady();
-userMutedPauseRecoveryFilmBehavior.muteButton.dispatch("click");
-assert.equal(userMutedPauseRecoveryFilmBehavior.video.muted, true);
-assert.equal(
-  userMutedPauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "available",
-);
-userMutedPauseRecoveryFilmBehavior.video.paused = true;
-userMutedPauseRecoveryFilmBehavior.video.dispatch("pause");
-await userMutedPauseRecoveryFilmBehavior.settlePlayback();
-assert.equal(userMutedPauseRecoveryFilmBehavior.video.paused, false);
-assert.equal(userMutedPauseRecoveryFilmBehavior.video.muted, true);
-assert.equal(
-  userMutedPauseRecoveryFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "available",
-  "recovering intentionally muted playback must not be mislabeled as policy-blocked audio",
-);
-
-const blockedAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  blockFirstAudiblePlay: true,
-});
-blockedAutoplayFilmBehavior.setInView(true);
-await blockedAutoplayFilmBehavior.settlePlayback();
-assert.equal(
-  blockedAutoplayFilmBehavior.video.playCalls,
-  2,
-  "a blocked audible autoplay should make exactly one muted autoplay retry",
-);
-assert.equal(blockedAutoplayFilmBehavior.video.paused, false);
-assert.equal(blockedAutoplayFilmBehavior.video.muted, true);
-assert.equal(
-  blockedAutoplayFilmBehavior.player.getAttribute("data-film-autoplay-status"),
-  "blocked",
-);
-assert.equal(blockedAutoplayFilmBehavior.playButton.getAttribute("aria-label"), "Pause demo");
-assert.equal(blockedAutoplayFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute music");
-blockedAutoplayFilmBehavior.dispatchReady();
-blockedAutoplayFilmBehavior.muteButton.dispatch("click");
-assert.equal(
-  blockedAutoplayFilmBehavior.video.muted,
-  false,
-  "the explicit Unmute gesture should restore the preferred audible state",
-);
-
-const fullyBlockedAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  playOutcomes: ["not-allowed", "not-allowed"],
-});
-fullyBlockedAutoplayFilmBehavior.setInView(true);
-await fullyBlockedAutoplayFilmBehavior.settlePlayback();
-assert.equal(
-  fullyBlockedAutoplayFilmBehavior.video.playCalls,
-  2,
-  "autoplay should make one audible attempt and one muted media retry",
-);
-assert.equal(fullyBlockedAutoplayFilmBehavior.video.paused, true);
-fullyBlockedAutoplayFilmBehavior.dispatchReady();
-await fullyBlockedAutoplayFilmBehavior.settlePlayback();
-const fullyBlockedCommands = () =>
-  homepageFilmControllerCommands(fullyBlockedAutoplayFilmBehavior);
-assert.ok(
-  fullyBlockedCommands().some(controllerCommandPlays),
-  "the live visual must autoplay from an independent silent clock when both media play attempts are blocked",
-);
-assert.equal(
-  fullyBlockedAutoplayFilmBehavior.playButton.getAttribute("aria-label"),
-  "Pause demo",
-  "the player should expose the actual live-animation state rather than the blocked media state",
-);
-assert.equal(
-  fullyBlockedAutoplayFilmBehavior.muteButton.disabled,
-  false,
-  "an autoplay policy rejection must not make music permanently unavailable to a later user gesture",
-);
-
-const pausedBlockedUnmuteFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  playOutcomes: ["not-allowed", "not-allowed"],
-});
-pausedBlockedUnmuteFilmBehavior.setInView(true);
-await pausedBlockedUnmuteFilmBehavior.settlePlayback();
-pausedBlockedUnmuteFilmBehavior.dispatchReady();
-await pausedBlockedUnmuteFilmBehavior.settlePlayback();
-pausedBlockedUnmuteFilmBehavior.playButton.dispatch("click");
-assert.equal(pausedBlockedUnmuteFilmBehavior.playButton.getAttribute("aria-label"), "Play demo");
-const pausedBlockedPlayCalls = pausedBlockedUnmuteFilmBehavior.video.playCalls;
-assert.equal(
-  pausedBlockedUnmuteFilmBehavior.player.getAttribute("data-film-autoplay-status"),
-  "blocked",
-);
-pausedBlockedUnmuteFilmBehavior.muteButton.dispatch("click");
-assert.equal(pausedBlockedUnmuteFilmBehavior.video.muted, false);
-assert.equal(pausedBlockedUnmuteFilmBehavior.video.playCalls, pausedBlockedPlayCalls);
-assert.equal(
-  pausedBlockedUnmuteFilmBehavior.player.getAttribute("data-film-autoplay-status"),
-  "blocked",
-  "unmuting an intentionally paused visual must not claim that playback started",
-);
-assert.equal(
-  pausedBlockedUnmuteFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "available",
-);
-
-const initialSilentProgress = Number(fullyBlockedAutoplayFilmBehavior.scrubber.value);
-fullyBlockedAutoplayFilmBehavior.advanceAnimationClock(1_000);
-const advancedSilentProgress = Number(fullyBlockedAutoplayFilmBehavior.scrubber.value);
-assert.ok(
-  advancedSilentProgress > initialSilentProgress,
-  "the independent visual clock should advance the public scrubber while media is blocked",
-);
-const commandsBeforeSilentLoop = fullyBlockedCommands().length;
-fullyBlockedAutoplayFilmBehavior.advanceAnimationClock(38_200);
-assert.ok(
-  fullyBlockedCommands()
-    .slice(commandsBeforeSilentLoop)
-    .some(
-      (message) =>
-        message?.type === "SYNC" &&
-        message?.payload?.timeMs === 0 &&
-        message?.payload?.playing === true,
-    ),
-  "the independent visual clock should loop the live HTML at the authored zero point",
-);
-fullyBlockedAutoplayFilmBehavior.advanceAnimationClock(500);
-assert.ok(
-  Number(fullyBlockedAutoplayFilmBehavior.scrubber.value) > 0,
-  "the live visual clock should keep advancing after its loop reset",
-);
-
-const commandsBeforeHiddenPause = fullyBlockedCommands().length;
-fullyBlockedAutoplayFilmBehavior.setInView(false);
-assert.ok(
-  fullyBlockedCommands()
-    .slice(commandsBeforeHiddenPause)
-    .some(
-      (message) =>
-        (message?.type === "PAUSE" || message?.type === "SYNC") &&
-        message?.payload?.playing !== true,
-    ),
-  "leaving the viewport should pause the independent live visual clock",
-);
-const hiddenProgress = fullyBlockedAutoplayFilmBehavior.scrubber.value;
-fullyBlockedAutoplayFilmBehavior.advanceAnimationClock(1_000);
-assert.equal(
-  fullyBlockedAutoplayFilmBehavior.scrubber.value,
-  hiddenProgress,
-  "the live visual clock must not advance while its player is offscreen",
-);
-const commandsBeforeVisibleResume = fullyBlockedCommands().length;
-fullyBlockedAutoplayFilmBehavior.setInView(true);
-assert.ok(
-  fullyBlockedCommands()
-    .slice(commandsBeforeVisibleResume)
-    .some(controllerCommandPlays),
-  "returning to the viewport should resume a visibility-paused live visual clock",
-);
-fullyBlockedAutoplayFilmBehavior.advanceAnimationClock(1_000);
-assert.ok(
-  Number(fullyBlockedAutoplayFilmBehavior.scrubber.value) > Number(hiddenProgress),
-  "the resumed live visual clock should continue from its prior position",
-);
-
-const progressBeforeSoundtrackHandoff = Number(
-  fullyBlockedAutoplayFilmBehavior.scrubber.value,
-);
-const commandsBeforeSoundtrackHandoff = fullyBlockedCommands().length;
-fullyBlockedAutoplayFilmBehavior.muteButton.dispatch("click");
-await fullyBlockedAutoplayFilmBehavior.settlePlayback();
-assert.equal(
-  fullyBlockedAutoplayFilmBehavior.video.playCalls,
-  3,
-  "an explicit music gesture should retry the soundtrack after autoplay policy rejection",
-);
-assert.equal(fullyBlockedAutoplayFilmBehavior.video.paused, false);
-assert.equal(fullyBlockedAutoplayFilmBehavior.video.muted, false);
-assert.ok(
-  Math.abs(
-    fullyBlockedAutoplayFilmBehavior.video.currentTime -
-      (progressBeforeSoundtrackHandoff / 100) * fullyBlockedAutoplayFilmBehavior.video.duration,
-  ) < 0.25,
-  "soundtrack recovery should adopt the live visual clock position instead of restarting the story",
-);
-assert.ok(
-  fullyBlockedCommands()
-    .slice(commandsBeforeSoundtrackHandoff)
-    .some(controllerCommandPlays),
-  "soundtrack recovery should preserve the live animation's playing state",
-);
-
-const readyBeforeVisibilityFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  playOutcomes: ["not-allowed", "not-allowed"],
-});
-readyBeforeVisibilityFilmBehavior.dispatchReady();
-const commandsBeforeReadyFirstVisibility = homepageFilmControllerCommands(
-  readyBeforeVisibilityFilmBehavior,
-).length;
-readyBeforeVisibilityFilmBehavior.setInView(true);
-await readyBeforeVisibilityFilmBehavior.settlePlayback();
-assert.ok(
-  homepageFilmControllerCommands(readyBeforeVisibilityFilmBehavior)
-    .slice(commandsBeforeReadyFirstVisibility)
-    .some(controllerCommandPlays),
-  "a READY iframe that precedes the first visibility callback must still start visually after both media attempts are blocked",
-);
-readyBeforeVisibilityFilmBehavior.advanceAnimationClock(1_000);
-assert.ok(
-  Number(readyBeforeVisibilityFilmBehavior.scrubber.value) > 0,
-  "the READY-before-visibility path should advance the same independent visual clock",
-);
-
-async function assertMediaFailureStartsIndependentVisualClock({
-  label,
-  playOutcomes,
-  expectedPlayCalls,
-}) {
-  const behavior = runHomepageLiveFilmBehavior(homepageFilmScripts, { playOutcomes });
-  behavior.setInView(true);
-  await behavior.settlePlayback();
-  assert.equal(behavior.video.playCalls, expectedPlayCalls, `${label}: media attempts`);
-  behavior.dispatchReady();
-  await behavior.settlePlayback();
-  assert.equal(behavior.video.paused, true, `${label}: media should remain paused`);
-  assert.ok(
-    homepageFilmControllerCommands(behavior).some(controllerCommandPlays),
-    `${label}: live HTML should start from the independent visual clock`,
-  );
-  const initialProgress = Number(behavior.scrubber.value);
-  behavior.advanceAnimationClock(1_000);
-  assert.ok(
-    Number(behavior.scrubber.value) > initialProgress,
-    `${label}: independent visual progress should advance`,
-  );
-  return behavior;
-}
-
-await assertMediaFailureStartsIndependentVisualClock({
-  label: "synchronous NotAllowedError",
-  playOutcomes: ["throw-not-allowed", "throw-not-allowed"],
-  expectedPlayCalls: 2,
-});
-await assertMediaFailureStartsIndependentVisualClock({
-  label: "non-policy AbortError",
-  playOutcomes: ["abort"],
-  expectedPlayCalls: 1,
-});
-const pendingPlayFilmBehavior = await assertMediaFailureStartsIndependentVisualClock({
-  label: "never-settling in-view play before READY",
-  playOutcomes: ["pending"],
-  expectedPlayCalls: 1,
-});
-assert.equal(pendingPlayFilmBehavior.video.muted, true);
-assert.equal(pendingPlayFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute music");
-assert.equal(
-  pendingPlayFilmBehavior.muteButton.disabled,
-  false,
-  "a stalled autoplay request should leave soundtrack recovery available to a gesture",
-);
-const pendingVisualProgress = Number(pendingPlayFilmBehavior.scrubber.value);
-const pendingHandoffCommandsBefore = homepageFilmControllerCommands(
-  pendingPlayFilmBehavior,
-).length;
-pendingPlayFilmBehavior.muteButton.dispatch("click");
-await pendingPlayFilmBehavior.settlePlayback();
-assert.equal(
-  pendingPlayFilmBehavior.video.playCalls,
-  2,
-  "Unmute should supersede the stalled autoplay request with a gesture-backed retry",
-);
-assert.equal(pendingPlayFilmBehavior.video.paused, false);
-assert.equal(pendingPlayFilmBehavior.video.muted, false);
-assert.ok(
-  Math.abs(
-    pendingPlayFilmBehavior.video.currentTime -
-      (pendingVisualProgress / 100) * pendingPlayFilmBehavior.video.duration,
-  ) < 0.25,
-  "the recovered soundtrack should adopt the current visual playhead",
-);
-assert.ok(
-  homepageFilmControllerCommands(pendingPlayFilmBehavior)
-    .slice(pendingHandoffCommandsBefore)
-    .some(
-      (message) =>
-        message?.type === "SYNC" &&
-        message?.payload?.playing === true &&
-        message?.payload?.timeMs > 0,
-    ),
-  "soundtrack recovery should hand the live renderer a synchronized playing clock",
-);
-
-const rejectedSeekHandoffFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  ignoreVideoCurrentTimeAssignments: true,
-  playOutcomes: ["not-allowed", "not-allowed"],
-});
-rejectedSeekHandoffFilmBehavior.setInView(true);
-await rejectedSeekHandoffFilmBehavior.settlePlayback();
-rejectedSeekHandoffFilmBehavior.dispatchReady();
-await rejectedSeekHandoffFilmBehavior.settlePlayback();
-rejectedSeekHandoffFilmBehavior.advanceAnimationClock(1_000);
-const rejectedSeekProgress = Number(rejectedSeekHandoffFilmBehavior.scrubber.value);
-assert.ok(rejectedSeekProgress > 0);
-const rejectedSeekCommandsBefore = homepageFilmControllerCommands(
-  rejectedSeekHandoffFilmBehavior,
-).length;
-rejectedSeekHandoffFilmBehavior.muteButton.dispatch("click");
-await rejectedSeekHandoffFilmBehavior.settlePlayback();
-assert.equal(rejectedSeekHandoffFilmBehavior.video.currentTime, 0);
-assert.equal(
-  rejectedSeekHandoffFilmBehavior.video.paused,
-  true,
-  "a soundtrack that cannot adopt the visual playhead must not replace the visual clock",
-);
-assert.equal(rejectedSeekHandoffFilmBehavior.video.muted, true);
-assert.equal(
-  rejectedSeekHandoffFilmBehavior.muteButton.getAttribute("aria-label"),
-  "Unmute music",
-);
-assert.equal(
-  homepageFilmControllerCommands(rejectedSeekHandoffFilmBehavior)
-    .slice(rejectedSeekCommandsBefore)
-    .some(
-      (message) =>
-        ["PLAY", "SYNC"].includes(message?.type) &&
-        message?.payload?.timeMs === 0 &&
-        message?.payload?.playing !== false,
-    ),
-  false,
-  "a failed soundtrack seek must not rewind the live story to zero",
-);
-rejectedSeekHandoffFilmBehavior.advanceAnimationClock(1_000);
-assert.ok(
-  Number(rejectedSeekHandoffFilmBehavior.scrubber.value) > rejectedSeekProgress,
-  "the independent visual clock should remain authoritative and advancing after a rejected soundtrack handoff",
-);
-
-const deferredOffscreenHandoffFilmBehavior = runHomepageLiveFilmBehavior(
-  homepageFilmScripts,
-  { playOutcomes: ["not-allowed", "not-allowed", "defer"] },
-);
-deferredOffscreenHandoffFilmBehavior.setInView(true);
-await deferredOffscreenHandoffFilmBehavior.settlePlayback();
-deferredOffscreenHandoffFilmBehavior.dispatchReady();
-await deferredOffscreenHandoffFilmBehavior.settlePlayback();
-deferredOffscreenHandoffFilmBehavior.advanceAnimationClock(1_000);
-deferredOffscreenHandoffFilmBehavior.muteButton.dispatch("click");
-assert.equal(deferredOffscreenHandoffFilmBehavior.video.playCalls, 3);
-const deferredHandoffVisibleProgress = deferredOffscreenHandoffFilmBehavior.scrubber.value;
-deferredOffscreenHandoffFilmBehavior.setInView(false);
-deferredOffscreenHandoffFilmBehavior.advanceAnimationClock(1_000);
-assert.equal(
-  deferredOffscreenHandoffFilmBehavior.scrubber.value,
-  deferredHandoffVisibleProgress,
-  "the independent visual clock should pause while a soundtrack handoff is pending offscreen",
-);
-deferredOffscreenHandoffFilmBehavior.resolveFirstPlay();
-await deferredOffscreenHandoffFilmBehavior.settlePlayback();
-assert.equal(
-  deferredOffscreenHandoffFilmBehavior.video.paused,
-  true,
-  "an offscreen soundtrack handoff must remain paused after its stale play promise settles",
-);
-assert.equal(deferredOffscreenHandoffFilmBehavior.video.muted, true);
-assert.equal(
-  deferredOffscreenHandoffFilmBehavior.muteButton.getAttribute("aria-label"),
-  "Unmute music",
-);
-assert.equal(
-  deferredOffscreenHandoffFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "gesture-required",
-  "offscreen media settlement must not claim that the soundtrack owns playback",
-);
-const deferredHandoffCommandsBeforeReentry = homepageFilmControllerCommands(
-  deferredOffscreenHandoffFilmBehavior,
-).length;
-deferredOffscreenHandoffFilmBehavior.setInView(true);
-assert.ok(
-  homepageFilmControllerCommands(deferredOffscreenHandoffFilmBehavior)
-    .slice(deferredHandoffCommandsBeforeReentry)
-    .some(controllerCommandPlays),
-  "re-entry should resume the independent visual clock after the deferred audio handoff was rejected",
-);
-deferredOffscreenHandoffFilmBehavior.advanceAnimationClock(1_000);
-assert.ok(
-  Number(deferredOffscreenHandoffFilmBehavior.scrubber.value) >
-    Number(deferredHandoffVisibleProgress),
-  "the independent live story should continue advancing after re-entry",
-);
-assert.equal(deferredOffscreenHandoffFilmBehavior.video.paused, true);
-assert.equal(deferredOffscreenHandoffFilmBehavior.video.muted, true);
-assert.equal(
-  deferredOffscreenHandoffFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "gesture-required",
-);
-
-const concurrentVisibleHandoffFilmBehavior = runHomepageLiveFilmBehavior(
-  homepageFilmScripts,
-  { playOutcomes: ["defer", "defer"] },
-);
-concurrentVisibleHandoffFilmBehavior.setInView(true);
-assert.equal(concurrentVisibleHandoffFilmBehavior.video.playCalls, 1);
-concurrentVisibleHandoffFilmBehavior.dispatchReady();
-await concurrentVisibleHandoffFilmBehavior.settlePlayback();
-concurrentVisibleHandoffFilmBehavior.advanceAnimationClock(1_000);
-assert.ok(Number(concurrentVisibleHandoffFilmBehavior.scrubber.value) > 0);
-concurrentVisibleHandoffFilmBehavior.muteButton.dispatch("click");
-assert.equal(
-  concurrentVisibleHandoffFilmBehavior.video.playCalls,
-  2,
-  "visible Unmute should start a newer gesture-backed play while the initial request is pending",
-);
-assert.equal(concurrentVisibleHandoffFilmBehavior.video.muted, false);
-const pauseCallsBeforeStaleVisibleSuccess = concurrentVisibleHandoffFilmBehavior.video.pauseCalls;
-const progressBeforeStaleVisibleSuccess = Number(
-  concurrentVisibleHandoffFilmBehavior.scrubber.value,
-);
-concurrentVisibleHandoffFilmBehavior.resolveFirstPlay();
-await concurrentVisibleHandoffFilmBehavior.settlePlayback();
-assert.equal(
-  concurrentVisibleHandoffFilmBehavior.video.pauseCalls,
-  pauseCallsBeforeStaleVisibleSuccess,
-  "stale play A must not pause or abort the newer visible play B",
-);
-assert.equal(
-  concurrentVisibleHandoffFilmBehavior.video.muted,
-  false,
-  "stale play A must not remute the newer visible play B",
-);
-assert.equal(
-  concurrentVisibleHandoffFilmBehavior.muteButton.getAttribute("aria-label"),
-  "Mute music",
-);
-assert.notEqual(
-  concurrentVisibleHandoffFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "available",
-  "stale play A must not claim soundtrack ownership while play B is pending",
-);
-concurrentVisibleHandoffFilmBehavior.advanceAnimationClock(500);
-assert.ok(
-  Number(concurrentVisibleHandoffFilmBehavior.scrubber.value) > progressBeforeStaleVisibleSuccess,
-  "the visual clock should remain authoritative while the newer audio handoff is pending",
-);
-const progressBeforeCurrentVisibleSuccess = Number(
-  concurrentVisibleHandoffFilmBehavior.scrubber.value,
-);
-const commandsBeforeCurrentVisibleSuccess = homepageFilmControllerCommands(
-  concurrentVisibleHandoffFilmBehavior,
-).length;
-concurrentVisibleHandoffFilmBehavior.resolveFirstPlay();
-await concurrentVisibleHandoffFilmBehavior.settlePlayback();
-assert.equal(concurrentVisibleHandoffFilmBehavior.video.paused, false);
-assert.equal(concurrentVisibleHandoffFilmBehavior.video.muted, false);
-assert.equal(
-  concurrentVisibleHandoffFilmBehavior.player.getAttribute("data-film-audio-status"),
-  "available",
-  "only current play B may claim soundtrack ownership",
-);
-assert.ok(
-  Math.abs(
-    concurrentVisibleHandoffFilmBehavior.video.currentTime -
-      (progressBeforeCurrentVisibleSuccess / 100) *
-        concurrentVisibleHandoffFilmBehavior.video.duration,
-  ) < 0.25,
-  "current play B should adopt the latest visual playhead",
-);
-assert.ok(
-  homepageFilmControllerCommands(concurrentVisibleHandoffFilmBehavior)
-    .slice(commandsBeforeCurrentVisibleSuccess)
-    .some(
-      (message) =>
-        message?.type === "SYNC" &&
-        message?.payload?.playing === true &&
-        message?.payload?.timeMs > 0,
-    ),
-  "current play B should complete the nonzero soundtrack handoff",
-);
-
-const delayedDarkAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  blockFirstAudiblePlay: true,
+const darkFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
   darkSource: "/dark.mp4",
   darkPoster: "/dark.png",
-  deferThemeMetadata: true,
-});
-delayedDarkAutoplayFilmBehavior.setInView(true);
-await delayedDarkAutoplayFilmBehavior.settlePlayback();
-assert.equal(delayedDarkAutoplayFilmBehavior.video.paused, false);
-assert.equal(delayedDarkAutoplayFilmBehavior.video.muted, true);
-delayedDarkAutoplayFilmBehavior.dispatchVideoMetadata();
-assert.equal(
-  delayedDarkAutoplayFilmBehavior.video.paused,
-  false,
-  "late dark-source metadata must not cancel a newer muted autoplay attempt",
-);
-assert.equal(
-  delayedDarkAutoplayFilmBehavior.video.muted,
-  true,
-  "late dark-source metadata must not restore the stale audible state after policy fallback",
-);
-
-const delayedDarkMuteFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  darkSource: "/dark.mp4",
-  darkPoster: "/dark.png",
-  deferThemeMetadata: true,
-});
-delayedDarkMuteFilmBehavior.muteButton.dispatch("click");
-assert.equal(delayedDarkMuteFilmBehavior.video.muted, true);
-delayedDarkMuteFilmBehavior.dispatchVideoMetadata();
-assert.equal(
-  delayedDarkMuteFilmBehavior.video.muted,
-  true,
-  "late dark-source metadata must preserve a newer user mute choice",
-);
-
-const cancelledAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  blockFirstAudiblePlay: true,
-});
-cancelledAutoplayFilmBehavior.setInView(true);
-cancelledAutoplayFilmBehavior.setInView(false);
-await cancelledAutoplayFilmBehavior.settlePlayback();
-assert.equal(
-  cancelledAutoplayFilmBehavior.video.playCalls,
-  1,
-  "an autoplay result that settles after the film leaves view must not start a muted retry",
-);
-assert.equal(cancelledAutoplayFilmBehavior.video.paused, true);
-assert.equal(cancelledAutoplayFilmBehavior.video.muted, false);
-assert.equal(cancelledAutoplayFilmBehavior.playButton.getAttribute("aria-label"), "Play demo");
-
-const racedAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  deferFirstPlay: true,
-});
-racedAutoplayFilmBehavior.setInView(true);
-racedAutoplayFilmBehavior.setInView(false);
-racedAutoplayFilmBehavior.setInView(true);
-assert.equal(racedAutoplayFilmBehavior.video.playCalls, 2);
-assert.equal(racedAutoplayFilmBehavior.video.paused, false);
-racedAutoplayFilmBehavior.resolveFirstPlay();
-await racedAutoplayFilmBehavior.settlePlayback();
-assert.equal(
-  racedAutoplayFilmBehavior.video.paused,
-  false,
-  "a stale successful play promise must not pause the newer in-view playback attempt",
-);
-
-const timeoutFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
-assert.equal(timeoutFilmBehavior.runReadinessTimeout(), true);
-assert.equal(timeoutFilmBehavior.stage.hidden, true);
-assert.equal(timeoutFilmBehavior.controls.hidden, true);
-assert.equal(timeoutFilmBehavior.video.controls, true);
-assert.equal(timeoutFilmBehavior.player.getAttribute("data-film-renderer"), "video");
-assert.equal(timeoutFilmBehavior.player.getAttribute("data-film-live-status"), "timeout");
-timeoutFilmBehavior.dispatchReady();
-assert.equal(timeoutFilmBehavior.stage.hidden, true);
-assert.equal(timeoutFilmBehavior.player.getAttribute("data-film-renderer"), "video");
-assert.equal(
-  timeoutFilmBehavior.player.getAttribute("data-film-live-status"),
-  "timeout",
-  "a delayed ready message must not overwrite the terminal timeout state",
-);
-
-const liveErrorFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
-liveErrorFilmBehavior.dispatchReady();
-liveErrorFilmBehavior.live.dispatch("error");
-assert.equal(liveErrorFilmBehavior.stage.hidden, true);
-assert.equal(liveErrorFilmBehavior.controls.hidden, true);
-assert.equal(liveErrorFilmBehavior.video.controls, true);
-assert.equal(liveErrorFilmBehavior.video.getAttribute("aria-hidden"), null);
-assert.equal(
-  liveErrorFilmBehavior.video.classList.contains("homepage-film-source-media--soundtrack"),
-  false,
-);
-assert.equal(liveErrorFilmBehavior.player.getAttribute("data-film-renderer"), "video");
-assert.equal(liveErrorFilmBehavior.player.getAttribute("data-film-live-status"), "error");
-
-const earlySoundtrackErrorFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
-earlySoundtrackErrorFilmBehavior.video.dispatch("error");
-assert.equal(earlySoundtrackErrorFilmBehavior.player.getAttribute("data-film-renderer"), "video");
-assert.equal(earlySoundtrackErrorFilmBehavior.player.getAttribute("data-film-live-status"), "loading");
-assert.equal(earlySoundtrackErrorFilmBehavior.player.getAttribute("data-film-audio-status"), "unavailable");
-earlySoundtrackErrorFilmBehavior.dispatchReady();
-assert.equal(earlySoundtrackErrorFilmBehavior.stage.hidden, false);
-assert.equal(earlySoundtrackErrorFilmBehavior.controls.hidden, false);
-assert.equal(earlySoundtrackErrorFilmBehavior.player.getAttribute("data-film-renderer"), "live");
-assert.equal(earlySoundtrackErrorFilmBehavior.player.getAttribute("data-film-live-status"), "ready");
-assert.equal(earlySoundtrackErrorFilmBehavior.muteButton.disabled, true);
-assert.ok(
-  earlySoundtrackErrorFilmBehavior.liveMessages.some(
-    ({ message }) => message?.type === "SYNC" && message?.payload?.playing === true,
-  ),
-  "a pre-handshake soundtrack error should still promote and autoplay the healthy live demo",
-);
-
-const soundtrackErrorFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
-soundtrackErrorFilmBehavior.dispatchReady();
-soundtrackErrorFilmBehavior.video.dispatch("error");
-assert.equal(soundtrackErrorFilmBehavior.stage.hidden, false);
-assert.equal(soundtrackErrorFilmBehavior.controls.hidden, false);
-assert.equal(soundtrackErrorFilmBehavior.video.controls, false);
-assert.equal(soundtrackErrorFilmBehavior.video.getAttribute("aria-hidden"), "true");
-assert.equal(soundtrackErrorFilmBehavior.player.getAttribute("data-film-renderer"), "live");
-assert.equal(soundtrackErrorFilmBehavior.player.getAttribute("data-film-live-status"), "ready");
-assert.equal(soundtrackErrorFilmBehavior.player.getAttribute("data-film-audio-status"), "unavailable");
-assert.equal(soundtrackErrorFilmBehavior.muteButton.disabled, true);
-assert.equal(soundtrackErrorFilmBehavior.muteButton.getAttribute("aria-label"), "Music unavailable");
-const silentCommandsBeforePlay = soundtrackErrorFilmBehavior.liveMessages.length;
-soundtrackErrorFilmBehavior.playButton.dispatch("click");
-assert.ok(
-  soundtrackErrorFilmBehavior.liveMessages.slice(silentCommandsBeforePlay).some(
-    ({ message }) => message?.type === "SYNC" && message?.payload?.playing === true,
-  ),
-  "a failed soundtrack should leave the live demo controllable on its silent clock",
-);
-soundtrackErrorFilmBehavior.scrubber.value = "100";
-soundtrackErrorFilmBehavior.scrubber.dispatch("input");
-const silentCommandsBeforeRestart = soundtrackErrorFilmBehavior.liveMessages.length;
-soundtrackErrorFilmBehavior.playButton.dispatch("click");
-assert.ok(
-  soundtrackErrorFilmBehavior.liveMessages.slice(silentCommandsBeforeRestart).some(
-    ({ message }) =>
-      message?.type === "SYNC"
-      && message?.payload?.timeMs === 0
-      && message?.payload?.playing === true,
-  ),
-  "the silent clock should restart the live demo after reaching its end",
-);
-
-const darkFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
-  darkSource: "/dark.mp4",
-  darkPoster: "/dark.png",
+  darkPreference: true,
 });
 assert.equal(darkFilmBehavior.matchMediaCalls(), 1);
 assert.equal(darkFilmBehavior.source.getAttribute("src"), "/dark.mp4");
 assert.equal(darkFilmBehavior.video.poster, "/dark.png");
 assert.equal(darkFilmBehavior.player.getAttribute("data-film-theme"), "dark");
-darkFilmBehavior.dispatchReady();
-darkFilmBehavior.themeQuery.dispatch("change", { matches: false });
 assert.equal(
-  darkFilmBehavior.source.getAttribute("src"),
-  "/dark.mp4",
-  "theme changes should not reload the active soundtrack clock",
+  darkFilmBehavior.video.playCalls,
+  0,
+  "initial theme selection must not autoplay the film",
 );
-assert.equal(darkFilmBehavior.player.getAttribute("data-film-theme"), "light");
-assert.ok(
-  darkFilmBehavior.liveMessages.some(
-    ({ message }) => message?.type === "SET_THEME" && message?.payload?.theme === "light",
-  ),
-  "theme changes should be sent to the live renderer",
+assert.equal(darkFilmBehavior.video.paused, true);
+
+const initialThemeLoadingFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
+  darkSource: "/dark.mp4",
+  darkPoster: "/dark.png",
+  darkPreference: true,
+  deferThemeMetadata: true,
+});
+assert.equal(initialThemeLoadingFilmBehavior.source.getAttribute("src"), "/dark.mp4");
+assert.equal(initialThemeLoadingFilmBehavior.video.loadCalls, 1);
+initialThemeLoadingFilmBehavior.playButton.dispatch("click");
+await initialThemeLoadingFilmBehavior.settlePlayback();
+assert.equal(
+  initialThemeLoadingFilmBehavior.video.playCalls,
+  1,
+  "the first Play gesture must reach the loading theme video immediately",
 );
+assert.equal(initialThemeLoadingFilmBehavior.video.paused, false);
+initialThemeLoadingFilmBehavior.dispatchVideoMetadata();
+await initialThemeLoadingFilmBehavior.settlePlayback();
+assert.equal(
+  initialThemeLoadingFilmBehavior.video.playCalls,
+  1,
+  "metadata settlement must not replace the user-activated Play request",
+);
+assert.equal(initialThemeLoadingFilmBehavior.video.paused, false);
+
+const themeLoadingAudioBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
+  darkSource: "/dark.mp4",
+  darkPoster: "/dark.png",
+  darkPreference: true,
+  deferThemeMetadata: true,
+});
+themeLoadingAudioBehavior.muteButton.dispatch("click");
+themeLoadingAudioBehavior.video.volume = 0.4;
+assert.equal(themeLoadingAudioBehavior.video.muted, true);
+themeLoadingAudioBehavior.dispatchVideoMetadata();
+await themeLoadingAudioBehavior.settlePlayback();
+assert.equal(
+  themeLoadingAudioBehavior.video.muted,
+  true,
+  "theme metadata must not overwrite a newer mute choice",
+);
+assert.equal(
+  themeLoadingAudioBehavior.video.volume,
+  0.4,
+  "theme metadata must not overwrite a newer volume choice",
+);
+
+const themeRaceFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
+  darkSource: "/dark.mp4",
+  darkPoster: "/dark.png",
+  darkPreference: false,
+  deferThemeMetadata: true,
+});
+themeRaceFilmBehavior.playButton.dispatch("click");
+await themeRaceFilmBehavior.settlePlayback();
+themeRaceFilmBehavior.video.currentTime = 12.5;
+themeRaceFilmBehavior.video.muted = true;
+themeRaceFilmBehavior.video.volume = 0.4;
+themeRaceFilmBehavior.themeQuery.dispatch("change", { matches: true });
+assert.equal(themeRaceFilmBehavior.source.getAttribute("src"), "/dark.mp4");
+assert.equal(themeRaceFilmBehavior.video.paused, true);
+themeRaceFilmBehavior.themeQuery.dispatch("change", { matches: false });
+assert.equal(themeRaceFilmBehavior.source.getAttribute("src"), "/light.mp4");
+themeRaceFilmBehavior.dispatchVideoMetadata();
+await themeRaceFilmBehavior.settlePlayback();
+assert.equal(
+  themeRaceFilmBehavior.source.getAttribute("src"),
+  "/light.mp4",
+  "the newest theme request must win a racing source swap",
+);
+assert.equal(themeRaceFilmBehavior.player.getAttribute("data-film-theme"), "light");
+assert.equal(themeRaceFilmBehavior.video.currentTime, 12.5);
+assert.equal(themeRaceFilmBehavior.video.muted, true);
+assert.equal(themeRaceFilmBehavior.video.volume, 0.4);
+assert.equal(themeRaceFilmBehavior.video.paused, false);
+assert.equal(
+  themeRaceFilmBehavior.video.playCalls,
+  2,
+  "only the current theme swap may resume the previously playing video",
+);
+assert.equal(themeRaceFilmBehavior.playButton.getAttribute("aria-label"), "Pause video");
 const homepageFilmCss = cssRuleBlocks(siteCss)
   .filter(({ selector }) => selector.includes("homepage-film"))
   .map(({ body }) => body)
@@ -4868,42 +3538,12 @@ const visualCompositionLiveAssetPath = path.join(
 );
 assert.ok(
   fs.existsSync(visualCompositionLiveAssetPath),
-  "the authored composition demo should be published as the homepage's internal live asset",
+  "the standalone authored composition may remain published independently of the homepage",
 );
 assert.equal(
   fs.readFileSync(visualCompositionLiveAssetPath, "utf8"),
   visualCompositionFilmSource,
-  "the public live asset should stay byte-for-byte aligned with its editable authored source",
-);
-assert.match(
-  visualCompositionFilmSource,
-  /judgmentkit-visual-composition-v1/,
-  "the live demo and homepage should share one versioned message namespace",
-);
-assert.match(
-  visualCompositionFilmSource,
-  /window\.addEventListener\(['"]message['"],/,
-  "the embedded demo should accept typed parent timeline commands",
-);
-assert.match(
-  visualCompositionFilmSource,
-  /postControllerMessage\(['"]READY['"],\s*\{[\s\S]*?\.\.\.controllerState\(\),[\s\S]*?frame:\s*\{\s*width:\s*1440,\s*height:\s*900\s*\}/,
-  "the embedded demo should announce readiness and its live timeline duration",
-);
-assert.match(
-  visualCompositionFilmSource,
-  /html\[data-embed="homepage"\]:not\(\[data-controller-ready="true"\]\) body\s*\{[^}]*visibility:\s*hidden;/s,
-  "the embedded demo should not reveal its unsynchronized initial UI",
-);
-assert.match(
-  visualCompositionFilmSource,
-  /case 'INIT':[\s\S]*?synchronizeController\([\s\S]*?document\.documentElement\.dataset\.controllerReady\s*=\s*'true';/,
-  "the embedded demo should reveal itself only after its initial timeline state is synchronized",
-);
-assert.match(
-  visualCompositionFilmSource,
-  /durationMs:\s*filmDurationMs/,
-  "the live ready state should expose the authored timeline duration",
+  "the public authoring asset should stay byte-for-byte aligned with its editable source",
 );
 assert.match(
   visualCompositionFilmSource,
@@ -4983,21 +3623,6 @@ assert.match(
   /else if \(!\['0',\s*'off',\s*'manual'\]\.includes\(autoplayMode\)\)\s*\{\s*startStandaloneCinematicLoop\(\);\s*\}/,
   "a bare standalone demo should autoplay and loop while preserving an explicit manual opt-out",
 );
-assert.match(
-  visualCompositionFilmSource,
-  /if \(embedConfig\.enabled\)[\s\S]*?postControllerMessage\('READY',[\s\S]*?\}\s*else if \(autoplayMode === 'cinematic'\)/,
-  "embedded demos must remain parent-controlled instead of entering the standalone autoplay loop",
-);
-const visualCompositionRuntimeExport = visualCompositionFilmSource.slice(
-  visualCompositionFilmSource.indexOf("window.__JUDGMENTKIT_DEMO__"),
-);
-for (const controllerMember of ["play", "pause", "seek", "setTheme", "state"]) {
-  assert.match(
-    visualCompositionRuntimeExport,
-    new RegExp(`\\b${controllerMember}\\b`),
-    `the live demo controller should expose ${controllerMember}`,
-  );
-}
 assert.match(
   visualCompositionFilmSource,
   /function createReplayAnimationTracker\(\)[\s\S]*?const elapsedMs\s*=\s*Math\.max\(0,\s*targetMs\s*-\s*cueStartMs\);[\s\S]*?animation\.currentTime\s*=\s*elapsedMs;/,
