@@ -740,12 +740,16 @@ assert.match(
 assert.match(homepageFilmMediaOpenTag, /(?:\s|^)loop(?:\s|>)/);
 assert.match(homepageFilmMediaOpenTag, /(?:\s|^)playsinline(?:\s|>)/);
 assert.match(homepageFilmMediaOpenTag, /preload="auto"/);
-assert.doesNotMatch(
+assert.match(
   homepageFilmMediaOpenTag,
   /(?:\s|^)autoplay(?:\s|>)/,
-  "the film should begin only after the visitor presses Play",
+  "the film should request browser-safe autoplay",
 );
-assert.doesNotMatch(homepageFilmMediaOpenTag, /(?:\s|^)muted(?:\s|>)/);
+assert.match(
+  homepageFilmMediaOpenTag,
+  /(?:\s|^)muted(?:\s|>)/,
+  "autoplay must remain muted until the visitor chooses Unmute",
+);
 assert.match(
   homepageFilmMediaOpenTag,
   /aria-label="JudgmentKit UI generation, diagnosis, and measured repair"/,
@@ -841,7 +845,7 @@ assert.match(homepageFilmScrubber, /(?:\s|^)disabled(?:\s|>)/);
 assert.match(homepageFilmScrubber, /aria-label="Video progress"/);
 assert.match(homepageFilmMuteControl, /^<button\b/i);
 assert.match(homepageFilmMuteControl, /type="button"/);
-assert.match(homepageFilmMuteControl, /aria-label="Mute video"/);
+assert.match(homepageFilmMuteControl, /aria-label="Unmute video"/);
 const homepageFilmButtonMarkup = [
   ...homepageFilmControls.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/gi),
 ].map((match) => match[0]);
@@ -871,8 +875,8 @@ for (const iconId of ["play", "pause", "volume-2", "volume-x"]) {
 }
 assert.doesNotMatch(homepageFilmIconTag("play"), /(?:\s|^)hidden(?:\s|>)/);
 assert.match(homepageFilmIconTag("pause"), /(?:\s|^)hidden(?:\s|>)/);
-assert.doesNotMatch(homepageFilmIconTag("volume-2"), /(?:\s|^)hidden(?:\s|>)/);
-assert.match(homepageFilmIconTag("volume-x"), /(?:\s|^)hidden(?:\s|>)/);
+assert.match(homepageFilmIconTag("volume-2"), /(?:\s|^)hidden(?:\s|>)/);
+assert.doesNotMatch(homepageFilmIconTag("volume-x"), /(?:\s|^)hidden(?:\s|>)/);
 assert.doesNotMatch(homepageFilmPlayButtonMarkup + homepageFilmMuteButtonMarkup, /<span\b/i);
 assert.doesNotMatch(homepageFilmControls, /(?:fullscreen|caption|playback[_-]?rate|speed)/i);
 assert.doesNotMatch(homepageFilmFrame, /<(?:h[1-6]|p|figcaption)\b/i);
@@ -890,6 +894,7 @@ function runHomepageVideoBehavior(
     darkPreference = false,
     deferThemeMetadata = false,
     omitScrubber = false,
+    playOutcomes = [],
   } = {},
 ) {
   class FakeNode {
@@ -957,6 +962,8 @@ function runHomepageVideoBehavior(
       id: "homepage-film-media",
       class: "homepage-film-source-media",
       controls: "",
+      autoplay: "",
+      muted: "",
       poster: "/light.png",
     },
   });
@@ -966,9 +973,9 @@ function runHomepageVideoBehavior(
   const playIcon = new FakeNode();
   const pauseIcon = new FakeNode({ attributes: { hidden: "" } });
   const scrubber = new FakeNode({ attributes: { "aria-valuetext": "0 percent played" } });
-  const muteButton = new FakeNode({ attributes: { "aria-label": "Mute video" } });
-  const soundIcon = new FakeNode();
-  const mutedIcon = new FakeNode({ attributes: { hidden: "" } });
+  const muteButton = new FakeNode({ attributes: { "aria-label": "Unmute video" } });
+  const soundIcon = new FakeNode({ attributes: { hidden: "" } });
+  const mutedIcon = new FakeNode();
 
   video.controls = true;
   video.paused = true;
@@ -980,7 +987,7 @@ function runHomepageVideoBehavior(
   video.playCalls = 0;
   video.pauseCalls = 0;
   video.loadCalls = 0;
-  let videoMuted = false;
+  let videoMuted = true;
   let videoVolume = 1;
   Object.defineProperties(video, {
     muted: {
@@ -1000,6 +1007,11 @@ function runHomepageVideoBehavior(
   });
   video.play = () => {
     video.playCalls += 1;
+    const outcome = playOutcomes[video.playCalls - 1] ?? "resolve";
+    if (outcome === "reject") {
+      video.paused = true;
+      return Promise.reject(new Error("autoplay rejected"));
+    }
     video.paused = false;
     video.ended = false;
     video.dispatch("play");
@@ -1334,6 +1346,7 @@ assert.doesNotMatch(
   /\.homepage-film-frame::(?:before|after)\s*\{/,
   "the full-bleed film wrapper should not recreate a frame with pseudo-elements",
 );
+assert.match(homepageFilmFrameCss, /overflow:\s*hidden;/);
 assert.doesNotMatch(
   homepageFilmSectionCss,
   /(?:radial|linear)-gradient\(/i,
@@ -1384,7 +1397,11 @@ assert.match(homepageFilmMediaCss, /display:\s*block;/);
 assert.match(homepageFilmMediaCss, /width:\s*100%;/);
 assert.match(homepageFilmMediaCss, /height:\s*auto;/);
 assert.match(homepageFilmMediaCss, /aspect-ratio:\s*16\s*\/\s*10;/);
+assert.match(homepageFilmMediaCss, /object-fit:\s*cover;/);
 assert.match(homepageFilmMediaCss, /border-radius:\s*0;/);
+assert.match(homepageFilmMediaCss, /background:\s*var\(--bg\);/);
+assert.match(homepageFilmMediaCss, /transform:\s*scaleX\(1\.004\);/);
+assert.match(homepageFilmMediaCss, /transform-origin:\s*center;/);
 assert.doesNotMatch(
   siteCss,
   /\.homepage-film-(?:stage|live|live-scale)\b|\.homepage-film-source-media--soundtrack\b/,
@@ -1402,6 +1419,7 @@ assert.equal(
 assert.equal(missingControlFilmBehavior.video.playCalls, 0);
 
 const directFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts);
+await directFilmBehavior.settlePlayback();
 assert.equal(directFilmBehavior.controls.hidden, false);
 assert.equal(
   directFilmBehavior.video.controls,
@@ -1409,27 +1427,19 @@ assert.equal(
   "custom controls may replace native controls only after successful binding",
 );
 assert.equal(directFilmBehavior.player.getAttribute("data-homepage-film-ready"), "true");
-assert.equal(directFilmBehavior.video.paused, true);
-assert.equal(directFilmBehavior.video.muted, false);
-assert.equal(directFilmBehavior.video.playCalls, 0);
-assert.equal(directFilmBehavior.playButton.getAttribute("aria-label"), "Play video");
+assert.equal(directFilmBehavior.video.paused, false);
+assert.equal(directFilmBehavior.video.muted, true);
+assert.equal(directFilmBehavior.video.playCalls, 1);
+assert.equal(directFilmBehavior.playButton.getAttribute("aria-label"), "Pause video");
+assert.equal(directFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute video");
+assert.equal(directFilmBehavior.soundIcon.hasAttribute("hidden"), true);
+assert.equal(directFilmBehavior.mutedIcon.hasAttribute("hidden"), false);
 assert.equal(directFilmBehavior.scrubber.value, "0");
 assert.equal(
   directFilmBehavior.matchMediaCalls(),
   0,
   "theme detection should be skipped when no distinct theme assets are supplied",
 );
-
-directFilmBehavior.playButton.dispatch("click");
-await directFilmBehavior.settlePlayback();
-assert.equal(directFilmBehavior.video.playCalls, 1);
-assert.equal(directFilmBehavior.video.paused, false);
-assert.equal(
-  directFilmBehavior.video.muted,
-  false,
-  "the user-initiated Play action must request audible playback",
-);
-assert.equal(directFilmBehavior.playButton.getAttribute("aria-label"), "Pause video");
 assert.equal(directFilmBehavior.playIcon.hasAttribute("hidden"), true);
 assert.equal(directFilmBehavior.pauseIcon.hasAttribute("hidden"), false);
 
@@ -1453,13 +1463,13 @@ assert.equal(directFilmBehavior.video.currentTime, 19.1);
 assert.equal(Number(directFilmBehavior.scrubber.value), 50);
 
 directFilmBehavior.muteButton.dispatch("click");
-assert.equal(directFilmBehavior.video.muted, true);
-assert.equal(directFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute video");
-assert.equal(directFilmBehavior.soundIcon.hasAttribute("hidden"), true);
-assert.equal(directFilmBehavior.mutedIcon.hasAttribute("hidden"), false);
-directFilmBehavior.muteButton.dispatch("click");
 assert.equal(directFilmBehavior.video.muted, false);
 assert.equal(directFilmBehavior.muteButton.getAttribute("aria-label"), "Mute video");
+assert.equal(directFilmBehavior.soundIcon.hasAttribute("hidden"), false);
+assert.equal(directFilmBehavior.mutedIcon.hasAttribute("hidden"), true);
+directFilmBehavior.muteButton.dispatch("click");
+assert.equal(directFilmBehavior.video.muted, true);
+assert.equal(directFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute video");
 
 directFilmBehavior.video.currentTime = directFilmBehavior.video.duration;
 directFilmBehavior.video.ended = true;
@@ -1471,21 +1481,37 @@ assert.equal(directFilmBehavior.video.currentTime, 0);
 assert.equal(directFilmBehavior.video.paused, false);
 assert.equal(directFilmBehavior.video.playCalls, 2);
 
+const rejectedAutoplayFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
+  playOutcomes: ["reject", "resolve"],
+});
+await rejectedAutoplayFilmBehavior.settlePlayback();
+assert.equal(rejectedAutoplayFilmBehavior.video.playCalls, 1);
+assert.equal(rejectedAutoplayFilmBehavior.video.paused, true);
+assert.equal(rejectedAutoplayFilmBehavior.playButton.getAttribute("aria-label"), "Play video");
+rejectedAutoplayFilmBehavior.playButton.dispatch("click");
+await rejectedAutoplayFilmBehavior.settlePlayback();
+assert.equal(rejectedAutoplayFilmBehavior.video.playCalls, 2);
+assert.equal(rejectedAutoplayFilmBehavior.video.paused, false);
+assert.equal(rejectedAutoplayFilmBehavior.video.muted, true);
+assert.equal(rejectedAutoplayFilmBehavior.playButton.getAttribute("aria-label"), "Pause video");
+
 const darkFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
   darkSource: "/dark.mp4",
   darkPoster: "/dark.png",
   darkPreference: true,
 });
+await darkFilmBehavior.settlePlayback();
 assert.equal(darkFilmBehavior.matchMediaCalls(), 1);
 assert.equal(darkFilmBehavior.source.getAttribute("src"), "/dark.mp4");
 assert.equal(darkFilmBehavior.video.poster, "/dark.png");
 assert.equal(darkFilmBehavior.player.getAttribute("data-film-theme"), "dark");
 assert.equal(
   darkFilmBehavior.video.playCalls,
-  0,
-  "initial theme selection must not autoplay the film",
+  1,
+  "the selected dark source should autoplay once it is ready",
 );
-assert.equal(darkFilmBehavior.video.paused, true);
+assert.equal(darkFilmBehavior.video.paused, false);
+assert.equal(darkFilmBehavior.video.muted, true);
 
 const initialThemeLoadingFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
   darkSource: "/dark.mp4",
@@ -1495,20 +1521,18 @@ const initialThemeLoadingFilmBehavior = runHomepageVideoBehavior(homepageFilmScr
 });
 assert.equal(initialThemeLoadingFilmBehavior.source.getAttribute("src"), "/dark.mp4");
 assert.equal(initialThemeLoadingFilmBehavior.video.loadCalls, 1);
-initialThemeLoadingFilmBehavior.playButton.dispatch("click");
-await initialThemeLoadingFilmBehavior.settlePlayback();
 assert.equal(
   initialThemeLoadingFilmBehavior.video.playCalls,
-  1,
-  "the first Play gesture must reach the loading theme video immediately",
+  0,
+  "autoplay should wait for the selected theme source metadata",
 );
-assert.equal(initialThemeLoadingFilmBehavior.video.paused, false);
+assert.equal(initialThemeLoadingFilmBehavior.video.paused, true);
 initialThemeLoadingFilmBehavior.dispatchVideoMetadata();
 await initialThemeLoadingFilmBehavior.settlePlayback();
 assert.equal(
   initialThemeLoadingFilmBehavior.video.playCalls,
   1,
-  "metadata settlement must not replace the user-activated Play request",
+  "metadata settlement should request autoplay exactly once",
 );
 assert.equal(initialThemeLoadingFilmBehavior.video.paused, false);
 
@@ -1520,18 +1544,28 @@ const themeLoadingAudioBehavior = runHomepageVideoBehavior(homepageFilmScripts, 
 });
 themeLoadingAudioBehavior.muteButton.dispatch("click");
 themeLoadingAudioBehavior.video.volume = 0.4;
-assert.equal(themeLoadingAudioBehavior.video.muted, true);
+assert.equal(themeLoadingAudioBehavior.video.muted, false);
+assert.equal(
+  themeLoadingAudioBehavior.video.playCalls,
+  1,
+  "Unmute should carry the pending playback request inside the visitor gesture",
+);
 themeLoadingAudioBehavior.dispatchVideoMetadata();
 await themeLoadingAudioBehavior.settlePlayback();
 assert.equal(
   themeLoadingAudioBehavior.video.muted,
-  true,
+  false,
   "theme metadata must not overwrite a newer mute choice",
 );
 assert.equal(
   themeLoadingAudioBehavior.video.volume,
   0.4,
   "theme metadata must not overwrite a newer volume choice",
+);
+assert.equal(
+  themeLoadingAudioBehavior.video.playCalls,
+  1,
+  "theme metadata must not duplicate the user-activated playback request",
 );
 
 const themeRaceFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
@@ -1540,10 +1574,9 @@ const themeRaceFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
   darkPreference: false,
   deferThemeMetadata: true,
 });
-themeRaceFilmBehavior.playButton.dispatch("click");
 await themeRaceFilmBehavior.settlePlayback();
+assert.equal(themeRaceFilmBehavior.video.playCalls, 1);
 themeRaceFilmBehavior.video.currentTime = 12.5;
-themeRaceFilmBehavior.video.muted = true;
 themeRaceFilmBehavior.video.volume = 0.4;
 themeRaceFilmBehavior.themeQuery.dispatch("change", { matches: true });
 assert.equal(themeRaceFilmBehavior.source.getAttribute("src"), "/dark.mp4");
@@ -1568,6 +1601,24 @@ assert.equal(
   "only the current theme swap may resume the previously playing video",
 );
 assert.equal(themeRaceFilmBehavior.playButton.getAttribute("aria-label"), "Pause video");
+
+const pausedThemeFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
+  darkSource: "/dark.mp4",
+  darkPoster: "/dark.png",
+  darkPreference: false,
+  deferThemeMetadata: true,
+});
+await pausedThemeFilmBehavior.settlePlayback();
+pausedThemeFilmBehavior.playButton.dispatch("click");
+pausedThemeFilmBehavior.video.currentTime = 7.5;
+pausedThemeFilmBehavior.themeQuery.dispatch("change", { matches: true });
+pausedThemeFilmBehavior.dispatchVideoMetadata();
+await pausedThemeFilmBehavior.settlePlayback();
+assert.equal(pausedThemeFilmBehavior.source.getAttribute("src"), "/dark.mp4");
+assert.equal(pausedThemeFilmBehavior.video.currentTime, 7.5);
+assert.equal(pausedThemeFilmBehavior.video.playCalls, 1);
+assert.equal(pausedThemeFilmBehavior.video.paused, true);
+assert.equal(pausedThemeFilmBehavior.playButton.getAttribute("aria-label"), "Play video");
 const homepageFilmCss = cssRuleBlocks(siteCss)
   .filter(({ selector }) => selector.includes("homepage-film"))
   .map(({ body }) => body)
