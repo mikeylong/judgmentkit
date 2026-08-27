@@ -750,6 +750,23 @@ assert.match(
   homepageFilmMediaOpenTag,
   /aria-label="JudgmentKit UI generation, diagnosis, and measured repair"/,
 );
+assert.match(homepageFilmMediaOpenTag, /aria-describedby="homepage-film-description"/);
+const homepageFilmDescription = homepageFilmFrame.match(
+  /<span\b[^>]*id="homepage-film-description"[^>]*>[\s\S]*?<\/span>/,
+)?.[0] ?? "";
+assert.ok(homepageFilmDescription, "homepage film should retain a nonvisual description");
+assert.match(homepageFilmDescription, /class="sr-only"/);
+assert.match(homepageFilmDescription, /desktop and mobile sizes/);
+assert.match(homepageFilmDescription, /misaligned centers and an undersized indicator slot/);
+assert.match(homepageFilmDescription, /resubmitted candidate passes/);
+const screenReaderOnlyCss = cssRuleBody(siteCss, ".sr-only");
+assert.match(screenReaderOnlyCss, /position:\s*absolute;/);
+assert.match(screenReaderOnlyCss, /width:\s*1px;/);
+assert.match(screenReaderOnlyCss, /height:\s*1px;/);
+assert.match(screenReaderOnlyCss, /overflow:\s*hidden;/);
+assert.match(screenReaderOnlyCss, /clip-path:\s*inset\(50%\);/);
+assert.match(screenReaderOnlyCss, /white-space:\s*nowrap;/);
+assert.doesNotMatch(screenReaderOnlyCss, /display:\s*none|visibility:\s*hidden/);
 assert.match(
   homepageFilmMediaOpenTag,
   /poster="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,

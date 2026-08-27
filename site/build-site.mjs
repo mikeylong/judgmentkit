@@ -981,6 +981,18 @@ body {
   overflow-x: hidden;
   font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
 a {
   color: var(--accent-strong);
 }
@@ -4731,11 +4743,13 @@ function homepage() {
               preload="auto"
               poster="${VISUAL_COMPOSITION_POSTER_PATH}"
               aria-label="JudgmentKit UI generation, diagnosis, and measured repair"
+              aria-describedby="homepage-film-description"
               data-homepage-film-media
             >
               <source src="${VISUAL_COMPOSITION_RECORDING_PATH}" type="video/mp4" data-homepage-film-source>
               Your browser cannot play this video. <a href="${VISUAL_COMPOSITION_RECORDING_PATH}">Download the demo video</a>.
             </video>
+            <span id="homepage-film-description" class="sr-only">Video description: A small agent reviews a generated select field at desktop and mobile sizes. A failure receipt identifies misaligned centers and an undersized indicator slot. The agent repairs the value inset, indicator slot, and caret clearance; the resubmitted candidate passes and the accepted receipt is highlighted.</span>
             <div class="homepage-film-controls" role="group" aria-label="Video controls" hidden data-homepage-film-controls>
               <button class="homepage-film-control-button" type="button" aria-label="Play video" aria-controls="homepage-film-media" data-film-action="play" data-homepage-film-play>
                 ${renderHomepageFilmControlIcon("play", "data-homepage-film-play-icon")}

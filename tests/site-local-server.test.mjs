@@ -588,6 +588,10 @@ try {
       /\.homepage-film-(?:stage|live|live-scale)\b|\.homepage-film-source-media--soundtrack\b/,
       "served CSS should contain only the native video renderer",
     );
+    const screenReaderOnlyCss = cssRuleBody(css, ".sr-only");
+    assert.match(screenReaderOnlyCss, /position:\s*absolute;/);
+    assert.match(screenReaderOnlyCss, /clip-path:\s*inset\(50%\);/);
+    assert.doesNotMatch(screenReaderOnlyCss, /display:\s*none|visibility:\s*hidden/);
   });
 
   await assertStaticGetAndHead(url, "/", "text/html; charset=utf-8", (body) => {
@@ -610,6 +614,13 @@ try {
     assert.match(videoOpenTag, /preload="auto"/);
     assert.doesNotMatch(videoOpenTag, /(?:\s|^)autoplay(?:\s|>)/);
     assert.doesNotMatch(videoOpenTag, /(?:\s|^)muted(?:\s|>)/);
+    assert.match(videoOpenTag, /aria-describedby="homepage-film-description"/);
+    const description = frame.match(
+      /<span\b[^>]*id="homepage-film-description"[^>]*>[\s\S]*?<\/span>/,
+    )?.[0] ?? "";
+    assert.match(description, /class="sr-only"/);
+    assert.match(description, /misaligned centers and an undersized indicator slot/);
+    assert.match(description, /resubmitted candidate passes/);
     assert.equal((html.match(/<video\b/g) ?? []).length, 1);
     assert.equal((html.match(/<iframe\b/g) ?? []).length, 0);
     assert.equal((html.match(/<canvas\b/g) ?? []).length, 0);
