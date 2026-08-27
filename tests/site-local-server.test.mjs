@@ -577,47 +577,21 @@ try {
       /@media \(min-width: 821px\) and \(min-height: 600px\)\s*\{\s*\.homepage-film-shell\s*\{[^}]*max-width:\s*min\(1440px,\s*108vh\);[^}]*max-width:\s*min\(1440px,\s*108svh\);[^}]*\}/,
       "served wide-view layout should cap the film by height and preserve a visible continuation below",
     );
-    const stageCss = cssRuleBody(css, ".homepage-film-stage");
-    const surfaceCss = cssRuleBody(
-      css,
-      ".homepage-film-stage,\n.homepage-film-source-media",
-    );
-    assert.match(stageCss, /position:\s*relative;/);
-    assert.match(stageCss, /z-index:\s*1;/);
-    assert.match(surfaceCss, /width:\s*100%;/);
-    assert.match(surfaceCss, /aspect-ratio:\s*16\s*\/\s*10;/);
-    assert.match(stageCss, /overflow:\s*hidden;/);
-    const liveScaleCss = cssRuleBody(css, ".homepage-film-live-scale");
-    assert.match(liveScaleCss, /position:\s*absolute;/);
-    assert.match(liveScaleCss, /width:\s*1440px;/);
-    assert.match(liveScaleCss, /height:\s*900px;/);
-    assert.match(liveScaleCss, /transform:\s*scale\(var\(--homepage-film-scale,\s*1\)\);/);
-    assert.match(liveScaleCss, /transform-origin:\s*(?:0 0|top left);/);
-    const liveCss = cssRuleBody(css, ".homepage-film-live");
-    assert.match(liveCss, /width:\s*1440px;/);
-    assert.match(liveCss, /height:\s*900px;/);
-    assert.match(
-      css,
-      /\.homepage-film-stage\[hidden\]\s*\{[^}]*display:\s*none;/s,
-      "served live stage should not displace its native fallback before readiness",
-    );
-    const fallbackCss = cssRuleBody(css, ".homepage-film-source-media");
-    assert.match(fallbackCss, /display:\s*block;/);
-    assert.match(fallbackCss, /width:\s*100%;/);
-    assert.match(fallbackCss, /height:\s*auto;/);
-    const clockCss = cssRuleBody(css, ".homepage-film-source-media--soundtrack");
-    assert.match(clockCss, /position:\s*absolute;/);
-    assert.match(clockCss, /inset:\s*0;/);
-    assert.match(clockCss, /z-index:\s*0;/);
-    assert.match(clockCss, /width:\s*100%;/);
-    assert.match(clockCss, /height:\s*100%;/);
-    assert.match(clockCss, /object-fit:\s*cover;/);
-    assert.match(clockCss, /pointer-events:\s*none;/);
+    const videoCss = cssRuleBody(css, ".homepage-film-source-media");
+    assert.match(videoCss, /display:\s*block;/);
+    assert.match(videoCss, /width:\s*100%;/);
+    assert.match(videoCss, /height:\s*auto;/);
+    assert.match(videoCss, /aspect-ratio:\s*16\s*\/\s*10;/);
+    assert.match(videoCss, /border-radius:\s*0;/);
     assert.doesNotMatch(
-      clockCss,
-      /(?:clip-path|opacity|visibility|display)\s*:/,
-      "served soundtrack transport should remain rendered behind the live stage",
+      css,
+      /\.homepage-film-(?:stage|live|live-scale)\b|\.homepage-film-source-media--soundtrack\b/,
+      "served CSS should contain only the native video renderer",
     );
+    const screenReaderOnlyCss = cssRuleBody(css, ".sr-only");
+    assert.match(screenReaderOnlyCss, /position:\s*absolute;/);
+    assert.match(screenReaderOnlyCss, /clip-path:\s*inset\(50%\);/);
+    assert.doesNotMatch(screenReaderOnlyCss, /display:\s*none|visibility:\s*hidden/);
   });
 
   await assertStaticGetAndHead(url, "/", "text/html; charset=utf-8", (body) => {
@@ -625,63 +599,42 @@ try {
     const frame = html.match(
       /<(div|section)\b[^>]*class="[^"]*\bhomepage-film-frame\b[^"]*"[^>]*>[\s\S]*?<\/\1>/,
     )?.[0];
-
     assert.ok(frame, "homepage should serve the film frame");
-    const stageOpenTag = html.match(
-      /<(?:div|section)\b[^>]*class="[^"]*\bhomepage-film-stage\b[^"]*"[^>]*>/,
-    )?.[0] ?? "";
-    const liveOpenTag = html.match(
-      /<iframe\b[^>]*class="[^"]*\bhomepage-film-live\b[^"]*"[^>]*>/,
-    )?.[0] ?? "";
-    const videoOpenTag = html.match(
-      /<video\b[^>]*class="[^"]*\bhomepage-film-source-media\b[^"]*"[^>]*>/,
-    )?.[0];
     const frameOpenTag = frame.match(/^<(?:div|section)\b[^>]*>/i)?.[0] ?? "";
-    assert.ok(stageOpenTag, "homepage should serve the fixed live-demo stage");
-    assert.match(stageOpenTag, /id="homepage-film-stage"/);
-    assert.match(stageOpenTag, /data-homepage-film-stage(?:\s|=|>)/);
-    assert.match(stageOpenTag, /(?:\s|^)hidden(?:\s|>)/);
-    assert.match(
-      html,
-      /<span class="sr-only">A live visual replay shows an agent generating a UI, JudgmentKit identifying two composition defects, and the agent applying a measured repair\.<\/span>/,
-    );
-    assert.ok(liveOpenTag, "homepage should serve the authored live demo iframe");
-    assert.match(liveOpenTag, /data-homepage-film-live(?:\s|=|>)/);
-    assert.match(liveOpenTag, /src="about:blank"/);
-    assert.match(liveOpenTag, /sandbox="allow-scripts"/);
-    assert.match(liveOpenTag, /aria-hidden="true"/);
-    assert.ok(videoOpenTag, "homepage should serve a native fallback and soundtrack clock");
-    assert.match(videoOpenTag, /\bhomepage-film-fallback\b/);
+    const videoOpenTag = frame.match(
+      /<video\b[^>]*class="[^"]*\bhomepage-film-source-media\b[^"]*"[^>]*>/,
+    )?.[0] ?? "";
+
+    assert.ok(videoOpenTag, "homepage should serve one native video");
+    assert.match(videoOpenTag, /id="homepage-film-media"/);
     assert.match(videoOpenTag, /data-homepage-film-media(?:\s|=|>)/);
-    assert.match(videoOpenTag, /data-homepage-film-fallback(?:\s|=|>)/);
-    assert.match(frameOpenTag, /data-film-renderer="video"/);
-    assert.match(frameOpenTag, /data-film-live-status="loading"/);
-    assert.match(frameOpenTag, /data-film-autoplay-status="pending"/);
-    assert.match(
-      frameOpenTag,
-      /data-film-live-src="\/assets\/releases\/visual-composition-runtime-demo\.html"/,
-    );
     assert.match(videoOpenTag, /(?:\s|^)controls(?:\s|>)/);
-    assert.match(videoOpenTag, /(?:\s|^)autoplay(?:\s|>)/);
     assert.match(videoOpenTag, /(?:\s|^)loop(?:\s|>)/);
+    assert.match(videoOpenTag, /(?:\s|^)playsinline(?:\s|>)/);
+    assert.match(videoOpenTag, /preload="auto"/);
+    assert.doesNotMatch(videoOpenTag, /(?:\s|^)autoplay(?:\s|>)/);
     assert.doesNotMatch(videoOpenTag, /(?:\s|^)muted(?:\s|>)/);
-    assert.match(
-      frameOpenTag,
-      /data-film-poster-light="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
-    );
-    assert.match(
-      frameOpenTag,
-      /data-film-poster-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster-dark\.png"/,
-    );
+    assert.match(videoOpenTag, /aria-describedby="homepage-film-description"/);
+    const description = frame.match(
+      /<span\b[^>]*id="homepage-film-description"[^>]*>[\s\S]*?<\/span>/,
+    )?.[0] ?? "";
+    assert.match(description, /class="sr-only"/);
+    assert.match(description, /misaligned centers and an undersized indicator slot/);
+    assert.match(description, /resubmitted candidate passes/);
     assert.equal((html.match(/<video\b/g) ?? []).length, 1);
+    assert.equal((html.match(/<iframe\b/g) ?? []).length, 0);
     assert.equal((html.match(/<canvas\b/g) ?? []).length, 0);
-    assert.equal((html.match(/<iframe\b/g) ?? []).length, 1);
     assert.doesNotMatch(
       frame,
-      /<track\b/i,
-      "served homepage film should not expose a caption track",
+      /data-homepage-film-(?:stage|live|live-scale|fallback)|data-film-live-(?:src|status)|visual-composition-runtime-demo\.html/,
+      "served homepage must not reference the standalone authoring runtime",
     );
-    const sourceOpenTag = frame.match(/<source\b[^>]*>/)?.[0] ?? "";
+    assert.doesNotMatch(
+      frameOpenTag,
+      /data-film-(?:autoplay|audio)-status=/,
+      "served homepage must not expose split-clock state",
+    );
+    assert.doesNotMatch(frame, /<track\b/i);
     assert.match(
       frameOpenTag,
       /data-film-source-light="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
@@ -690,115 +643,57 @@ try {
       frameOpenTag,
       /data-film-source-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-dark\.mp4"/,
     );
-    const controlGroups = [
-      ...html.matchAll(
-        /<div\b[^>]*class="[^"]*\bhomepage-film-controls\b[^"]*"[^>]*>[\s\S]*?<\/div>/gi,
-      ),
-    ].map((match) => match[0]);
-    assert.equal(controlGroups.length, 1, "homepage should serve one custom control group");
-    const controls = controlGroups[0];
+    assert.match(
+      frameOpenTag,
+      /data-film-poster-light="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
+    );
+    assert.match(
+      frameOpenTag,
+      /data-film-poster-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster-dark\.png"/,
+    );
+    const sourceOpenTag = frame.match(/<source\b[^>]*>/)?.[0] ?? "";
+    assert.match(
+      sourceOpenTag,
+      /src="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
+    );
+    assert.match(sourceOpenTag, /type="video\/mp4"/);
+
+    const controls = html.match(
+      /<div\b[^>]*class="[^"]*\bhomepage-film-controls\b[^"]*"[^>]*>[\s\S]*?<\/div>/i,
+    )?.[0] ?? "";
     assert.match(controls.match(/<div\b[^>]*>/i)?.[0] ?? "", /(?:\s|^)hidden(?:\s|>)/);
     assert.match(controls, /role="group"/);
     assert.match(controls, /aria-label="Video controls"/);
     assert.equal((controls.match(/<(?:button|input)\b/gi) ?? []).length, 3);
-    assert.equal((controls.match(/<button\b/gi) ?? []).length, 2);
-    assert.equal((controls.match(/<input\b/gi) ?? []).length, 1);
-    const controlElements = [...controls.matchAll(/<(?:button|input)\b[^>]*>/gi)].map(
-      (match) => match[0],
+    assert.match(controls, /aria-label="Play video"/);
+    assert.match(controls, /aria-label="Video progress"/);
+    assert.match(controls, /aria-label="Mute video"/);
+    assert.equal(
+      (controls.match(/aria-controls="homepage-film-media"/g) ?? []).length,
+      3,
     );
-    const playControl =
-      controlElements.find((tag) => /data-film-action="play"/.test(tag)) ?? "";
-    const scrubber =
-      controlElements.find((tag) => /data-film-scrubber(?:\s|=|>)/.test(tag)) ?? "";
-    const muteControl =
-      controlElements.find((tag) => /data-film-action="mute"/.test(tag)) ?? "";
-    assert.match(playControl, /^<button\b/i);
-    assert.match(playControl, /aria-label="Play demo"/);
-    assert.match(playControl, /aria-controls="homepage-film-stage"/);
-    assert.match(scrubber, /^<input\b/i);
-    assert.match(scrubber, /type="range"/);
-    assert.match(scrubber, /min="0"/);
-    assert.match(scrubber, /max="100"/);
-    assert.match(scrubber, /step="0\.1"/);
-    assert.match(scrubber, /value="0"/);
-    assert.match(scrubber, /(?:\s|^)disabled(?:\s|>)/);
-    assert.match(scrubber, /aria-label="Video progress"/);
-    assert.match(scrubber, /aria-controls="homepage-film-stage"/);
-    assert.match(muteControl, /^<button\b/i);
-    assert.match(muteControl, /aria-label="Mute music"/);
-    assert.match(muteControl, /aria-controls="homepage-film-stage"/);
-    const buttonMarkup = [...controls.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/gi)].map(
-      (match) => match[0],
-    );
-    const playButtonMarkup =
-      buttonMarkup.find((button) => /data-film-action="play"/.test(button)) ?? "";
-    const muteButtonMarkup =
-      buttonMarkup.find((button) => /data-film-action="mute"/.test(button)) ?? "";
-    assert.deepEqual(
-      [...playButtonMarkup.matchAll(/data-icon-id="([^"]+)"/g)].map((match) => match[1]),
-      ["play", "pause"],
-    );
-    assert.deepEqual(
-      [...muteButtonMarkup.matchAll(/data-icon-id="([^"]+)"/g)].map((match) => match[1]),
-      ["volume-2", "volume-x"],
-    );
-    const iconTags = [
-      ...controls.matchAll(/<svg\b[^>]*data-icon-id="[^"]+"[^>]*>/gi),
-    ].map((match) => match[0]);
-    const iconTag = (id) =>
-      iconTags.find((tag) => tag.includes(`data-icon-id="${id}"`)) ?? "";
-    for (const iconId of ["play", "pause", "volume-2", "volume-x"]) {
-      assert.match(iconTag(iconId), /^<svg\b/i);
-    }
-    assert.doesNotMatch(iconTag("play"), /(?:\s|^)hidden(?:\s|>)/);
-    assert.match(iconTag("pause"), /(?:\s|^)hidden(?:\s|>)/);
-    assert.doesNotMatch(iconTag("volume-2"), /(?:\s|^)hidden(?:\s|>)/);
-    assert.match(iconTag("volume-x"), /(?:\s|^)hidden(?:\s|>)/);
-    assert.doesNotMatch(playButtonMarkup + muteButtonMarkup, /<span\b/i);
     assert.doesNotMatch(controls, /(?:fullscreen|caption|playback[_-]?rate|speed)/i);
-    assert.equal(controls.includes("data-homepage-film-scroll-cue"), false);
-    assert.doesNotMatch(
-      html,
-      /homepage-film-scroll-cue|data-homepage-film-scroll-icon|Continue to JudgmentKit overview|id="homepage-overview"/,
-    );
+
     const filmSectionIndex = html.search(/class="[^"]*\bhomepage-film-section\b[^"]*"/);
     const heroIndex = html.search(/class="[^"]*\bhomepage-hero\b[^"]*"/);
-    assert.ok(
-      filmSectionIndex >= 0 && heroIndex >= 0 && filmSectionIndex < heroIndex,
-      "served homepage should keep the live film ahead of the existing hero",
-    );
+    assert.ok(filmSectionIndex >= 0 && heroIndex >= 0 && filmSectionIndex < heroIndex);
     assert.doesNotMatch(frame, /<(?:h[1-6]|p|figcaption)\b/i);
+
     const filmScripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
       .map((match) => match[1])
       .filter((script) => script.includes("homepage-film"))
       .join("\n");
-    assert.doesNotMatch(filmScripts, /addEventListener\(\s*["'](?:wheel|touchmove|scroll)["']/);
     assert.ok(filmScripts.includes("filmPosterDark"));
     assert.ok(filmScripts.includes("filmSourceDark"));
     assert.match(
       filmScripts,
       /matchMedia\(\s*["']\(prefers-color-scheme:\s*dark\)["']\s*\)/,
     );
-    assert.match(filmScripts, /judgmentkit-visual-composition-v1/);
-    assert.match(filmScripts, /postMessage\(/);
-    assert.match(filmScripts, /ResizeObserver/);
     assert.match(filmScripts, /addEventListener\(\s*["']ended["']\s*,/);
-    assert.doesNotMatch(filmScripts, /\.defaultMuted\s*=/);
-    assert.doesNotMatch(filmScripts, /getContext\(\s*["']2d["']/);
-    assert.doesNotMatch(filmScripts, /drawImage\(/);
-    assert.equal(
-      frameOpenTag.includes(
-        'data-film-source-dark="/assets/releases/judgmentkit-select-field-agent-demo.mp4"',
-      ),
-      false,
-      "dark and light film source URLs must remain distinct",
-    );
-    assert.equal(
-      frameOpenTag.includes(
-        'data-film-poster-dark="/assets/releases/judgmentkit-select-field-agent-demo-poster.png"',
-      ),
-      false,
-      "dark and light poster URLs must remain distinct",
+    assert.doesNotMatch(
+      filmScripts,
+      /judgmentkit-visual-composition-v1|postMessage\(|addEventListener\(\s*["']message["']|ResizeObserver|requestAnimationFrame|SOUNDTRACK_RECOVERY_TIMEOUT_MS|\bsilentClock|enterSilentLiveMode/,
+      "served homepage script should control only the native video",
     );
     assert.equal(html.includes("/releases/visual-composition/"), false);
   });
@@ -814,18 +709,6 @@ try {
 
     assert.equal(response.status, 404, "retired interactive demo route should not ship");
   }
-
-  await assertStaticGetAndHead(
-    url,
-    "/assets/releases/visual-composition-runtime-demo.html",
-    "text/html; charset=utf-8",
-    (body) => {
-      const liveDemo = body.toString("utf8");
-      assert.match(liveDemo, /judgmentkit-visual-composition-v1/);
-      assert.match(liveDemo, /window\.parent\.postMessage\(/);
-      assert.match(liveDemo, /window\.addEventListener\(['"]message['"],/);
-    },
-  );
 
   await assertStaticGetAndHead(
     url,
