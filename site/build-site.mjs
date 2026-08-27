@@ -5024,6 +5024,18 @@ function homepage() {
             updatePlayState();
           });
         };
+        const enforcePlaybackIntent = () => {
+          // Loading a replacement source can retrigger declarative autoplay after an explicit pause.
+          if (
+            player.hasAttribute("data-homepage-film-ready") &&
+            (userPaused || pausedForVisibility)
+          ) {
+            video.pause();
+            updatePlayState();
+            return;
+          }
+          updatePlayState();
+        };
         const applyVideoSource = (nextSource, nextPoster) => {
           if (nextPoster) video.poster = nextPoster;
           if (!nextSource) return;
@@ -5114,7 +5126,7 @@ function homepage() {
             }
           });
 
-          video.addEventListener("play", updatePlayState);
+          video.addEventListener("play", enforcePlaybackIntent);
           video.addEventListener("pause", updatePlayState);
           video.addEventListener("ended", updatePlayState);
           video.addEventListener("timeupdate", updateProgress);

@@ -893,6 +893,7 @@ function runHomepageVideoBehavior(
     darkPoster = "",
     darkPreference = false,
     deferThemeMetadata = false,
+    nativeAutoplayAfterMetadata = false,
     omitScrubber = false,
     playOutcomes = [],
   } = {},
@@ -1079,6 +1080,11 @@ function runHomepageVideoBehavior(
     dispatchVideoMetadata() {
       video.readyState = 1;
       video.dispatch("loadedmetadata");
+      if (nativeAutoplayAfterMetadata && video.hasAttribute("autoplay") && video.paused) {
+        video.paused = false;
+        video.ended = false;
+        video.dispatch("play");
+      }
     },
     async settlePlayback() {
       for (let turn = 0; turn < 4; turn += 1) await Promise.resolve();
@@ -1573,6 +1579,7 @@ const themeRaceFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
   darkPoster: "/dark.png",
   darkPreference: false,
   deferThemeMetadata: true,
+  nativeAutoplayAfterMetadata: true,
 });
 await themeRaceFilmBehavior.settlePlayback();
 assert.equal(themeRaceFilmBehavior.video.playCalls, 1);
@@ -1607,6 +1614,7 @@ const pausedThemeFilmBehavior = runHomepageVideoBehavior(homepageFilmScripts, {
   darkPoster: "/dark.png",
   darkPreference: false,
   deferThemeMetadata: true,
+  nativeAutoplayAfterMetadata: true,
 });
 await pausedThemeFilmBehavior.settlePlayback();
 pausedThemeFilmBehavior.playButton.dispatch("click");
@@ -1619,6 +1627,18 @@ assert.equal(pausedThemeFilmBehavior.video.currentTime, 7.5);
 assert.equal(pausedThemeFilmBehavior.video.playCalls, 1);
 assert.equal(pausedThemeFilmBehavior.video.paused, true);
 assert.equal(pausedThemeFilmBehavior.playButton.getAttribute("aria-label"), "Play video");
+pausedThemeFilmBehavior.video.dispatch("error");
+assert.equal(pausedThemeFilmBehavior.video.controls, true);
+assert.equal(pausedThemeFilmBehavior.controls.hidden, true);
+assert.equal(pausedThemeFilmBehavior.player.hasAttribute("data-homepage-film-ready"), false);
+pausedThemeFilmBehavior.video.paused = false;
+pausedThemeFilmBehavior.video.ended = false;
+pausedThemeFilmBehavior.video.dispatch("play");
+assert.equal(
+  pausedThemeFilmBehavior.video.paused,
+  false,
+  "restored native controls must remain able to play after custom enhancement falls back",
+);
 const homepageFilmCss = cssRuleBlocks(siteCss)
   .filter(({ selector }) => selector.includes("homepage-film"))
   .map(({ body }) => body)
