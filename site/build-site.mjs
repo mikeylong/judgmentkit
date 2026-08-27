@@ -1518,6 +1518,7 @@ h2 {
 .homepage-film-frame {
   position: relative;
   isolation: isolate;
+  overflow: hidden;
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -1527,10 +1528,14 @@ h2 {
   width: 100%;
   height: auto;
   aspect-ratio: 16 / 10;
+  object-fit: cover;
   border: 0;
   border-radius: 0;
-  background: var(--ink);
+  background: var(--bg);
   box-shadow: none;
+  /* Cover fractional compositor gaps with an approximately 3px source-edge crop. */
+  transform: scaleX(1.004);
+  transform-origin: center;
 }
 .homepage-film-controls[hidden] {
   display: none;
@@ -4738,6 +4743,8 @@ function homepage() {
               id="homepage-film-media"
               class="homepage-film-source-media"
               controls
+              autoplay
+              muted
               loop
               playsinline
               preload="auto"
@@ -4769,9 +4776,9 @@ function homepage() {
                 data-film-scrubber
                 data-homepage-film-scrubber
               >
-              <button class="homepage-film-control-button" type="button" aria-label="Mute video" aria-controls="homepage-film-media" data-film-action="mute" data-homepage-film-mute>
-                ${renderHomepageFilmControlIcon("volume-2", "data-homepage-film-sound-icon")}
-                ${renderHomepageFilmControlIcon("volume-x", "data-homepage-film-muted-icon", true)}
+              <button class="homepage-film-control-button" type="button" aria-label="Unmute video" aria-controls="homepage-film-media" data-film-action="mute" data-homepage-film-mute>
+                ${renderHomepageFilmControlIcon("volume-2", "data-homepage-film-sound-icon", true)}
+                ${renderHomepageFilmControlIcon("volume-x", "data-homepage-film-muted-icon")}
               </button>
             </div>
           </div>
@@ -4974,7 +4981,7 @@ function homepage() {
         let pendingSourceTimeSeconds = null;
         let playbackRequestToken = 0;
         let playbackRequestPending = false;
-        let userPaused = true;
+        let userPaused = false;
         let pausedForVisibility = false;
 
         const cancelPlaybackRequest = () => {
@@ -5102,6 +5109,9 @@ function homepage() {
             } else {
               video.muted = true;
             }
+            if (!userPaused && !pausedForVisibility && video.paused && !playbackRequestPending) {
+              requestPlayback();
+            }
           });
 
           video.addEventListener("play", updatePlayState);
@@ -5125,6 +5135,10 @@ function homepage() {
             applyFilmTheme(themeQuery.matches);
           } else {
             applyFilmTheme(false);
+          }
+
+          if (!sourceSwapPending && !userPaused && video.paused && !playbackRequestPending) {
+            requestPlayback();
           }
 
           if (typeof window.IntersectionObserver === "function") {

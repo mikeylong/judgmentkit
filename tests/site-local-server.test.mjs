@@ -566,6 +566,7 @@ try {
       /\.homepage-film-frame::(?:before|after)\s*\{/,
       "served film wrapper should not recreate a frame with pseudo-elements",
     );
+    assert.match(frameCss, /overflow:\s*hidden;/);
     assert.doesNotMatch(sectionCss, /(?:radial|linear)-gradient\(/i);
     assert.equal(
       Number.parseFloat(cssDeclarationValue(shellCss, "max-width") ?? "0"),
@@ -582,7 +583,11 @@ try {
     assert.match(videoCss, /width:\s*100%;/);
     assert.match(videoCss, /height:\s*auto;/);
     assert.match(videoCss, /aspect-ratio:\s*16\s*\/\s*10;/);
+    assert.match(videoCss, /object-fit:\s*cover;/);
     assert.match(videoCss, /border-radius:\s*0;/);
+    assert.match(videoCss, /background:\s*var\(--bg\);/);
+    assert.match(videoCss, /transform:\s*scaleX\(1\.004\);/);
+    assert.match(videoCss, /transform-origin:\s*center;/);
     assert.doesNotMatch(
       css,
       /\.homepage-film-(?:stage|live|live-scale)\b|\.homepage-film-source-media--soundtrack\b/,
@@ -612,8 +617,8 @@ try {
     assert.match(videoOpenTag, /(?:\s|^)loop(?:\s|>)/);
     assert.match(videoOpenTag, /(?:\s|^)playsinline(?:\s|>)/);
     assert.match(videoOpenTag, /preload="auto"/);
-    assert.doesNotMatch(videoOpenTag, /(?:\s|^)autoplay(?:\s|>)/);
-    assert.doesNotMatch(videoOpenTag, /(?:\s|^)muted(?:\s|>)/);
+    assert.match(videoOpenTag, /(?:\s|^)autoplay(?:\s|>)/);
+    assert.match(videoOpenTag, /(?:\s|^)muted(?:\s|>)/);
     assert.match(videoOpenTag, /aria-describedby="homepage-film-description"/);
     const description = frame.match(
       /<span\b[^>]*id="homepage-film-description"[^>]*>[\s\S]*?<\/span>/,
@@ -667,7 +672,7 @@ try {
     assert.equal((controls.match(/<(?:button|input)\b/gi) ?? []).length, 3);
     assert.match(controls, /aria-label="Play video"/);
     assert.match(controls, /aria-label="Video progress"/);
-    assert.match(controls, /aria-label="Mute video"/);
+    assert.match(controls, /aria-label="Unmute video"/);
     assert.equal(
       (controls.match(/aria-controls="homepage-film-media"/g) ?? []).length,
       3,
