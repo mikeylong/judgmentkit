@@ -663,7 +663,18 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc, expectedPackageVer
   );
   assertExcludes(
     mcpEvidence.text,
-    ["<dt>Pass rate</dt>", "Historical eval MCP release"],
+    [
+      "<dt>Pass rate</dt>",
+      "Historical eval MCP release",
+      'class="report-video',
+      "Report video placeholder",
+      "UI paired-artifact report overview",
+      "Raw-to-guided generation placeholder",
+      "Disclosure cleanup placeholder",
+      "Model matrix walkthrough placeholder",
+      "Inline video slot",
+      "completed walkthrough videos",
+    ],
     mcpEvidenceRoute,
   );
 
