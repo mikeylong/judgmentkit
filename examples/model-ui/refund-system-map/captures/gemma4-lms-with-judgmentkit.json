@@ -104,7 +104,7 @@
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   "source_context_status": "legacy_accepted",
-  "current_source_context_sha256": "2060144da47881c8c707b20913b9bb7944b1f746029b83aedd8a0830d78c0ab0",
+  "current_source_context_sha256": "ca29744cc607323788099bc0a8eb09f4ce7567cda35fd2d38f76016d11d46290",
   "accepted_source_context_sha256": "61230da7c0d2ff5655e04513a3565f2c1a070abe21b80568036ea1b702466385",
   "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
 }

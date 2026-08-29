@@ -62,4 +62,4 @@ The approval promotes the profile contract. It does not promote the specimen int
 
 ## Deferred work
 
-The component library remains unchanged in this decision. A later effort may expand JudgmentKit components and patterns using the strongest techniques exercised in the Workbench specimen. That work needs its own cross-domain evidence, component contracts, states, accessibility checks, and renderer decisions.
+The component library remained unchanged in this decision. ADR-0002 later approved a separate optional React pilot with its own contracts, states, accessibility checks, and runtime boundary. This presentation profile still does not supply or select those components.

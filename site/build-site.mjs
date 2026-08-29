@@ -1,22 +1,37 @@
 #!/usr/bin/env node
 import crypto from "node:crypto";
+import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { build as buildWithEsbuild } from "esbuild";
+import React, { createElement } from "react";
+import { renderToString } from "react-dom/server";
+import { ActionButton } from "../src/react/index.mjs";
 
 import {
   JUDGMENTKIT_MCP_TOOL_NAMES,
 } from "../scripts/install-mcp.mjs";
 import {
+  COMPONENT_IMPLEMENTATION_REGISTRY,
+  COMPONENT_RUNTIME_ADAPTER,
   createUiImplementationContract,
+  coveredStatesForContract,
+  createComponentScenarioManifest,
   getIconSvg,
+  listComponentReferenceInventory,
+  listComponentImplementationRegistry,
   listIconCatalog,
   listSurfacePresentationProfiles,
   searchIconCatalog,
+  summarizeComponentReferenceCoverage,
 } from "../src/index.mjs";
+import {
+  ComponentSpecimenPreview,
+  RUNTIME_COMPONENT_IDS,
+} from "./component-specimen-runtime.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -25,6 +40,8 @@ const require = createRequire(import.meta.url);
 const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
 const JUDGMENTKIT_PACKAGE_VERSION = require("../package.json").version;
 const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-design-source-authority";
+const COMPONENT_SPECIMEN_ASSET_VERSION =
+  "judgmentkit-react-component-candidate-v1";
 const SITE_ORIGIN = "https://judgmentkit.ai";
 const GITHUB_RELEASE_URL =
   `https://github.com/mikeylong/judgmentkit/releases/tag/v${JUDGMENTKIT_PACKAGE_VERSION}`;
@@ -56,6 +73,34 @@ const DESIGN_SYSTEM_SPECIMEN_RENDERER = {
   id: "judgmentkit-static-specimens",
   version: "0.1.0",
 };
+const COMPONENT_SPECIMEN_RENDERER = {
+  id: COMPONENT_RUNTIME_ADAPTER.id,
+  version: JUDGMENTKIT_PACKAGE_VERSION,
+  package_export: COMPONENT_RUNTIME_ADAPTER.package_export,
+  stylesheet_export: COMPONENT_RUNTIME_ADAPTER.stylesheet_export,
+};
+const COMPONENT_EVIDENCE_PATH = path.join(
+  ROOT,
+  "docs",
+  "evidence",
+  "component-library-candidate-evidence.json",
+);
+const COMPONENT_EVIDENCE_FIXTURE_SOURCES = Object.freeze([
+  "site/component-specimen-runtime.mjs",
+  "site/component-specimens.jsx",
+]);
+const COMPONENT_EVIDENCE_BINDING_SOURCES = Object.freeze([
+  "package.json",
+  "package-lock.json",
+  "src/component-registry.mjs",
+  "src/index.mjs",
+  "site/build-site.mjs",
+  ...COMPONENT_EVIDENCE_FIXTURE_SOURCES,
+  "tests/components/component-browser.test.mjs",
+  "tests/components/component-package-surface.test.mjs",
+  "tests/components/support/chromium-harness.mjs",
+  "tests/components/support/indeterminate-browser-probe.jsx",
+]);
 
 function parseArgs(argv) {
   const outIndex = argv.indexOf("--out");
@@ -117,6 +162,178 @@ function hashText(value) {
 
 function shortHash(hash) {
   return hash.replace(/^sha256:/, "").slice(0, 12);
+}
+
+function readJsonSyncIfExists(filePath) {
+  try {
+    return JSON.parse(fsSync.readFileSync(filePath, "utf8"));
+  } catch (error) {
+    if (error?.code === "ENOENT") return null;
+    throw error;
+  }
+}
+
+export function hashComponentAutomatedEvidence(bundle) {
+  if (!bundle || typeof bundle !== "object" || Array.isArray(bundle)) {
+    return null;
+  }
+  const {
+    reviewer_receipt: _reviewerReceipt,
+    automated_evidence_hash: _automatedEvidenceHash,
+    ...automatedPayload
+  } = bundle;
+  return hashCanonical(automatedPayload);
+}
+
+function validateReviewerReceipt(bundle) {
+  if (!bundle?.reviewer_receipt) return bundle;
+
+  const receipt = bundle.reviewer_receipt;
+  const receiptPath = receipt.path;
+  const expectedHash = receipt.hash;
+  const safePrefix = `docs${path.sep}evidence${path.sep}`;
+  const currentAutomatedEvidenceHash = hashComponentAutomatedEvidence(bundle);
+  let currentHash = null;
+  let receiptDocument = null;
+
+  if (
+    typeof receiptPath === "string" &&
+    receiptPath.length > 0 &&
+    !path.isAbsolute(receiptPath) &&
+    path.normalize(receiptPath).startsWith(safePrefix) &&
+    typeof expectedHash === "string" &&
+    expectedHash.length > 0
+  ) {
+    try {
+      const receiptText = fsSync.readFileSync(
+        path.resolve(ROOT, receiptPath),
+        "utf8",
+      );
+      currentHash = hashText(receiptText);
+      receiptDocument = JSON.parse(receiptText);
+    } catch {
+      currentHash = null;
+      receiptDocument = null;
+    }
+  }
+
+  if (
+    currentHash === expectedHash &&
+    receipt.status === "pass" &&
+    receiptDocument?.status === "pass" &&
+    typeof bundle.automated_evidence_hash === "string" &&
+    bundle.automated_evidence_hash === currentAutomatedEvidenceHash &&
+    receiptDocument.automated_evidence_hash === currentAutomatedEvidenceHash
+  ) {
+    return {
+      ...bundle,
+      reviewer_receipt: {
+        ...receiptDocument,
+        path: receiptPath,
+        hash: expectedHash,
+        status: "pass",
+        validation:
+          "content, machine-readable scope, and automated evidence payload loaded",
+      },
+    };
+  }
+
+  return {
+    ...bundle,
+    reviewer_receipt: {
+      ...receipt,
+      status: "stale",
+      validation:
+        "missing, unsafe, non-JSON, failed, content hash mismatch, or automated evidence payload mismatch",
+    },
+  };
+}
+
+function buildComponentEvidenceContext(componentContracts, specimenContext) {
+  const implementedEntries = COMPONENT_IMPLEMENTATION_REGISTRY.filter(
+    (entry) => entry.implementation_status === "implemented",
+  );
+  const sourcePaths = [
+    ...new Set(
+      [
+        ...implementedEntries.flatMap((entry) => entry.implementation_sources),
+        ...COMPONENT_EVIDENCE_BINDING_SOURCES,
+      ],
+    ),
+  ];
+  const implementationHash = hashCanonical({
+    adapter: COMPONENT_RUNTIME_ADAPTER,
+    sources: sourcePaths.map((sourcePath) => ({
+      path: sourcePath,
+      hash: hashText(fsSync.readFileSync(path.join(ROOT, sourcePath), "utf8")),
+    })),
+  });
+  const contractHashes = Object.fromEntries(
+    componentContracts.map((contract) => [
+      contract.id,
+      hashCanonical(contract),
+    ]),
+  );
+  const implementationHashes = Object.fromEntries(
+    implementedEntries.map((entry) => [entry.contract_id, implementationHash]),
+  );
+  const neutralScenarios = createComponentScenarioManifest(
+    componentContracts,
+    COMPONENT_IMPLEMENTATION_REGISTRY,
+    {
+      contract_hashes: contractHashes,
+      implementation_hashes: implementationHashes,
+      implementation_hash: implementationHash,
+    },
+  );
+  const contractById = new Map(
+    componentContracts.map((contract) => [contract.id, contract]),
+  );
+  const fixtureOutputHashes = Object.fromEntries(
+    implementedEntries.map((entry) => {
+      const contract = contractById.get(entry.contract_id);
+      const renderedHtml = renderComponentSpecimenPreview(
+        contract,
+        {
+          ...specimenContext,
+          contract_hash: contractHashes[entry.contract_id],
+        },
+        neutralScenarios.filter(
+          (scenario) => scenario.contract_id === entry.contract_id,
+        ),
+      );
+      return [entry.contract_id, hashText(renderedHtml)];
+    }),
+  );
+  const bundle = validateReviewerReceipt(
+    readJsonSyncIfExists(COMPONENT_EVIDENCE_PATH),
+  );
+  const scenarios = createComponentScenarioManifest(
+    componentContracts,
+    COMPONENT_IMPLEMENTATION_REGISTRY,
+    {
+      bundle,
+      contract_hashes: contractHashes,
+      implementation_hashes: implementationHashes,
+      implementation_hash: implementationHash,
+      fixture_output_hashes: fixtureOutputHashes,
+    },
+  );
+  const current =
+    Boolean(bundle) &&
+    scenarios.length > 0 &&
+    scenarios.every((scenario) => scenario.status === "verified");
+
+  return {
+    bundle,
+    current,
+    contract_hashes: contractHashes,
+    implementation_hashes: implementationHashes,
+    implementation_hash: implementationHash,
+    implementation_sources: sourcePaths,
+    fixture_output_hashes: fixtureOutputHashes,
+    scenarios,
+  };
 }
 
 function getAnalyticsConfig() {
@@ -673,6 +890,15 @@ function renderSiteFooter() {
 function systemMapFlowAssets() {
   return `    <link rel="stylesheet" href="/assets/system-map-flow.css?v=${SYSTEM_MAP_FLOW_ASSET_VERSION}">
     <script type="module" src="/assets/system-map-flow.js?v=${SYSTEM_MAP_FLOW_ASSET_VERSION}"></script>`;
+}
+
+function componentSpecimenStylesheet() {
+  return `    <link rel="stylesheet" href="/assets/component-specimens.css?v=${COMPONENT_SPECIMEN_ASSET_VERSION}">`;
+}
+
+function componentSpecimenAssets() {
+  return `${componentSpecimenStylesheet()}
+    <script type="module" src="/assets/component-specimens.js?v=${COMPONENT_SPECIMEN_ASSET_VERSION}"></script>`;
 }
 
 function systemMapShell(titleId, descId) {
@@ -2483,6 +2709,64 @@ pre {
 .design-system-section {
   padding-top: clamp(28px, 5vw, 48px);
 }
+.design-system-coverage-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.design-system-coverage-block {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-coverage-block h3,
+.design-system-coverage-block p,
+.design-system-coverage-block dl {
+  margin: 0;
+}
+.design-system-coverage-block h3 {
+  font-size: clamp(20px, 2.4vw, 28px);
+}
+.design-system-coverage-block dl {
+  display: grid;
+  gap: 8px;
+}
+.design-system-coverage-block dl div {
+  display: grid;
+  gap: 2px;
+}
+.design-system-coverage-block dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.design-system-coverage-block dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.design-system-inventory > .design-system-metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.design-system-inventory-details {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.design-system-inventory-details summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 850;
+}
+.design-system-inventory-details[open] summary {
+  margin-bottom: 16px;
+}
 .design-system-foundation-list,
 .design-system-step-list,
 .design-system-example-grid,
@@ -2802,6 +3086,95 @@ pre {
   background: var(--code-surface);
   font-size: 12px;
 }
+.design-system-specimen[data-component-specimen] {
+  overflow: visible;
+  padding: 28px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.design-system-specimen[data-component-specimen] + .design-system-specimen[data-component-specimen] {
+  border-top: 1px solid var(--line);
+}
+.design-system-specimen[data-component-specimen] .design-system-specimen-header {
+  display: block;
+  padding: 0 0 18px;
+  border: 0;
+}
+.design-system-specimen[data-component-specimen] .design-system-specimen-body {
+  display: block;
+}
+.design-system-specimen[data-component-specimen] .design-system-specimen-preview-frame {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.design-system-specimen[data-pattern-specimen] {
+  overflow: visible;
+  padding: 28px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.design-system-specimen[data-pattern-specimen] + .design-system-specimen[data-pattern-specimen] {
+  border-top: 1px solid var(--line);
+}
+.design-system-specimen[data-pattern-specimen] .design-system-specimen-header {
+  display: block;
+  padding: 0 0 18px;
+  border: 0;
+}
+.design-system-specimen[data-pattern-specimen] .design-system-specimen-body {
+  display: block;
+}
+.design-system-specimen[data-pattern-specimen] .design-system-specimen-preview-frame {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.design-system-specimen-details {
+  margin-top: 22px;
+  padding-top: 0;
+  border-top: 1px solid var(--line);
+}
+.design-system-specimen-details summary {
+  padding: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.design-system-specimen-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  padding: 18px 0 4px;
+}
+.design-system-specimen-details-grid section {
+  min-width: 0;
+}
+.design-system-specimen-details-grid h4,
+.design-system-specimen-details-grid h5 {
+  margin: 0 0 8px;
+}
+.design-system-specimen-details-grid h5 {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+.design-system-specimen-details-grid .design-system-specimen-details-wide {
+  grid-column: 1 / -1;
+}
+.design-system-specimen-state-groups {
+  display: grid;
+  gap: 14px;
+}
+.design-system-specimen-details pre {
+  margin-top: 0;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+}
 .jk-specimen-preview {
   display: grid;
   gap: var(--jk-space-3, 0.75rem);
@@ -2817,30 +3190,72 @@ pre {
 .jk-component-state-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--jk-space-3, 0.75rem);
+  gap: 32px;
+}
+.jk-component-preview[data-contract-id="table"] .jk-component-state-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+.jk-specimen-preview.jk-component-preview {
+  gap: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 .jk-component-state {
   display: grid;
   align-content: start;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
-  min-height: 118px;
-  padding: var(--jk-space-3, 0.75rem);
-  border: 1px solid var(--jk-color-border, var(--line));
-  border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, var(--panel));
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 .jk-component-state.is-focus-visible {
-  box-shadow: var(--jk-focus-ring, 0 0 0 3px var(--focus-ring));
+  box-shadow: none;
 }
 .jk-component-state.is-error {
-  border-color: var(--jk-color-risk, var(--risk));
+  border-color: transparent;
 }
 .jk-component-state.is-loading {
-  border-style: dashed;
+  border-style: none;
 }
 .jk-component-state.is-disabled {
   color: var(--jk-color-disabled, var(--disabled));
+}
+.jk-component-scenario[data-scenario-status="unverified"] {
+  border-style: none;
+}
+.jk-component-scenario__heading {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--jk-color-border, var(--line)) 72%, transparent);
+}
+.jk-component-scenario__status {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.jk-component-scenario__control {
+  min-width: 0;
+}
+.jk-component-scenario__control:has(.jk-menu[data-jk-open="true"]) {
+  min-block-size: 13rem;
+}
+.jk-component-scenario__description,
+.jk-component-scenario__interaction {
+  margin: 0;
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }
 .jk-state-label,
 .jk-pattern-header span,
@@ -2850,229 +3265,11 @@ pre {
   font-weight: 850;
   text-transform: uppercase;
 }
-.jk-sample-button,
-.jk-sample-action-group button,
-.jk-sample-menu button,
-.jk-sample-dialog button,
-.jk-sample-alert button,
-.jk-sample-card button,
-.jk-sample-status button,
-.jk-pattern-controls button {
-  min-height: 34px;
-  padding: 7px 10px;
-  border: 1px solid var(--jk-color-border, var(--line));
-  border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, var(--panel));
-  color: var(--jk-color-text, var(--ink));
-  font: inherit;
-  font-weight: 850;
-}
-.jk-sample-button,
-.jk-pattern-controls button.is-primary {
-  border-color: var(--jk-color-focus, var(--accent));
-  background: var(--jk-color-focus, var(--accent));
-  color: var(--accent-ink);
-}
-.jk-sample-button {
-  display: inline-flex;
-  flex-wrap: nowrap;
-  gap: 7px;
-  align-items: center;
-  justify-content: center;
-  max-width: 100%;
-  white-space: nowrap;
-}
-.jk-sample-button [data-component-anatomy="visible-label"] {
-  min-width: 0;
-  white-space: nowrap;
-}
-.jk-sample-button [data-component-anatomy="optional-icon"],
-.jk-sample-button [data-component-anatomy="progress-indicator"] {
-  display: inline-grid;
-  flex: 0 0 16px;
-  width: 16px;
-  height: 16px;
-  place-items: center;
-}
-.jk-sample-button [data-component-anatomy="optional-icon"] svg,
-.jk-sample-button [data-component-anatomy="progress-indicator"] svg {
-  display: block;
-  width: 16px;
-  height: 16px;
-}
-@keyframes jk-progress-indicator-spin {
-  to {
-    transform: rotate(1turn);
-  }
-}
-.jk-sample-button[aria-busy="true"] [data-component-anatomy="progress-indicator"] svg[data-icon-id="loader-circle"] {
-  animation: jk-progress-indicator-spin 800ms linear infinite;
-  transform-origin: center;
-}
-.jk-sample-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.56;
-}
-.jk-sample-button[aria-busy="true"] {
-  cursor: progress;
-  opacity: 0.82;
-}
-.jk-sample-button[data-focus-visible="true"] {
-  outline: 3px solid var(--jk-color-focus, var(--focus-ring));
-  outline-offset: 3px;
-}
-.jk-sample-action-group,
-.jk-sample-toggle,
-.jk-sample-alert,
-.jk-sample-status,
 .jk-pattern-controls {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-}
-.jk-sample-field,
-.jk-sample-choice-group,
-.jk-sample-tabs,
-.jk-sample-menu,
-.jk-sample-dialog,
-.jk-sample-panel,
-.jk-sample-card {
-  display: grid;
-  gap: 8px;
-  min-width: 0;
-}
-.jk-sample-field input,
-.jk-sample-field textarea,
-.jk-sample-field select {
-  width: 100%;
-  min-height: 34px;
-  padding: 7px 9px;
-  border: 1px solid var(--jk-color-border, var(--line));
-  border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, var(--panel));
-  color: var(--jk-color-text, var(--ink));
-  font: inherit;
-}
-.jk-sample-select-control {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr)
-    var(--jk-select-indicator-slot-width, 3rem);
-  align-items: stretch;
-  width: 100%;
-  min-height: 40px;
-  min-width: 0;
-  padding: 0;
-  overflow: hidden;
-  border: 1px solid var(--jk-color-border, var(--line));
-  border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, var(--panel));
-  color: var(--jk-color-text, var(--ink));
-  font: inherit;
-  text-align: start;
-}
-.jk-sample-select-value {
-  min-width: 0;
-  align-self: center;
-  padding-inline-start: max(
-    0px,
-    calc(var(--jk-select-value-start-space, 1rem) - 1px)
-  );
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.jk-sample-select-indicator-slot {
-  position: relative;
-  inset-inline-end: -1px;
-  display: grid;
-  width: var(--jk-select-indicator-slot-width, 3rem);
-  height: 100%;
-  place-items: center;
-  color: var(--jk-color-text, var(--ink));
-  pointer-events: none;
-}
-.jk-sample-select-indicator-slot svg {
-  width: var(--jk-select-indicator-size, 1rem);
-  height: var(--jk-select-indicator-size, 1rem);
-  overflow: visible;
-}
-.jk-sample-field textarea {
-  min-height: 70px;
-  resize: vertical;
-}
-.jk-sample-field strong,
-.jk-sample-choice-group span {
-  color: var(--jk-color-risk, var(--risk));
-}
-.jk-sample-choice-group {
-  margin: 0;
-  padding: 10px;
-  border: 1px solid var(--jk-color-border, var(--line));
-  border-radius: var(--jk-radius-control, 4px);
-}
-.jk-sample-toggle [data-component-anatomy="switch-control"] {
-  width: 30px;
-  height: 18px;
-  border-radius: 999px;
-  background: var(--jk-color-success, var(--ok));
-}
-.jk-sample-tabs [role="tablist"] {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.jk-sample-tabs [role="tab"],
-.jk-sample-menu li {
-  padding: 6px 8px;
-  border: 1px solid var(--jk-color-border, var(--line));
-  border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, var(--panel));
-}
-.jk-sample-tabs [aria-selected="true"] {
-  border-color: var(--jk-color-focus, var(--accent));
-  color: var(--jk-color-focus, var(--accent));
-  font-weight: 900;
-}
-.jk-sample-menu ul {
-  display: grid;
-  gap: 5px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.jk-sample-dialog,
-.jk-sample-panel,
-.jk-sample-card,
-.jk-sample-status,
-.jk-sample-alert {
-  padding: 10px;
-  border: 1px solid var(--jk-color-border, var(--line));
-  border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, var(--panel));
-}
-.jk-sample-dialog h4,
-.jk-sample-panel h4,
-.jk-sample-card h4,
-.jk-sample-dialog p,
-.jk-sample-panel p,
-.jk-sample-card p,
-.jk-sample-status span {
-  margin: 0;
-}
-.jk-sample-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--jk-color-surface, var(--panel));
-  font-size: 13px;
-}
-.jk-sample-table caption,
-.jk-sample-table th,
-.jk-sample-table td {
-  padding: 6px 8px;
-  border: 1px solid var(--jk-color-border, var(--line));
-  text-align: left;
 }
 .jk-specimen-map-row {
   display: grid;
@@ -3088,7 +3285,7 @@ pre {
 }
 .jk-pattern-region-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: var(--jk-space-3, 0.75rem);
 }
 .jk-pattern-region-grid section {
@@ -4485,6 +4682,7 @@ pre {
     border-bottom: 0;
   }
   .design-system-metrics,
+  .design-system-coverage-grid,
   .design-system-foundation-list,
   .design-system-review-grid,
   .design-system-example-grid,
@@ -4496,9 +4694,22 @@ pre {
   .design-icon-index-list {
     grid-template-columns: 1fr;
   }
+  .design-system-inventory > .design-system-metrics {
+    grid-template-columns: 1fr;
+  }
   .design-system-specimen-preview-frame {
     border-right: 0;
     border-bottom: 1px solid var(--line);
+  }
+  .design-system-specimen[data-component-specimen] .design-system-specimen-preview-frame,
+  .design-system-specimen[data-pattern-specimen] .design-system-specimen-preview-frame {
+    border-bottom: 0;
+  }
+  .design-system-specimen-details-grid {
+    grid-template-columns: 1fr;
+  }
+  .design-system-specimen-details-grid .design-system-specimen-details-wide {
+    grid-column: auto;
   }
   .design-system-metrics div {
     border-right: 0;
@@ -4587,9 +4798,6 @@ pre {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .jk-sample-button[aria-busy="true"] [data-component-anatomy="progress-indicator"] svg[data-icon-id="loader-circle"] {
-    animation: none;
-  }
   .homepage-hero-art img {
     transform: none;
   }
@@ -5321,215 +5529,6 @@ function specimenAnchor(contractId) {
   return slugId(contractId);
 }
 
-function normalizeToken(value) {
-  return String(value)
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function componentStateClass(state) {
-  const normalized = normalizeToken(state);
-  if (normalized === "disabled") return "is-disabled";
-  if (normalized === "error") return "is-error";
-  if (normalized === "loading") return "is-loading";
-  if (normalized === "focus-visible") return "is-focus-visible";
-  if (normalized === "empty") return "is-empty";
-  return "is-ready";
-}
-
-function stateLabel(state) {
-  return state.replaceAll("-", " ");
-}
-
-function renderComponentStatePreview(contract, state) {
-  const id = contract.id;
-  const label = contract.label;
-  const stateSlug = slugId(state);
-  const stateClass = componentStateClass(state);
-  const disabled = state === "disabled";
-  const busy = state === "loading";
-  const invalid = state === "error";
-  const empty = state === "empty";
-  const focus = state === "focus-visible";
-  const disabledAttr = disabled ? " disabled aria-disabled=\"true\"" : "";
-  const busyAttr = busy ? " aria-busy=\"true\"" : "";
-  const invalidAttr = invalid ? " aria-invalid=\"true\"" : "";
-  const focusAttr = focus ? " data-focus-visible=\"true\"" : "";
-  const stateAttrs = `class="jk-component-state ${stateClass}" data-component-state="${escapeHtml(state)}"`;
-  const stateHeading = `<span class="jk-state-label">${escapeHtml(stateLabel(state))}</span>`;
-  const sampleId = `${slugId(id)}-${stateSlug}`;
-  const valueText = empty ? "" : "Policy review";
-  const helpText = invalid
-    ? "Add a reason before continuing."
-    : disabled
-      ? "Unavailable until evidence is complete."
-      : busy
-        ? "Saving the current decision."
-        : "Visible helper text stays with the control.";
-
-  let body;
-  switch (id) {
-    case "action_button": {
-      const iconId = busy ? "loader-circle" : "check";
-      const iconAnatomy = busy ? "progress-indicator" : "optional-icon";
-      const iconSvg = getIconSvg({ id: iconId }).inline_svg.replace(
-        "<svg ",
-        `<svg data-icon-id="${iconId}" `,
-      );
-      const actionButtonDisabledAttr = disabled || busy
-        ? " disabled aria-disabled=\"true\""
-        : "";
-      body = `<button class="jk-sample-button" type="button" data-component-anatomy="state-affordance"${actionButtonDisabledAttr}${busyAttr}${focusAttr}>
-                <span data-component-anatomy="${iconAnatomy}" aria-hidden="true">${iconSvg}</span>
-                <span data-component-anatomy="visible-label">${busy ? "Approving refund" : "Approve refund"}</span>
-              </button>`;
-      break;
-    }
-    case "action_group":
-      body = `<div class="jk-sample-action-group" role="group" aria-label="Refund decision actions"${focusAttr}>
-                <span data-component-anatomy="group-label-or-context">Case action</span>
-                <button data-component-anatomy="primary-action"${disabledAttr}>Approve</button>
-                <button data-component-anatomy="secondary-actions"${disabledAttr}>Return</button>
-              </div>`;
-      break;
-    case "form_field":
-    case "text_field":
-      body = `<label class="jk-sample-field" for="${escapeHtml(sampleId)}">
-                <span data-component-anatomy="label">Reason</span>
-                <input id="${escapeHtml(sampleId)}" data-component-anatomy="${id === "form_field" ? "control" : "input"}" value="${escapeHtml(valueText)}" placeholder="Add reason"${disabledAttr}${invalidAttr}${focusAttr}>
-                <span data-component-anatomy="help-text">${escapeHtml(helpText)}</span>
-                ${invalid ? `<strong data-component-anatomy="error-text">Reason is required.</strong>` : ""}
-              </label>`;
-      break;
-    case "text_area":
-      body = `<label class="jk-sample-field" for="${escapeHtml(sampleId)}">
-                <span data-component-anatomy="label">Handoff note</span>
-                <textarea id="${escapeHtml(sampleId)}" data-component-anatomy="multi-line-control"${disabledAttr}${invalidAttr}${focusAttr}>${empty ? "" : "Customer requested policy review after missing receipt evidence."}</textarea>
-                <span data-component-anatomy="help-text">${escapeHtml(helpText)}</span>
-                ${invalid ? `<strong data-component-anatomy="error-text">Add a handoff note.</strong>` : ""}
-              </label>`;
-      break;
-    case "select_field":
-      body = `<div class="jk-sample-field">
-                <span id="${escapeHtml(sampleId)}-label" data-component-anatomy="label">Decision</span>
-                <button id="${escapeHtml(sampleId)}" class="jk-sample-select-control" type="button" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="${escapeHtml(sampleId)}-label" aria-describedby="${escapeHtml(sampleId)}-help" data-component-anatomy="trigger-or-native-select"${disabledAttr}${invalidAttr}${focusAttr}>
-                  <span class="jk-sample-select-value" data-component-anatomy="selected-value" data-part="value">${empty ? "Choose decision" : "Approve"}</span>
-                  <span class="jk-sample-select-indicator-slot" data-component-anatomy="trailing-indicator-slot" data-part="indicator-slot" aria-hidden="true">
-                    <svg data-component-anatomy="indicator" data-part="indicator" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                      <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </span>
-                </button>
-                <span id="${escapeHtml(sampleId)}-help" data-component-anatomy="help-or-error-text">${escapeHtml(helpText)}</span>
-                <span hidden role="listbox" data-component-anatomy="options">Approve; Return for evidence</span>
-              </div>`;
-      break;
-    case "checkbox_group":
-      body = `<fieldset class="jk-sample-choice-group"${disabled ? " disabled" : ""}${focusAttr}>
-                <legend data-component-anatomy="legend">Evidence present</legend>
-                <label data-component-anatomy="checkbox-options"><input type="checkbox" checked${disabledAttr}> Receipt</label>
-                <label data-component-anatomy="checkbox-options"><input type="checkbox"${disabledAttr}> Manager approval</label>
-                <span data-component-anatomy="help-or-error-text">${invalid ? "Select at least one evidence source." : "Choose all evidence sources."}</span>
-              </fieldset>`;
-      break;
-    case "radio_group":
-      body = `<fieldset class="jk-sample-choice-group"${disabled ? " disabled" : ""}${focusAttr}>
-                <legend data-component-anatomy="legend">Outcome</legend>
-                <label data-component-anatomy="radio-options"><input type="radio" name="${escapeHtml(sampleId)}" checked${disabledAttr}> Approve</label>
-                <label data-component-anatomy="radio-options"><input type="radio" name="${escapeHtml(sampleId)}"${disabledAttr}> Return</label>
-                <span data-component-anatomy="help-or-error-text">${invalid ? "Choose one outcome." : "Select one decision."}</span>
-              </fieldset>`;
-      break;
-    case "toggle":
-      body = `<button class="jk-sample-toggle" role="switch" aria-checked="${disabled ? "false" : "true"}"${disabledAttr}${focusAttr}>
-                <span data-component-anatomy="switch-control" aria-hidden="true"></span>
-                <span data-component-anatomy="visible-label">Require approval</span>
-                <strong data-component-anatomy="current-state-text">${disabled ? "Off" : "On"}</strong>
-              </button>`;
-      break;
-    case "tabs":
-      body = `<div class="jk-sample-tabs"${focusAttr}>
-                <div role="tablist" data-component-anatomy="tab-list" aria-label="Case evidence">
-                  <button role="tab" aria-selected="true" data-component-anatomy="active-tab tabs"${disabledAttr}>Evidence</button>
-                  <button role="tab" data-component-anatomy="tabs"${disabledAttr}>History</button>
-                </div>
-                <section role="tabpanel" data-component-anatomy="tab-panels">Receipt and approval evidence.</section>
-              </div>`;
-      break;
-    case "menu":
-      body = `<div class="jk-sample-menu"${focusAttr}>
-                <button data-component-anatomy="trigger"${disabledAttr}>More actions</button>
-                <ul role="menu" data-component-anatomy="menu">
-                  <li role="menuitem" data-component-anatomy="menu-items">Copy summary</li>
-                  <li role="menuitem">Send handoff</li>
-                </ul>
-                <span data-component-anatomy="dismiss-behavior">Dismiss with Escape or outside click.</span>
-              </div>`;
-      break;
-    case "dialog":
-      body = `<section class="jk-sample-dialog" role="dialog" aria-modal="false" aria-labelledby="${escapeHtml(sampleId)}-title"${busyAttr}${focusAttr}>
-                <h4 id="${escapeHtml(sampleId)}-title" data-component-anatomy="title">Confirm approval</h4>
-                <p data-component-anatomy="body">${invalid ? "Resolve the missing reason before approval." : "This records the refund decision and receipt."}</p>
-                <div>
-                  <button data-component-anatomy="dismiss-action">Cancel</button>
-                  <button data-component-anatomy="primary-action"${busy ? " aria-busy=\"true\"" : ""}>Confirm</button>
-                </div>
-              </section>`;
-      break;
-    case "alert":
-      body = `<div class="jk-sample-alert" role="${invalid ? "alert" : "status"}"${focusAttr}>
-                <span data-component-anatomy="status-indicator" aria-hidden="true">!</span>
-                <p data-component-anatomy="message">${invalid ? "Receipt is missing." : "Case is ready for review."}</p>
-                <button data-component-anatomy="optional-action">View evidence</button>
-              </div>`;
-      break;
-    case "table":
-      body = `<table class="jk-sample-table"${busyAttr}${focusAttr}>
-                <caption data-component-anatomy="caption-or-heading">Escalation queue</caption>
-                <thead><tr data-component-anatomy="headers"><th>Case</th><th>Status</th></tr></thead>
-                <tbody data-component-anatomy="rows">
-                  <tr><td data-component-anatomy="cells">${empty ? "No cases" : "RF-1842"}</td><td>${invalid ? "Needs repair" : busy ? "Loading" : "Ready"}</td></tr>
-                </tbody>
-                <tfoot><tr><td colspan="2" data-component-anatomy="empty-state">${empty ? "No work waiting." : "1 case shown."}</td></tr></tfoot>
-              </table>`;
-      break;
-    case "panel":
-      body = `<section class="jk-sample-panel"${busyAttr}>
-                <h4 data-component-anatomy="heading">Evidence</h4>
-                <p data-component-anatomy="content-region">${invalid ? "Evidence conflict needs review." : busy ? "Loading evidence." : "Receipt, policy, and customer note are grouped here."}</p>
-                <button data-component-anatomy="optional-actions">Open detail</button>
-              </section>`;
-      break;
-    case "card":
-      body = `<article class="jk-sample-card"${disabled ? " aria-disabled=\"true\"" : ""}${focusAttr}>
-                <h4 data-component-anatomy="item-title">Refund RF-1842</h4>
-                <p data-component-anatomy="summary">Policy exception with receipt evidence.</p>
-                <span data-component-anatomy="metadata">Updated 4 min ago</span>
-                <button data-component-anatomy="optional-action"${disabledAttr}>Review</button>
-              </article>`;
-      break;
-    case "status_message":
-      body = `<div class="jk-sample-status" role="${invalid ? "alert" : "status"}"${busyAttr}>
-                <strong data-component-anatomy="severity-or-result">${invalid ? "Needs repair" : busy ? "Saving" : "Ready"}</strong>
-                <span data-component-anatomy="status-text">${invalid ? "Add missing evidence before handoff." : "Decision can be handed off."}</span>
-                <button data-component-anatomy="optional-next-action">Continue</button>
-              </div>`;
-      break;
-    default:
-      body = `<div class="jk-sample-panel">
-                <h4>${escapeHtml(label)}</h4>
-                <p>${escapeHtml(contract.purpose)}</p>
-              </div>`;
-  }
-
-  return `<div ${stateAttrs}>
-            ${stateHeading}
-            ${body}
-          </div>`;
-}
-
 function renderSpecimenEvidenceChips(items, attrName, className) {
   return `<ul class="${className}">
             ${items
@@ -5545,23 +5544,31 @@ function renderSpecimenTokenStyleAttribute(context) {
   return context.token_style ? ` style="${escapeHtml(context.token_style)}"` : "";
 }
 
-function renderComponentSpecimenPreview(contract, context) {
-  const id = specimenId("component", contract.id);
-  return `<div class="jk-specimen-preview jk-component-preview" data-specimen-id="${escapeHtml(id)}" data-contract-id="${escapeHtml(contract.id)}" data-contract-hash="${escapeHtml(context.contract_hash)}"${renderSpecimenTokenStyleAttribute(context)}>
-            <div class="jk-component-state-grid">
-              ${(contract.required_states ?? [])
-                .map((state) => renderComponentStatePreview(contract, state))
-                .join("\n              ")}
-            </div>
-            <div class="jk-specimen-map-row" aria-label="${escapeHtml(contract.label)} anatomy">
-              <span>Anatomy</span>
-              ${renderSpecimenEvidenceChips(contract.anatomy ?? [], "data-component-anatomy", "jk-specimen-chip-list")}
-            </div>
-            <div class="jk-specimen-map-row" aria-label="${escapeHtml(contract.label)} token roles">
-              <span>Tokens</span>
-              ${renderSpecimenEvidenceChips(contract.token_bindings ?? [], "data-token-role", "jk-specimen-chip-list")}
-            </div>
-          </div>`;
+function renderComponentSpecimenPreview(contract, context, scenarios) {
+  const runtimeProps = {
+    contractId: contract.id,
+    contractHash: context.contract_hash,
+    scenarios,
+    style: context.token_style_object,
+  };
+  const runtimeHtml = renderToString(
+    createElement(ComponentSpecimenPreview, runtimeProps),
+  );
+
+  return `<div data-component-specimen-runtime="${escapeHtml(contract.id)}" data-component-specimen-props="${escapeHtml(serializeJsonForHtml(runtimeProps))}">${runtimeHtml}</div>`;
+}
+
+function renderPatternControl(control, index) {
+  return renderToString(
+    createElement(
+      ActionButton,
+      {
+        "data-pattern-control": slugId(control),
+        tone: index === 0 ? "decision" : "secondary",
+      },
+      control,
+    ),
+  );
 }
 
 function renderPatternSpecimenPreview(contract, context) {
@@ -5583,10 +5590,7 @@ function renderPatternSpecimenPreview(contract, context) {
             </div>
             <div class="jk-pattern-controls" aria-label="${escapeHtml(contract.label)} controls">
               ${(contract.expected_controls ?? [])
-                .map(
-                  (control, index) =>
-                    `<button data-pattern-control="${escapeHtml(slugId(control))}"${index === 0 ? ' class="is-primary"' : ""}>${escapeHtml(control)}</button>`,
-                )
+                .map(renderPatternControl)
                 .join("\n              ")}
             </div>
             <p class="jk-pattern-completion">${escapeHtml(contract.completion_or_handoff)}</p>
@@ -5626,18 +5630,38 @@ function buildSpecimenContext(adapter, system) {
     icon_catalog_hash: hashCanonical(adapter.icon_catalog),
     design_system_contract_hash: hashCanonical(system),
     token_style: cssCustomPropertyStyle(nonAppearanceProperties),
+    token_style_object: Object.fromEntries(
+      nonAppearanceProperties.map((property) => [property.name, property.value]),
+    ),
   };
 }
 
-function buildComponentSpecimens(contracts, context) {
-  return contracts.map((contract) => {
+function buildComponentSpecimens(contracts, context, evidenceContext) {
+  const runtimeContracts = contracts.filter((contract) =>
+    RUNTIME_COMPONENT_IDS.includes(contract.id),
+  );
+
+  return runtimeContracts.map((contract) => {
     const id = specimenId("component", contract.id);
-    const contractHash = hashCanonical(contract);
+    const registryEntry = COMPONENT_IMPLEMENTATION_REGISTRY.find(
+      (entry) => entry.contract_id === contract.id,
+    );
+    const contractHash = evidenceContext.contract_hashes[contract.id];
+    const scenarios = evidenceContext.scenarios.filter(
+      (scenario) => scenario.contract_id === contract.id,
+    );
     const renderedHtml = renderComponentSpecimenPreview(contract, {
       ...context,
       contract_hash: contractHash,
-    });
+    }, scenarios);
     const states = contract.required_states ?? [];
+    const coveredStates = coveredStatesForContract(
+      contract.id,
+      evidenceContext.scenarios,
+    );
+    const unverifiedStates = states.filter(
+      (state) => !coveredStates.includes(state),
+    );
     const anatomy = contract.anatomy ?? [];
     const tokenBindings = contract.token_bindings ?? [];
 
@@ -5651,31 +5675,42 @@ function buildComponentSpecimens(contracts, context) {
       contract_hash: contractHash,
       token_hash: context.token_hash,
       icon_catalog_hash: context.icon_catalog_hash,
-      renderer_id: DESIGN_SYSTEM_SPECIMEN_RENDERER.id,
-      renderer_version: DESIGN_SYSTEM_SPECIMEN_RENDERER.version,
+      renderer_id: COMPONENT_SPECIMEN_RENDERER.id,
+      renderer_version: COMPONENT_SPECIMEN_RENDERER.version,
+      package_export: COMPONENT_SPECIMEN_RENDERER.package_export,
+      stylesheet_export: COMPONENT_SPECIMEN_RENDERER.stylesheet_export,
+      public_export: registryEntry?.public_export,
+      implementation_hash:
+        evidenceContext.implementation_hashes[contract.id],
+      implementation_sources: evidenceContext.implementation_sources,
+      fixture_output_hash:
+        evidenceContext.fixture_output_hashes[contract.id],
       output_hash: hashText(renderedHtml),
       selectors: {
         root: attrSelector("data-specimen-id", id),
         states: Object.fromEntries(
           states.map((state) => [
             state,
-            `${attrSelector("data-specimen-id", id)} ${attrSelector("data-component-state", state)}`,
+            `${attrSelector("data-specimen-id", id)} ${attrSelector("data-scenario-id", `${contract.id}.${state}`)}`,
           ]),
         ),
         anatomy: Object.fromEntries(
           anatomy.map((item) => [
             item,
-            `${attrSelector("data-specimen-id", id)} ${attrSelector("data-component-anatomy", slugId(item))}`,
+            `${attrSelector("data-component-specimen", contract.id)} ${attrSelector("data-component-anatomy", slugId(item))}`,
           ]),
         ),
         token_bindings: Object.fromEntries(
           tokenBindings.map((role) => [
             role,
-            `${attrSelector("data-specimen-id", id)} ${attrSelector("data-token-role", slugId(role))}`,
+            `${attrSelector("data-component-specimen", contract.id)} ${attrSelector("data-token-role", slugId(role))}`,
           ]),
         ),
       },
-      covered_states: states,
+      required_states: states,
+      covered_states: coveredStates,
+      unverified_states: unverifiedStates,
+      scenarios,
       covered_anatomy: anatomy,
       covered_token_bindings: tokenBindings,
       accessibility_checks: contract.accessibility_checks ?? [],
@@ -5745,7 +5780,8 @@ function exportSpecimen(specimen) {
 function designSystemSpecimenProvenance(model) {
   return {
     source: model.system.id,
-    renderer: DESIGN_SYSTEM_SPECIMEN_RENDERER,
+    component_renderer: COMPONENT_SPECIMEN_RENDERER,
+    pattern_renderer: DESIGN_SYSTEM_SPECIMEN_RENDERER,
     generated_from: model.generated_from,
     proof_scope:
       "Hashes and selectors prove specimen provenance and drift control; they do not replace activity, workflow, disclosure, accessibility, static, or browser-QA evidence.",
@@ -5756,8 +5792,11 @@ function designSystemSpecimenProvenance(model) {
       id: specimen.id,
       contract_id: specimen.contract_id,
       contract_hash: specimen.contract_hash,
+      implementation_hash: specimen.implementation_hash,
       output_hash: specimen.output_hash,
+      required_states: specimen.required_states,
       covered_states: specimen.covered_states,
+      unverified_states: specimen.unverified_states,
     })),
     pattern_specimens: model.pattern_specimens.map((specimen) => ({
       id: specimen.id,
@@ -5787,6 +5826,8 @@ function designSystemExports(model) {
         visual_token_adapter: "/design-system/visual-token-adapter.json",
         visual_composition_policy:
           "/design-system/visual-composition-policy.json",
+        component_inventory: "/design-system/component-inventory.json",
+        component_registry: "/design-system/component-registry.json",
         component_contracts: "/design-system/component-contracts.json",
         pattern_contracts: "/design-system/pattern-contracts.json",
         surface_presentation_profiles:
@@ -5803,15 +5844,26 @@ function designSystemExports(model) {
         visual_token_adapter_id: model.adapter.id,
         visual_composition_policy_id: model.visual_composition_policy.id,
         design_system_contract_id: model.system.id,
+        component_reference_inventory_id:
+          model.component_reference_inventory.inventory_id,
         lucide: model.adapter.icon_catalog,
       },
       principles: model.principles,
     },
     visualTokenAdapter: model.adapter,
     visualCompositionPolicy: model.visual_composition_policy,
+    componentInventory: model.component_reference_inventory,
     componentContracts: {
       source: model.system.id,
       contracts: model.component_contracts,
+    },
+    componentRegistry: {
+      source: model.system.id,
+      adapter: COMPONENT_RUNTIME_ADAPTER,
+      renderer_components: model.design_system_source.renderer_components,
+      registry: model.component_registry,
+      scenarios: model.component_scenarios,
+      evidence: model.component_evidence,
     },
     patternContracts: {
       source: model.system.id,
@@ -5825,7 +5877,31 @@ function designSystemExports(model) {
     },
     componentSpecimens: {
       source: model.system.id,
-      renderer: DESIGN_SYSTEM_SPECIMEN_RENDERER,
+      renderer: COMPONENT_SPECIMEN_RENDERER,
+      evidence: model.component_evidence,
+      contract_coverage: model.component_contracts.map((contract) => {
+        const registryEntry = model.component_registry.find(
+          (entry) => entry.contract_id === contract.id,
+        );
+        const scenarios = model.component_scenarios.filter(
+          (scenario) => scenario.contract_id === contract.id,
+        );
+
+        return {
+          contract_id: contract.id,
+          classification: registryEntry?.classification ?? "contract_only",
+          implementation_status:
+            registryEntry?.implementation_status ?? "not_implemented",
+          required_states: contract.required_states ?? [],
+          covered_states: coveredStatesForContract(
+            contract.id,
+            model.component_scenarios,
+          ),
+          unverified_states: scenarios
+            .filter((scenario) => scenario.status !== "verified")
+            .map((scenario) => scenario.state),
+        };
+      }),
       specimens: model.component_specimens.map(exportSpecimen),
     },
     patternSpecimens: {
@@ -5887,11 +5963,27 @@ function buildDesignSystemContentModel() {
   const system = defaultDesignSystemContract();
   const designSystemSource = defaultDesignSystemSource();
   const accessibilityPolicy = defaultAccessibilityPolicy();
+  const componentReferenceInventory = listComponentReferenceInventory();
   const componentContracts = system.component_contracts ?? [];
   const patternContracts = system.pattern_contracts ?? [];
+  const componentRegistry = listComponentImplementationRegistry();
   const surfacePresentationProfiles = listSurfacePresentationProfiles();
   const specimenContext = buildSpecimenContext(adapter, system);
-  const componentSpecimens = buildComponentSpecimens(componentContracts, specimenContext);
+  const componentEvidence = buildComponentEvidenceContext(
+    componentContracts,
+    specimenContext,
+  );
+  const componentReferenceCoverage = summarizeComponentReferenceCoverage(
+    componentReferenceInventory,
+    componentContracts,
+    componentRegistry,
+    componentEvidence.scenarios,
+  );
+  const componentSpecimens = buildComponentSpecimens(
+    componentContracts,
+    specimenContext,
+    componentEvidence,
+  );
   const patternSpecimens = buildPatternSpecimens(patternContracts, specimenContext);
   const iconScenarios = buildDesignSystemIconScenarios();
   const iconIndex = buildDesignSystemIconIndex(iconScenarios);
@@ -5983,10 +6075,17 @@ function buildDesignSystemContentModel() {
       path: "/design-system/components/",
       markdown_path: "/design-system/components/index.html.md",
       heading: "Components",
-      eyebrow: "Contracts",
+      eyebrow: "Design system",
       summary:
-        "Framework-neutral component contracts for core controls, regions, and states.",
-      sections: ["Usage", "Specimens", "Component contracts", "Review checks", "Accessibility"],
+        "Reusable JudgmentKit components and states, informed by the breadth of Simple Design System without copying its styling.",
+      sections: [
+        "Inventory",
+        "Usage",
+        "Components",
+        "Component guidance",
+        "Quality checklist",
+        "Accessibility",
+      ],
       examples: [
         {
           title: "Action with a boundary",
@@ -6083,8 +6182,8 @@ function buildDesignSystemContentModel() {
       title: "Components",
       href: "/design-system/components/",
       summary:
-        "Core component contracts for actions, fields, choices, dialogs, tables, panels, cards, and status.",
-      meta: `${componentContracts.length} contracts + specimens`,
+        "Reference inventory, semantic dispositions, contracts, runtime candidates, and current evidence status.",
+      meta: `${componentReferenceInventory.totals.all.families} reference families · ${componentContracts.length} contracts · ${componentSpecimens.length} runtime`,
     },
     {
       title: "Patterns",
@@ -6117,6 +6216,38 @@ function buildDesignSystemContentModel() {
     adapter,
     visual_composition_policy: visualCompositionPolicy,
     component_contracts: componentContracts,
+    component_reference_inventory: componentReferenceInventory,
+    component_reference_coverage: componentReferenceCoverage,
+    component_registry: componentRegistry,
+    component_scenarios: componentEvidence.scenarios,
+    component_evidence: {
+      current: componentEvidence.current,
+      run_id: componentEvidence.current
+        ? componentEvidence.bundle?.run_id ?? null
+        : null,
+      source_run_id: componentEvidence.bundle?.run_id ?? null,
+      browser_version: componentEvidence.current
+        ? componentEvidence.bundle?.browser_version ?? null
+        : null,
+      implementation_hash: componentEvidence.implementation_hash,
+      implementation_sources: componentEvidence.implementation_sources,
+      fixture_output_hashes: componentEvidence.fixture_output_hashes,
+      package_status: componentEvidence.current
+        ? componentEvidence.bundle?.package_status ?? "unverified"
+        : "unverified",
+      automated_accessibility_status:
+        componentEvidence.current
+          ? componentEvidence.bundle?.automated_accessibility_status ??
+            "unverified"
+          : "unverified",
+      automated_evidence_hash: componentEvidence.current
+        ? componentEvidence.bundle?.automated_evidence_hash ?? null
+        : null,
+      unsupported_claims: [
+        ...COMPONENT_RUNTIME_ADAPTER.support_limits,
+      ],
+      reviewer_receipt: componentEvidence.bundle?.reviewer_receipt ?? null,
+    },
     pattern_contracts: patternContracts,
     surface_presentation_profiles: surfacePresentationProfiles,
     component_specimens: componentSpecimens,
@@ -6298,6 +6429,10 @@ function renderSpecimenFacts(rows) {
 }
 
 function renderSpecimenPillList(items, className = "design-system-specimen-pills") {
+  if (!items.length) {
+    return '<p class="note">None</p>';
+  }
+
   return `<ul class="${className}">
             ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("\n            ")}
           </ul>`;
@@ -6310,7 +6445,9 @@ function renderComponentSpecimenList(specimens) {
                 const contractExcerpt = {
                   id: specimen.contract_id,
                   purpose: specimen.purpose,
-                  required_states: specimen.covered_states,
+                  required_states: specimen.required_states,
+                  verified_states: specimen.covered_states,
+                  pending_states: specimen.unverified_states,
                   anatomy: specimen.covered_anatomy,
                   token_bindings: specimen.covered_token_bindings,
                   accessibility_checks: specimen.accessibility_checks,
@@ -6321,32 +6458,47 @@ function renderComponentSpecimenList(specimens) {
                 return `<article class="design-system-specimen" id="${escapeHtml(specimenAnchor(specimen.contract_id))}" data-component-specimen="${escapeHtml(specimen.contract_id)}">
               <header class="design-system-specimen-header">
                 <div>
-                  <p class="eyebrow">Component specimen</p>
                   <h3>${escapeHtml(specimen.label)}</h3>
                   <p>${escapeHtml(specimen.purpose)}</p>
                 </div>
-                <a class="pill-link" href="${escapeHtml(specimen.anchor)}">Open</a>
               </header>
               <div class="design-system-specimen-body">
                 <div class="design-system-specimen-preview-frame">
                   ${specimen.rendered_html}
                 </div>
-                <aside class="design-system-specimen-support" aria-label="${escapeHtml(specimen.label)} coverage">
-                  <h4>States</h4>
-                  ${renderSpecimenPillList(specimen.covered_states)}
-                  <h4>Anatomy</h4>
-                  ${renderSpecimenPillList(specimen.covered_anatomy)}
-                  <h4>Evidence</h4>
-                  ${renderSpecimenFacts([
-                    ["Contract", specimen.contract_id],
-                    ["Contract hash", shortHash(specimen.contract_hash)],
-                    ["Output hash", shortHash(specimen.output_hash)],
-                  ])}
-                  <details>
-                    <summary>Contract</summary>
-                    <pre><code>${escapeHtml(JSON.stringify(contractExcerpt, null, 2))}</code></pre>
-                  </details>
-                </aside>
+                <details class="design-system-specimen-details">
+                  <summary>Component details</summary>
+                  <div class="design-system-specimen-details-grid">
+                    <section>
+                      <h4>State coverage</h4>
+                      <div class="design-system-specimen-state-groups">
+                        <div><h5>Required</h5>${renderSpecimenPillList(specimen.required_states)}</div>
+                        <div><h5>Verified</h5>${renderSpecimenPillList(specimen.covered_states)}</div>
+                        <div><h5>Pending</h5>${renderSpecimenPillList(specimen.unverified_states)}</div>
+                      </div>
+                    </section>
+                    <section>
+                      <h4>Anatomy</h4>
+                      ${renderSpecimenEvidenceChips(specimen.covered_anatomy, "data-component-anatomy", "design-system-specimen-pills")}
+                      <h4>Token roles</h4>
+                      ${renderSpecimenEvidenceChips(specimen.covered_token_bindings, "data-token-role", "design-system-specimen-pills")}
+                    </section>
+                    <section>
+                      <h4>Implementation</h4>
+                      ${renderSpecimenFacts([
+                        ["Contract", specimen.contract_id],
+                        ["Package", `${specimen.package_export}#${specimen.public_export}`],
+                        ["Contract hash", shortHash(specimen.contract_hash)],
+                        ["Implementation hash", shortHash(specimen.implementation_hash)],
+                        ["Output hash", shortHash(specimen.output_hash)],
+                      ])}
+                    </section>
+                    <section class="design-system-specimen-details-wide">
+                      <h4>Contract excerpt</h4>
+                      <pre><code>${escapeHtml(JSON.stringify(contractExcerpt, null, 2))}</code></pre>
+                    </section>
+                  </div>
+                </details>
               </div>
             </article>`;
               })
@@ -6370,32 +6522,39 @@ function renderPatternSpecimenList(specimens) {
                 return `<article class="design-system-specimen" id="${escapeHtml(specimenAnchor(specimen.contract_id))}" data-pattern-specimen="${escapeHtml(specimen.contract_id)}">
               <header class="design-system-specimen-header">
                 <div>
-                  <p class="eyebrow">Pattern specimen</p>
                   <h3>${escapeHtml(specimen.label)}</h3>
                   <p>${escapeHtml(specimen.purpose)}</p>
                 </div>
-                <a class="pill-link" href="${escapeHtml(specimen.anchor)}">Open</a>
               </header>
               <div class="design-system-specimen-body">
                 <div class="design-system-specimen-preview-frame">
                   ${specimen.rendered_html}
                 </div>
-                <aside class="design-system-specimen-support" aria-label="${escapeHtml(specimen.label)} coverage">
-                  <h4>Regions</h4>
-                  ${renderSpecimenPillList(specimen.covered_regions)}
-                  <h4>Controls</h4>
-                  ${renderSpecimenPillList(specimen.covered_controls)}
-                  <h4>Evidence</h4>
-                  ${renderSpecimenFacts([
-                    ["Surface", specimen.surface_type],
-                    ["Contract hash", shortHash(specimen.contract_hash)],
-                    ["Output hash", shortHash(specimen.output_hash)],
-                  ])}
-                  <details>
-                    <summary>Contract</summary>
-                    <pre><code>${escapeHtml(JSON.stringify(contractExcerpt, null, 2))}</code></pre>
-                  </details>
-                </aside>
+                <details class="design-system-specimen-details">
+                  <summary>Pattern details</summary>
+                  <div class="design-system-specimen-details-grid">
+                    <section>
+                      <h4>Regions</h4>
+                      ${renderSpecimenPillList(specimen.covered_regions)}
+                    </section>
+                    <section>
+                      <h4>Controls</h4>
+                      ${renderSpecimenPillList(specimen.covered_controls)}
+                    </section>
+                    <section>
+                      <h4>Evidence</h4>
+                      ${renderSpecimenFacts([
+                        ["Surface", specimen.surface_type],
+                        ["Contract hash", shortHash(specimen.contract_hash)],
+                        ["Output hash", shortHash(specimen.output_hash)],
+                      ])}
+                    </section>
+                    <section class="design-system-specimen-details-wide">
+                      <h4>Contract excerpt</h4>
+                      <pre><code>${escapeHtml(JSON.stringify(contractExcerpt, null, 2))}</code></pre>
+                    </section>
+                  </div>
+                </details>
               </div>
             </article>`;
               })
@@ -6889,12 +7048,100 @@ function renderDesignSystemIconsPage(model) {
   );
 }
 
+function referenceDispositionLabel(kind) {
+  return String(kind).replaceAll("_", " ");
+}
+
+function renderComponentCoverage(model) {
+  const coverage = model.component_reference_coverage;
+  const target = model.component_reference_inventory.totals;
+  const { accounting, normalization, runtime } = coverage;
+  const dispositions = Object.entries(normalization.by_kind).map(
+    ([kind, counts]) =>
+      `${referenceDispositionLabel(kind)}: ${counts.families} families`,
+  );
+
+  return `<section class="design-system-section design-system-inventory" aria-labelledby="inventory">
+            <h2 id="inventory">Inventory</h2>
+            <p class="note">Simple Design System sets the breadth benchmark. All ${escapeHtml(target.all.families)} families and ${escapeHtml(target.all.variants)} variants are accounted for; JudgmentKit's current library contains ${escapeHtml(runtime.contracts.implemented)} reusable components and ${escapeHtml(runtime.states.supported)} state examples.</p>
+            ${renderDesignSystemMetrics([
+              {
+                label: "Reference families",
+                value: accounting.all.families,
+                detail: `${accounting.public.families} public and ${accounting.hidden.families} hidden`,
+              },
+              {
+                label: "Reference variants",
+                value: accounting.all.variants,
+                detail: `${accounting.public.variants} public and ${accounting.hidden.variants} hidden`,
+              },
+              {
+                label: "JudgmentKit components",
+                value: runtime.contracts.implemented,
+                detail: "Every component is shown below",
+              },
+              {
+                label: "State examples",
+                value: runtime.states.supported,
+                detail: "Meaningful states shown where relevant",
+              },
+            ])}
+            <p class="note">Standalone icons are excluded from this count because JudgmentKit maintains its icon library separately.</p>
+            <details class="design-system-inventory-details">
+              <summary>How the reference maps to JudgmentKit</summary>
+              <div class="design-system-coverage-grid">
+              <article class="design-system-coverage-block" data-component-coverage="inventory">
+                <p class="eyebrow">Inventory parity</p>
+                <h3>${escapeHtml(`${accounting.all.families}/${target.all.families} families`)}</h3>
+                <p><strong>${escapeHtml(`${accounting.all.variants}/${target.all.variants} variants`)}</strong> accounted for.</p>
+                <dl>
+                  <div><dt>Public</dt><dd>${escapeHtml(`${accounting.public.families} public families / ${accounting.public.variants} public variants`)}</dd></div>
+                  <div><dt>Hidden</dt><dd>${escapeHtml(`${accounting.hidden.families} hidden families / ${accounting.hidden.variants} hidden variants`)}</dd></div>
+                </dl>
+                <p>Standalone icons are excluded; icon-bearing component families remain in the accounting.</p>
+              </article>
+              <article class="design-system-coverage-block" data-component-coverage="normalization">
+                <p class="eyebrow">Semantic normalization</p>
+                <h3>${escapeHtml(`${normalization.families.dispositioned}/${normalization.families.total} families classified`)}</h3>
+                <p><strong>${escapeHtml(`${normalization.variants.semantically_normalized}/${normalization.variants.total} reference variants`)}</strong> are axis-bearing and semantically normalized; the remaining ${escapeHtml(normalization.variants.partially_documented + normalization.variants.not_documented)} are singleton masters with no variant axes.</p>
+                <dl>
+                  <div><dt>Axis-bearing</dt><dd>${escapeHtml(`${normalization.metadata.documented.families} families / ${normalization.metadata.documented.variants} variants`)}</dd></div>
+                  <div><dt>Singleton masters</dt><dd>${escapeHtml(`${normalization.metadata.partially_documented.families + normalization.metadata.not_documented.families} families / ${normalization.variants.partially_documented + normalization.variants.not_documented} masters`)}</dd></div>
+                  <div><dt>Semantic axes</dt><dd>${escapeHtml(`${normalization.semantic_axes.classified}/${normalization.semantic_axes.eligible} classified`)}</dd></div>
+                  <div><dt>Audit metadata</dt><dd>${escapeHtml(`${normalization.metadata.partially_documented.families} partial / ${normalization.metadata.not_documented.families} without axis metadata`)}</dd></div>
+                </dl>
+                <p>Family disposition and variant-axis semantics are recorded separately.</p>
+                <ul class="design-system-rule-list">
+                  ${dispositions.map((entry) => `<li>${escapeHtml(entry)}</li>`).join("\n                  ")}
+                </ul>
+              </article>
+              <article class="design-system-coverage-block" data-component-coverage="runtime">
+                <p class="eyebrow">Runtime candidate</p>
+                <h3>${escapeHtml(`${runtime.contracts.implemented}/${runtime.contracts.total} contract IDs have local implementation candidates`)}</h3>
+                <p><strong>${escapeHtml(`${runtime.states.verified}/${runtime.states.total} required states currently verified`)}</strong></p>
+                <dl>
+                  <div><dt>Scenario representation</dt><dd>${escapeHtml(`${runtime.states.supported}/${runtime.states.total} required-state scenarios represented`)}</dd></div>
+                  <div><dt>Pending implementation candidates</dt><dd>${escapeHtml(runtime.contracts.not_implemented)}</dd></div>
+                  <div><dt>Unverified required states</dt><dd>${escapeHtml(runtime.states.total - runtime.states.verified)}</dd></div>
+                  <div><dt>Current evidence</dt><dd>${escapeHtml(`${runtime.scenarios.verified_records} verified / ${runtime.scenarios.records} scenario records`)}</dd></div>
+                  <div><dt>Exact Figma variant evidence</dt><dd>${escapeHtml(`${runtime.reference_mapping.exact_variant_evidence.variants}/${accounting.all.variants} verified`)}</dd></div>
+                </dl>
+              </article>
+            </div>
+            </details>
+          </section>`;
+}
+
 function renderDesignSystemComponentsPage(model) {
   const pageEntry = designSystemPageById(model, "components");
   const contracts = model.component_contracts;
   const specimens = model.component_specimens;
-  const stateCount = new Set(contracts.flatMap((entry) => entry.required_states ?? [])).size;
-  const bindingCount = new Set(contracts.flatMap((entry) => entry.token_bindings ?? [])).size;
+  const contractRows = contracts.map((contract) => ({
+    ...contract,
+    ...(model.component_registry.find(
+      (entry) => entry.contract_id === contract.id,
+    ) ?? {}),
+  }));
 
   return page(
     pageEntry.title,
@@ -6903,68 +7150,58 @@ function renderDesignSystemComponentsPage(model) {
       "components",
       `
           ${renderDesignSystemHero(pageEntry)}
-          ${renderDesignSystemMetrics([
-            {
-              label: "Specimens",
-              value: specimens.length,
-              detail: "Rendered from current contracts.",
-            },
-            {
-              label: "States",
-              value: stateCount,
-              detail: "Required state names across components.",
-            },
-            {
-              label: "Bindings",
-              value: bindingCount,
-              detail: "Token roles tied to component behavior.",
-            },
-          ])}
+          ${renderComponentCoverage(model)}
           <section class="design-system-section" aria-labelledby="usage">
             <h2 id="usage">Usage</h2>
-            <p class="note">Use component contracts to choose the smallest interface primitive that supports the work. These contracts describe behavior, state, and review evidence; they are not a renderer package.</p>
+            <p class="note">Choose the component that matches the user's task, then inspect every state the interface needs to handle. The examples below use the same JudgmentKit components intended for product interfaces, not look-alike specimen controls.</p>
           </section>
-          <section class="design-system-section" aria-labelledby="specimens">
-            <h2 id="specimens">Specimens</h2>
-            <p class="note">Each specimen pairs a rendered preview with required state coverage, anatomy, token roles, and source evidence from the current contract.</p>
+          <section class="design-system-section" aria-labelledby="components">
+            <h2 id="components">Components</h2>
+            <p class="note">Explore each component in the states it needs to handle. Interact with the controls directly; supporting details stay collapsed until requested.</p>
             ${renderComponentSpecimenList(specimens)}
           </section>
-          <section class="design-system-section" aria-labelledby="component-contracts">
-            <h2 id="component-contracts">Component contracts</h2>
+          <section class="design-system-section" aria-labelledby="component-guidance">
+            <h2 id="component-guidance">Component guidance</h2>
             ${renderDesignSystemTable({
-              caption: "Core UI component contracts",
+              caption: "When to use each component",
               columns: [
                 {
                   key: "id",
                   label: "Component",
-                  render: (row) => `<code>${escapeHtml(row.id)}</code><br>${escapeHtml(row.label)}`,
+                  render: (row) => `<strong>${escapeHtml(row.label)}</strong>`,
                 },
                 {
                   key: "purpose",
-                  label: "Purpose",
+                  label: "Use",
                 },
                 {
                   key: "required_states",
                   label: "States",
-                  render: (row) => escapeHtml((row.required_states ?? []).join(", ")),
+                  render: (row) =>
+                    escapeHtml(
+                      (row.required_states ?? [])
+                        .map((state) => state.replaceAll("-", " "))
+                        .join(", "),
+                    ),
                 },
                 {
                   key: "review_checks",
-                  label: "Review",
+                  label: "Quality",
                   render: (row) => escapeHtml((row.review_checks ?? []).join("; ")),
                 },
               ],
-              rows: contracts,
-              rowAttributes: (row) => `data-component-contract="${escapeHtml(row.id)}"`,
+              rows: contractRows,
+              rowAttributes: (row) =>
+                `data-component-contract="${escapeHtml(row.id)}" data-component-runtime-status="${escapeHtml(row.implementation_status)}"`,
             })}
           </section>
-          <section class="design-system-section" aria-labelledby="review-checks">
-            <h2 id="review-checks">Review checks</h2>
+          <section class="design-system-section" aria-labelledby="quality-checklist">
+            <h2 id="quality-checklist">Quality checklist</h2>
             ${renderDesignSystemRuleList([
-              "Use only known component contract ids when citing component evidence.",
-              "Provide required state coverage for every component contract used.",
-              "Keep risky action evidence separate from component evidence.",
-              "Do not use renderer or component-library compliance as proof of activity fit.",
+              "Choose components by the user's task, not by the shape of the underlying data.",
+              "Show loading, disabled, empty, and error states with a readable explanation when they apply.",
+              "Keep risky decisions bounded and visibly distinct from routine actions.",
+              "Reuse the actual JudgmentKit component instead of recreating its appearance with one-off markup.",
             ])}
           </section>
           <section class="design-system-section" aria-labelledby="accessibility">
@@ -6976,8 +7213,14 @@ function renderDesignSystemComponentsPage(model) {
             ])}
           </section>
           ${renderDesignSystemExamples(pageEntry)}
-        `,
+      `,
     ),
+    {
+      description:
+        "Reusable JudgmentKit components and states, with Simple Design System as the breadth reference.",
+      headExtra: componentSpecimenAssets(),
+      path: "/design-system/components/",
+    },
   );
 }
 
@@ -7111,6 +7354,12 @@ function renderDesignSystemPatternsPage(model) {
           ${renderDesignSystemExamples(pageEntry)}
         `,
     ),
+    {
+      description:
+        "JudgmentKit surface patterns composed with the reusable component library.",
+      headExtra: componentSpecimenStylesheet(),
+      path: "/design-system/patterns/",
+    },
   );
 }
 
@@ -7318,20 +7567,58 @@ function renderDesignSystemPageMarkdown(model, pageEntry) {
   }
 
   if (pageEntry.id === "components") {
+    const coverage = model.component_reference_coverage;
+    const target = model.component_reference_inventory.totals;
+    const dispositionLines = Object.entries(
+      coverage.normalization.by_kind,
+    ).map(
+      ([kind, counts]) =>
+        `${referenceDispositionLabel(kind)}: ${counts.families} families`,
+    );
+
     lines.push(
+      "## Coverage",
+      "Simple Design System is the component-family and variant reference. Its styling is not a parity target.",
+      "",
+      "### Inventory parity",
+      `- ${coverage.accounting.all.families}/${target.all.families} families`,
+      `- ${coverage.accounting.all.variants}/${target.all.variants} variants`,
+      `- ${coverage.accounting.public.families} public families / ${coverage.accounting.public.variants} public variants`,
+      `- ${coverage.accounting.hidden.families} hidden families / ${coverage.accounting.hidden.variants} hidden variants`,
+      "- Standalone icons are excluded; icon-bearing component families remain in the accounting.",
+      "",
+      "### Semantic normalization",
+      `- ${coverage.normalization.families.dispositioned}/${coverage.normalization.families.total} families classified with provisional family-level dispositions`,
+      `- ${coverage.normalization.variants.semantically_normalized}/${coverage.normalization.variants.total} reference variants are axis-bearing and semantically normalized`,
+      `- ${coverage.normalization.metadata.partially_documented.families + coverage.normalization.metadata.not_documented.families} singleton families / ${coverage.normalization.variants.partially_documented + coverage.normalization.variants.not_documented} singleton masters have no variant axes`,
+      `- Audit metadata: ${coverage.normalization.metadata.partially_documented.families} partial / ${coverage.normalization.metadata.not_documented.families} without axis metadata`,
+      `- Semantic axes: ${coverage.normalization.semantic_axes.classified}/${coverage.normalization.semantic_axes.eligible} classified`,
+      ...dispositionLines.map((entry) => `- ${entry}`),
+      "",
+      "### Runtime candidate and evidence",
+      `- ${coverage.runtime.contracts.implemented}/${coverage.runtime.contracts.total} contract IDs have local implementation candidates`,
+      `- ${coverage.runtime.states.supported}/${coverage.runtime.states.total} required-state scenarios are represented`,
+      `- ${coverage.runtime.states.verified}/${coverage.runtime.states.total} required states currently verified`,
+      `- ${coverage.runtime.scenarios.verified_records}/${coverage.runtime.scenarios.records} scenario records verified`,
+      `- ${coverage.runtime.reference_mapping.exact_variant_evidence.variants}/${coverage.accounting.all.variants} exact Figma variants have runtime evidence`,
+      "",
       "## Specimens",
       markdownList(
         model.component_specimens.map(
           (entry) =>
-            `\`${entry.id}\`: rendered from \`${entry.contract_id}\`; states: ${entry.covered_states.join(", ")}; output: \`${entry.output_hash}\``,
+            `\`${entry.id}\`: \`${entry.package_export}#${entry.public_export}\`; required: ${entry.required_states.join(", ")}; verified: ${entry.covered_states.join(", ") || "none"}; pending: ${entry.unverified_states.join(", ") || "none"}; output: \`${entry.output_hash}\``,
         ),
       ),
       "",
       "## Component Contracts",
       markdownList(
         model.component_contracts.map(
-          (entry) =>
-            `\`${entry.id}\`: ${entry.purpose}; states: ${(entry.required_states ?? []).join(", ")}; review: ${(entry.review_checks ?? []).join("; ")}`,
+          (entry) => {
+            const registryEntry = model.component_registry.find(
+              (candidate) => candidate.contract_id === entry.id,
+            );
+            return `\`${entry.id}\` (${registryEntry?.implementation_status ?? "not_implemented"}, ${registryEntry?.classification ?? "contract_only"}): ${entry.purpose}; states: ${(entry.required_states ?? []).join(", ")}; review: ${(entry.review_checks ?? []).join("; ")}`;
+          },
         ),
       ),
       "",
@@ -7422,6 +7709,8 @@ function renderDesignSystemLlms(model) {
     "## JSON exports",
     "- /design-system/visual-token-adapter.json",
     "- /design-system/visual-composition-policy.json",
+    "- /design-system/component-inventory.json",
+    "- /design-system/component-registry.json",
     "- /design-system/component-contracts.json",
     "- /design-system/pattern-contracts.json",
     "- /design-system/surface-presentation-profiles.json",
@@ -7599,7 +7888,7 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
 examples/ai-native-design-system/canonical-examples.json</code></pre>
             <p><strong>Loop:</strong> create the implementation contract, review the failing candidate, read <code>next_agent_action</code> and grouped <code>repair_instructions</code>, repair the candidate, then resubmit and expect <code>accept</code>.</p>
             <p><strong>Canonical cases:</strong> setup/onboarding, operational dashboard, and high-stakes review/refund workflow. Each case includes the activity model, implementation contract input, failing candidate, repaired candidate, and proof expectation.</p>
-            <p><strong>Renderer boundary:</strong> the runtime renderer/component package can remain deferred, but <code>implementation_contract.design_system_source</code>, <code>implementation_contract.local_component_authority</code>, <code>implementation_contract.visual_token_adapter</code>, and <code>implementation_contract.default_ai_native_design_system</code> are active implementation contract authorities. A complete <code>design_system_adapter</code> can select <code>external_design_system</code>; missing authorities fail instead of falling back to JudgmentKit defaults.</p>
+            <p><strong>Runtime boundary:</strong> <code>implementation_contract.design_system_source</code> exposes the optional 17-contract React adapter candidate and its canonical registry. The root library, CLI, MCP, and <code>visual_token_adapter</code> remain framework-neutral. A complete <code>design_system_adapter</code> selects <code>external_design_system</code>; missing authorities fail instead of falling back to JudgmentKit defaults.</p>
           </section>
           <section class="doc-section" id="planning-examples">
             <h2>Planning Mode Examples</h2>
@@ -8337,7 +8626,7 @@ async function examplesPage() {
           <div class="example-gallery-intro">
             <p class="eyebrow">AI-native design system</p>
             <h2 id="ai-native-examples-title">First-use loop and canonical contract cases</h2>
-            <p>The first-use fixture shows the agent-owned loop: create contract, review, repair, resubmit, accept. The canonical examples cover setup/onboarding, an operational dashboard, and high-stakes refund review before any renderer package exists.</p>
+            <p>The first-use fixture shows the agent-owned loop: create contract, review, repair, resubmit, accept. The canonical examples cover setup/onboarding, an operational dashboard, and high-stakes refund review; they remain contract examples rather than runtime component demos.</p>
           </div>
           <div class="route-grid">
             <article>
@@ -9382,6 +9671,18 @@ async function buildSystemMapFlowAssets(outDir) {
   });
 }
 
+async function buildComponentSpecimenAssets(outDir) {
+  await buildWithEsbuild({
+    entryPoints: [path.join(__dirname, "component-specimens.jsx")],
+    outfile: path.join(outDir, "assets", "component-specimens.js"),
+    bundle: true,
+    format: "esm",
+    target: "es2020",
+    minify: true,
+    logLevel: "silent",
+  });
+}
+
 export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   const designSystemModel = buildDesignSystemContentModel();
 
@@ -9487,6 +9788,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
     ),
   );
   await buildSystemMapFlowAssets(outDir);
+  await buildComponentSpecimenAssets(outDir);
   await fs.writeFile(
     path.join(outDir, "favicon.svg"),
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#133f4e"/><path d="M18 34.5 28 44l19-24" fill="none" stroke="#f8f7f2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>\n`,
@@ -9513,6 +9815,14 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.writeFile(
     path.join(outDir, "design-system", "visual-composition-policy.json"),
     jsonExport(designSystemModel.exports.visualCompositionPolicy),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "component-inventory.json"),
+    jsonExport(designSystemModel.exports.componentInventory),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "component-registry.json"),
+    jsonExport(designSystemModel.exports.componentRegistry),
   );
   await fs.writeFile(
     path.join(outDir, "design-system", "component-contracts.json"),

@@ -29,7 +29,11 @@ A surface presentation profile applies governed design-system guidance after the
 
 The JudgmentKit default design system selects `judgmentkit.workbench.operational-v1` automatically for a Workbench supplied by the caller or recommended with medium or high confidence. `surface_profile: "none"` opts out, while the exact profile id locks that supported version. The neutral low-confidence Workbench fallback selects no profile. External design systems receive no JudgmentKit profile fallback.
 
-Profiles remain adapter-layer contracts. Runtime renderers, reusable components, product vocabulary, product geometry, and authorization truth stay with the implementing product.
+Profiles remain adapter-layer contracts. JudgmentKit may expose an optional component adapter downstream of the kernel, but a profile does not select it or turn it into kernel authority. Product vocabulary, product geometry, data, runtime state, authorization truth, and side effects stay with the implementing product.
+
+The Simple Design System (Community) inventory is JudgmentKit's component-and-variant reference denominator, not its styling authority. Every reference family and master must be accounted for, while JudgmentKit retains its own semantic contracts, interaction behavior, accessibility requirements, colors, typography, spacing, radii, effects, tokens, and brand expression. Patterns, templates, internal parts, and Figma authoring helpers count toward inventory parity without becoming public runtime exports.
+
+Reference accounting, family disposition, variant-axis normalization, runtime availability, and current evidence are separate claims. Completing one layer never implies completion of the next.
 
 ### Disclosure Policy
 

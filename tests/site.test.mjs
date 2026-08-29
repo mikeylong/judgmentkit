@@ -40,6 +40,25 @@ const EXPECTED_TOOL_NAMES = [
   "search_icon_catalog",
   "get_icon_svg",
 ];
+const RUNTIME_COMPONENT_IDS = [
+  "action_button",
+  "action_group",
+  "form_field",
+  "text_field",
+  "text_area",
+  "select_field",
+  "checkbox_group",
+  "radio_group",
+  "toggle",
+  "tabs",
+  "menu",
+  "dialog",
+  "alert",
+  "table",
+  "panel",
+  "card",
+  "status_message",
+];
 const PUBLIC_DIAGNOSTIC_CANDIDATE_KEYS = [
   "approach_caption",
   "approach_title",
@@ -311,6 +330,10 @@ function assertAnalyticsBootstrap(html, label) {
 const homepage = fs.readFileSync(path.join(tempDir, "index.html"), "utf8");
 const llms = fs.readFileSync(path.join(tempDir, "llms.txt"), "utf8");
 const siteCss = fs.readFileSync(path.join(tempDir, "assets", "site.css"), "utf8");
+const componentSpecimenCss = fs.readFileSync(
+  path.join(tempDir, "assets", "component-specimens.css"),
+  "utf8",
+);
 const systemMapFlowJs = fs.readFileSync(path.join(tempDir, "assets", "system-map-flow.js"), "utf8");
 const systemMapFlowCss = fs.readFileSync(path.join(tempDir, "assets", "system-map-flow.css"), "utf8");
 const systemMapFlowAuthoredCss = fs.readFileSync(
@@ -1805,7 +1828,12 @@ assert.ok(docs.includes("examples/ai-native-design-system/canonical-examples.jso
 assert.ok(docs.includes("next_agent_action"));
 assert.ok(docs.includes("repair_instructions"));
 assert.ok(docs.includes("visual_token_adapter"));
-assert.ok(docs.includes("runtime renderer/component package can remain deferred"));
+assert.ok(docs.includes("optional 17-contract React adapter candidate and its canonical registry"));
+assert.ok(
+  docs.includes(
+    "The root library, CLI, MCP, and <code>visual_token_adapter</code> remain framework-neutral.",
+  ),
+);
 assert.ok(docs.includes("implementation_contract.design_system_source"));
 assert.ok(docs.includes("implementation_contract.local_component_authority"));
 assert.ok(docs.includes("Planning Mode Examples"));
@@ -1984,6 +2012,12 @@ const adapterAppearanceTokenNames = new Set([
 const componentContractsExport = JSON.parse(
   fs.readFileSync(path.join(tempDir, "design-system", "component-contracts.json"), "utf8"),
 );
+const componentInventoryExport = JSON.parse(
+  fs.readFileSync(path.join(tempDir, "design-system", "component-inventory.json"), "utf8"),
+);
+const componentRegistryExport = JSON.parse(
+  fs.readFileSync(path.join(tempDir, "design-system", "component-registry.json"), "utf8"),
+);
 const patternContractsExport = JSON.parse(
   fs.readFileSync(path.join(tempDir, "design-system", "pattern-contracts.json"), "utf8"),
 );
@@ -2009,6 +2043,10 @@ const iconScenariosExport = JSON.parse(
   fs.readFileSync(path.join(tempDir, "design-system", "icon-scenarios.json"), "utf8"),
 );
 const implementationContract = createUiImplementationContract().implementation_contract;
+assert.equal(
+  implementationContract.design_system_source.source_exports.component_inventory,
+  "/design-system/component-inventory.json",
+);
 const defaultDesignSystem = implementationContract.default_ai_native_design_system;
 for (const [label, html] of [
   ["design system overview", designSystem],
@@ -2198,18 +2236,95 @@ assert.ok(siteCss.includes(".design-icon-index-list {\n  display: grid;\n  grid-
 assert.ok(siteCss.includes(".design-icon-index-card[hidden] {\n  display: none;\n}"));
 assert.ok(Buffer.byteLength(designSystemIcons, "utf8") < 2_500_000);
 assert.ok(designSystemComponents.includes("<h1>Components</h1>"));
-assert.ok(designSystemComponents.includes("Core UI component contracts"));
-assert.ok(designSystemComponents.includes("<h2 id=\"specimens\">Specimens</h2>"));
+assert.equal(
+  (designSystemComponents.match(/data-component-coverage="(?:inventory|normalization|runtime)"/g) ?? [])
+    .length,
+  3,
+);
+assert.ok(designSystemComponents.includes("128/128 families"));
+assert.ok(designSystemComponents.includes("354/354 variants"));
+assert.ok(
+  designSystemComponents.includes(
+    "17/17 contract IDs have local implementation candidates",
+  ),
+);
+assert.ok(
+  designSystemComponents.includes(
+    `${componentRegistryExport.scenarios.filter((scenario) => scenario.status === "verified").length}/65 required states currently verified`,
+  ),
+);
+assert.deepEqual(componentInventoryExport.totals.all, {
+  families: 128,
+  variants: 354,
+});
+assert.ok(designSystemComponents.includes("When to use each component"));
+assert.ok(designSystemComponents.includes("<h2 id=\"components\">Components</h2>"));
+assert.ok(designSystemComponents.includes("<h2 id=\"inventory\">Inventory</h2>"));
+for (const inventoryLabel of [
+  "Reference families",
+  "Reference variants",
+  "JudgmentKit components",
+  "State examples",
+]) {
+  assert.ok(
+    designSystemComponents.includes(inventoryLabel),
+    `The primary inventory should show ${inventoryLabel}.`,
+  );
+}
+const componentInventorySection = designSystemComponents.match(
+  /<section class="design-system-section design-system-inventory"[\s\S]*?<\/section>/,
+)?.[0];
+assert.ok(componentInventorySection, "The component page must render its inventory section.");
+const componentInventoryPrimary = componentInventorySection.split(
+  '<details class="design-system-inventory-details">',
+)[0];
+for (const implementationTerm of [
+  "Semantic normalization",
+  "Runtime candidate",
+  "contract IDs",
+  "Audit metadata",
+  "Scenario representation",
+  "Current evidence",
+]) {
+  assert.equal(
+    componentInventoryPrimary.includes(implementationTerm),
+    false,
+    `${implementationTerm} must stay out of the primary inventory surface.`,
+  );
+}
+assert.ok(
+  componentInventorySection.includes(
+    "<summary>How the reference maps to JudgmentKit</summary>",
+  ),
+  "Reference mapping detail should remain available on demand.",
+);
+assert.doesNotMatch(
+  componentInventorySection,
+  /<details class="design-system-inventory-details"[^>]*\sopen(?:\s|>)/,
+  "Reference mapping detail must be collapsed by default.",
+);
 assert.ok(designSystemComponents.includes('data-specimen-id="component.action_button"'));
 assert.ok(designSystemComponents.includes('data-contract-hash="sha256:'));
-assert.ok(designSystemComponents.includes('data-component-state="focus-visible"'));
+assert.ok(designSystemComponents.includes('data-contract-state="focus-visible"'));
+assert.ok(designSystemComponents.includes('data-component-runtime="judgmentkit/react"'));
+assert.ok(
+  designSystemComponents.includes(
+    'href="/assets/component-specimens.css?v=judgmentkit-react-component-candidate-v1"',
+  ),
+);
 assert.ok(designSystemComponents.includes('data-component-anatomy="visible-label"'));
 assert.ok(designSystemComponents.includes('data-token-role="decision"'));
 assert.ok(designSystemComponents.includes("Contract hash"));
+assert.ok(designSystemComponents.includes("Implementation hash"));
 assert.ok(designSystemComponents.includes("Output hash"));
 assert.ok(designSystemComponents.includes('data-component-contract="action_button"'));
 assert.ok(designSystemComponents.includes('data-component-contract="dialog"'));
-assert.ok(designSystemComponents.includes("required state coverage"));
+assert.ok(
+  designSystemComponents.includes(
+    "Show loading, disabled, empty, and error states with a readable explanation",
+  ),
+);
+assert.equal(designSystemComponents.includes("jk-sample-"), false);
 for (const [label, html] of [
   ["component", designSystemComponents],
   ["pattern", designSystemPatterns],
@@ -2245,7 +2360,40 @@ assert.ok(designSystemPatterns.includes('data-pattern-control="decision-action"'
 assert.ok(designSystemPatterns.includes('data-pattern-contract="workbench"'));
 assert.ok(designSystemPatterns.includes('data-surface-type="operator_review"'));
 assert.ok(designSystemPatterns.includes("required regions"));
+assert.equal(
+  (designSystemPatterns.match(/data-specimen-id="pattern\.[^"]+"/g) ?? []).length,
+  patternContractsExport.contracts.length,
+  "The pattern page must render one live specimen root per surface contract.",
+);
+assert.equal(
+  (designSystemPatterns.match(/<details class="design-system-specimen-details">/g) ?? [])
+    .length,
+  patternContractsExport.contracts.length,
+  "Every pattern must expose one on-demand metadata disclosure.",
+);
+assert.doesNotMatch(
+  designSystemPatterns,
+  /class="design-system-specimen-support"/,
+  "Pattern metadata must not occupy a permanent side panel beside the specimen.",
+);
+assert.doesNotMatch(
+  designSystemPatterns,
+  /<details class="design-system-specimen-details"[^>]*\sopen(?:\s|>)/,
+  "Pattern metadata disclosures must be collapsed by default.",
+);
 assert.ok(siteCss.includes("--jk-color-surface: #ffffff;"));
+assert.ok(
+  siteCss.includes(
+    ".design-system-specimen[data-pattern-specimen] .design-system-specimen-body {\n  display: block;\n}",
+  ),
+  "Pattern specimen bodies must reserve the full row for the live surface.",
+);
+assert.ok(
+  siteCss.includes(
+    "grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));",
+  ),
+  "Pattern regions should use the available specimen width before wrapping.",
+);
 assert.ok(siteCss.includes("--jk-color-surface: #181d1b;"));
 assert.ok(
   cssRuleBody(siteCss, ".design-system-search input").includes(
@@ -2264,6 +2412,19 @@ assert.ok(designSystemAccessibility.includes("WCAG 2.2 AA"));
 assert.ok(designSystemAccessibility.includes("Normal text contrast target: 4.5:1."));
 assert.ok(designSystemAccessibility.includes('data-accessibility-contract="keyboard_and_focus"'));
 assert.ok(designSystemComponentsMarkdown.includes("## Component Contracts"));
+assert.ok(designSystemComponentsMarkdown.includes("## Coverage"));
+assert.ok(designSystemComponentsMarkdown.includes("128/128 families"));
+assert.ok(designSystemComponentsMarkdown.includes("354/354 variants"));
+assert.ok(
+  designSystemComponentsMarkdown.includes(
+    "17/17 contract IDs have local implementation candidates",
+  ),
+);
+assert.ok(
+  designSystemComponentsMarkdown.includes(
+    `${componentRegistryExport.scenarios.filter((scenario) => scenario.status === "verified").length}/65 required states currently verified`,
+  ),
+);
 assert.ok(designSystemPatternsMarkdown.includes("## Surface Pattern Contracts"));
 assert.ok(designSystemPatternsMarkdown.includes("## Presentation Profiles"));
 assert.ok(
@@ -2294,6 +2455,8 @@ assert.ok(designSystemLlms.includes("Canonical active design-system source"));
 assert.ok(designSystemLlms.includes("/design-system/"));
 assert.ok(designSystemLlms.includes("/design-system/index.html.md"));
 assert.ok(designSystemLlms.includes("/design-system/manifest.json"));
+assert.ok(designSystemLlms.includes("/design-system/component-inventory.json"));
+assert.ok(designSystemLlms.includes("/design-system/component-registry.json"));
 assert.ok(designSystemLlms.includes("/design-system/component-contracts.json"));
 assert.ok(designSystemLlms.includes("/design-system/pattern-contracts.json"));
 assert.ok(
@@ -2316,6 +2479,14 @@ assert.equal(designSystemLlmsFull.includes("data-catalog-icon"), false);
 assert.equal(designSystemLlmsFull.includes("Agent Consumption"), false);
 assert.equal(designSystemManifest.exports.llms, "/design-system/llms.txt");
 assert.equal(designSystemManifest.exports.visual_token_adapter, "/design-system/visual-token-adapter.json");
+assert.equal(
+  designSystemManifest.exports.component_inventory,
+  "/design-system/component-inventory.json",
+);
+assert.equal(
+  designSystemManifest.exports.component_registry,
+  "/design-system/component-registry.json",
+);
 assert.equal(designSystemManifest.exports.component_contracts, "/design-system/component-contracts.json");
 assert.equal(designSystemManifest.exports.pattern_contracts, "/design-system/pattern-contracts.json");
 assert.equal(
@@ -2375,134 +2546,76 @@ const actionButtonSpecimen = componentSpecimensExport.specimens.find(
   (entry) => entry.contract_id === "action_button",
 );
 assert.ok(actionButtonSpecimen, "action_button should have a rendered specimen");
-assert.equal(
-  /<span[^>]*data-component-anatomy="state-affordance"/.test(
-    actionButtonSpecimen.rendered_html,
+assert.ok(
+  actionButtonSpecimen.rendered_html.includes(
+    'data-component-runtime="judgmentkit/react"',
   ),
-  false,
-  "Action-button specimens must not render a legacy visible state-affordance node.",
-);
-
-const expectedActionButtonLabels = new Map([
-  ["ready", "Approve refund"],
-  ["disabled", "Approve refund"],
-  ["focus-visible", "Approve refund"],
-  ["loading", "Approving refund"],
-]);
-for (const [state, expectedLabel] of expectedActionButtonLabels) {
-  const stateMarkup = actionButtonSpecimen.rendered_html.match(
-    new RegExp(
-      `<div[^>]*data-component-state="${state}"[\\s\\S]*?<\\/div>`,
-    ),
-  )?.[0];
-  assert.ok(stateMarkup, `action_button should render its ${state} state`);
-  const buttonMatch = stateMarkup.match(
-    /<button class="jk-sample-button"([^>]*)>([\s\S]*?)<\/button>/,
-  );
-  assert.ok(buttonMatch, `action_button ${state} should render one button`);
-  const [, buttonAttributes, buttonBody] = buttonMatch;
-  assert.ok(
-    buttonAttributes.includes(
-      'data-component-anatomy="state-affordance"',
-    ),
-    `action_button ${state} should carry its semantic state affordance on the button`,
-  );
-  const visibleLabel = buttonBody.match(
-    /data-component-anatomy="visible-label">\s*([^<]+?)\s*<\/span>/,
-  )?.[1];
-  assert.equal(
-    visibleLabel,
-    expectedLabel,
-    `action_button ${state} should use one complete action label without state metadata`,
-  );
-  const visibleButtonText = buttonBody
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  assert.equal(
-    visibleButtonText,
-    expectedLabel,
-    `action_button ${state} must not append unmarked state metadata to its label`,
-  );
-  assert.equal(
-    /<br\b/i.test(buttonBody),
-    false,
-    `action_button ${state} should not introduce a label line break`,
-  );
-
-  if (state === "loading") {
-    assert.ok(
-      buttonAttributes.includes(" disabled") &&
-        buttonAttributes.includes('aria-disabled="true"'),
-      "action_button loading should prevent repeat activation",
-    );
-    assert.ok(
-      buttonAttributes.includes('aria-busy="true"'),
-      "action_button loading should expose aria-busy on the button",
-    );
-    assert.ok(
-      buttonBody.includes('data-component-anatomy="progress-indicator"') &&
-        buttonBody.includes('aria-hidden="true"'),
-      "action_button loading should pair its progress label with a loading indicator",
-    );
-    assert.equal(
-      buttonBody.includes('data-component-anatomy="optional-icon"'),
-      false,
-      "action_button loading should replace its optional icon with the loading indicator",
-    );
-  }
-}
-
-const actionButtonProgressIconCss = cssRuleBody(
-  siteCss,
-  '.jk-sample-button[aria-busy="true"] [data-component-anatomy="progress-indicator"] svg[data-icon-id="loader-circle"]',
-);
-assert.match(
-  actionButtonProgressIconCss,
-  /animation:\s*jk-progress-indicator-spin\s+[\d.]+(?:ms|s)\s+linear\s+infinite;/,
-  "The action-button loading indicator should visibly rotate while work is in progress.",
-);
-assert.deepEqual(
-  cssRuleBlocks(siteCss)
-    .filter(
-      ({ body }) =>
-        body.includes("animation:") &&
-        body.includes("jk-progress-indicator-spin"),
-    )
-    .map(({ selector }) => selector),
-  [
-    '.jk-sample-button[aria-busy="true"] [data-component-anatomy="progress-indicator"] svg[data-icon-id="loader-circle"]',
-  ],
-  "Only the loading progress indicator should receive the rotation animation.",
-);
-assert.match(
-  siteCss,
-  /@keyframes\s+jk-progress-indicator-spin\s*{[\s\S]*?to\s*{[\s\S]*?transform:\s*rotate\((?:360deg|1turn)\);[\s\S]*?}/,
-  "The loading-indicator animation should complete a full rotation.",
-);
-assert.match(
-  siteCss,
-  /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*{[\s\S]*?\.jk-sample-button\[aria-busy="true"\] \[data-component-anatomy="progress-indicator"\] svg\[data-icon-id="loader-circle"\]\s*{[\s\S]*?animation:\s*none;/,
-  "Reduced-motion users should receive the textual loading state without spinner rotation.",
-);
-
-const actionButtonCss = cssRuleBody(siteCss, ".jk-sample-button");
-assert.equal(
-  cssDeclarationValue(actionButtonCss, "flex-wrap"),
-  "nowrap",
-  "Action-button specimen contents must stay in one row.",
-);
-assert.equal(
-  cssDeclarationValue(actionButtonCss, "white-space"),
-  "nowrap",
-  "Action-button specimen labels must not wrap across lines.",
 );
 assert.ok(
-  cssRuleBody(siteCss, '.jk-sample-button [data-component-anatomy="visible-label"]').includes(
-    "white-space: nowrap;",
+  actionButtonSpecimen.rendered_html.includes(
+    'class="jk-action-button" type="button"',
   ),
-  "The action-button label part must preserve the one-line contract explicitly.",
 );
+for (const state of ["ready", "disabled", "focus-visible", "loading"]) {
+  assert.ok(
+    actionButtonSpecimen.rendered_html.includes(
+      `data-scenario-id="action_button.${state}"`,
+    ),
+    `action_button should SSR its ${state} scenario`,
+  );
+  assert.ok(
+    actionButtonSpecimen.rendered_html.includes(`data-contract-state="${state}"`),
+    `action_button should expose its ${state} contract state`,
+  );
+}
+assert.ok(
+  actionButtonSpecimen.rendered_html.includes(
+    'disabled="" aria-busy="true" data-jk-component="action_button" data-jk-state="loading"',
+  ),
+  "action_button loading should prevent repeat activation and expose busy state",
+);
+assert.ok(
+  actionButtonSpecimen.rendered_html.includes(
+    '<span class="jk-action-button__progress" aria-hidden="true"></span>',
+  ),
+);
+assert.ok(actionButtonSpecimen.rendered_html.includes("Approving refund…"));
+assert.equal(actionButtonSpecimen.rendered_html.includes("jk-sample-"), false);
+assert.match(
+  componentSpecimenCss,
+  /\.jk-action-button__label\{[^}]*white-space:nowrap/,
+  "The adapter CSS must preserve concise action labels on one line.",
+);
+assert.match(
+  componentSpecimenCss,
+  /\.jk-action-button__progress,\.jk-status-message__progress\{[^}]*animation:jk-component-spin \.8s linear infinite/,
+  "The adapter CSS must visibly distinguish loading states.",
+);
+assert.match(
+  componentSpecimenCss,
+  /@keyframes jk-component-spin\{to\{rotate:360deg}}/,
+);
+assert.match(
+  componentSpecimenCss,
+  /@media\(prefers-reduced-motion:reduce\)\{\.jk-action-button__progress,\.jk-status-message__progress\{animation:none;/,
+  "The adapter CSS must retain a reduced-motion loading treatment.",
+);
+assert.match(
+  componentSpecimenCss,
+  /\.jk-alert\{[^}]*container-name:jk-alert;container-type:inline-size;/,
+  "Alert must respond to its own composed width instead of only the viewport.",
+);
+assert.match(
+  componentSpecimenCss,
+  /@container jk-alert \(max-width: 18rem\)\{\.jk-alert__cue,\.jk-alert__content,\.jk-alert__action\{grid-column:1 \/ -1}/,
+  "A constrained Alert must stack its cue, content, and embedded action.",
+);
+assert.match(
+  componentSpecimenCss,
+  /@container jk-alert \(max-width: 10rem\)\{\.jk-alert__action \.jk-action-button\{inline-size:100%}\.jk-alert__action \.jk-action-button__label\{white-space:normal;overflow-wrap:anywhere}/,
+  "An Alert action must retain its button boundary even under extreme width pressure.",
+);
+assert.equal(componentSpecimenCss.includes("jk-sample-"), false);
 const actionButtonExport = componentContractsExport.contracts.find(
   (entry) => entry.id === "action_button",
 );
@@ -2597,28 +2710,95 @@ assert.ok(
   ),
   "the supported Workbench presentation profile must bind to the public Workbench pattern contract",
 );
+const contractIds = componentContractsExport.contracts.map((entry) => entry.id);
+const registryIds = componentRegistryExport.registry.map(
+  (entry) => entry.contract_id,
+);
+assert.equal(
+  componentRegistryExport.source,
+  "judgmentkit.ai-native-default.contract-v1",
+);
+assert.equal(
+  componentRegistryExport.adapter.id,
+  "judgmentkit.react-components.candidate-v1",
+);
+assert.equal(componentRegistryExport.adapter.package_export, "judgmentkit/react");
+assert.equal(
+  componentRegistryExport.adapter.stylesheet_export,
+  "judgmentkit/react/styles.css",
+);
+assert.deepEqual(componentRegistryExport.renderer_components, RUNTIME_COMPONENT_IDS);
+assert.equal(componentRegistryExport.registry.length, 17);
+assert.deepEqual(registryIds, contractIds);
+assert.equal(
+  (designSystemComponents.match(/data-component-contract=/g) ?? []).length,
+  17,
+  "The public page must retain every semantic component contract.",
+);
+for (const contractId of contractIds) {
+  assert.ok(
+    designSystemComponents.includes(`data-component-contract="${contractId}"`),
+    `${contractId} should remain listed on the component page`,
+  );
+}
+const implementedRegistryIds = componentRegistryExport.registry
+  .filter((entry) => entry.implementation_status === "implemented")
+  .map((entry) => entry.contract_id);
+assert.deepEqual(implementedRegistryIds, RUNTIME_COMPONENT_IDS);
+for (const entry of componentRegistryExport.registry) {
+  const isRuntimeCandidate = RUNTIME_COMPONENT_IDS.includes(entry.contract_id);
+  assert.equal(
+    entry.implementation_status,
+    isRuntimeCandidate ? "implemented" : "not_implemented",
+  );
+  assert.equal(
+    entry.package_export,
+    isRuntimeCandidate ? "judgmentkit/react" : null,
+  );
+  assert.equal(
+    entry.stylesheet_export,
+    isRuntimeCandidate ? "judgmentkit/react/styles.css" : null,
+  );
+}
 assert.equal(componentSpecimensExport.source, "judgmentkit.ai-native-default.contract-v1");
-assert.equal(componentSpecimensExport.renderer.id, "judgmentkit-static-specimens");
-assert.equal(componentSpecimensExport.specimens.length, componentContractsExport.contracts.length);
-const selectFieldSpecimen = componentSpecimensExport.specimens.find(
-  (entry) => entry.contract_id === "select_field",
+assert.equal(
+  componentSpecimensExport.renderer.id,
+  "judgmentkit.react-components.candidate-v1",
 );
-assert.ok(selectFieldSpecimen.rendered_html.includes("jk-sample-select-control"));
-assert.ok(
-  selectFieldSpecimen.rendered_html.includes(
-    'class="jk-sample-select-control" type="button" role="combobox"',
-  ),
+assert.equal(componentSpecimensExport.renderer.package_export, "judgmentkit/react");
+assert.equal(
+  componentSpecimensExport.renderer.stylesheet_export,
+  "judgmentkit/react/styles.css",
 );
-assert.ok(selectFieldSpecimen.rendered_html.includes('data-part="value"'));
-assert.ok(
-  selectFieldSpecimen.rendered_html.includes('data-part="indicator-slot"'),
+assert.deepEqual(
+  componentSpecimensExport.specimens.map((entry) => entry.contract_id),
+  RUNTIME_COMPONENT_IDS,
 );
-assert.ok(selectFieldSpecimen.rendered_html.includes('data-part="indicator"'));
-assert.equal(selectFieldSpecimen.rendered_html.includes("<select"), false);
-assert.ok(siteCss.includes(".jk-sample-select-indicator-slot"));
-assert.ok(
-  siteCss.includes("var(--jk-select-indicator-slot-width, 3rem)"),
-);
+assert.equal(componentSpecimensExport.contract_coverage.length, 17);
+assert.equal(componentSpecimenCss.includes("jk-sample-"), false);
+for (const selector of [
+  ".jk-form-field",
+  ".jk-text-field",
+  ".jk-action-button",
+  ".jk-action-group",
+  ".jk-text-area",
+  ".jk-select-field",
+  ".jk-choice-group",
+  ".jk-toggle",
+  ".jk-tabs",
+  ".jk-menu",
+  ".jk-dialog",
+  ".jk-alert",
+  ".jk-table",
+  ".jk-panel",
+  ".jk-card",
+  ".jk-status-message",
+]) {
+  assert.ok(
+    componentSpecimenCss.includes(selector),
+    `The optional adapter stylesheet should include ${selector}.`,
+  );
+}
 assert.equal(patternSpecimensExport.source, "judgmentkit.ai-native-default.contract-v1");
 assert.equal(patternSpecimensExport.renderer.id, "judgmentkit-static-specimens");
 assert.equal(patternSpecimensExport.specimens.length, patternContractsExport.contracts.length);
@@ -2641,35 +2821,140 @@ assert.equal(
 );
 
 for (const contract of componentContractsExport.contracts) {
+  const registryEntry = componentRegistryExport.registry.find(
+    (entry) => entry.contract_id === contract.id,
+  );
+  const coverage = componentSpecimensExport.contract_coverage.find(
+    (entry) => entry.contract_id === contract.id,
+  );
+  const scenarios = componentRegistryExport.scenarios.filter(
+    (entry) => entry.contract_id === contract.id,
+  );
+  const verifiedStates = scenarios
+    .filter((entry) => entry.status === "verified")
+    .map((entry) => entry.state);
+  const unverifiedStates = scenarios
+    .filter((entry) => entry.status !== "verified")
+    .map((entry) => entry.state);
+
+  assert.ok(registryEntry, `${contract.id} should have one registry entry`);
+  assert.ok(coverage, `${contract.id} should have one coverage entry`);
+  assert.deepEqual(
+    scenarios.map((entry) => entry.state),
+    contract.required_states,
+    `${contract.id} scenarios should follow the canonical required states`,
+  );
+  assert.deepEqual(coverage.required_states, contract.required_states);
+  assert.deepEqual(
+    coverage.covered_states,
+    verifiedStates,
+    `${contract.id} coverage must come only from verified scenario evidence`,
+  );
+  assert.deepEqual(
+    coverage.unverified_states,
+    unverifiedStates,
+    `${contract.id} pending coverage must follow current scenario evidence`,
+  );
+
   const specimen = componentSpecimensExport.specimens.find(
     (entry) => entry.contract_id === contract.id,
   );
-  assert.ok(specimen, `${contract.id} should have a component specimen`);
+  const isRuntimeCandidate = RUNTIME_COMPONENT_IDS.includes(contract.id);
+  if (!isRuntimeCandidate) {
+    assert.equal(specimen, undefined, `${contract.id} must not claim a runtime specimen`);
+    assert.equal(
+      designSystemComponents.includes(`data-specimen-id="component.${contract.id}"`),
+      false,
+      `${contract.id} must remain contract-only on the public page`,
+    );
+    continue;
+  }
+
+  assert.ok(specimen, `${contract.id} should have a React candidate specimen`);
+  assert.equal(specimen.package_export, "judgmentkit/react");
+  assert.equal(specimen.stylesheet_export, "judgmentkit/react/styles.css");
+  assert.equal(specimen.public_export, registryEntry.public_export);
   assert.equal(specimen.contract_hash, hashCanonical(contract));
   assert.equal(specimen.output_hash, hashText(specimen.rendered_html));
+  assert.deepEqual(specimen.required_states, contract.required_states);
+  assert.deepEqual(specimen.covered_states, verifiedStates);
+  assert.deepEqual(specimen.unverified_states, unverifiedStates);
   assert.equal(
     specimen.selectors.root,
     `[data-specimen-id="component.${contract.id}"]`,
   );
   assert.ok(
+    specimen.rendered_html.includes('data-component-runtime="judgmentkit/react"'),
+    `${contract.id} should SSR the public React export`,
+  );
+  assert.ok(
+    specimen.rendered_html.includes(`data-jk-component="${contract.id}"`),
+    `${contract.id} should SSR its runtime component marker`,
+  );
+  assert.ok(
     designSystemComponents.includes(`data-specimen-id="component.${contract.id}"`),
     `${contract.id} specimen root should render`,
   );
-  for (const state of contract.required_states) {
-    assert.ok(specimen.covered_states.includes(state), `${contract.id} should cover ${state}`);
-    assert.ok(specimen.selectors.states[state], `${contract.id} should expose selector for ${state}`);
+  const articleMarker = `<article class="design-system-specimen" id="${specimen.anchor.slice(1)}" data-component-specimen="${contract.id}">`;
+  const articleStart = designSystemComponents.indexOf(articleMarker);
+  const nextArticleStart = designSystemComponents.indexOf(
+    '<article class="design-system-specimen"',
+    articleStart + articleMarker.length,
+  );
+  const specimenArticle = designSystemComponents.slice(
+    articleStart,
+    nextArticleStart === -1 ? undefined : nextArticleStart,
+  );
+  assert.notEqual(
+    articleStart,
+    -1,
+    `${contract.id} should have one component-first article`,
+  );
+  assert.equal(
+    (specimenArticle.match(/data-specimen-id="component\.[^"]+"/g) ?? []).length,
+    1,
+    `${contract.id} must render exactly one live specimen root`,
+  );
+  assert.ok(
+    specimenArticle.includes('<details class="design-system-specimen-details">'),
+    `${contract.id} should keep contract and evidence metadata in one disclosure`,
+  );
+  for (const scenario of scenarios) {
     assert.ok(
-      specimen.rendered_html.includes(`data-component-state="${state}"`),
-      `${contract.id} should render ${state}`,
+      specimen.selectors.states[scenario.state],
+      `${contract.id} should expose a selector for ${scenario.state}`,
+    );
+    assert.ok(
+      specimen.rendered_html.includes(`data-scenario-id="${scenario.id}"`),
+      `${contract.id} should SSR ${scenario.id}`,
+    );
+    assert.ok(
+      specimen.rendered_html.includes(
+        `data-scenario-status="${scenario.status}"`,
+      ),
+      `${scenario.id} should expose its current evidence status`,
     );
   }
   for (const anatomy of contract.anatomy) {
+    const anatomyAttribute = `data-component-anatomy="${anatomy.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase()}"`;
     assert.ok(
-      specimen.rendered_html.includes(`data-component-anatomy="${anatomy.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase()}"`),
-      `${contract.id} should render anatomy ${anatomy}`,
+      specimenArticle.includes(anatomyAttribute),
+      `${contract.id} should retain its contract anatomy evidence in its disclosure`,
+    );
+    assert.equal(
+      specimen.rendered_html.includes(anatomyAttribute),
+      false,
+      `${contract.id} anatomy metadata must stay out of the live preview`,
     );
   }
 }
+assert.equal(
+  componentSpecimensExport.specimens.some((entry) =>
+    entry.rendered_html.includes("jk-sample-"),
+  ),
+  false,
+  "Component specimen output must not retain legacy hand-authored samples.",
+);
 
 for (const contract of patternContractsExport.contracts) {
   const specimen = patternSpecimensExport.specimens.find(
@@ -2685,6 +2970,26 @@ for (const contract of patternContractsExport.contracts) {
   assert.ok(
     designSystemPatterns.includes(`data-specimen-id="pattern.${contract.id}"`),
     `${contract.id} specimen root should render`,
+  );
+  const articleMarker = `<article class="design-system-specimen" id="${specimen.anchor.slice(1)}" data-pattern-specimen="${contract.id}">`;
+  const articleStart = designSystemPatterns.indexOf(articleMarker);
+  const nextArticleStart = designSystemPatterns.indexOf(
+    '<article class="design-system-specimen"',
+    articleStart + articleMarker.length,
+  );
+  const specimenArticle = designSystemPatterns.slice(
+    articleStart,
+    nextArticleStart === -1 ? undefined : nextArticleStart,
+  );
+  assert.notEqual(articleStart, -1, `${contract.id} should have one pattern-first article`);
+  assert.equal(
+    (specimenArticle.match(/data-specimen-id="pattern\.[^"]+"/g) ?? []).length,
+    1,
+    `${contract.id} must render exactly one live pattern root`,
+  );
+  assert.ok(
+    specimenArticle.includes('<summary>Pattern details</summary>'),
+    `${contract.id} should keep supporting metadata on demand`,
   );
   assert.equal(specimen.surface_type, contract.surface_type);
   for (const region of contract.required_regions) {

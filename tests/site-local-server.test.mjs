@@ -599,6 +599,25 @@ try {
     assert.doesNotMatch(screenReaderOnlyCss, /display:\s*none|visibility:\s*hidden/);
   });
 
+  await assertStaticGetAndHead(
+    url,
+    "/assets/component-specimens.css",
+    "text/css; charset=utf-8",
+    (body) => {
+      const css = body.toString("utf8");
+      assert.match(css, /\.jk-action-button\s*\{/);
+      assert.match(css, /\.jk-toggle__control\s*\{/);
+    },
+  );
+  await assertStaticGetAndHead(
+    url,
+    "/assets/component-specimens.js",
+    "application/javascript; charset=utf-8",
+    (body) => {
+      assert.match(body.toString("utf8"), /componentSpecimenMounted/);
+    },
+  );
+
   await assertStaticGetAndHead(url, "/", "text/html; charset=utf-8", (body) => {
     const html = body.toString("utf8");
     const frame = html.match(
@@ -848,7 +867,9 @@ try {
   for (const route of [
     "/design-system/manifest.json",
     "/design-system/visual-token-adapter.json",
+    "/design-system/component-inventory.json",
     "/design-system/component-contracts.json",
+    "/design-system/component-registry.json",
     "/design-system/pattern-contracts.json",
     "/design-system/surface-presentation-profiles.json",
     "/design-system/component-specimens.json",
