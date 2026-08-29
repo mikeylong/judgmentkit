@@ -722,7 +722,12 @@ for (const invalidId of [undefined, "auto", "none"]) {
 
   assert.deepEqual(
     new Set(properties.surface_profile.enum),
-    new Set(["auto", "none", EXPECTED_WORKBENCH_PROFILE_ID]),
+    new Set([
+      "auto",
+      "none",
+      EXPECTED_WORKBENCH_PROFILE_ID,
+      "judgmentkit.artifact-inspector.v1",
+    ]),
   );
   assert.equal("experimental_surface_profile" in properties, false);
 

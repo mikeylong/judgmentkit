@@ -26,7 +26,8 @@
         "staged_flow",
         "dashboard",
         "report",
-        "conversation"
+        "conversation",
+        "artifact_centered"
       ],
       "preferred_default": "workspace",
       "work_units_guidance": [
@@ -57,6 +58,426 @@
           "Stepper labels describe generic process stages instead of domain work units, evidence, decisions, or handoff outcomes."
         ]
       }
+    }
+  },
+  "interaction_models": {
+    "artifact_inspector": {
+      "id": "artifact_inspector",
+      "version": "1.0.0",
+      "status": "proposed",
+      "canonical_identifiers": {
+        "surface_type": "artifact_inspector",
+        "workflow_profile": "artifact-inspector-ui",
+        "frontend_surface_profile": "judgmentkit.artifact-inspector.v1",
+        "topology_kind": "artifact_centered"
+      },
+      "recommendation_output": {
+        "profile_id": "artifact-inspector-ui",
+        "primary_structure": "persistent artifact, selectable loci, contextual support, local feedback, and artifact-local completion",
+        "density": "artifact-first contextual",
+        "navigation_shape": "artifact persistent; supporting context revealed from the active locus"
+      },
+      "activity_evidence": {
+        "mandatory": [
+          "rendered_artifact_is_primary",
+          "locus_selection_required",
+          "support_context_is_locus_relative"
+        ],
+        "positive": [
+          "rendered_artifact_is_primary",
+          "locus_selection_required",
+          "support_context_is_locus_relative",
+          "completion_is_artifact_local",
+          "direct_or_spatial_interaction_required",
+          "external_artifact_visual_authority"
+        ],
+        "exclusions": [
+          "queue_or_case_is_primary",
+          "many_items_are_primary",
+          "open_ended_creation_is_primary",
+          "conversation_turns_are_primary",
+          "linear_reading_is_completion",
+          "monitoring_is_completion",
+          "configuration_is_completion"
+        ]
+      },
+      "topology": {
+        "kind": "artifact_centered",
+        "primary_object_id": "artifact",
+        "entry_work_unit_id": "orient",
+        "completion_work_unit_ids": [
+          "verify_result",
+          "orient"
+        ],
+        "transitions": [
+          {
+            "from": "orient",
+            "to": "select_locus"
+          },
+          {
+            "from": "select_locus",
+            "to": "inspect_context"
+          },
+          {
+            "from": "inspect_context",
+            "to": "preview"
+          },
+          {
+            "from": "preview",
+            "to": "validate"
+          },
+          {
+            "from": "validate",
+            "to": "complete",
+            "when": "supported"
+          },
+          {
+            "from": "validate",
+            "to": "recover",
+            "when": "invalid_or_ambiguous"
+          },
+          {
+            "from": "recover",
+            "to": "inspect_context",
+            "when": "retry_or_reconcile"
+          },
+          {
+            "from": "complete",
+            "to": "verify_result"
+          },
+          {
+            "from": "select_locus",
+            "to": "orient",
+            "when": "back"
+          }
+        ]
+      },
+      "work_units": [
+        {
+          "id": "orient",
+          "participant_intent": "Understand the artifact's current state.",
+          "system_responsibility": "Keep the artifact dominant and expose only essential status."
+        },
+        {
+          "id": "select_locus",
+          "participant_intent": "Identify the part that matters.",
+          "system_responsibility": "Provide a visible selected state and equivalent pointer, touch, and keyboard paths."
+        },
+        {
+          "id": "inspect_context",
+          "participant_intent": "Understand what supports or constrains the locus.",
+          "system_responsibility": "Reveal context progressively and keep its relation to the locus visible."
+        },
+        {
+          "id": "preview",
+          "participant_intent": "Test a relation or action before commitment.",
+          "system_responsibility": "Distinguish provisional state from committed state."
+        },
+        {
+          "id": "validate",
+          "participant_intent": "Know whether the relation or action is supported.",
+          "system_responsibility": "Explain valid, invalid, unavailable, stale, and ambiguous conditions locally."
+        },
+        {
+          "id": "complete",
+          "participant_intent": "Finish the bounded task or enter an explicit commitment boundary.",
+          "system_responsibility": "Change only the state authorized by the activity contract."
+        },
+        {
+          "id": "verify_result",
+          "participant_intent": "Confirm what changed.",
+          "system_responsibility": "Attach a stable result or receipt to the artifact when required."
+        },
+        {
+          "id": "recover",
+          "participant_intent": "Cancel, go back, retry, or reconcile.",
+          "system_responsibility": "Reverse only uncommitted state and preserve committed results."
+        }
+      ],
+      "target_model": {
+        "target_kinds": [
+          "whole_artifact",
+          "element",
+          "text_range",
+          "region",
+          "point"
+        ],
+        "target_identity_sources": [
+          "artifact_supplied",
+          "participant_selection"
+        ],
+        "geometry_policy": "Geometry is read-only and stable for the current artifact revision; changed geometry must re-anchor to the same semantic target or become stale.",
+        "label_sources": [
+          "artifact_supplied",
+          "artifact_authorized_proxy",
+          "Unavailable"
+        ],
+        "artifact_interactivity": [
+          "static",
+          "live",
+          "hybrid"
+        ],
+        "native_interaction_precedence": "Live and hybrid artifacts retain native interaction precedence until explicit inspection mode, a declared inspection handle, or a declared keyboard command is active."
+      },
+      "composition_variants": [
+        {
+          "id": "peripheral_anchors",
+          "use_when": "A small stable set of support objects must remain visible around the artifact."
+        },
+        {
+          "id": "contextual_tray",
+          "use_when": "Support objects are numerous, conditional, or need a narrow-viewport home."
+        },
+        {
+          "id": "inline_annotation",
+          "use_when": "Short context can remain beside a locus without obscuring it."
+        },
+        {
+          "id": "inspection_lens",
+          "use_when": "Temporary magnification or focused context is necessary to understand a dense locus."
+        },
+        {
+          "id": "responsive_hybrid",
+          "use_when": "Wide and narrow viewports need different placement while preserving identical states and actions."
+        }
+      ],
+      "state_groups": {
+        "core": [
+          "artifact loading",
+          "artifact ready",
+          "artifact unavailable or failed",
+          "no active locus",
+          "locus focused or selected",
+          "context loading",
+          "context ready",
+          "relation or action preview",
+          "supported",
+          "incompatible",
+          "unavailable",
+          "stale",
+          "ambiguous",
+          "blocked",
+          "cancelled or Back",
+          "local error and retry"
+        ],
+        "consequential": [
+          "no option preselected",
+          "outcome pending",
+          "committing",
+          "commit succeeded",
+          "known failure",
+          "unknown result",
+          "receipt reconciliation",
+          "immutable receipt",
+          "concurrent result",
+          "superseding action when reversal is allowed"
+        ],
+        "reusable_guidance": [
+          "inactive draft after the current result exists",
+          "correcting",
+          "explicit confirmation with no default affirmative",
+          "accepting",
+          "accepted version",
+          "declined or Back with no active guidance",
+          "acceptance failure",
+          "conflict",
+          "supersession",
+          "revocation"
+        ],
+        "automation": [
+          "match preflight",
+          "exact match",
+          "near or partial match",
+          "automatic resolution pending",
+          "automatic resolution complete",
+          "inline causal receipt",
+          "changed authority or evidence",
+          "failed or uncertain automation",
+          "exception returned to human review"
+        ]
+      },
+      "design_system": {
+        "scopes": [
+          {
+            "scope_id": "inspector_chrome",
+            "root_selector": "[data-jk-scope='inspector-chrome']",
+            "authority": "judgmentkit_default",
+            "enforcement": "required",
+            "style_isolation": "required"
+          },
+          {
+            "scope_id": "inspection_overlay",
+            "root_selector": "[data-jk-scope='inspection-overlay']",
+            "authority": "judgmentkit_default",
+            "enforcement": "required",
+            "style_isolation": "required"
+          },
+          {
+            "scope_id": "primary_artifact",
+            "root_selector": "[data-artifact-root]",
+            "authority": "external_declared",
+            "enforcement": "external_not_reviewed",
+            "style_isolation": "required"
+          }
+        ],
+        "boundary_contracts": [
+          {
+            "from_scope": "inspection_overlay",
+            "to_scope": "primary_artifact",
+            "allowed_roles": [
+              "locus_target",
+              "annotation_overlay",
+              "connector_endpoint"
+            ],
+            "event_contract_required": true
+          }
+        ],
+        "component_roles": [
+          "ArtifactViewport",
+          "ArtifactBoundary",
+          "ArtifactStatus",
+          "ObservationMarker",
+          "LocusSelection",
+          "ContextAnchor",
+          "AuthorityAnchor",
+          "AnchorRail",
+          "RelationPreview",
+          "RelationConnector",
+          "InlineReason",
+          "ContextTray",
+          "CommitBoundary",
+          "ReceiptMarker",
+          "BackAction",
+          "ResetAction",
+          "ZoomAndPanControls"
+        ]
+      },
+      "diagnostics": [
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_PRIMARY_ARTIFACT_MISSING",
+          "meaning": "No bounded rendered artifact is declared."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_LOCUS_MODEL_MISSING",
+          "meaning": "The participant cannot select a semantic artifact locus."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_TOPOLOGY_CONTRACT_MISSING",
+          "meaning": "The artifact-centered workflow has no explicit structured topology contract."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_TOPOLOGY_KIND_INVALID",
+          "meaning": "The artifact-centered workflow declares an invalid topology kind."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_WORK_UNIT_ID_MISSING",
+          "meaning": "A structured artifact work unit has no stable identifier."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID",
+          "meaning": "A required artifact work unit does not preserve its canonical intent and system responsibility."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_ENTRY_REFERENCE_INVALID",
+          "meaning": "The topology entry does not reference a declared work unit."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_COMPLETION_REFERENCE_INVALID",
+          "meaning": "Artifact-local completion does not reference declared work units."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_TRANSITION_REFERENCE_INVALID",
+          "meaning": "A topology transition does not connect declared work units."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_RECOVERY_PATH_MISSING",
+          "meaning": "The artifact workflow has no explicit connected recovery work unit."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+          "meaning": "The artifact workflow does not declare the canonical active state groups."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_ARTIFACT_NOT_DOMINANT",
+          "meaning": "Persistent chrome or supporting context visually displaces the artifact."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_CONTEXT_DETACHED",
+          "meaning": "Evidence, authority, action, or feedback has no visible or semantic relation to the active locus."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_DRAG_ONLY",
+          "meaning": "A required interaction has no tap, select, and keyboard alternative."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_LOCAL_FEEDBACK_MISSING",
+          "meaning": "Validation or status appears away from the action that caused it."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_UNCOMMITTED_STATE_AMBIGUOUS",
+          "meaning": "Preview and committed state are not distinguishable."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_DEFAULT_COMMIT",
+          "meaning": "A consequential affirmative or outcome is preselected."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_RECEIPT_MISSING",
+          "meaning": "A consequential result has no inspectable local receipt."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_GUIDANCE_COUPLED",
+          "meaning": "Current-item commitment and reusable-guidance acceptance occur in one action."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_MOBILE_ARTIFACT_OBSCURED",
+          "meaning": "Narrow-layout chrome covers the active locus or essential artifact content."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_CHROME_SCOPE_MISSING",
+          "meaning": "JudgmentKit-owned chrome has no enforceable design-system scope."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_ARTIFACT_SCOPE_MISSING",
+          "meaning": "The artifact's visual authority is undeclared."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_SCOPE_OVERLAP",
+          "meaning": "Two authority scopes claim the same visible node without a valid overlay exception."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_STYLE_LEAK",
+          "meaning": "Styles or tokens cross an authority boundary."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_BOUNDARY_EVENT_UNDECLARED",
+          "meaning": "Chrome interacts with an artifact locus without a semantic boundary contract."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_NATIVE_ACTION_INTERCEPTED",
+          "meaning": "Inspector behavior captures a live artifact action without explicit inspection mode."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_TARGET_DRIFT",
+          "meaning": "An overlay silently moved to a different artifact target."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_ARTIFACT_MUTATED",
+          "meaning": "A chrome transition changed artifact content or presentation."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_EXTERNAL_AUTHORITY_OVERCLAIM",
+          "meaning": "The review describes the external artifact as JudgmentKit-conformant."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_KEYWORD_ROUTING_CONFLICT",
+          "meaning": "A keyword-based route conflicts with activity evidence."
+        },
+        {
+          "code": "JK_ARTIFACT_INSPECTOR_TRUSTED_RUNTIME_EVIDENCE_MISSING",
+          "meaning": "Trusted scope, preservation, and boundary runtime evidence is absent."
+        }
+      ]
     }
   },
   "profiles": {
@@ -129,6 +550,58 @@
         "Selected or focused list item where state must remain visible but restrained.",
         "False-positive case: simple dashboard or form that should not invoke operator-review."
       ]
+    },
+    "artifact-inspector-ui": {
+      "pattern_id": "artifact-inspector",
+      "applies_when_most_true": [
+        "One bounded rendered artifact is the primary work object.",
+        "The participant must select a semantic locus within the artifact.",
+        "Supporting context is meaningful only in relation to the active locus.",
+        "Completion is visible on or directly beside the artifact."
+      ],
+      "do_not_use_when": [
+        "The participant is primarily creating or freely editing the artifact.",
+        "A queue, case list, record set, or many-item comparison is primary.",
+        "The work can be completed without seeing or selecting an artifact locus.",
+        "Conversation turns, linear reading, monitoring, or configuration are the primary activity."
+      ],
+      "guardrails": [
+        {
+          "id": "guardrail.artifact-dominance",
+          "guidance": "Keep the artifact as the largest and most persistent region."
+        },
+        {
+          "id": "guardrail.locus-relative-context",
+          "guidance": "Keep evidence, authority, actions, feedback, and receipts visibly or semantically attached to the active locus."
+        },
+        {
+          "id": "guardrail.native-interaction-precedence",
+          "guidance": "Do not intercept a live artifact's native action without explicit inspection mode."
+        },
+        {
+          "id": "guardrail.scoped-visual-authority",
+          "guidance": "Apply JudgmentKit authority to inspector chrome and overlay without claiming authority over the external artifact."
+        },
+        {
+          "id": "guardrail.local-recovery",
+          "guidance": "Back and cancellation reverse only uncommitted state and preserve committed receipts."
+        }
+      ],
+      "review_criteria": [
+        "The artifact remains primary at wide and narrow viewports.",
+        "Pointer, touch, and keyboard paths express the same state machine.",
+        "Preview, commitment, result, and recovery states are distinguishable.",
+        "Chrome, overlay, external artifact, and boundary results are reported separately.",
+        "Trusted runtime evidence proves isolation and artifact preservation before acceptance."
+      ],
+      "test_scenarios": [
+        "Rendered interface with a locus-related observation and accepted authority.",
+        "Document passage with a source-backed correction.",
+        "Diagram node with rule and evidence context.",
+        "Externally styled artifact with isolated JudgmentKit chrome and overlay.",
+        "Narrow layout retaining the artifact, locus, feedback, and recovery action.",
+        "False-positive queue, conversation, report, form, dashboard, and creation-canvas cases."
+      ]
     }
   },
   "surface_types": {
@@ -172,6 +645,20 @@
         "The surface is a simple single-action form.",
         "The surface is a passive dashboard with no decision.",
         "Raw system mechanics are the primary task rather than diagnostic context."
+      ]
+    },
+    "artifact_inspector": {
+      "label": "Artifact inspector",
+      "purpose": "Inspect one rendered artifact in place, act on a semantic locus, and leave an explicit artifact-local result.",
+      "applies_when_most_true": [
+        "One bounded rendered artifact remains visible and primary throughout the work.",
+        "The participant must select a locus within the artifact to complete the work.",
+        "Supporting evidence, authority, actions, and results are meaningful only in relation to that locus."
+      ],
+      "do_not_use_when": [
+        "The participant is primarily creating or freely editing the artifact.",
+        "A queue, case, many-item comparison, conversation, report, dashboard, form, or setup flow is primary.",
+        "The work can be completed without seeing or selecting anything on the artifact."
       ]
     },
     "form_flow": {
@@ -1282,6 +1769,227 @@
             "spinner has no status text",
             "success state lacks receipt or next action"
           ]
+        },
+        {
+          "id": "ArtifactViewport",
+          "label": "Artifact viewport",
+          "purpose": "Keep one rendered artifact visible as the primary work object",
+          "use_when": ["artifact inspection requires persistent artifact visibility"],
+          "avoid_when": ["the artifact is incidental to a queue, form, report, or conversation"],
+          "anatomy": ["artifact root", "viewport status", "inspection-mode boundary"],
+          "required_states": ["loading", "ready", "unavailable", "focus-visible"],
+          "token_bindings": ["surface", "border", "focus", "status"],
+          "accessibility_checks": ["named region", "zoom and reflow", "focus order"],
+          "review_checks": ["artifact remains dominant", "artifact authority remains declared"],
+          "failure_signals": ["chrome displaces the artifact", "artifact root is undeclared"]
+        },
+        {
+          "id": "ArtifactBoundary",
+          "label": "Artifact boundary",
+          "purpose": "Declare the semantic and visual authority boundary around the artifact",
+          "use_when": ["inspector chrome and the artifact have different owners"],
+          "avoid_when": ["one authority owns the entire rendered candidate"],
+          "anatomy": ["scope root", "authority identity", "boundary event contract"],
+          "required_states": ["ready", "inspection-active", "stale"],
+          "token_bindings": ["border", "focus", "status"],
+          "accessibility_checks": ["inspection mode announcement", "focus crossing", "focus return"],
+          "review_checks": ["scope roots do not overlap", "events use semantic locus identifiers"],
+          "failure_signals": ["authority scope overlap", "undeclared boundary event"]
+        },
+        {
+          "id": "ArtifactStatus",
+          "label": "Artifact status",
+          "purpose": "Report artifact loading, availability, revision, and staleness",
+          "use_when": ["artifact state changes affect inspection"],
+          "avoid_when": ["status duplicates stable artifact content"],
+          "anatomy": ["status label", "plain-language reason", "optional recovery action"],
+          "required_states": ["loading", "ready", "unavailable", "stale", "error"],
+          "token_bindings": ["status", "risk", "text"],
+          "accessibility_checks": ["status announcement", "non-color cue", "focus stability"],
+          "review_checks": ["status is artifact-local", "stale targets are not silently reassigned"],
+          "failure_signals": ["status is remote from the artifact", "stale target appears current"]
+        },
+        {
+          "id": "ObservationMarker",
+          "label": "Observation marker",
+          "purpose": "Mark a host-owned observation at an artifact locus",
+          "use_when": ["an observation must remain attached to a locus"],
+          "avoid_when": ["the observation has no semantic artifact target"],
+          "anatomy": ["marker", "locus reference", "accessible observation label"],
+          "required_states": ["ready", "selected", "unavailable", "stale", "focus-visible"],
+          "token_bindings": ["status", "focus", "text"],
+          "accessibility_checks": ["accessible name", "selected state", "nonvisual relation description"],
+          "review_checks": ["marker remains chrome-owned", "marker does not obscure essential content"],
+          "failure_signals": ["marker becomes artifact content", "marker is color-only"]
+        },
+        {
+          "id": "LocusSelection",
+          "label": "Locus selection",
+          "purpose": "Select one semantic element, range, region, point, or whole artifact",
+          "use_when": ["inspection begins from a specific artifact locus"],
+          "avoid_when": ["the task can be completed without locus selection"],
+          "anatomy": ["semantic target id", "selection indicator", "selection label"],
+          "required_states": ["none", "focused", "selected", "unavailable", "stale", "focus-visible"],
+          "token_bindings": ["focus", "status", "border"],
+          "accessibility_checks": ["name role value", "pointer touch and keyboard parity", "selected state"],
+          "review_checks": ["geometry maps to the same semantic target", "drag has a select-then-target alternative"],
+          "failure_signals": ["drag-only selection", "target drift"]
+        },
+        {
+          "id": "ContextAnchor",
+          "label": "Context anchor",
+          "purpose": "Attach supporting context to the active artifact locus",
+          "use_when": ["evidence or guidance only makes sense for one locus"],
+          "avoid_when": ["context is global or unrelated to the selected locus"],
+          "anatomy": ["anchor", "locus reference", "context disclosure"],
+          "required_states": ["loading", "ready", "unavailable", "stale", "focus-visible"],
+          "token_bindings": ["surface", "border", "focus", "status"],
+          "accessibility_checks": ["relation description", "focus activation", "focus return"],
+          "review_checks": ["active locus remains visible", "context relation remains legible"],
+          "failure_signals": ["context is detached", "context covers its locus"]
+        },
+        {
+          "id": "AuthorityAnchor",
+          "label": "Authority anchor",
+          "purpose": "Attach a rule or accepted authority to the active locus",
+          "use_when": ["authority changes how the locus is interpreted or acted on"],
+          "avoid_when": ["authority is generic or unrelated to the locus"],
+          "anatomy": ["authority label", "locus reference", "source status"],
+          "required_states": ["loading", "ready", "unavailable", "stale", "conflict"],
+          "token_bindings": ["status", "risk", "text", "border"],
+          "accessibility_checks": ["plain-language source", "nonvisual relation description", "non-color status"],
+          "review_checks": ["authority provenance is explicit", "changed authority becomes stale or conflicting"],
+          "failure_signals": ["authority is inferred from appearance", "changed authority remains silently active"]
+        },
+        {
+          "id": "AnchorRail",
+          "label": "Anchor rail",
+          "purpose": "Organize a small stable set of locus-relative anchors at the artifact periphery",
+          "use_when": ["several anchors must remain visible without displacing the artifact"],
+          "avoid_when": ["anchors are numerous, temporary, or better suited to a contextual tray"],
+          "anatomy": ["rail label", "ordered anchors", "active anchor state"],
+          "required_states": ["ready", "selected", "overflow", "focus-visible"],
+          "token_bindings": ["surface", "border", "focus", "spacing"],
+          "accessibility_checks": ["logical order", "keyboard navigation", "responsive no overflow"],
+          "review_checks": ["rail remains peripheral", "active anchor maps to the active locus"],
+          "failure_signals": ["rail becomes a persistent dossier", "rail displaces the artifact"]
+        },
+        {
+          "id": "RelationPreview",
+          "label": "Relation preview",
+          "purpose": "Show a provisional relation or action before commitment",
+          "use_when": ["the participant must evaluate a relation before accepting it"],
+          "avoid_when": ["the action is immediate, non-consequential, and needs no preview"],
+          "anatomy": ["source locus", "candidate relation", "validation status"],
+          "required_states": ["preview", "supported", "incompatible", "ambiguous", "cancelled"],
+          "token_bindings": ["status", "risk", "focus", "border"],
+          "accessibility_checks": ["provisional state announcement", "non-color state", "keyboard cancellation"],
+          "review_checks": ["preview is distinct from committed state", "feedback is local"],
+          "failure_signals": ["preview looks committed", "validation is detached"]
+        },
+        {
+          "id": "RelationConnector",
+          "label": "Relation connector",
+          "purpose": "Make the relation between a locus and support object visible and nonvisually available",
+          "use_when": ["adjacency alone does not preserve the relation"],
+          "avoid_when": ["a connector would obscure essential artifact content"],
+          "anatomy": ["source endpoint", "path", "target endpoint", "relation description"],
+          "required_states": ["preview", "supported", "invalid", "stale"],
+          "token_bindings": ["status", "risk", "border"],
+          "accessibility_checks": ["nonvisual relation description", "non-color state", "zoom and reflow"],
+          "review_checks": ["endpoints use semantic locus ids", "path avoids the active locus"],
+          "failure_signals": ["geometry is treated as authority", "connector covers essential content"]
+        },
+        {
+          "id": "InlineReason",
+          "label": "Inline reason",
+          "purpose": "Explain a local validation, availability, or decision result",
+          "use_when": ["a local action or relation needs a concise reason"],
+          "avoid_when": ["the reason is unrelated global guidance"],
+          "anatomy": ["status", "reason", "optional next action"],
+          "required_states": ["supported", "invalid", "unavailable", "stale", "error"],
+          "token_bindings": ["status", "risk", "text"],
+          "accessibility_checks": ["status announcement", "plain-language reason", "focus stability"],
+          "review_checks": ["reason appears at its cause", "reason names a bounded next step"],
+          "failure_signals": ["reason appears only globally", "reason exposes raw machinery without remediation"]
+        },
+        {
+          "id": "ContextTray",
+          "label": "Context tray",
+          "purpose": "Reveal numerous or conditional support objects without replacing the artifact",
+          "use_when": ["context needs progressive disclosure or a narrow-viewport home"],
+          "avoid_when": ["a small stable set of peripheral anchors is sufficient"],
+          "anatomy": ["tray label", "active locus summary", "support objects", "dismiss action"],
+          "required_states": ["closed", "loading", "ready", "error", "focus-visible"],
+          "token_bindings": ["surface", "border", "focus", "spacing"],
+          "accessibility_checks": ["focus management", "dismissal", "focus return", "focus not obscured"],
+          "review_checks": ["tray does not cover the active locus", "artifact remains primary"],
+          "failure_signals": ["tray becomes a case dossier", "tray obscures its locus"]
+        },
+        {
+          "id": "CommitBoundary",
+          "label": "Commit boundary",
+          "purpose": "Separate reversible preview from consequential commitment",
+          "use_when": ["an action changes governed state or creates an external effect"],
+          "avoid_when": ["inspection is non-consequential"],
+          "anatomy": ["pending outcome", "evidence summary", "explicit commit action", "back action"],
+          "required_states": ["pending", "committing", "succeeded", "known failure", "unknown result"],
+          "token_bindings": ["decision", "risk", "status", "focus"],
+          "accessibility_checks": ["no default affirmative", "complete action name", "status announcement"],
+          "review_checks": ["preconditions are visible", "unknown results reconcile before retry"],
+          "failure_signals": ["affirmative is preselected", "commit has no receipt"]
+        },
+        {
+          "id": "ReceiptMarker",
+          "label": "Receipt marker",
+          "purpose": "Attach a durable result to the artifact locus it describes",
+          "use_when": ["a consequential action needs an inspectable result"],
+          "avoid_when": ["no consequential state change occurred"],
+          "anatomy": ["result status", "locus reference", "receipt identity", "time or revision"],
+          "required_states": ["pending", "complete", "reconciling", "concurrent", "superseded"],
+          "token_bindings": ["receipt", "status", "text", "border"],
+          "accessibility_checks": ["textual receipt", "non-color status", "relationship description"],
+          "review_checks": ["receipt is artifact-local", "receipt distinguishes immutable and superseded state"],
+          "failure_signals": ["receipt is detached", "completion has no durable result"]
+        },
+        {
+          "id": "BackAction",
+          "label": "Back action",
+          "purpose": "Return to the previous safe inspection state",
+          "use_when": ["the participant can leave a preview or contextual branch"],
+          "avoid_when": ["the action would reverse a committed result"],
+          "anatomy": ["visible label", "safe-state target", "focus-return target"],
+          "required_states": ["ready", "disabled", "focus-visible"],
+          "token_bindings": ["text", "focus", "border"],
+          "accessibility_checks": ["accessible name", "keyboard activation", "focus return"],
+          "review_checks": ["only uncommitted state reverses", "previous safe state is explicit"],
+          "failure_signals": ["Back removes committed results", "focus is lost"]
+        },
+        {
+          "id": "ResetAction",
+          "label": "Reset action",
+          "purpose": "Clear the current uncommitted inspection state",
+          "use_when": ["the participant needs to abandon a local preview or selection"],
+          "avoid_when": ["reset would remove committed or externally owned artifact state"],
+          "anatomy": ["visible label", "reset scope", "resulting safe state"],
+          "required_states": ["ready", "disabled", "focus-visible"],
+          "token_bindings": ["text", "focus", "border"],
+          "accessibility_checks": ["accessible name", "keyboard activation", "scope explanation"],
+          "review_checks": ["reset scope is bounded", "artifact content is preserved"],
+          "failure_signals": ["reset mutates the artifact", "reset scope is ambiguous"]
+        },
+        {
+          "id": "ZoomAndPanControls",
+          "label": "Zoom and pan controls",
+          "purpose": "Navigate a dense artifact while preserving locus context",
+          "use_when": ["the artifact cannot remain usable at one fixed scale"],
+          "avoid_when": ["native artifact navigation already satisfies the activity"],
+          "anatomy": ["zoom controls", "pan controls", "reset view", "current scale"],
+          "required_states": ["ready", "disabled", "focus-visible"],
+          "token_bindings": ["surface", "border", "focus", "text"],
+          "accessibility_checks": ["keyboard operation", "accessible names", "zoom and reflow"],
+          "review_checks": ["native interaction precedence is preserved", "active locus remains related to feedback"],
+          "failure_signals": ["precise pointing is required", "zoom separates locus from feedback"]
         }
       ],
       "pattern_contracts": [
@@ -1367,6 +2075,41 @@
           "failure_signals": [
             "system output is trusted without evidence",
             "risky action has no approval boundary"
+          ]
+        },
+        {
+          "id": "artifact-inspector",
+          "label": "Artifact inspector",
+          "surface_type": "artifact_inspector",
+          "purpose": "Help a participant orient to a rendered artifact, select a locus, inspect locus-relative context, and complete or verify artifact-local work",
+          "required_regions": [
+            "persistent rendered artifact",
+            "selectable artifact loci",
+            "locus-relative context",
+            "artifact-local feedback",
+            "artifact-local completion or recovery"
+          ],
+          "expected_controls": [
+            "locus selection",
+            "context disclosure",
+            "preview and validation",
+            "Back or reset",
+            "commit and receipt when consequential"
+          ],
+          "completion_or_handoff": "participant verifies the result on or immediately beside the artifact locus",
+          "disclosure_boundary": "the primary artifact remains externally owned while JudgmentKit chrome and overlays use domain language and keep implementation machinery diagnostic-only",
+          "accessibility_expectations": [
+            "loci have stable keyboard-reachable identities",
+            "artifact-to-context relationships have non-spatial descriptions",
+            "focus returns to the active locus after contextual work",
+            "zoom does not require precise pointing or separate feedback from its locus"
+          ],
+          "failure_signals": [
+            "artifact is secondary to generic panels",
+            "context is detached from its locus",
+            "overlay styling leaks into the artifact",
+            "external artifact authority is claimed without trusted runtime evidence",
+            "native artifact interaction is blocked by an overlay"
           ]
         },
         {

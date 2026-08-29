@@ -1738,6 +1738,30 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
     formatPlanningCard(missingProvenanceReview).includes("This is not an artifact"),
   );
 
+  const artifactInspectorReviewRequiredCard = formatPlanningCard({
+    implementation_review_status: "review_required",
+    candidate_artifact_status: "not_an_artifact",
+    design_system_acceptance_status: "review_required",
+    next_agent_action: "run_trusted_runtime_review",
+    findings: [],
+    checks: {
+      artifact_inspector: { status: "review_required" },
+    },
+  });
+  assert.match(
+    artifactInspectorReviewRequiredCard,
+    /\*\*Status:\*\* Trusted runtime review required/,
+  );
+  assert.ok(
+    artifactInspectorReviewRequiredCard.includes(
+      "keep the external artifact external_not_reviewed",
+    ),
+  );
+  assert.equal(
+    artifactInspectorReviewRequiredCard.includes("Repair the failed gates"),
+    false,
+  );
+
   const implementationReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
     candidate: withNoApplicableVisualComposition({
