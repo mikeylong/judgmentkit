@@ -189,9 +189,9 @@ const DIAGNOSTIC_DEFAULTS = Object.freeze({
   }),
   JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID: Object.freeze({
     message:
-      "A required artifact work unit does not preserve its canonical participant intent or system responsibility.",
+      "A required artifact work unit is duplicated or does not preserve its canonical participant intent or system responsibility.",
     repair_instruction:
-      "Restore the work unit from the versioned Artifact Inspector registry definition.",
+      "Keep exactly one work unit per canonical id and restore it from the versioned Artifact Inspector registry definition.",
   }),
   JK_ARTIFACT_INSPECTOR_ENTRY_REFERENCE_INVALID: Object.freeze({
     message: "The topology entry does not reference a declared work unit.",
@@ -310,9 +310,10 @@ const DIAGNOSTIC_DEFAULTS = Object.freeze({
       "Report the external artifact as external_not_reviewed and state only which owned scopes passed.",
   }),
   JK_ARTIFACT_INSPECTOR_KEYWORD_ROUTING_CONFLICT: Object.freeze({
-    message: "A keyword-based route conflicts with activity evidence.",
+    message:
+      "Artifact Inspector routing conflicts with mandatory activity evidence, exclusions, the selected surface, or the workflow profile.",
     repair_instruction:
-      "Resolve routing from mandatory activity evidence and exclusions, not keywords alone.",
+      "Resolve routing from mandatory activity evidence, exclusions, and canonical surface and profile selections; do not let metadata override grounded evidence.",
   }),
   JK_ARTIFACT_INSPECTOR_TRUSTED_RUNTIME_EVIDENCE_MISSING: Object.freeze({
     message: "Trusted scope, preservation, and boundary runtime evidence is absent or incomplete.",
@@ -605,12 +606,15 @@ export function normalizeArtifactInspectorBoundaryContracts(
   return normalized;
 }
 
-export function normalizeArtifactInspectorStateConfig(value, { required = false } = {}) {
+function normalizeArtifactInspectorStateConfigUnchecked(
+  value,
+  { required = false } = {},
+) {
   if (value === undefined || value === null) {
     if (required) {
       throw authorityError("Artifact Inspector state configuration is required.", {
         field: "artifact_inspector.state_groups",
-        diagnostic_code: "JK_ARTIFACT_INSPECTOR_UNCOMMITTED_STATE_AMBIGUOUS",
+        diagnostic_code: "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
       });
     }
     return null;
@@ -637,7 +641,7 @@ export function normalizeArtifactInspectorStateConfig(value, { required = false 
         field: "artifact_inspector.active_state_groups",
         unexpected: unexpectedActiveGroups,
         missing: activeStateGroups.includes("core") ? [] : ["core"],
-        diagnostic_code: "JK_ARTIFACT_INSPECTOR_UNCOMMITTED_STATE_AMBIGUOUS",
+        diagnostic_code: "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
       },
     );
   }
@@ -657,7 +661,7 @@ export function normalizeArtifactInspectorStateConfig(value, { required = false 
       states,
       ARTIFACT_INSPECTOR_CANONICAL_STATE_GROUPS[groupId],
       `artifact_inspector.state_groups.${groupId}`,
-      "JK_ARTIFACT_INSPECTOR_UNCOMMITTED_STATE_AMBIGUOUS",
+      "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
     );
   }
 
@@ -667,6 +671,21 @@ export function normalizeArtifactInspectorStateConfig(value, { required = false 
     ),
     state_groups: cloneStateGroups(),
   };
+}
+
+export function normalizeArtifactInspectorStateConfig(value, options = {}) {
+  try {
+    return normalizeArtifactInspectorStateConfigUnchecked(value, options);
+  } catch (error) {
+    if (error?.code === "invalid_artifact_inspector_authority_contract") {
+      error.details = {
+        ...(isPlainObject(error.details) ? error.details : {}),
+        diagnostic_code:
+          "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+      };
+    }
+    throw error;
+  }
 }
 
 function normalizeArtifactInspectorContract(value) {
@@ -890,6 +909,9 @@ function baseDesignSystemReview() {
   };
 }
 
+// Internal evaluator: callers cannot obtain the private, candidate-bound runtime
+// receipt used by the public implementation-review entrypoints. Do not re-export
+// this function from the package root.
 export function reviewArtifactInspectorAuthorityEvidence(
   implementationContract = {},
   { trustedRuntimeEvidence = null } = {},

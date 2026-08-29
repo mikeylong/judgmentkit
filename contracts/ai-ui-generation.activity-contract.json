@@ -375,7 +375,7 @@
         },
         {
           "code": "JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID",
-          "meaning": "A required artifact work unit does not preserve its canonical intent and system responsibility."
+          "meaning": "A required artifact work unit is duplicated or does not preserve its canonical intent and system responsibility."
         },
         {
           "code": "JK_ARTIFACT_INSPECTOR_ENTRY_REFERENCE_INVALID",
@@ -471,7 +471,7 @@
         },
         {
           "code": "JK_ARTIFACT_INSPECTOR_KEYWORD_ROUTING_CONFLICT",
-          "meaning": "A keyword-based route conflicts with activity evidence."
+          "meaning": "Artifact Inspector routing conflicts with mandatory activity evidence, exclusions, the selected surface, or the workflow profile."
         },
         {
           "code": "JK_ARTIFACT_INSPECTOR_TRUSTED_RUNTIME_EVIDENCE_MISSING",

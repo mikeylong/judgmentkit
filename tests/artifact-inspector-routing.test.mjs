@@ -335,6 +335,99 @@ for (const [exclusionId, conflictingStatement] of EXCLUSION_CASES) {
   assert.ok(!profiles.recommended_profile_ids.includes("artifact-inspector-ui"));
 }
 
+const SECONDARY_ARTIFACT_MARKETING_BRIEFS = [
+  `
+    A growth marketer creates a public landing page for prospects. The primary
+    activity is explaining the offer, proof, and benefits, then helping visitors
+    request a demo. A secondary rendered interface remains visible. Visitors may
+    select a specific control, and supporting evidence attaches to that selected
+    control, but the interface only supports the offer. Completion is a qualified
+    demo request.
+  `,
+  `
+    A growth marketer creates a public landing page for prospects. The primary
+    activity is explaining the offer and helping visitors request a demo. A
+    rendered interface remains visible as supporting context. Visitors may select
+    a control and evidence attaches there, but completion is the demo request.
+  `,
+  `
+    A growth marketer creates a public landing page for prospects. The primary
+    activity is explaining the offer and helping visitors request a demo. A
+    rendered interface remains visible but is secondary to the offer. Visitors
+    may select a control and evidence attaches there. Completion is the request.
+  `,
+  `
+    A growth marketer creates a public landing page for prospects. The primary
+    activity is explaining the offer and helping visitors request a demo. A
+    rendered interface serves only as supporting context. Visitors may select a
+    control and evidence attaches there. Completion is the request.
+  `,
+  `
+    A growth marketer creates a public landing page for prospects. The primary
+    activity is explaining the offer and helping visitors request a demo. A
+    rendered interface remains visible only as supporting context. Visitors may
+    select a control and evidence attaches there. Completion is the request.
+  `,
+  `
+    A growth marketer creates a public landing page for prospects. The primary
+    activity is explaining the offer and helping visitors request a demo. A
+    rendered interface is merely supporting context. Visitors may select a
+    control and evidence attaches there. Completion is the request.
+  `,
+  `
+    A growth marketer creates a public landing page for prospects. The primary
+    activity is explaining the offer and helping visitors request a demo. A
+    rendered interface remains visible; it only supports the offer. Visitors may
+    select a control and evidence attaches there. Completion is the request.
+  `,
+  `
+    A growth marketer creates a public landing page for prospects. The primary
+    activity is explaining the offer and helping visitors request a demo. A
+    rendered interface supports the offer rather than serving as the primary
+    object. Visitors may select a control and evidence attaches there.
+  `,
+];
+
+for (const secondaryArtifactMarketingBrief of SECONDARY_ARTIFACT_MARKETING_BRIEFS) {
+  const review = recommendSurfaceTypes(secondaryArtifactMarketingBrief);
+  const evidence = artifactEvidence(review);
+
+  assert.equal(review.recommended_surface_type, "marketing");
+  if (evidence) {
+    const renderedPrimary = evidence.positives.find(
+      (entry) => entry.id === "rendered_artifact_is_primary",
+    );
+    assert.equal(renderedPrimary.matched, false);
+    assert.equal(
+      evidence.matched_mandatory_evidence.includes(
+        "rendered_artifact_is_primary",
+      ),
+      false,
+    );
+    assert.ok(
+      evidence.missing_mandatory_evidence.includes(
+        "rendered_artifact_is_primary",
+      ),
+    );
+    assert.equal(surfaceScore(review, "artifact_inspector").score, 0);
+  } else {
+    assert.equal(surfaceScore(review, "artifact_inspector"), undefined);
+  }
+}
+
+{
+  const review = recommendSurfaceTypes(`${ARTIFACT_ACTIVITY}
+    A separate secondary rendered diagram remains visible as supporting context.
+  `);
+
+  assert.equal(review.recommended_surface_type, "artifact_inspector");
+  assert.deepEqual(
+    artifactEvidence(review).matched_mandatory_evidence,
+    MANDATORY_EVIDENCE_IDS,
+    "A distinct secondary artifact must not erase an explicitly primary rendered artifact.",
+  );
+}
+
 {
   const legacyMarketingBrief = `
     A growth marketer is creating a public landing page for prospects. The

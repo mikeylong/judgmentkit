@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import Ajv2020 from "ajv/dist/2020.js";
 
+import * as judgmentKitPublicApi from "../src/index.mjs";
 import {
   JudgmentKitInputError,
   createUiImplementationContract,
@@ -43,6 +44,12 @@ const schema = JSON.parse(
 const model = contract.interaction_models.artifact_inspector;
 const ajv = new Ajv2020({ allErrors: true });
 const validateKernelContract = ajv.compile(schema);
+
+assert.equal(
+  "reviewArtifactInspectorAuthorityEvidence" in judgmentKitPublicApi,
+  false,
+  "The raw Artifact Inspector authority evaluator must remain package-internal so callers cannot submit self-asserted trusted evidence.",
+);
 
 const EXPECTED_COMPONENT_ROLES = [
   "ArtifactViewport",
@@ -363,6 +370,15 @@ assert.equal(
     "The Artifact Inspector registry must remain strict.",
   );
 
+  const registryWithDivergentDuplicateWorkUnit = structuredClone(contract);
+  const duplicateOrient = registryWithDivergentDuplicateWorkUnit.interaction_models
+    .artifact_inspector.work_units.find((entry) => entry.id === "recover");
+  duplicateOrient.id = "orient";
+  assertInvalidKernelContract(
+    registryWithDivergentDuplicateWorkUnit,
+    "The Artifact Inspector registry must reject duplicate work-unit ids even when the duplicate objects have different content.",
+  );
+
   const partialAuthority = structuredClone(contract);
   partialAuthority.implementation_contract.design_system_scopes =
     structuredClone(model.design_system.scopes);
@@ -454,6 +470,94 @@ assert.deepEqual(
     state_groups: ARTIFACT_INSPECTOR_CANONICAL_STATE_GROUPS,
   },
 );
+
+{
+  const missingCanonicalStateGroup = structuredClone(model.state_groups);
+  delete missingCanonicalStateGroup.automation;
+  const malformedCanonicalStateGroup = structuredClone(model.state_groups);
+  malformedCanonicalStateGroup.core = ["artifact loading"];
+  const invalidStateConfigs = [
+    {
+      label: "missing state configuration",
+      value: undefined,
+    },
+    {
+      label: "non-object state configuration",
+      value: [],
+    },
+    {
+      label: "missing active state groups",
+      value: { state_groups: structuredClone(model.state_groups) },
+    },
+    {
+      label: "malformed active state groups",
+      value: {
+        active_state_groups: "core",
+        state_groups: structuredClone(model.state_groups),
+      },
+    },
+    {
+      label: "active state groups without core",
+      value: {
+        active_state_groups: ["consequential"],
+        state_groups: structuredClone(model.state_groups),
+      },
+    },
+    {
+      label: "missing canonical state group",
+      value: {
+        active_state_groups: ["core"],
+        state_groups: missingCanonicalStateGroup,
+      },
+    },
+    {
+      label: "malformed canonical state group",
+      value: {
+        active_state_groups: ["core"],
+        state_groups: malformedCanonicalStateGroup,
+      },
+    },
+  ];
+
+  for (const testCase of invalidStateConfigs) {
+    assert.throws(
+      () =>
+        normalizeArtifactInspectorStateConfig(testCase.value, {
+          required: true,
+        }),
+      (error) => {
+        assert.equal(
+          error.code,
+          "invalid_artifact_inspector_authority_contract",
+          testCase.label,
+        );
+        assert.equal(
+          error.details?.diagnostic_code,
+          "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+          testCase.label,
+        );
+        assert.equal(typeof error.details?.field, "string", testCase.label);
+        return true;
+      },
+      testCase.label,
+    );
+  }
+
+  const authorityWithoutStateGroups = canonicalArtifactImplementationContract();
+  delete authorityWithoutStateGroups.artifact_inspector.state_groups;
+  assert.throws(
+    () => validateArtifactInspectorAuthorityContract(authorityWithoutStateGroups),
+    (error) => {
+      assert.equal(
+        error.details?.diagnostic_code,
+        "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+      );
+      assert.equal(error.details?.field, "artifact_inspector.state_groups");
+      return true;
+    },
+    "The implementation-contract validation path must preserve the state-group contract diagnostic.",
+  );
+}
 
 assert.throws(
   () =>
@@ -623,6 +727,9 @@ const trustedReceipt = {
     contract: legacyContractWithoutVisualComposition,
     implementation_contract: implementationContract,
     surface_type: "artifact_inspector",
+    iteration_context: { current_attempt: 3 },
+    trustedRuntimeEvidence: structuredClone(trustedReceipt),
+    trusted_runtime_evidence: structuredClone(trustedReceipt),
   });
 
   assert.equal(
@@ -630,9 +737,32 @@ const trustedReceipt = {
     "review_required",
     JSON.stringify(review.findings),
   );
-  assert.equal(review.candidate_artifact_status, "not_an_artifact");
+  assert.equal(review.candidate_artifact_status, "awaiting_runtime_review");
   assert.equal(review.design_system_acceptance_status, "review_required");
   assert.equal(review.next_agent_action, "run_trusted_runtime_review");
+  assert.equal(review.autofix_loop.current_attempt, 3);
+  assert.equal(
+    review.autofix_loop.status,
+    "awaiting_runtime_review",
+    "Missing trusted proof must not exhaust or stop the candidate-repair loop.",
+  );
+  assert.deepEqual(review.repair_instructions, {
+    status: "none",
+    groups: {},
+  });
+
+  const overLimitReview = reviewUiImplementationCandidate(candidate, {
+    contract: legacyContractWithoutVisualComposition,
+    implementation_contract: implementationContract,
+    surface_type: "artifact_inspector",
+    iteration_context: { current_attempt: 4 },
+  });
+  assert.equal(overLimitReview.autofix_loop.status, "awaiting_runtime_review");
+  assert.equal(
+    overLimitReview.autofix_loop.remaining_attempts,
+    0,
+    "Awaiting runtime review must never report a negative repair-attempt count.",
+  );
   assert.equal(review.checks.design_system_provenance.status, "pass");
   assert.equal(review.checks.pattern_contracts.status, "pass");
   assert.equal(review.checks.accessibility_evidence.status, "pass");

@@ -789,7 +789,81 @@
           "minItems": 8,
           "maxItems": 8,
           "uniqueItems": true,
-          "items": { "$ref": "#/$defs/artifactInspectorWorkUnit" }
+          "items": { "$ref": "#/$defs/artifactInspectorWorkUnit" },
+          "allOf": [
+            {
+              "contains": {
+                "type": "object",
+                "required": ["id"],
+                "properties": { "id": { "const": "orient" } }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["id"],
+                "properties": { "id": { "const": "select_locus" } }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["id"],
+                "properties": { "id": { "const": "inspect_context" } }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["id"],
+                "properties": { "id": { "const": "preview" } }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["id"],
+                "properties": { "id": { "const": "validate" } }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["id"],
+                "properties": { "id": { "const": "complete" } }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["id"],
+                "properties": { "id": { "const": "verify_result" } }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "type": "object",
+                "required": ["id"],
+                "properties": { "id": { "const": "recover" } }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            }
+          ]
         },
         "target_model": { "$ref": "#/$defs/artifactInspectorTargetModel" },
         "composition_variants": {

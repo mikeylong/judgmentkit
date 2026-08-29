@@ -529,7 +529,7 @@ const FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL = {
       design_system_adapter: {
         type: "object",
         description:
-          "Deprecated compatibility path for complete external design-system authority. Prefer supplying design_system_adapter to create_ui_implementation_contract so the frontend context receives implementation_contract.design_system_source.",
+          "Deprecated compatibility path for complete external design-system authority. Prefer supplying design_system_adapter to create_ui_implementation_contract so the frontend context receives implementation_contract.design_system_source. Rejected for Artifact Inspector because JudgmentKit must retain authority over inspector chrome and the inspection overlay.",
       },
       target_client: {
         type: "string",

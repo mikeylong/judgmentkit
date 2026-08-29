@@ -36,6 +36,12 @@ const ARTIFACT_ACTIVITY = `
   implementation details remain diagnostic.
 `;
 
+const WORKBENCH_ACTIVITY = `
+  A dispatch lead repeatedly reviews service exceptions in a work queue,
+  compares route and customer evidence, decides whether to reassign, hold, or
+  escalate each visit, and leaves a handoff receipt for the next owner.
+`;
+
 const activityReview = createActivityModelReview(ARTIFACT_ACTIVITY);
 const surfaceReview = recommendSurfaceTypes(ARTIFACT_ACTIVITY, {
   activity_review: activityReview,
@@ -104,6 +110,148 @@ function createCandidate() {
   };
 }
 
+function createWorkbenchWorkflowReview() {
+  const workbenchActivityReview = createActivityModelReview(
+    WORKBENCH_ACTIVITY,
+  );
+  const workbenchSurfaceReview = recommendSurfaceTypes(WORKBENCH_ACTIVITY, {
+    activity_review: workbenchActivityReview,
+  });
+  const review = reviewUiWorkflowCandidate(
+    WORKBENCH_ACTIVITY,
+    {
+      workflow: {
+        surface_name: "Service exception workspace",
+        topology: "workspace",
+        work_units: [
+          "Inspect evidence",
+          "Choose action",
+          "Leave handoff",
+        ],
+        primary_actions: ["Reassign", "Hold", "Escalate"],
+        decision_points: ["Choose the next operational action."],
+        completion_state: "The next owner receives a reasoned handoff.",
+      },
+      surface_set: [
+        {
+          name: "Service exception workspace",
+          purpose:
+            "Keep the selected exception, evidence, decision, and handoff together.",
+          sections: [
+            "Work queue",
+            "Detail workspace",
+            "Evidence",
+            "Handoff",
+          ],
+          controls: [
+            "Select exception",
+            "Choose action",
+            "Complete handoff",
+          ],
+          relationship_to_workflow:
+            "Supports repeated exception review.",
+        },
+      ],
+      product_terms: ["Exception", "Evidence", "Handoff"],
+      handoff: {
+        next_owner: "dispatch coordinator",
+        reason: "The exception needs the selected operational action.",
+        next_action: "Complete the handoff.",
+      },
+      diagnostics: {
+        implementation_terms: [],
+        reveal_contexts: ["debugging", "auditing"],
+      },
+    },
+    {
+      activity_review: workbenchActivityReview,
+      surface_review: workbenchSurfaceReview,
+    },
+  );
+
+  assert.equal(review.review_status, "ready_for_review");
+  assert.equal(review.surface_type, "workbench");
+  return review;
+}
+
+function completeExternalDesignSystemAdapter() {
+  return {
+    design_system_name: "External UI",
+    design_system_package: "@example/ui",
+    token_guidance: {
+      token_families: ["color"],
+      css_custom_properties: [
+        {
+          name: "--external-surface",
+          role: "surface",
+          family: "color",
+          value: "#ffffff",
+          usage: "External UI surfaces",
+        },
+      ],
+    },
+    font_guidance: {
+      font_roles: {
+        body: {
+          stack: "system-ui",
+          usage: "External UI body typography",
+        },
+      },
+    },
+    icon_guidance: {
+      icon_roles: ["status"],
+      icon_catalog: {
+        source: "external_design_system",
+        library: "example-icons",
+        package: "@example/icons",
+        version: "1.0.0",
+        icon_count: 1,
+        license: "MIT",
+        notice: "Repo-approved external icon adapter.",
+        mcp_tools: [],
+      },
+    },
+    components: ["Button"],
+  };
+}
+
+function disguiseExternalDesignAuthority(implementationContract) {
+  implementationContract.design_system_source = {
+    ...implementationContract.design_system_source,
+    mode: "judgmentkit_default",
+    id: "external-ui.source-v1",
+    name: "External UI",
+    package: "@example/ui",
+    definition_point: "caller_serialized_contract",
+    token_prefixes: ["--external-"],
+    renderer_components: ["ExternalButton"],
+  };
+  implementationContract.visual_token_adapter = {
+    ...implementationContract.visual_token_adapter,
+    css_custom_properties: [
+      {
+        name: "--external-surface",
+        role: "surface",
+        family: "color",
+        value: "#ffffff",
+        usage: "External UI surfaces",
+      },
+    ],
+  };
+  implementationContract.default_ai_native_design_system = {
+    ...implementationContract.default_ai_native_design_system,
+    component_contracts: [
+      {
+        ...implementationContract.default_ai_native_design_system
+          .component_contracts[0],
+        id: "ExternalButton",
+        label: "External button",
+        purpose: "Supply external chrome authority",
+      },
+    ],
+  };
+}
+
 function reviewCandidate(candidate) {
   return reviewUiWorkflowCandidate(ARTIFACT_ACTIVITY, candidate, {
     activity_review: activityReview,
@@ -113,6 +261,176 @@ function reviewCandidate(candidate) {
 }
 
 const validWorkflowReview = reviewCandidate(createCandidate());
+
+{
+  const contradictoryReview = structuredClone(validWorkflowReview);
+  contradictoryReview.candidate.workflow.topology = "workspace";
+
+  assert.throws(
+    () => createUiGenerationHandoff(contradictoryReview),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "handoff_blocked");
+      assert.equal(error.details.field, "workflow.topology");
+      assert.equal(error.details.topology, "workspace");
+      assert.equal(
+        error.details.topology_contract_kind,
+        "artifact_centered",
+      );
+      assert.equal(
+        error.details.diagnostic_code,
+        "JK_ARTIFACT_INSPECTOR_TOPOLOGY_KIND_INVALID",
+      );
+      return true;
+    },
+    "Handoff must reject contradictory serialized topology representations.",
+  );
+
+  const objectOnlyTopologyReview = structuredClone(validWorkflowReview);
+  objectOnlyTopologyReview.candidate.workflow.topology = structuredClone(
+    objectOnlyTopologyReview.candidate.workflow.topology_contract,
+  );
+  delete objectOnlyTopologyReview.candidate.workflow.topology_contract;
+  assert.throws(
+    () => createUiGenerationHandoff(objectOnlyTopologyReview),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "handoff_blocked");
+      assert.equal(
+        error.details.field,
+        "artifact_inspector.boundary_consistency",
+      );
+      assert.equal(error.details.observed.topology, "artifact_centered");
+      assert.equal(error.details.observed.topology_representation, "object");
+      assert.equal(error.details.observed.topology_contract_kind, null);
+      assert.equal(error.details.observed.canonical_topology_shape, false);
+      return true;
+    },
+    "Handoff must reject an object-only Artifact Inspector topology that its serializer would drop.",
+  );
+
+  const missingArtifactReview = structuredClone(validWorkflowReview);
+  delete missingArtifactReview.candidate.workflow.artifact;
+  assert.throws(
+    () => createUiGenerationHandoff(missingArtifactReview),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "handoff_blocked");
+      assert.equal(error.details.field, "workflow.artifact");
+      assert.equal(
+        error.details.diagnostic_code,
+        "JK_ARTIFACT_INSPECTOR_PRIMARY_ARTIFACT_MISSING",
+      );
+      assert.equal(
+        error.details.reason,
+        "artifact_inspector_required_structure_invalid",
+      );
+      return true;
+    },
+    "Handoff must reject a ready packet whose reviewed artifact identity was removed after review.",
+  );
+
+  const contradictoryProfileReview = structuredClone(validWorkflowReview);
+  contradictoryProfileReview.guidance_profile.profile_id =
+    "operator-review-ui";
+  assert.throws(
+    () => createUiGenerationHandoff(contradictoryProfileReview),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "handoff_blocked");
+      assert.equal(
+        error.details.field,
+        "artifact_inspector.boundary_consistency",
+      );
+      assert.deepEqual(error.details.observed.workflow_profile_ids, [
+        "operator-review-ui",
+      ]);
+      assert.equal(
+        error.details.expected.workflow_profile,
+        "artifact-inspector-ui",
+      );
+      return true;
+    },
+    "Handoff must reject a conflicting profile id on an otherwise canonical Artifact Inspector review.",
+  );
+}
+
+{
+  const workbenchReview = createWorkbenchWorkflowReview();
+  const artifactContract = createUiImplementationContract({
+    surface_type: "artifact_inspector",
+  }).implementation_contract;
+
+  assert.throws(
+    () =>
+      createUiGenerationHandoff(workbenchReview, {
+        implementation_contract: artifactContract,
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "handoff_blocked");
+      assert.equal(
+        error.details.field,
+        "artifact_inspector.boundary_consistency",
+      );
+      assert.deepEqual(error.details.observed.surface_types, ["workbench"]);
+      assert.equal(error.details.observed.topology, "workspace");
+      assert.equal(error.details.observed.authority_bundle_active, true);
+      return true;
+    },
+    "Handoff must reject Artifact Inspector authority attached to a Workbench workflow.",
+  );
+
+  const workbenchHandoff = createUiGenerationHandoff(workbenchReview);
+  const authorityLeakingHandoff = structuredClone(workbenchHandoff);
+  authorityLeakingHandoff.implementation_contract = structuredClone(
+    artifactContract,
+  );
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: authorityLeakingHandoff,
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "frontend_context_blocked");
+      assert.deepEqual(error.details.observed.surface_types, ["workbench"]);
+      assert.equal(error.details.observed.topology, "workspace");
+      assert.equal(error.details.observed.authority_bundle_active, true);
+      return true;
+    },
+    "Frontend generation must reject Artifact Inspector authority attached to serialized Workbench handoff.",
+  );
+
+  const workbenchFrontendContext = createFrontendGenerationContext({
+    ui_generation_handoff: workbenchHandoff,
+  });
+  const authorityLeakingFrontendContext = structuredClone(
+    workbenchFrontendContext,
+  );
+  authorityLeakingFrontendContext.implementation_contract = structuredClone(
+    artifactContract,
+  );
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: authorityLeakingFrontendContext,
+        target_client: "codex",
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.code,
+        "invalid_artifact_inspector_authority_contract",
+      );
+      assert.deepEqual(error.details.observed.surface_types, ["workbench"]);
+      assert.equal(error.details.observed.topology, "workspace");
+      assert.equal(error.details.observed.authority_bundle_active, true);
+      return true;
+    },
+    "Skill compilation must reject Artifact Inspector authority attached to serialized Workbench context.",
+  );
+}
 
 {
   const review = validWorkflowReview;
@@ -162,6 +480,231 @@ const validWorkflowReview = reviewCandidate(createCandidate());
 }
 
 {
+  const topologyDerivedReview = reviewUiWorkflowCandidate(
+    ARTIFACT_ACTIVITY,
+    createCandidate(),
+    { activity_review: activityReview },
+  );
+  const handoff = createUiGenerationHandoff(topologyDerivedReview);
+
+  assert.equal(topologyDerivedReview.review_status, "ready_for_review");
+  assert.equal(topologyDerivedReview.surface_type, "artifact_inspector");
+  assert.equal(
+    topologyDerivedReview.surface_guidance.recommended_surface_type,
+    "artifact_inspector",
+  );
+  assert.equal(
+    topologyDerivedReview.surface_guidance.confidence,
+    "validated_workflow",
+  );
+  assert.equal(handoff.surface_type, "artifact_inspector");
+  assert.deepEqual(
+    handoff.implementation_contract.design_system_scopes,
+    model.design_system.scopes,
+    "Validated artifact topology must carry scoped authority even without caller-supplied surface evidence.",
+  );
+
+  const emptySurfaceReview = reviewUiWorkflowCandidate(
+    ARTIFACT_ACTIVITY,
+    createCandidate(),
+    {
+      activity_review: activityReview,
+      surface_review: {},
+    },
+  );
+  assert.equal(emptySurfaceReview.review_status, "ready_for_review");
+  assert.equal(emptySurfaceReview.surface_type, "artifact_inspector");
+  assert.equal(
+    createUiGenerationHandoff(emptySurfaceReview).surface_type,
+    "artifact_inspector",
+    "An empty optional surface review must not suppress canonical topology-derived routing.",
+  );
+
+  const readyReviewWithoutSurfaceMetadata = structuredClone(
+    topologyDerivedReview,
+  );
+  delete readyReviewWithoutSurfaceMetadata.surface_type;
+  delete readyReviewWithoutSurfaceMetadata.surface_guidance;
+  const defensiveHandoff = createUiGenerationHandoff(
+    readyReviewWithoutSurfaceMetadata,
+  );
+  assert.equal(defensiveHandoff.surface_type, "artifact_inspector");
+  assert.deepEqual(
+    defensiveHandoff.implementation_contract.design_system_scopes,
+    model.design_system.scopes,
+    "Handoff must derive scoped authority from validated artifact topology even if surface metadata is omitted.",
+  );
+
+  const internallyConflictingReview = structuredClone(topologyDerivedReview);
+  internallyConflictingReview.surface_guidance = {
+    ...internallyConflictingReview.surface_guidance,
+    recommended_surface_type: "workbench",
+  };
+  assert.throws(
+    () => createUiGenerationHandoff(internallyConflictingReview),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "handoff_blocked");
+      assert.equal(error.details.surface_type, "artifact_inspector");
+      assert.equal(error.details.surface_guidance_type, "workbench");
+      return true;
+    },
+    "Handoff must reconcile both reviewed surface fields before deriving authority.",
+  );
+
+  const conflictingHandoffReview = structuredClone(topologyDerivedReview);
+  conflictingHandoffReview.surface_type = "workbench";
+  conflictingHandoffReview.surface_guidance = {
+    ...conflictingHandoffReview.surface_guidance,
+    recommended_surface_type: "workbench",
+  };
+
+  assert.throws(
+    () => createUiGenerationHandoff(conflictingHandoffReview),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "handoff_blocked");
+      assert.equal(error.details.expected_surface_type, "artifact_inspector");
+      assert.equal(error.details.observed_surface_type, "workbench");
+      assert.equal(error.details.workflow_topology, "artifact_centered");
+      return true;
+    },
+    "Handoff must defensively reject a conflicting surface on an artifact-centered reviewed workflow.",
+  );
+
+  assert.throws(
+    () =>
+      createUiGenerationHandoff(topologyDerivedReview, {
+        implementation_contract: "not-an-object",
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.code,
+        "invalid_artifact_inspector_authority_contract",
+      );
+      assert.equal(error.details.field, "implementation_contract");
+      return true;
+    },
+    "Malformed caller contract input must not remove the scoped authority bundle.",
+  );
+
+  const readyReviewWithDuplicateWorkUnit = structuredClone(
+    topologyDerivedReview,
+  );
+  readyReviewWithDuplicateWorkUnit.candidate.workflow.work_units.push({
+    ...structuredClone(
+      readyReviewWithDuplicateWorkUnit.candidate.workflow.work_units[0],
+    ),
+    participant_intent: "Orient to an unrelated secondary artifact.",
+  });
+  assert.throws(
+    () => createUiGenerationHandoff(readyReviewWithDuplicateWorkUnit),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "handoff_blocked");
+      assert.deepEqual(error.details.duplicate_work_unit_ids, ["orient"]);
+      return true;
+    },
+    "A serialized ready review cannot add a divergent duplicate work-unit id before handoff.",
+  );
+}
+
+{
+  const conflictingActivity = `${ARTIFACT_ACTIVITY}
+    The primary activity is freely creating and editing the artifact.
+  `;
+  const strippedActivityReview = structuredClone(activityReview);
+  delete strippedActivityReview.review.evidence.artifact_inspector;
+  delete strippedActivityReview.guardrails.artifact_inspector;
+  const review = reviewUiWorkflowCandidate(
+    conflictingActivity,
+    createCandidate(),
+    {
+      activity_review: strippedActivityReview,
+      profile_id: "artifact-inspector-ui",
+    },
+  );
+  const diagnostic = review.guardrails.artifact_inspector.diagnostics.find(
+    (entry) =>
+      entry.code === "JK_ARTIFACT_INSPECTOR_KEYWORD_ROUTING_CONFLICT",
+  );
+
+  assert.equal(review.review_status, "needs_source_context");
+  assert.equal(review.guardrails.artifact_inspector.valid, false);
+  assert.ok(
+    diagnostic,
+    "Grounded source evidence must restore a routing conflict stripped from supplied review metadata.",
+  );
+  assert.equal(diagnostic.field, "artifact_inspector.routing");
+  assert.equal(diagnostic.observed.activity_conflict, true);
+  assert.ok(
+    diagnostic.observed.matched_exclusion_evidence.includes(
+      "open_ended_creation_is_primary",
+    ),
+  );
+}
+
+{
+  const legacyQueueActivity = `
+    A support lead reviews refund cases in a shared queue during daily triage.
+    They decide whether each case should be approved, escalated to policy, or
+    returned for missing evidence. Completion is a clear case handoff with a
+    reason and next owner.
+  `;
+  const legacyActivityReview = createActivityModelReview(legacyQueueActivity);
+  const review = reviewUiWorkflowCandidate(
+    legacyQueueActivity,
+    createCandidate(),
+    { activity_review: legacyActivityReview },
+  );
+  const diagnostic = review.guardrails.artifact_inspector.diagnostics.find(
+    (entry) =>
+      entry.code === "JK_ARTIFACT_INSPECTOR_KEYWORD_ROUTING_CONFLICT",
+  );
+
+  assert.equal(legacyActivityReview.review_status, "ready_for_review");
+  assert.equal(review.review_status, "needs_source_context");
+  assert.equal(review.guardrails.artifact_inspector.valid, false);
+  assert.equal(diagnostic.observed.mandatory_evidence_satisfied, false);
+  assert.ok(
+    diagnostic.observed.missing_mandatory_evidence.includes(
+      "rendered_artifact_is_primary",
+    ),
+  );
+}
+
+{
+  const genericCandidate = createCandidate();
+  genericCandidate.workflow.topology = "workspace";
+  const review = reviewUiWorkflowCandidate(
+    ARTIFACT_ACTIVITY,
+    genericCandidate,
+    { activity_review: activityReview },
+  );
+
+  assert.equal(review.review_status, "needs_source_context");
+  assert.equal(review.guardrails.artifact_inspector.selected, true);
+  assert.equal(review.guardrails.artifact_inspector.valid, false);
+  assert.ok(
+    review.guardrails.artifact_inspector.diagnostics.some(
+      (entry) =>
+        entry.code === "JK_ARTIFACT_INSPECTOR_TOPOLOGY_CONTRACT_MISSING" ||
+        entry.code === "JK_ARTIFACT_INSPECTOR_TOPOLOGY_KIND_INVALID",
+    ),
+    "Grounded Artifact Inspector activity must require artifact topology and scoped authority.",
+  );
+  assert.throws(
+    () => createUiGenerationHandoff(review),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "handoff_blocked");
+      return true;
+    },
+  );
+}
+
+{
   const handoff = createUiGenerationHandoff(validWorkflowReview);
   const frontendContext = createFrontendGenerationContext({
     ui_generation_handoff: handoff,
@@ -179,6 +722,168 @@ const validWorkflowReview = reviewCandidate(createCandidate());
     frontend_generation_context: frontendContext,
     target_client: "codex",
   });
+  const contradictoryHandoff = structuredClone(handoff);
+  contradictoryHandoff.workflow.topology = "workspace";
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: contradictoryHandoff,
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "frontend_context_blocked");
+      assert.equal(error.details.field, "workflow.topology");
+      assert.equal(error.details.topology, "workspace");
+      assert.equal(
+        error.details.topology_contract_kind,
+        "artifact_centered",
+      );
+      return true;
+    },
+    "Frontend generation must reject contradictory serialized topology representations.",
+  );
+
+  const objectOnlyTopologyHandoff = structuredClone(handoff);
+  objectOnlyTopologyHandoff.workflow.topology = structuredClone(
+    objectOnlyTopologyHandoff.workflow.topology_contract,
+  );
+  delete objectOnlyTopologyHandoff.workflow.topology_contract;
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: objectOnlyTopologyHandoff,
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "frontend_context_blocked");
+      assert.equal(error.details.observed.topology, "artifact_centered");
+      assert.equal(error.details.observed.topology_representation, "object");
+      assert.equal(error.details.observed.topology_contract_kind, null);
+      assert.equal(error.details.observed.canonical_topology_shape, false);
+      return true;
+    },
+    "Frontend generation must reject object-only Artifact Inspector topology packets.",
+  );
+
+  const missingTargetModelHandoff = structuredClone(handoff);
+  delete missingTargetModelHandoff.workflow.target_model;
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: missingTargetModelHandoff,
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(error.code, "frontend_context_blocked");
+      assert.equal(error.details.field, "workflow.target_model");
+      assert.equal(
+        error.details.diagnostic_code,
+        "JK_ARTIFACT_INSPECTOR_LOCUS_MODEL_MISSING",
+      );
+      return true;
+    },
+    "Frontend generation must reject an Artifact Inspector handoff without its locus model.",
+  );
+
+  const contradictoryFrontendContext = structuredClone(frontendContext);
+  contradictoryFrontendContext.workflow.topology = "workspace";
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: contradictoryFrontendContext,
+        target_client: "codex",
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.code,
+        "invalid_artifact_inspector_authority_contract",
+      );
+      assert.equal(error.details.field, "workflow.topology");
+      assert.equal(error.details.topology, "workspace");
+      assert.equal(
+        error.details.topology_contract_kind,
+        "artifact_centered",
+      );
+      return true;
+    },
+    "Skill compilation must reject contradictory serialized topology representations.",
+  );
+
+  const objectOnlyTopologyFrontendContext = structuredClone(frontendContext);
+  objectOnlyTopologyFrontendContext.workflow.topology = structuredClone(
+    objectOnlyTopologyFrontendContext.workflow.topology_contract,
+  );
+  delete objectOnlyTopologyFrontendContext.workflow.topology_contract;
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: objectOnlyTopologyFrontendContext,
+        target_client: "codex",
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.code,
+        "invalid_artifact_inspector_authority_contract",
+      );
+      assert.equal(error.details.observed.topology, "artifact_centered");
+      assert.equal(error.details.observed.topology_representation, "object");
+      assert.equal(error.details.observed.topology_contract_kind, null);
+      assert.equal(error.details.observed.canonical_topology_shape, false);
+      return true;
+    },
+    "Skill compilation must reject object-only Artifact Inspector topology packets.",
+  );
+
+  const missingStateGroupsFrontendContext = structuredClone(frontendContext);
+  delete missingStateGroupsFrontendContext.workflow.state_groups;
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: missingStateGroupsFrontendContext,
+        target_client: "codex",
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.code,
+        "invalid_artifact_inspector_authority_contract",
+      );
+      assert.equal(error.details.field, "workflow.state_groups");
+      assert.equal(
+        error.details.diagnostic_code,
+        "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+      );
+      return true;
+    },
+    "Skill compilation must reject an Artifact Inspector context without its active states.",
+  );
+  const tamperedHandoffGuidance = structuredClone(handoff);
+  tamperedHandoffGuidance.artifact_inspector.registry
+    .external_artifact_review_status = "pass";
+  tamperedHandoffGuidance.artifact_inspector.design_system_scopes = [];
+  tamperedHandoffGuidance.artifact_inspector.boundary_contracts = [];
+  const canonicalizedFrontendContext = createFrontendGenerationContext({
+    ui_generation_handoff: tamperedHandoffGuidance,
+  });
+
+  assert.deepEqual(
+    canonicalizedFrontendContext.implementation_guidance.artifact_inspector
+      .registry,
+    handoff.implementation_contract.artifact_inspector,
+    "Frontend generation must emit the validated implementation contract registry, not serialized handoff guidance.",
+  );
+  assert.deepEqual(
+    canonicalizedFrontendContext.implementation_guidance.artifact_inspector
+      .design_system_scopes,
+    model.design_system.scopes,
+  );
+  assert.deepEqual(
+    canonicalizedFrontendContext.implementation_guidance.artifact_inspector
+      .boundary_contracts,
+    model.design_system.boundary_contracts,
+  );
 
   assert.equal(handoff.handoff_status, "ready_for_generation");
   assert.equal(handoff.surface_type, "artifact_inspector");
@@ -351,6 +1056,442 @@ const validWorkflowReview = reviewCandidate(createCandidate());
     ),
   );
 
+  const omittedArtifactGuidanceContext = structuredClone(frontendContext);
+  delete omittedArtifactGuidanceContext.implementation_guidance
+    .artifact_inspector;
+  const reconstructedOmittedGuidance =
+    createFrontendImplementationSkillContext({
+      frontend_generation_context: omittedArtifactGuidanceContext,
+      target_client: "codex",
+    });
+  assert.deepEqual(
+    reconstructedOmittedGuidance.artifact_inspector.design_system_scopes,
+    model.design_system.scopes,
+  );
+  assert.equal(
+    reconstructedOmittedGuidance.artifact_inspector
+      .external_artifact_review_status,
+    "external_not_reviewed",
+  );
+  assert.ok(
+    reconstructedOmittedGuidance.instruction_markdown.includes(
+      "trusted browser-runtime receipt",
+    ),
+  );
+
+  const tamperedArtifactGuidanceContext = structuredClone(frontendContext);
+  tamperedArtifactGuidanceContext.implementation_guidance.artifact_inspector
+    .design_system_scopes = [
+      structuredClone(
+        model.design_system.scopes.find(
+          (entry) => entry.scope_id === "primary_artifact",
+        ),
+      ),
+    ];
+  tamperedArtifactGuidanceContext.implementation_guidance.artifact_inspector
+    .boundary_contracts = [];
+  tamperedArtifactGuidanceContext.implementation_guidance.artifact_inspector
+    .external_artifact_review_status = "pass";
+  tamperedArtifactGuidanceContext.guardrails.artifact_inspector_authority
+    .external_artifact_review_status = "pass";
+  const reconstructedTamperedGuidance =
+    createFrontendImplementationSkillContext({
+      frontend_generation_context: tamperedArtifactGuidanceContext,
+      target_client: "codex",
+    });
+  assert.deepEqual(
+    reconstructedTamperedGuidance.artifact_inspector.design_system_scopes,
+    model.design_system.scopes,
+  );
+  assert.deepEqual(
+    reconstructedTamperedGuidance.artifact_inspector.boundary_contracts,
+    model.design_system.boundary_contracts,
+  );
+  assert.equal(
+    reconstructedTamperedGuidance.artifact_inspector
+      .external_artifact_review_status,
+    "external_not_reviewed",
+  );
+  assert.equal(
+    reconstructedTamperedGuidance.guardrails.artifact_inspector_authority
+      .external_artifact_review_status,
+    "external_not_reviewed",
+  );
+
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: frontendContext,
+        design_system_adapter: completeExternalDesignSystemAdapter(),
+        target_client: "codex",
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.code,
+        "invalid_artifact_inspector_authority_contract",
+      );
+      assert.equal(error.details.field, "design_system_adapter");
+      assert.deepEqual(error.details.judgmentkit_owned_scopes, [
+        "inspector_chrome",
+        "inspection_overlay",
+      ]);
+      assert.equal(error.details.external_artifact_scope, "primary_artifact");
+      return true;
+    },
+    "A whole-context frontend adapter must not replace JudgmentKit authority inside Artifact Inspector.",
+  );
+
+  const serializedExternalHandoff = structuredClone(handoff);
+  serializedExternalHandoff.implementation_contract.design_system_source = {
+    ...serializedExternalHandoff.implementation_contract.design_system_source,
+    mode: "external_design_system",
+    name: "External UI",
+    package: "@example/ui",
+  };
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: serializedExternalHandoff,
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.code,
+        "invalid_artifact_inspector_authority_contract",
+      );
+      assert.equal(error.details.field, "design_system_source.mode");
+      assert.equal(error.details.observed, "external_design_system");
+      return true;
+    },
+    "Serialized external authority must not replace Artifact Inspector chrome authority at the frontend-context boundary.",
+  );
+
+  const disguisedExternalHandoff = structuredClone(handoff);
+  disguiseExternalDesignAuthority(
+    disguisedExternalHandoff.implementation_contract,
+  );
+  const canonicalizedDisguisedHandoff = createFrontendGenerationContext({
+    ui_generation_handoff: disguisedExternalHandoff,
+  });
+  assert.deepEqual(
+    canonicalizedDisguisedHandoff.implementation_contract
+      .design_system_source,
+    handoff.implementation_contract.design_system_source,
+  );
+  assert.deepEqual(
+    canonicalizedDisguisedHandoff.implementation_contract
+      .visual_token_adapter,
+    handoff.implementation_contract.visual_token_adapter,
+  );
+  assert.deepEqual(
+    canonicalizedDisguisedHandoff.implementation_contract
+      .default_ai_native_design_system,
+    handoff.implementation_contract.default_ai_native_design_system,
+  );
+  assert.equal(
+    canonicalizedDisguisedHandoff.implementation_guidance
+      .design_system_source.name,
+    "JudgmentKit",
+  );
+  assert.equal(
+    canonicalizedDisguisedHandoff.implementation_guidance
+      .component_contracts.some((entry) => entry.id === "ExternalButton"),
+    false,
+  );
+  assert.equal(
+    canonicalizedDisguisedHandoff.implementation_contract
+      .visual_token_adapter.css_custom_properties.some(
+        (entry) => entry.name === "--external-surface",
+      ),
+    false,
+    "Relabeling external authority as judgmentkit_default must not preserve caller-owned tokens or components.",
+  );
+
+  const disguisedExternalContract = structuredClone(contract);
+  disguiseExternalDesignAuthority(
+    disguisedExternalContract.implementation_contract,
+  );
+  const canonicalizedCustomContractHandoff = createUiGenerationHandoff(
+    validWorkflowReview,
+    { contract: disguisedExternalContract },
+  );
+  assert.deepEqual(
+    canonicalizedCustomContractHandoff.implementation_contract
+      .design_system_source,
+    handoff.implementation_contract.design_system_source,
+  );
+  assert.deepEqual(
+    canonicalizedCustomContractHandoff.implementation_contract
+      .visual_token_adapter,
+    handoff.implementation_contract.visual_token_adapter,
+  );
+  assert.deepEqual(
+    canonicalizedCustomContractHandoff.implementation_contract
+      .default_ai_native_design_system,
+    handoff.implementation_contract.default_ai_native_design_system,
+    "A caller-supplied activity contract must not redefine JudgmentKit-owned Artifact Inspector design authority.",
+  );
+
+  const canonicalizedCustomContractFrontend =
+    createFrontendGenerationContext({
+      ui_generation_handoff: handoff,
+      contract: disguisedExternalContract,
+    });
+  assert.deepEqual(
+    canonicalizedCustomContractFrontend.implementation_contract
+      .design_system_source,
+    handoff.implementation_contract.design_system_source,
+  );
+  assert.deepEqual(
+    canonicalizedCustomContractFrontend.implementation_contract
+      .visual_token_adapter,
+    handoff.implementation_contract.visual_token_adapter,
+  );
+  assert.equal(
+    canonicalizedCustomContractFrontend.implementation_guidance
+      .component_contracts.some((entry) => entry.id === "ExternalButton"),
+    false,
+  );
+
+  const relabeledArtifactHandoff = structuredClone(
+    serializedExternalHandoff,
+  );
+  relabeledArtifactHandoff.surface_type = "workbench";
+  relabeledArtifactHandoff.surface_guidance.recommended_surface_type =
+    "workbench";
+  delete relabeledArtifactHandoff.implementation_contract
+    .design_system_scopes;
+  delete relabeledArtifactHandoff.implementation_contract.boundary_contracts;
+  delete relabeledArtifactHandoff.implementation_contract.artifact_inspector;
+  delete relabeledArtifactHandoff.artifact_inspector;
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: relabeledArtifactHandoff,
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.details.surface_type_candidates[
+          "ui_generation_handoff.workflow.topology"
+        ],
+        "artifact_inspector",
+      );
+      return true;
+    },
+    "Artifact-centered serialized handoffs cannot be relabeled to shed scoped authority.",
+  );
+
+  const serializedExternalFrontendContext = structuredClone(frontendContext);
+  serializedExternalFrontendContext.implementation_contract.design_system_source = {
+    ...serializedExternalFrontendContext.implementation_contract
+      .design_system_source,
+    mode: "external_design_system",
+    name: "External UI",
+    package: "@example/ui",
+  };
+  serializedExternalFrontendContext.implementation_guidance.design_system_source =
+    structuredClone(
+      serializedExternalFrontendContext.implementation_contract
+        .design_system_source,
+    );
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: serializedExternalFrontendContext,
+        target_client: "codex",
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.code,
+        "invalid_artifact_inspector_authority_contract",
+      );
+      assert.equal(error.details.field, "design_system_source.mode");
+      assert.equal(error.details.observed, "external_design_system");
+      return true;
+    },
+    "Serialized frontend authority must not bypass the inline adapter guard.",
+  );
+
+  const disguisedExternalFrontendContext = structuredClone(frontendContext);
+  disguiseExternalDesignAuthority(
+    disguisedExternalFrontendContext.implementation_contract,
+  );
+  disguisedExternalFrontendContext.implementation_guidance
+    .design_system_source = structuredClone(
+      disguisedExternalFrontendContext.implementation_contract
+        .design_system_source,
+    );
+  disguisedExternalFrontendContext.implementation_guidance
+    .component_contracts = structuredClone(
+      disguisedExternalFrontendContext.implementation_contract
+        .default_ai_native_design_system.component_contracts,
+    );
+  const canonicalizedDisguisedFrontend =
+    createFrontendImplementationSkillContext({
+      frontend_generation_context: disguisedExternalFrontendContext,
+      target_client: "codex",
+    });
+  assert.deepEqual(
+    canonicalizedDisguisedFrontend.design_system_source,
+    skillContext.design_system_source,
+  );
+  assert.deepEqual(
+    canonicalizedDisguisedFrontend.visual_token_adapter,
+    skillContext.visual_token_adapter,
+  );
+  assert.deepEqual(
+    canonicalizedDisguisedFrontend.component_contracts,
+    skillContext.component_contracts,
+  );
+  assert.equal(
+    canonicalizedDisguisedFrontend.component_contracts.some(
+      (entry) => entry.id === "ExternalButton",
+    ),
+    false,
+  );
+  assert.equal(
+    canonicalizedDisguisedFrontend.instruction_markdown.includes(
+      "External UI",
+    ),
+    false,
+    "The compiled skill context must not emit disguised external authority.",
+  );
+
+  const relabeledArtifactFrontendContext = structuredClone(
+    serializedExternalFrontendContext,
+  );
+  relabeledArtifactFrontendContext.surface_type = "workbench";
+  relabeledArtifactFrontendContext.surface_guidance.recommended_surface_type =
+    "workbench";
+  relabeledArtifactFrontendContext.implementation_guidance.surface_type =
+    "workbench";
+  delete relabeledArtifactFrontendContext.implementation_contract
+    .design_system_scopes;
+  delete relabeledArtifactFrontendContext.implementation_contract
+    .boundary_contracts;
+  delete relabeledArtifactFrontendContext.implementation_contract
+    .artifact_inspector;
+  delete relabeledArtifactFrontendContext.implementation_guidance
+    .artifact_inspector;
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: relabeledArtifactFrontendContext,
+        target_client: "codex",
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.code,
+        "invalid_artifact_inspector_authority_contract",
+      );
+      assert.equal(
+        error.details.expected.surface_type,
+        "artifact_inspector",
+      );
+      assert.deepEqual(error.details.observed.surface_types, ["workbench"]);
+      assert.equal(error.details.observed.topology, "artifact_centered");
+      assert.equal(error.details.observed.authority_bundle_active, false);
+      return true;
+    },
+    "Artifact-centered serialized frontend contexts cannot be relabeled to shed scoped authority.",
+  );
+
+  const broadenedStateHandoff = structuredClone(handoff);
+  broadenedStateHandoff.implementation_contract.artifact_inspector
+    .active_state_groups = ["core", "automation"];
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: broadenedStateHandoff,
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.code,
+        "frontend_context_blocked",
+      );
+      assert.equal(
+        error.details.diagnostic_code,
+        "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+      );
+      assert.deepEqual(error.details.expected, ["core"]);
+      return true;
+    },
+    "Serialized handoff metadata must not broaden reviewed Artifact Inspector state groups.",
+  );
+
+  const broadenedStateFrontendContext = structuredClone(frontendContext);
+  broadenedStateFrontendContext.implementation_contract.artifact_inspector
+    .active_state_groups = ["core", "automation"];
+  broadenedStateFrontendContext.implementation_guidance.artifact_inspector
+    .active_state_groups = ["core", "automation"];
+  broadenedStateFrontendContext.implementation_guidance.artifact_inspector
+    .registry.active_state_groups = ["core", "automation"];
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: broadenedStateFrontendContext,
+        target_client: "codex",
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.equal(
+        error.code,
+        "invalid_artifact_inspector_authority_contract",
+      );
+      assert.equal(
+        error.details.diagnostic_code,
+        "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+      );
+      assert.deepEqual(error.details.expected, ["core"]);
+      return true;
+    },
+    "Serialized frontend metadata must not broaden reviewed Artifact Inspector state groups.",
+  );
+
+  const duplicateWorkUnitHandoff = structuredClone(handoff);
+  duplicateWorkUnitHandoff.workflow.work_units.push({
+    ...structuredClone(duplicateWorkUnitHandoff.workflow.work_units[0]),
+    participant_intent: "Orient to an unrelated secondary artifact.",
+  });
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: duplicateWorkUnitHandoff,
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.deepEqual(error.details.duplicate_work_unit_ids, ["orient"]);
+      return true;
+    },
+    "A serialized handoff cannot add a divergent duplicate work-unit id before frontend generation.",
+  );
+
+  const duplicateWorkUnitFrontendContext = structuredClone(frontendContext);
+  duplicateWorkUnitFrontendContext.workflow.work_units.push({
+    ...structuredClone(
+      duplicateWorkUnitFrontendContext.workflow.work_units[0],
+    ),
+    participant_intent: "Orient to an unrelated secondary artifact.",
+  });
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: duplicateWorkUnitFrontendContext,
+        target_client: "codex",
+      }),
+    (error) => {
+      assert.ok(error instanceof JudgmentKitInputError);
+      assert.deepEqual(error.details.duplicate_work_unit_ids, ["orient"]);
+      return true;
+    },
+    "A serialized frontend context cannot add a divergent duplicate work-unit id.",
+  );
+
   assert.throws(
     () =>
       createFrontendGenerationContext({
@@ -369,6 +1510,45 @@ const validWorkflowReview = reviewCandidate(createCandidate());
       );
       return true;
     },
+  );
+}
+
+{
+  const callerBroadenedContract = createUiImplementationContract({
+    surface_type: "artifact_inspector",
+    artifact_inspector: {
+      active_state_groups: [
+        "core",
+        "consequential",
+        "reusable_guidance",
+        "automation",
+      ],
+    },
+  }).implementation_contract;
+  const handoff = createUiGenerationHandoff(validWorkflowReview, {
+    implementation_contract: callerBroadenedContract,
+  });
+  const frontendContext = createFrontendGenerationContext({
+    ui_generation_handoff: handoff,
+  });
+
+  assert.deepEqual(
+    callerBroadenedContract.artifact_inspector.active_state_groups,
+    ["core", "consequential", "reusable_guidance", "automation"],
+  );
+  assert.deepEqual(
+    handoff.implementation_contract.artifact_inspector.active_state_groups,
+    ["core"],
+    "Caller implementation metadata must not activate groups absent from the reviewed workflow.",
+  );
+  assert.deepEqual(
+    handoff.artifact_inspector.registry.active_state_groups,
+    ["core"],
+  );
+  assert.deepEqual(
+    frontendContext.implementation_guidance.artifact_inspector
+      .active_state_groups,
+    ["core"],
   );
 }
 
@@ -619,6 +1799,17 @@ const MALFORMED_CASES = [
       ];
     },
     code: "JK_ARTIFACT_INSPECTOR_WORK_UNIT_ID_MISSING",
+    field: "workflow.work_units",
+  },
+  {
+    label: "divergent duplicate work-unit id",
+    mutate(candidate) {
+      candidate.workflow.work_units.push({
+        ...structuredClone(candidate.workflow.work_units[0]),
+        participant_intent: "Orient to an unrelated secondary artifact.",
+      });
+    },
+    code: "JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID",
     field: "workflow.work_units",
   },
   {

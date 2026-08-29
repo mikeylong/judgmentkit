@@ -667,7 +667,7 @@ Diagnostics must be stable, specific, and repairable.
 | `JK_ARTIFACT_INSPECTOR_TOPOLOGY_CONTRACT_MISSING` | No explicit structured artifact-centered topology is declared. |
 | `JK_ARTIFACT_INSPECTOR_TOPOLOGY_KIND_INVALID` | The topology kind is not `artifact_centered`. |
 | `JK_ARTIFACT_INSPECTOR_WORK_UNIT_ID_MISSING` | A structured work unit has no stable identifier. |
-| `JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID` | A required work unit does not preserve its canonical intent and system responsibility. |
+| `JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID` | A required work unit is duplicated or does not preserve its canonical intent and system responsibility. |
 | `JK_ARTIFACT_INSPECTOR_ENTRY_REFERENCE_INVALID` | The topology entry does not reference a declared work unit. |
 | `JK_ARTIFACT_INSPECTOR_COMPLETION_REFERENCE_INVALID` | Artifact-local completion references an undeclared work unit. |
 | `JK_ARTIFACT_INSPECTOR_TRANSITION_REFERENCE_INVALID` | A topology transition references an undeclared work unit. |
@@ -691,7 +691,7 @@ Diagnostics must be stable, specific, and repairable.
 | `JK_ARTIFACT_INSPECTOR_TARGET_DRIFT` | An overlay silently moved to a different artifact target. |
 | `JK_ARTIFACT_INSPECTOR_ARTIFACT_MUTATED` | A chrome transition changed artifact content or presentation. |
 | `JK_ARTIFACT_INSPECTOR_EXTERNAL_AUTHORITY_OVERCLAIM` | The review describes the external artifact as JudgmentKit-conformant. |
-| `JK_ARTIFACT_INSPECTOR_KEYWORD_ROUTING_CONFLICT` | A keyword-based route conflicts with activity evidence. |
+| `JK_ARTIFACT_INSPECTOR_KEYWORD_ROUTING_CONFLICT` | Artifact Inspector routing conflicts with mandatory activity evidence, exclusions, the selected surface, or the workflow profile. |
 
 Every diagnostic should include the failing field or selector, the expected
 contract, the observed value, and one bounded repair instruction.
