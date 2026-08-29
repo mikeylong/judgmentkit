@@ -5,7 +5,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { buildSite } from "../site/build-site.mjs";
+import { buildSite, renderHomepage } from "../site/build-site.mjs";
 import {
   COMPARISON_COLUMNS,
   COMPARISON_ROWS,
@@ -342,6 +342,11 @@ const platformNavMarkup =
   homepage.match(/<nav class="surfaces-navigation" aria-label="Surfaces platform" data-surfaces-navigation>[\s\S]*?<\/nav>/)
     ?.[0] ?? "";
 const homepageMain = homepage.match(/<main>([\s\S]*)<\/main>/)?.[1] ?? "";
+const homepageHeroCopy = homepage.match(
+  /<div class="homepage-hero-copy">([\s\S]*?)<div class="hero-actions"/,
+)?.[1] ?? "";
+const homepageFilmPreview = renderHomepage({ homepageFilmEnabled: true });
+const homepageFilmPreviewMain = homepageFilmPreview.match(/<main>([\s\S]*)<\/main>/)?.[1] ?? "";
 assert.ok(systemMapFlowJs.includes("MCP boundary"));
 assert.ok(systemMapFlowJs.includes("JudgmentKit React Flow system design map"));
 assert.ok(systemMapFlowJs.includes("Source brief + product context"));
@@ -657,12 +662,25 @@ assert.ok(homepage.includes("[data-section-rail-menu]"));
 assert.ok(homepage.includes('class="site-shell homepage-section-shell"'));
 assert.ok(homepage.includes("[data-surfaces-primary-menu-button]"));
 assert.ok(homepage.includes("[data-surfaces-system-menu-button]"));
-assert.ok(homepage.includes("Stop AI from building the wrong interface."));
-assert.ok(homepage.includes("Product judgment for AI-generated UI"));
+assert.ok(homepageHeroCopy.includes("Stop AI from building the wrong interface."));
+assert.ok(homepageHeroCopy.includes("The judgment layer for AI-generated UI"));
 assert.ok(
-  homepage.includes(
+  homepageHeroCopy.includes(
+    "A design system tells an agent how interface elements should look and behave.",
+  ),
+);
+assert.ok(
+  homepageHeroCopy.includes(
+    "JudgmentKit tells it which interface the user’s work requires, what should stay hidden, and what must be repaired.",
+  ),
+);
+assert.ok(homepageHeroCopy.includes("Use JudgmentKit’s design system—or bring your own."));
+assert.equal(homepageHeroCopy.includes("Product judgment for AI-generated UI"), false);
+assert.equal(
+  homepageHeroCopy.includes(
     "JudgmentKit checks the user's work before generation and tells the agent what to fix when the concept is wrong.",
   ),
+  false,
 );
 assert.equal(homepage.includes("Judgment before generation."), false);
 assert.equal(homepage.includes("Human-centered judgment for AI agents"), false);
@@ -693,9 +711,44 @@ assert.equal(
 assert.equal(
   homepage.includes('class="release-notice"'),
   false,
-  "homepage should replace the release banner with the film itself",
+  "homepage should not restore the retired release banner",
 );
-const homepageFilmFrameMatch = homepage.match(
+assert.equal(
+  (homepageMain.match(/<video\b/gi) ?? []).length,
+  0,
+  "the public homepage should not render the retired film",
+);
+assert.doesNotMatch(
+  homepageMain,
+  /homepage-film|data-homepage-film|judgmentkit-select-field-agent-demo/,
+  "the public homepage should not ship dormant film markup or behavior",
+);
+assert.match(
+  homepageMain,
+  /^\s*<section class="hero homepage-hero">/,
+  "the public homepage story should begin with the hero",
+);
+const homepageCategory = homepageMain.match(
+  /<section class="section homepage-category"[^>]*>([\s\S]*?)<\/section>/,
+)?.[0] ?? "";
+assert.ok(homepageCategory, "homepage should explain JudgmentKit's category directly after the hero");
+assert.ok(homepageCategory.includes("A design system can make the wrong interface consistent."));
+assert.ok(homepageCategory.includes("JudgmentKit prevents that mistake before the components are composed."));
+assert.ok(homepageCategory.includes("Traditional design system"));
+assert.ok(homepageCategory.includes("Defines how interface elements look, behave, and remain consistent."));
+assert.ok(homepageCategory.includes("Defines what the interface must help someone do, decide, and understand."));
+assert.ok(homepageCategory.includes("JudgmentKit uses the design system you choose and tells the agent what to repair."));
+const homepageHeroIndex = homepageMain.search(/class="[^"]*\bhomepage-hero\b[^"]*"/);
+const homepageCategoryIndex = homepageMain.search(/class="[^"]*\bhomepage-category\b[^"]*"/);
+const homepagePreviewIndex = homepageMain.search(/class="[^"]*\bhomepage-preview\b[^"]*"/);
+assert.ok(
+  homepageHeroIndex >= 0 &&
+    homepageCategoryIndex > homepageHeroIndex &&
+    homepagePreviewIndex > homepageCategoryIndex,
+  "the category explanation should be the first substantive section after the hero",
+);
+
+const homepageFilmFrameMatch = homepageFilmPreview.match(
   /<(div|section)\b[^>]*class="[^"]*\bhomepage-film-frame\b[^"]*"[^>]*>([\s\S]*?)<\/\1>/,
 );
 const homepageFilmFrame = homepageFilmFrameMatch?.[0];
@@ -709,16 +762,16 @@ assert.ok(homepageFilmMedia, "homepage should expose one native video as the com
 assert.match(homepageFilmMediaOpenTag, /id="homepage-film-media"/);
 assert.match(homepageFilmMediaOpenTag, /data-homepage-film-media(?:\s|=|>)/);
 assert.equal(
-  (homepageMain.match(/<video\b/g) ?? []).length,
+  (homepageFilmPreviewMain.match(/<video\b/g) ?? []).length,
   1,
   "homepage should contain exactly one media clock",
 );
 assert.equal(
-  (homepageMain.match(/<iframe\b/g) ?? []).length,
+  (homepageFilmPreviewMain.match(/<iframe\b/g) ?? []).length,
   0,
   "homepage must not hand playback to a live iframe",
 );
-assert.equal((homepageMain.match(/<canvas\b/g) ?? []).length, 0);
+assert.equal((homepageFilmPreviewMain.match(/<canvas\b/g) ?? []).length, 0);
 assert.doesNotMatch(
   homepageFilmFrame,
   /data-homepage-film-(?:stage|live|live-scale|fallback)|data-film-live-(?:src|status)|visual-composition-runtime-demo\.html/,
@@ -730,7 +783,7 @@ assert.doesNotMatch(
   "the single native video should not expose split-clock recovery state",
 );
 assert.doesNotMatch(
-  homepageMain,
+  homepageFilmPreviewMain,
   /homepage-film-(?:stage|live|live-scale)|homepage-film-source-media--soundtrack/,
   "the single-video renderer must not retain hidden live or soundtrack surfaces",
 );
@@ -801,22 +854,24 @@ assert.match(
 assert.match(homepageFilmSource, /type="video\/mp4"/);
 assert.doesNotMatch(homepageFilmMedia, /<track\b/i);
 assert.doesNotMatch(
-  homepageMain,
+  homepageFilmPreviewMain,
   /homepage-film-scroll-cue|data-homepage-film-scroll-icon|Continue to JudgmentKit overview|id="homepage-overview"/,
 );
-const homepageFilmSectionIndex = homepageMain.search(
+const homepageFilmSectionIndex = homepageFilmPreviewMain.search(
   /class="[^"]*\bhomepage-film-section\b[^"]*"/,
 );
-const homepageHeroIndex = homepageMain.search(/class="[^"]*\bhomepage-hero\b[^"]*"/);
+const homepageFilmPreviewHeroIndex = homepageFilmPreviewMain.search(
+  /class="[^"]*\bhomepage-hero\b[^"]*"/,
+);
 assert.ok(
   homepageFilmSectionIndex >= 0 &&
-    homepageHeroIndex >= 0 &&
-    homepageFilmSectionIndex < homepageHeroIndex,
+    homepageFilmPreviewHeroIndex >= 0 &&
+    homepageFilmSectionIndex < homepageFilmPreviewHeroIndex,
   "the film should remain immediately ahead of the homepage story",
 );
 
 const homepageFilmControlGroups = [
-  ...homepageMain.matchAll(
+  ...homepageFilmPreviewMain.matchAll(
     /<div\b[^>]*class="[^"]*\bhomepage-film-controls\b[^"]*"[^>]*>[\s\S]*?<\/div>/gi,
   ),
 ].map((match) => match[0]);
@@ -899,7 +954,7 @@ assert.doesNotMatch(homepageFilmPlayButtonMarkup + homepageFilmMuteButtonMarkup,
 assert.doesNotMatch(homepageFilmControls, /(?:fullscreen|caption|playback[_-]?rate|speed)/i);
 assert.doesNotMatch(homepageFilmFrame, /<(?:h[1-6]|p|figcaption)\b/i);
 
-const homepageFilmScripts = [...homepage.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
+const homepageFilmScripts = [...homepageFilmPreview.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
   .map((match) => match[1])
   .filter((script) => script.includes("homepage-film"))
   .join("\n");

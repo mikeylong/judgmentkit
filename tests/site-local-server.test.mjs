@@ -620,105 +620,16 @@ try {
 
   await assertStaticGetAndHead(url, "/", "text/html; charset=utf-8", (body) => {
     const html = body.toString("utf8");
-    const frame = html.match(
-      /<(div|section)\b[^>]*class="[^"]*\bhomepage-film-frame\b[^"]*"[^>]*>[\s\S]*?<\/\1>/,
-    )?.[0];
-    assert.ok(frame, "homepage should serve the film frame");
-    const frameOpenTag = frame.match(/^<(?:div|section)\b[^>]*>/i)?.[0] ?? "";
-    const videoOpenTag = frame.match(
-      /<video\b[^>]*class="[^"]*\bhomepage-film-source-media\b[^"]*"[^>]*>/,
-    )?.[0] ?? "";
-
-    assert.ok(videoOpenTag, "homepage should serve one native video");
-    assert.match(videoOpenTag, /id="homepage-film-media"/);
-    assert.match(videoOpenTag, /data-homepage-film-media(?:\s|=|>)/);
-    assert.match(videoOpenTag, /(?:\s|^)controls(?:\s|>)/);
-    assert.match(videoOpenTag, /(?:\s|^)loop(?:\s|>)/);
-    assert.match(videoOpenTag, /(?:\s|^)playsinline(?:\s|>)/);
-    assert.match(videoOpenTag, /preload="auto"/);
-    assert.match(videoOpenTag, /(?:\s|^)autoplay(?:\s|>)/);
-    assert.match(videoOpenTag, /(?:\s|^)muted(?:\s|>)/);
-    assert.match(videoOpenTag, /aria-describedby="homepage-film-description"/);
-    const description = frame.match(
-      /<span\b[^>]*id="homepage-film-description"[^>]*>[\s\S]*?<\/span>/,
-    )?.[0] ?? "";
-    assert.match(description, /class="sr-only"/);
-    assert.match(description, /misaligned centers and an undersized indicator slot/);
-    assert.match(description, /resubmitted candidate passes/);
-    assert.equal((html.match(/<video\b/g) ?? []).length, 1);
-    assert.equal((html.match(/<iframe\b/g) ?? []).length, 0);
-    assert.equal((html.match(/<canvas\b/g) ?? []).length, 0);
+    const main = html.match(/<main>([\s\S]*)<\/main>/)?.[1] ?? "";
+    assert.equal((main.match(/<video\b/gi) ?? []).length, 0);
     assert.doesNotMatch(
-      frame,
-      /data-homepage-film-(?:stage|live|live-scale|fallback)|data-film-live-(?:src|status)|visual-composition-runtime-demo\.html/,
-      "served homepage must not reference the standalone authoring runtime",
+      main,
+      /homepage-film|data-homepage-film|judgmentkit-select-field-agent-demo/,
+      "served homepage should not include the retired film or its behavior",
     );
-    assert.doesNotMatch(
-      frameOpenTag,
-      /data-film-(?:autoplay|audio)-status=/,
-      "served homepage must not expose split-clock state",
-    );
-    assert.doesNotMatch(frame, /<track\b/i);
-    assert.match(
-      frameOpenTag,
-      /data-film-source-light="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
-    );
-    assert.match(
-      frameOpenTag,
-      /data-film-source-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-dark\.mp4"/,
-    );
-    assert.match(
-      frameOpenTag,
-      /data-film-poster-light="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
-    );
-    assert.match(
-      frameOpenTag,
-      /data-film-poster-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster-dark\.png"/,
-    );
-    const sourceOpenTag = frame.match(/<source\b[^>]*>/)?.[0] ?? "";
-    assert.match(
-      sourceOpenTag,
-      /src="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
-    );
-    assert.match(sourceOpenTag, /type="video\/mp4"/);
-
-    const controls = html.match(
-      /<div\b[^>]*class="[^"]*\bhomepage-film-controls\b[^"]*"[^>]*>[\s\S]*?<\/div>/i,
-    )?.[0] ?? "";
-    assert.match(controls.match(/<div\b[^>]*>/i)?.[0] ?? "", /(?:\s|^)hidden(?:\s|>)/);
-    assert.match(controls, /role="group"/);
-    assert.match(controls, /aria-label="Video controls"/);
-    assert.equal((controls.match(/<(?:button|input)\b/gi) ?? []).length, 3);
-    assert.match(controls, /aria-label="Play video"/);
-    assert.match(controls, /aria-label="Video progress"/);
-    assert.match(controls, /aria-label="Unmute video"/);
-    assert.equal(
-      (controls.match(/aria-controls="homepage-film-media"/g) ?? []).length,
-      3,
-    );
-    assert.doesNotMatch(controls, /(?:fullscreen|caption|playback[_-]?rate|speed)/i);
-
-    const filmSectionIndex = html.search(/class="[^"]*\bhomepage-film-section\b[^"]*"/);
-    const heroIndex = html.search(/class="[^"]*\bhomepage-hero\b[^"]*"/);
-    assert.ok(filmSectionIndex >= 0 && heroIndex >= 0 && filmSectionIndex < heroIndex);
-    assert.doesNotMatch(frame, /<(?:h[1-6]|p|figcaption)\b/i);
-
-    const filmScripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
-      .map((match) => match[1])
-      .filter((script) => script.includes("homepage-film"))
-      .join("\n");
-    assert.ok(filmScripts.includes("filmPosterDark"));
-    assert.ok(filmScripts.includes("filmSourceDark"));
-    assert.match(
-      filmScripts,
-      /matchMedia\(\s*["']\(prefers-color-scheme:\s*dark\)["']\s*\)/,
-    );
-    assert.match(filmScripts, /addEventListener\(\s*["']ended["']\s*,/);
-    assert.doesNotMatch(
-      filmScripts,
-      /judgmentkit-visual-composition-v1|postMessage\(|addEventListener\(\s*["']message["']|ResizeObserver|requestAnimationFrame|SOUNDTRACK_RECOVERY_TIMEOUT_MS|\bsilentClock|enterSilentLiveMode/,
-      "served homepage script should control only the native video",
-    );
+    assert.match(main, /^\s*<section class="hero homepage-hero">/);
+    assert.match(main, /<section class="section homepage-category"/);
+    assert.match(main, /A design system can make the wrong interface consistent\./);
     assert.equal(html.includes("/releases/visual-composition/"), false);
   });
 

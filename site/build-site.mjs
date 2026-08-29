@@ -69,6 +69,7 @@ const VISUAL_COMPOSITION_POSTER_PATH =
   `/assets/releases/${VISUAL_COMPOSITION_POSTER_FILENAME}`;
 const VISUAL_COMPOSITION_DARK_POSTER_PATH =
   `/assets/releases/${VISUAL_COMPOSITION_DARK_POSTER_FILENAME}`;
+const HOMEPAGE_FILM_ENABLED = false;
 const DESIGN_SYSTEM_SPECIMEN_RENDERER = {
   id: "judgmentkit-static-specimens",
   version: "0.1.0",
@@ -1941,6 +1942,7 @@ h2 {
   background: color-mix(in srgb, var(--ok) 6%, transparent);
 }
 .homepage-preview,
+.homepage-category,
 .homepage-failure,
 .proof-paths,
 .adoption-paths {
@@ -2037,6 +2039,7 @@ pre {
 .section {
   border-top: 1px solid var(--line);
 }
+.homepage-category .homepage-section-shell > div:first-child,
 .homepage-failure .homepage-section-shell > div:first-child,
 .proof-paths .homepage-section-shell > div:first-child,
 .adoption-paths .homepage-section-shell > div:first-child {
@@ -4840,10 +4843,11 @@ function renderHomepageFilmControlIcon(id, stateAttribute, hidden = false) {
   return getIconSvg({ id }).inline_svg.replace("<svg ", `<svg ${attributes} `);
 }
 
-function homepage() {
+export function renderHomepage({ homepageFilmEnabled = HOMEPAGE_FILM_ENABLED } = {}) {
   return page(
     "JudgmentKit",
     `
+    ${homepageFilmEnabled ? `
     <section class="homepage-film-section" aria-label="UI generation, diagnosis, and repair film">
       <div class="site-shell homepage-film-shell">
         <figure class="homepage-film-figure">
@@ -4902,12 +4906,14 @@ function homepage() {
         </figure>
       </div>
     </section>
+    ` : ""}
     <section class="hero homepage-hero">
       <div class="site-shell homepage-hero-shell">
         <div class="homepage-hero-copy">
-          <p class="eyebrow">Product judgment for AI-generated UI</p>
+          <p class="eyebrow">The judgment layer for AI-generated UI</p>
           <h1>Stop AI from building the wrong interface.</h1>
-          <p class="lede">JudgmentKit checks the user's work before generation and tells the agent what to fix when the concept is wrong.</p>
+          <p class="lede">A design system tells an agent how interface elements should look and behave. JudgmentKit tells it which interface the user’s work requires, what should stay hidden, and what must be repaired.</p>
+          <p><strong>Use JudgmentKit’s design system—or bring your own.</strong></p>
           <div class="hero-actions" aria-label="Primary next steps">
             <a class="hero-action hero-action-primary" data-hero-action="primary" href="/value/">See a screen repaired</a>
             <a class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/">Explore examples</a>
@@ -4918,6 +4924,29 @@ function homepage() {
             <img src="${HOMEPAGE_HERO_ART_PATH}" width="1122" height="1402" alt="Rough stone fragments pass through a teal glass lens and emerge as an ordered path." loading="eager" fetchpriority="high" decoding="async">
           </div>
         </figure>
+      </div>
+    </section>
+    <section class="section homepage-category" aria-labelledby="category-title">
+      <div class="site-shell homepage-section-shell">
+        <div>
+          <p class="eyebrow">Judgment before components</p>
+          <h2 id="category-title">A design system can make the wrong interface consistent.</h2>
+          <p>JudgmentKit prevents that mistake before the components are composed.</p>
+        </div>
+        <div class="failure-grid">
+          <article>
+            <h3>Traditional design system</h3>
+            <p>Defines how interface elements look, behave, and remain consistent.</p>
+          </article>
+          <article>
+            <h3>JudgmentKit</h3>
+            <p>Defines what the interface must help someone do, decide, and understand.</p>
+          </article>
+          <article>
+            <h3>Together</h3>
+            <p>JudgmentKit uses the design system you choose and tells the agent what to repair.</p>
+          </article>
+        </div>
       </div>
     </section>
     <section class="section homepage-preview" aria-labelledby="repair-preview-title">
@@ -5022,6 +5051,7 @@ function homepage() {
         </div>
       </div>
     </section>
+    ${homepageFilmEnabled ? `
     <script>
       (() => {
         const player = document.querySelector("[data-homepage-film-player]");
@@ -5302,10 +5332,11 @@ function homepage() {
         }
       })();
     </script>
+    ` : ""}
   `,
     {
       description:
-        "JudgmentKit helps AI agents review activity, workflow, disclosure, and handoff quality before generating product UI.",
+        "JudgmentKit helps AI agents understand the user's work, choose the right interface, and repair what does not fit.",
       path: "/",
     },
   );
@@ -9568,7 +9599,10 @@ async function buildComponentSpecimenAssets(outDir) {
   });
 }
 
-export async function buildSite(outDir = DEFAULT_OUT_DIR) {
+export async function buildSite(
+  outDir = DEFAULT_OUT_DIR,
+  { homepageFilmEnabled = HOMEPAGE_FILM_ENABLED } = {},
+) {
   const designSystemModel = buildDesignSystemContentModel();
 
   await fs.rm(outDir, { recursive: true, force: true });
@@ -9678,7 +9712,10 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
     path.join(outDir, "favicon.svg"),
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#133f4e"/><path d="M18 34.5 28 44l19-24" fill="none" stroke="#f8f7f2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>\n`,
   );
-  await fs.writeFile(path.join(outDir, "index.html"), homepage());
+  await fs.writeFile(
+    path.join(outDir, "index.html"),
+    renderHomepage({ homepageFilmEnabled }),
+  );
   await fs.writeFile(path.join(outDir, "robots.txt"), "User-agent: *\nAllow: /\n");
   await fs.writeFile(path.join(outDir, "value", "index.html"), await valuePage());
   await fs.writeFile(path.join(outDir, "docs", "index.html"), docsPage());
