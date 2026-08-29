@@ -8,6 +8,7 @@
     "version",
     "source_model",
     "quality_order",
+    "interaction_models",
     "surface_types",
     "activity_model",
     "interaction_contract",
@@ -104,6 +105,9 @@
         }
       }
     },
+    "interaction_models": {
+      "$ref": "#/$defs/interactionModels"
+    },
     "profiles": {
       "type": "object",
       "additionalProperties": false,
@@ -138,6 +142,9 @@
             "review_criteria": { "type": "array", "items": { "type": "string" } },
             "test_scenarios": { "type": "array", "items": { "type": "string" } }
           }
+        },
+        "artifact-inspector-ui": {
+          "$ref": "#/$defs/artifactInspectorWorkflowProfile"
         }
       }
     },
@@ -148,6 +155,7 @@
         "marketing",
         "workbench",
         "operator_review",
+        "artifact_inspector",
         "form_flow",
         "dashboard_monitor",
         "content_report",
@@ -158,6 +166,7 @@
         "marketing": { "$ref": "#/$defs/surfaceType" },
         "workbench": { "$ref": "#/$defs/surfaceType" },
         "operator_review": { "$ref": "#/$defs/surfaceType" },
+        "artifact_inspector": { "$ref": "#/$defs/surfaceType" },
         "form_flow": { "$ref": "#/$defs/surfaceType" },
         "dashboard_monitor": { "$ref": "#/$defs/surfaceType" },
         "content_report": { "$ref": "#/$defs/surfaceType" },
@@ -294,6 +303,552 @@
         "purpose": { "type": "string" },
         "applies_when_most_true": { "type": "array", "items": { "type": "string" } },
         "do_not_use_when": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "nonEmptyStringSet": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "workflowGuardrail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "guidance"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "guidance": { "type": "string", "minLength": 1 }
+      }
+    },
+    "artifactInspectorWorkflowProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pattern_id",
+        "applies_when_most_true",
+        "do_not_use_when",
+        "guardrails",
+        "review_criteria",
+        "test_scenarios"
+      ],
+      "properties": {
+        "pattern_id": { "const": "artifact-inspector" },
+        "applies_when_most_true": { "$ref": "#/$defs/nonEmptyStringSet" },
+        "do_not_use_when": { "$ref": "#/$defs/nonEmptyStringSet" },
+        "guardrails": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/workflowGuardrail" }
+        },
+        "review_criteria": { "$ref": "#/$defs/nonEmptyStringSet" },
+        "test_scenarios": { "$ref": "#/$defs/nonEmptyStringSet" }
+      }
+    },
+    "artifactInspectorCanonicalIdentifiers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surface_type",
+        "workflow_profile",
+        "frontend_surface_profile",
+        "topology_kind"
+      ],
+      "properties": {
+        "surface_type": { "const": "artifact_inspector" },
+        "workflow_profile": { "const": "artifact-inspector-ui" },
+        "frontend_surface_profile": { "const": "judgmentkit.artifact-inspector.v1" },
+        "topology_kind": { "const": "artifact_centered" }
+      }
+    },
+    "artifactInspectorActivityEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mandatory", "positive", "exclusions"],
+      "properties": {
+        "mandatory": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "rendered_artifact_is_primary",
+              "locus_selection_required",
+              "support_context_is_locus_relative"
+            ]
+          }
+        },
+        "positive": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "rendered_artifact_is_primary",
+              "locus_selection_required",
+              "support_context_is_locus_relative",
+              "completion_is_artifact_local",
+              "direct_or_spatial_interaction_required",
+              "external_artifact_visual_authority"
+            ]
+          }
+        },
+        "exclusions": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "queue_or_case_is_primary",
+              "many_items_are_primary",
+              "open_ended_creation_is_primary",
+              "conversation_turns_are_primary",
+              "linear_reading_is_completion",
+              "monitoring_is_completion",
+              "configuration_is_completion"
+            ]
+          }
+        }
+      }
+    },
+    "artifactInspectorTransition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": {
+          "enum": [
+            "orient",
+            "select_locus",
+            "inspect_context",
+            "preview",
+            "validate",
+            "complete",
+            "verify_result",
+            "recover"
+          ]
+        },
+        "to": {
+          "enum": [
+            "orient",
+            "select_locus",
+            "inspect_context",
+            "preview",
+            "validate",
+            "complete",
+            "verify_result",
+            "recover"
+          ]
+        },
+        "when": { "type": "string", "minLength": 1 }
+      }
+    },
+    "artifactInspectorTopology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "primary_object_id",
+        "entry_work_unit_id",
+        "completion_work_unit_ids",
+        "transitions"
+      ],
+      "properties": {
+        "kind": { "const": "artifact_centered" },
+        "primary_object_id": { "const": "artifact" },
+        "entry_work_unit_id": { "const": "orient" },
+        "completion_work_unit_ids": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "enum": ["verify_result", "orient"] }
+        },
+        "transitions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/artifactInspectorTransition" },
+          "allOf": [
+            {
+              "contains": {
+                "type": "object",
+                "properties": { "to": { "const": "recover" } },
+                "required": ["to"]
+              }
+            },
+            {
+              "contains": {
+                "type": "object",
+                "properties": { "from": { "const": "recover" } },
+                "required": ["from"]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "artifactInspectorWorkUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "participant_intent", "system_responsibility"],
+      "properties": {
+        "id": {
+          "enum": [
+            "orient",
+            "select_locus",
+            "inspect_context",
+            "preview",
+            "validate",
+            "complete",
+            "verify_result",
+            "recover"
+          ]
+        },
+        "participant_intent": { "type": "string", "minLength": 1 },
+        "system_responsibility": { "type": "string", "minLength": 1 }
+      }
+    },
+    "artifactInspectorTargetModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_kinds",
+        "target_identity_sources",
+        "geometry_policy",
+        "label_sources",
+        "artifact_interactivity",
+        "native_interaction_precedence"
+      ],
+      "properties": {
+        "target_kinds": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": { "enum": ["whole_artifact", "element", "text_range", "region", "point"] }
+        },
+        "target_identity_sources": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "enum": ["artifact_supplied", "participant_selection"] }
+        },
+        "geometry_policy": { "type": "string", "minLength": 1 },
+        "label_sources": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": { "enum": ["artifact_supplied", "artifact_authorized_proxy", "Unavailable"] }
+        },
+        "artifact_interactivity": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": { "enum": ["static", "live", "hybrid"] }
+        },
+        "native_interaction_precedence": { "type": "string", "minLength": 1 }
+      }
+    },
+    "artifactInspectorCompositionVariant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "use_when"],
+      "properties": {
+        "id": {
+          "enum": [
+            "peripheral_anchors",
+            "contextual_tray",
+            "inline_annotation",
+            "inspection_lens",
+            "responsive_hybrid"
+          ]
+        },
+        "use_when": { "type": "string", "minLength": 1 }
+      }
+    },
+    "artifactInspectorStateGroups": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["core", "consequential", "reusable_guidance", "automation"],
+      "properties": {
+        "core": { "$ref": "#/$defs/nonEmptyStringSet" },
+        "consequential": { "$ref": "#/$defs/nonEmptyStringSet" },
+        "reusable_guidance": { "$ref": "#/$defs/nonEmptyStringSet" },
+        "automation": { "$ref": "#/$defs/nonEmptyStringSet" }
+      }
+    },
+    "designSystemScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope_id", "root_selector", "authority", "enforcement", "style_isolation"],
+      "properties": {
+        "scope_id": {
+          "enum": ["inspector_chrome", "inspection_overlay", "primary_artifact"]
+        },
+        "root_selector": { "type": "string", "minLength": 1 },
+        "authority": {
+          "enum": ["judgmentkit_default", "external_declared"]
+        },
+        "enforcement": {
+          "enum": ["required", "external_not_reviewed"]
+        },
+        "style_isolation": { "const": "required" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "scope_id": { "const": "inspector_chrome" } },
+            "required": ["scope_id"]
+          },
+          "then": {
+            "properties": {
+              "root_selector": { "const": "[data-jk-scope='inspector-chrome']" },
+              "authority": { "const": "judgmentkit_default" },
+              "enforcement": { "const": "required" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "scope_id": { "const": "inspection_overlay" } },
+            "required": ["scope_id"]
+          },
+          "then": {
+            "properties": {
+              "root_selector": { "const": "[data-jk-scope='inspection-overlay']" },
+              "authority": { "const": "judgmentkit_default" },
+              "enforcement": { "const": "required" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "scope_id": { "const": "primary_artifact" } },
+            "required": ["scope_id"]
+          },
+          "then": {
+            "properties": {
+              "root_selector": { "const": "[data-artifact-root]" },
+              "authority": { "const": "external_declared" },
+              "enforcement": { "const": "external_not_reviewed" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "authority": { "const": "judgmentkit_default" } },
+            "required": ["authority"]
+          },
+          "then": { "properties": { "enforcement": { "const": "required" } } }
+        },
+        {
+          "if": {
+            "properties": { "authority": { "const": "external_declared" } },
+            "required": ["authority"]
+          },
+          "then": { "properties": { "enforcement": { "const": "external_not_reviewed" } } }
+        }
+      ]
+    },
+    "artifactInspectorScopeSet": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/designSystemScope" },
+      "allOf": [
+        { "contains": { "type": "object", "properties": { "scope_id": { "const": "inspector_chrome" } }, "required": ["scope_id"] } },
+        { "contains": { "type": "object", "properties": { "scope_id": { "const": "inspection_overlay" } }, "required": ["scope_id"] } },
+        { "contains": { "type": "object", "properties": { "scope_id": { "const": "primary_artifact" } }, "required": ["scope_id"] } }
+      ]
+    },
+    "boundaryContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_scope", "to_scope", "allowed_roles", "event_contract_required"],
+      "properties": {
+        "from_scope": { "const": "inspection_overlay" },
+        "to_scope": { "const": "primary_artifact" },
+        "allowed_roles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["locus_target", "annotation_overlay", "connector_endpoint"] }
+        },
+        "event_contract_required": { "const": true }
+      }
+    },
+    "artifactInspectorDesignSystemRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scopes", "boundary_contracts", "component_roles"],
+      "properties": {
+        "scopes": { "$ref": "#/$defs/artifactInspectorScopeSet" },
+        "boundary_contracts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/boundaryContract" }
+        },
+        "component_roles": {
+          "type": "array",
+          "minItems": 17,
+          "maxItems": 17,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "ArtifactViewport",
+              "ArtifactBoundary",
+              "ArtifactStatus",
+              "ObservationMarker",
+              "LocusSelection",
+              "ContextAnchor",
+              "AuthorityAnchor",
+              "AnchorRail",
+              "RelationPreview",
+              "RelationConnector",
+              "InlineReason",
+              "ContextTray",
+              "CommitBoundary",
+              "ReceiptMarker",
+              "BackAction",
+              "ResetAction",
+              "ZoomAndPanControls"
+            ]
+          }
+        }
+      }
+    },
+    "artifactInspectorDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "meaning"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^JK_ARTIFACT_INSPECTOR_[A-Z0-9_]+$"
+        },
+        "meaning": { "type": "string", "minLength": 1 }
+      }
+    },
+    "artifactInspectorRecommendationOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_id",
+        "primary_structure",
+        "density",
+        "navigation_shape"
+      ],
+      "properties": {
+        "profile_id": { "const": "artifact-inspector-ui" },
+        "primary_structure": {
+          "const": "persistent artifact, selectable loci, contextual support, local feedback, and artifact-local completion"
+        },
+        "density": { "const": "artifact-first contextual" },
+        "navigation_shape": {
+          "const": "artifact persistent; supporting context revealed from the active locus"
+        }
+      }
+    },
+    "artifactInspectorRegistry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "status",
+        "canonical_identifiers",
+        "recommendation_output",
+        "activity_evidence",
+        "topology",
+        "work_units",
+        "target_model",
+        "composition_variants",
+        "state_groups",
+        "design_system",
+        "diagnostics"
+      ],
+      "properties": {
+        "id": { "const": "artifact_inspector" },
+        "version": { "const": "1.0.0" },
+        "status": { "const": "proposed" },
+        "canonical_identifiers": { "$ref": "#/$defs/artifactInspectorCanonicalIdentifiers" },
+        "recommendation_output": { "$ref": "#/$defs/artifactInspectorRecommendationOutput" },
+        "activity_evidence": { "$ref": "#/$defs/artifactInspectorActivityEvidence" },
+        "topology": { "$ref": "#/$defs/artifactInspectorTopology" },
+        "work_units": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/artifactInspectorWorkUnit" }
+        },
+        "target_model": { "$ref": "#/$defs/artifactInspectorTargetModel" },
+        "composition_variants": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/artifactInspectorCompositionVariant" }
+        },
+        "state_groups": { "$ref": "#/$defs/artifactInspectorStateGroups" },
+        "design_system": { "$ref": "#/$defs/artifactInspectorDesignSystemRegistry" },
+        "diagnostics": {
+          "type": "array",
+          "minItems": 29,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/artifactInspectorDiagnostic" }
+        }
+      }
+    },
+    "interactionModels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_inspector"],
+      "properties": {
+        "artifact_inspector": { "$ref": "#/$defs/artifactInspectorRegistry" }
+      }
+    },
+    "artifactInspectorImplementationContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registry_id",
+        "registry_version",
+        "surface_type",
+        "workflow_profile",
+        "frontend_surface_profile",
+        "topology_kind",
+        "active_state_groups",
+        "state_groups",
+        "trusted_runtime_evidence_required",
+        "external_artifact_review_status"
+      ],
+      "properties": {
+        "registry_id": { "const": "artifact_inspector" },
+        "registry_version": { "const": "1.0.0" },
+        "surface_type": { "const": "artifact_inspector" },
+        "workflow_profile": { "const": "artifact-inspector-ui" },
+        "frontend_surface_profile": { "const": "judgmentkit.artifact-inspector.v1" },
+        "topology_kind": { "const": "artifact_centered" },
+        "active_state_groups": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["core", "consequential", "reusable_guidance", "automation"] },
+          "contains": { "const": "core" }
+        },
+        "state_groups": { "$ref": "#/$defs/artifactInspectorStateGroups" },
+        "trusted_runtime_evidence_required": { "const": true },
+        "external_artifact_review_status": { "const": "external_not_reviewed" }
       }
     },
     "visualTokenRole": {
@@ -1201,6 +1756,14 @@
           }
         },
         "design_system_source": { "$ref": "#/$defs/designSystemSource" },
+        "design_system_scopes": { "$ref": "#/$defs/artifactInspectorScopeSet" },
+        "boundary_contracts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/boundaryContract" }
+        },
+        "artifact_inspector": { "$ref": "#/$defs/artifactInspectorImplementationContract" },
         "local_component_authority": {
           "type": "object",
           "additionalProperties": false,
@@ -1504,6 +2067,30 @@
             "properties": {
               "visual_composition_policy_authority": {
                 "const": "external_design_system_adapter"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "anyOf": [
+              { "required": ["design_system_scopes"] },
+              { "required": ["boundary_contracts"] },
+              { "required": ["artifact_inspector"] }
+            ]
+          },
+          "then": {
+            "required": ["design_system_scopes", "boundary_contracts", "artifact_inspector"]
+          }
+        },
+        {
+          "if": { "required": ["artifact_inspector"] },
+          "then": {
+            "properties": {
+              "design_system_source": {
+                "type": "object",
+                "properties": { "mode": { "const": "judgmentkit_default" } },
+                "required": ["mode"]
               }
             }
           }

@@ -2238,7 +2238,7 @@ assert.ok(
     'data-surface-presentation-profile="judgmentkit.workbench.operational-v1"',
   ),
 );
-assert.ok(designSystemPatterns.includes("Supported surface presentation profiles"));
+assert.ok(designSystemPatterns.includes("Surface presentation profiles"));
 assert.ok(designSystemPatterns.includes('data-specimen-id="pattern.workbench"'));
 assert.ok(designSystemPatterns.includes('data-pattern-region="work-queue"'));
 assert.ok(designSystemPatterns.includes('data-pattern-control="decision-action"'));
@@ -2581,8 +2581,11 @@ assert.deepEqual(
   surfacePresentationProfilesExport.profiles,
   listSurfacePresentationProfiles(),
 );
-assert.equal(surfacePresentationProfilesExport.profiles.length, 1);
-const workbenchPresentationProfile = surfacePresentationProfilesExport.profiles[0];
+assert.equal(surfacePresentationProfilesExport.profiles.length, 2);
+const workbenchPresentationProfile = surfacePresentationProfilesExport.profiles.find(
+  (entry) => entry.id === "judgmentkit.workbench.operational-v1",
+);
+assert.ok(workbenchPresentationProfile);
 assert.equal(workbenchPresentationProfile.id, "judgmentkit.workbench.operational-v1");
 assert.equal(workbenchPresentationProfile.status, "supported");
 assert.equal(workbenchPresentationProfile.surface_type, "workbench");
@@ -2596,6 +2599,23 @@ assert.ok(
       entry.surface_type === workbenchPresentationProfile.surface_type,
   ),
   "the supported Workbench presentation profile must bind to the public Workbench pattern contract",
+);
+const artifactInspectorPresentationProfile =
+  surfacePresentationProfilesExport.profiles.find(
+    (entry) => entry.id === "judgmentkit.artifact-inspector.v1",
+  );
+assert.ok(artifactInspectorPresentationProfile);
+assert.equal(artifactInspectorPresentationProfile.status, "proposed");
+assert.equal(artifactInspectorPresentationProfile.surface_type, "artifact_inspector");
+assert.equal(artifactInspectorPresentationProfile.authority.public_contract, true);
+assert.equal(artifactInspectorPresentationProfile.authority.runtime_renderer, false);
+assert.equal(
+  artifactInspectorPresentationProfile.authority.pattern_contract_id,
+  "artifact-inspector",
+);
+assert.equal(
+  artifactInspectorPresentationProfile.provenance.external_artifact_review_status,
+  "external_not_reviewed",
 );
 assert.equal(componentSpecimensExport.source, "judgmentkit.ai-native-default.contract-v1");
 assert.equal(componentSpecimensExport.renderer.id, "judgmentkit-static-specimens");

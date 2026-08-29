@@ -279,8 +279,8 @@ assert.ok(
 assert.equal(
   contract.implementation_contract.default_ai_native_design_system.component_contracts
     .length,
-  17,
-  "The default AI-native system must include core UI component contracts.",
+  34,
+  "The default AI-native system must include the 17 legacy contracts and 17 Artifact Inspector contracts.",
 );
 assert.ok(
   contract.implementation_contract.default_ai_native_design_system.component_contracts.some(
@@ -425,7 +425,7 @@ assert.deepEqual(
 assert.equal(
   contract.implementation_contract.default_ai_native_design_system.pattern_contracts
     .length,
-  8,
+  9,
   "The default AI-native system must include one pattern contract per surface type.",
 );
 assert.ok(
@@ -1211,6 +1211,7 @@ assert.deepEqual(contract.workflow.topology_policy.allowed_topologies, [
   "dashboard",
   "report",
   "conversation",
+  "artifact_centered",
 ]);
 assert.equal(contract.workflow.topology_policy.preferred_default, "workspace");
 assert.equal(
@@ -1255,6 +1256,7 @@ assert.deepEqual(Object.keys(contract.surface_types), [
   "marketing",
   "workbench",
   "operator_review",
+  "artifact_inspector",
   "form_flow",
   "dashboard_monitor",
   "content_report",
