@@ -1097,20 +1097,31 @@
 }
 
 .jk-dialog__dismiss {
-  min-block-size: 2.5rem;
+  display: grid;
+  inline-size: 2.75rem;
+  min-inline-size: 2.75rem;
+  block-size: 2.75rem;
+  min-block-size: 2.75rem;
   flex: 0 0 auto;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--jk-component-border);
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
   border-radius: var(--jk-component-radius);
-  background: var(--jk-component-surface);
+  background: transparent;
   color: var(--jk-component-text);
   font: inherit;
-  font-weight: 650;
   cursor: pointer;
 }
 
 .jk-dialog__dismiss:hover:not(:disabled) {
-  filter: brightness(0.94);
+  border-color: var(--jk-component-border);
+  background: var(--jk-component-surface);
+}
+
+.jk-dialog__dismiss-icon {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  pointer-events: none;
 }
 
 .jk-dialog__dismiss:disabled {

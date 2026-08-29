@@ -176,8 +176,8 @@ assert.equal(
 assert.equal(
   scenariosForComponent("menu").find((entry) => entry.state === "ready")
     .fixture.default_open,
-  true,
-  "the ready menu fixture must expose its keyboard-operable command list",
+  false,
+  "the ready menu fixture must not steal focus or cover adjacent specimens on load",
 );
 assert.equal(
   scenariosForComponent("dialog").every(
@@ -298,10 +298,9 @@ assert.equal(
 );
 
 assert.match(markupByComponent.get("menu"), /aria-haspopup="menu"/u);
-assert.match(markupByComponent.get("menu"), /role="menu"/u);
-assert.match(markupByComponent.get("menu"), /role="menuitem"/u);
-assert.match(markupByComponent.get("menu"), />Open receipt</u);
-assert.match(markupByComponent.get("menu"), />Assign policy review</u);
+assert.match(markupByComponent.get("menu"), />Refund commands</u);
+assert.doesNotMatch(markupByComponent.get("menu"), /role="menu"/u);
+assert.doesNotMatch(markupByComponent.get("menu"), /role="menuitem"/u);
 assert.equal(
   [...markupByComponent.get("menu").matchAll(/data-scenario-interaction-count=/gu)]
     .length,
@@ -311,7 +310,9 @@ assert.equal(
 assert.match(markupByComponent.get("dialog"), /<dialog\b/u);
 assert.match(markupByComponent.get("dialog"), />Review refund handoff</u);
 assert.match(markupByComponent.get("dialog"), />Confirm refund handoff</u);
-assert.match(markupByComponent.get("dialog"), />Cancel handoff</u);
+assert.match(markupByComponent.get("dialog"), /aria-label="Cancel handoff"/u);
+assert.match(markupByComponent.get("dialog"), /data-jk-icon="x"/u);
+assert.doesNotMatch(markupByComponent.get("dialog"), />Cancel handoff</u);
 assert.match(markupByComponent.get("dialog"), /data-scenario-dialog-trigger="true"/u);
 assert.equal(
   [...markupByComponent.get("dialog").matchAll(/data-scenario-interaction-count=/gu)]

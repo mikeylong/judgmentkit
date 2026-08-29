@@ -437,7 +437,7 @@ export const RUNTIME_COMPONENT_SCENARIOS = Object.freeze([
   scenario("menu", "ready", {
     label: "Refund commands",
     menu_label: "Commands for refund RF-1842",
-    default_open: true,
+    default_open: false,
     counter_label: "Commands chosen",
   }),
   scenario("menu", "disabled", {

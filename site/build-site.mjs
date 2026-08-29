@@ -3247,9 +3247,6 @@ pre {
 .jk-component-scenario__control {
   min-width: 0;
 }
-.jk-component-scenario__control:has(.jk-menu[data-jk-open="true"]) {
-  min-block-size: 13rem;
-}
 .jk-component-scenario__description,
 .jk-component-scenario__interaction {
   margin: 0;

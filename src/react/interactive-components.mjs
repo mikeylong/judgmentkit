@@ -672,6 +672,28 @@ function focusFirstDialogControl(dialog, preferredRef) {
   (target ?? dialog).focus();
 }
 
+function DialogDismissIcon() {
+  return h(
+    "svg",
+    {
+      className: "jk-dialog__dismiss-icon",
+      width: 24,
+      height: 24,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      stroke: "currentColor",
+      strokeWidth: 2,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      focusable: "false",
+      "aria-hidden": "true",
+      "data-jk-icon": "x",
+    },
+    h("path", { d: "M18 6 6 18" }),
+    h("path", { d: "m6 6 12 12" }),
+  );
+}
+
 /** Present a bounded blocking decision using the native dialog element. */
 export function Dialog({
   id,
@@ -718,6 +740,7 @@ export function Dialog({
   const priorFocusRef = useRef(null);
   const isOpenRef = useRef(isOpen);
   const restorePendingRef = useRef(false);
+  const restoreCompletedRef = useRef(false);
   const reconciledCloseEventsRef = useRef(0);
   const controlledRef = useRef(controlled);
   const dismissibleRef = useRef(dismissible);
@@ -738,6 +761,10 @@ export function Dialog({
   onCloseRef.current = onClose;
   const baseState = errorMessage ? "error" : isLoading ? "loading" : "ready";
   const resolvedState = focus.focusVisible ? "focus-visible" : baseState;
+  const resolvedDismissLabel =
+    typeof dismissLabel === "string" && dismissLabel.trim()
+      ? dismissLabel.trim()
+      : "Close";
 
   function setOpen(nextOpen, reason, event) {
     if (!controlled) {
@@ -747,7 +774,7 @@ export function Dialog({
   }
 
   function requestFocusRestore() {
-    if (restorePendingRef.current) return;
+    if (restorePendingRef.current || restoreCompletedRef.current) return;
     const target = returnFocusRefProp.current?.current ?? priorFocusRef.current;
     if (!target) return;
     restorePendingRef.current = true;
@@ -755,9 +782,12 @@ export function Dialog({
       ((callback) => setTimeout(callback, 0));
     requestFrame(() => {
       restorePendingRef.current = false;
+      if (restoreCompletedRef.current) return;
       const dialog = dialogRef.current;
       if (!dialog || !dialog.open || !isOpenRef.current) {
         target.focus?.();
+        restoreCompletedRef.current =
+          !target.ownerDocument || target.ownerDocument.activeElement === target;
       }
     });
   }
@@ -846,6 +876,7 @@ export function Dialog({
     if (!dialog) return;
 
     if (isOpen) {
+      restoreCompletedRef.current = false;
       if (typeof document !== "undefined" && !dialog.open) {
         priorFocusRef.current = document.activeElement;
       }
@@ -863,6 +894,14 @@ export function Dialog({
         reconciledCloseEventsRef.current += 1;
         try {
           dialog.close();
+          const target =
+            returnFocusRefProp.current?.current ?? priorFocusRef.current;
+          if (
+            target?.ownerDocument &&
+            target.ownerDocument.activeElement === target
+          ) {
+            restoreCompletedRef.current = true;
+          }
         } catch (error) {
           reconciledCloseEventsRef.current -= 1;
           throw error;
@@ -925,10 +964,10 @@ export function Dialog({
               className: "jk-dialog__dismiss",
               type: "button",
               disabled: isLoading || undefined,
-              "aria-label": dismissLabel,
+              "aria-label": resolvedDismissLabel,
               onClick: (event) => requestDismiss("dismiss-button", event),
             },
-            dismissLabel,
+            h(DialogDismissIcon),
           )
         : null,
     ),
