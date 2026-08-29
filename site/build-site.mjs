@@ -1103,15 +1103,6 @@ const stylesheet = `
   --modal-backdrop-bg: rgba(20, 28, 31, 0.72);
   --modal-media-stage-bg: #10181b;
   --report-toc-bg: rgba(255, 255, 255, 0.72);
-  --report-video-bg: #f3f1ea;
-  --report-video-copy-bg: rgba(255, 255, 255, 0.76);
-  --report-video-hero-bg:
-    linear-gradient(135deg, rgba(36, 95, 115, 0.16), rgba(46, 107, 72, 0.1)),
-    var(--report-video-bg);
-  --report-video-grid-bg:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0)),
-    repeating-linear-gradient(90deg, rgba(19, 63, 78, 0.12) 0 1px, transparent 1px 18px);
-  --report-video-play-bg: rgba(19, 63, 78, 0.92);
   --report-chart-grid: rgba(23, 23, 23, 0.1);
   --system-map-bg: #fbfaf6;
   --system-map-zone-bg: rgba(255, 255, 255, 0.78);
@@ -1175,8 +1166,6 @@ const stylesheet = `
     --homepage-film-control-border-hover: color-mix(in srgb, var(--fixed-light-ink) 64%, transparent);
     --homepage-film-control-shadow: color-mix(in srgb, var(--hero-art-bg) 18%, transparent);
     --report-toc-bg: rgba(24, 29, 27, 0.88);
-    --report-video-bg: #141b19;
-    --report-video-copy-bg: rgba(24, 29, 27, 0.88);
     --report-chart-grid: rgba(242, 244, 239, 0.12);
     --system-map-bg: #151a18;
     --system-map-zone-bg: rgba(24, 29, 27, 0.82);
@@ -4058,83 +4047,6 @@ pre {
 .report-article ul,
 .report-article ol {
   max-width: 760px;
-}
-.report-video {
-  position: relative;
-  width: min(100%, 1040px);
-  margin: clamp(24px, 4vw, 42px) auto;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-  border-radius: 8px;
-  background: var(--report-video-hero-bg);
-}
-.report-layout > .report-video {
-  margin: 0;
-}
-.report-video-hero {
-  box-shadow: 0 18px 46px rgba(23, 23, 23, 0.12);
-}
-.report-video-grid {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  opacity: 0.46;
-}
-.report-video-grid span {
-  border-right: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
-  background: var(--report-video-grid-bg);
-}
-.report-video-poster {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  gap: 12px;
-  width: 100%;
-  border: 0;
-  background: transparent;
-  color: var(--ink);
-  font: inherit;
-}
-.report-video-poster:disabled {
-  cursor: default;
-}
-.report-video-play {
-  display: grid;
-  width: clamp(48px, 6vw, 68px);
-  height: clamp(48px, 6vw, 68px);
-  place-items: center;
-  border-radius: 999px;
-  background: var(--report-video-play-bg);
-}
-.report-video-play::before {
-  content: "";
-  width: 0;
-  height: 0;
-  margin-left: 4px;
-  border-top: 11px solid transparent;
-  border-bottom: 11px solid transparent;
-  border-left: 17px solid var(--fixed-light-ink);
-}
-.report-video-copy {
-  display: grid;
-  gap: 4px;
-  max-width: min(560px, calc(100% - 40px));
-  padding: 12px 14px;
-  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
-  border-radius: 8px;
-  background: var(--report-video-copy-bg);
-  text-align: center;
-}
-.report-video-copy strong {
-  font-size: clamp(17px, 2vw, 22px);
-}
-.report-video-copy small {
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 750;
 }
 .report-capability-grid,
 .report-use-case-grid {
@@ -8788,22 +8700,6 @@ function benchmarkWinnerLabel(winner) {
   return winner ?? "";
 }
 
-function videoPlaceholder(label, detail, modifier = "") {
-  return `
-    <div class="report-video ${modifier}" role="img" aria-label="${escapeHtml(label)}">
-      <div class="report-video-grid" aria-hidden="true">
-        <span></span><span></span><span></span><span></span>
-      </div>
-      <button class="report-video-poster" type="button" disabled aria-label="${escapeHtml(label)}">
-        <span class="report-video-play" aria-hidden="true"></span>
-        <span class="report-video-copy">
-          <strong>${escapeHtml(label)}</strong>
-          <small>${escapeHtml(detail)}</small>
-        </span>
-      </button>
-    </div>`;
-}
-
 function renderMetricCard(label, value, detail = "") {
   return `
     <div>
@@ -9047,9 +8943,6 @@ async function judgmentKitMcpReportPage() {
     "Qualitative paired-artifact evidence only; not a statistically powered benchmark.";
   const claimLevel = latestReport?.claim_level ?? latest?.claim_level ?? "pending";
   const modelUseCases = modelUiIndex?.use_cases ?? [];
-  const defaultMatrixDimensions =
-    `${defaultManifest?.comparison_rows?.length ?? 0} by ${defaultManifest?.comparison_columns?.length ?? 0}`;
-
   if (!latestReport || benchmarkCases.length === 0) {
     return page(
       "Activity-First UI Generation Evidence",
@@ -9059,7 +8952,6 @@ async function judgmentKitMcpReportPage() {
         <div class="report-article">
           <p class="eyebrow">UI paired-artifact evidence</p>
           <h1>Activity-First UI Generation Evidence</h1>
-          ${videoPlaceholder("Report video placeholder", "Top-level overview video slot.")}
           <p class="lede">No committed paired eval report is available in this checkout. The report route is ready, but benchmark figures require the latest UI-generation eval catalog.</p>
           <p class="note">${escapeHtml(benchmarkPolicy)}</p>
         </div>
@@ -9083,7 +8975,6 @@ async function judgmentKitMcpReportPage() {
         <h1>Activity-First UI Generation Evidence</h1>
         <p class="lede">A cautious public report on a small UI paired-artifact rerun. It compares committed baseline and JudgmentKit-guided UI artifacts; it is not an MCP pilot status page or a statistically powered benchmark.</p>
       </div>
-      ${videoPlaceholder("UI paired-artifact report overview", "Hero video placeholder for the benchmark report walkthrough.", "report-video-hero")}
       <div class="report-shell">
         <nav class="report-toc" aria-label="Report table of contents">
           <a href="#ui-generation-bottleneck">The UI generation bottleneck</a>
@@ -9117,7 +9008,6 @@ async function judgmentKitMcpReportPage() {
                 <p>Implementation detail remains diagnostic unless the activity is setup, debugging, or audit.</p>
               </article>
             </div>
-            ${videoPlaceholder("Raw-to-guided generation placeholder", "Inline video slot for showing the before and after generation path.")}
             <figure class="report-system-figure">
               <figcaption>Compact activity-first generation flow.</figcaption>
               <ol>
@@ -9154,16 +9044,14 @@ async function judgmentKitMcpReportPage() {
           <section id="example-evidence">
             <h2>Example evidence</h2>
             <p>The model UI matrices separate the source context from JudgmentKit guidance and Material UI rendering. The visible matrix below uses ${escapeHtml(defaultManifest?.use_case_label ?? "the default use case")} as a compact example; the full set covers every committed use case.</p>
-            ${videoPlaceholder("Disclosure cleanup placeholder", "Inline video slot for showing implementation detail moving into diagnostics.")}
             ${renderContextBoundaryMatrix(defaultManifest)}
             <h3>Committed use cases</h3>
             ${renderUseCaseSummary(modelUseCases)}
-            ${videoPlaceholder("Model matrix walkthrough placeholder", `Inline video slot for narrating the ${defaultMatrixDimensions} matrix evidence.`)}
           </section>
           <section id="limitations-and-future-work">
             <h2>Limitations and future work</h2>
             <p>This report is intentionally narrow. It uses committed paired artifacts and committed model matrix captures. It does not claim broad model behavior, does not call live providers during site build, does not claim MCP pilot pass/fail status, and does not treat visual polish as proof of activity fit.</p>
-            <p>Future versions can add broader MCP impact runs, more surface types, reviewer agreement, richer interaction probes, and completed walkthrough videos without changing this page structure.</p>
+            <p>Future versions can add broader MCP impact runs, more surface types, reviewer agreement, and richer interaction probes.</p>
           </section>
           <section id="run-data">
             <h2>Run data</h2>

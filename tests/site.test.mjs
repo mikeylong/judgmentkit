@@ -88,9 +88,6 @@ const APPEARANCE_INVARIANT_SITE_TOKENS = [
   "--hero-art-overlay",
   "--modal-backdrop-bg",
   "--modal-media-stage-bg",
-  "--report-video-grid-bg",
-  "--report-video-hero-bg",
-  "--report-video-play-bg",
   "--section-rail-top",
   "--site-gutter",
   "--site-navigation-height",
@@ -477,14 +474,12 @@ assert.ok(siteCss.includes("--step-marker-bg: #a9d7e4;"));
 assert.ok(siteCss.includes("--step-marker-ink: #101312;"));
 assert.ok(siteCss.includes("--menu-item-bg: #181d1b;"));
 assert.ok(siteCss.includes("--report-toc-bg: rgba(24, 29, 27, 0.88);"));
-assert.ok(siteCss.includes("--report-video-bg: #141b19;"));
 assert.ok(siteCss.includes("--system-map-bg: #151a18;"));
 assert.ok(siteCss.includes("background: var(--step-marker-bg);"));
 assert.ok(siteCss.includes("color: var(--step-marker-ink);"));
 assert.ok(siteCss.includes("background-color: var(--menu-item-bg);"));
 assert.ok(siteCss.includes("background: var(--soft-surface);"));
 assert.ok(siteCss.includes("background: var(--report-toc-bg);"));
-assert.ok(siteCss.includes("background: var(--report-video-copy-bg);"));
 assert.ok(siteCss.includes("background: var(--system-map-bg);"));
 assert.deepEqual(
   rawConsumerThemeDeclarations(siteCss),
@@ -3685,10 +3680,22 @@ assert.ok(mcpReport.includes("UI paired-artifact evidence"));
 assert.ok(mcpReport.includes("not an MCP pilot status page"));
 assert.ok(mcpReport.includes("Qualitative paired-artifact evidence"));
 assert.ok(mcpReport.includes("not a statistically powered benchmark"));
-assert.ok(mcpReport.includes("UI paired-artifact report overview"));
-assert.ok(mcpReport.includes("Raw-to-guided generation placeholder"));
-assert.ok(mcpReport.includes("Disclosure cleanup placeholder"));
-assert.ok(mcpReport.includes("Model matrix walkthrough placeholder"));
+for (const unfinishedMediaMarker of [
+  'class="report-video',
+  "Report video placeholder",
+  "UI paired-artifact report overview",
+  "Raw-to-guided generation placeholder",
+  "Disclosure cleanup placeholder",
+  "Model matrix walkthrough placeholder",
+  "Inline video slot",
+  "completed walkthrough videos",
+]) {
+  assert.equal(
+    mcpReport.includes(unfinishedMediaMarker),
+    false,
+    `the public report should not publish unfinished media UI: ${unfinishedMediaMarker}`,
+  );
+}
 assert.ok(mcpReport.includes('class="report-toc" aria-label="Report table of contents"'));
 assert.ok(mcpReport.includes('href="#ui-generation-bottleneck"'));
 assert.ok(mcpReport.includes('href="#what-judgmentkit-changes"'));
@@ -3754,7 +3761,8 @@ assert.ok(mcpReport.includes('class="site-shell report-layout"'));
 assert.ok(siteCss.includes(".report-page"));
 assert.ok(siteCss.includes(".report-page {\n  padding-top: var(--site-page-top);\n  font-family: var(--eval-serif);"));
 assert.ok(siteCss.includes(".report-layout {\n  display: grid;\n  gap: clamp(34px, 5vw, 64px);"));
-assert.ok(siteCss.includes(".report-video"));
+assert.equal(siteCss.includes(".report-video"), false, "removed report media scaffolding should not retain dead CSS");
+assert.equal(siteCss.includes("--report-video-"), false, "removed report media scaffolding should not retain dead tokens");
 assert.ok(siteCss.includes(".report-score-chart"));
 assert.ok(siteCss.includes(".report-context-matrix"));
 assert.ok(siteCss.includes(".report-context-cell-diagnostic"));
