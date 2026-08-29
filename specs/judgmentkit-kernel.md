@@ -31,6 +31,7 @@ Help an agent generate or critique UI that is relevant, succinct, and appropriat
 - Do not make JudgmentKit a cleaner-output aesthetic wrapper.
 - Do not make JudgmentKit a prompt catalog or schema browser.
 - Do not copy JudgmentKit v1 source, docs, contracts, or examples into this kernel.
+- Do not let the optional React component adapter replace activity, interaction, disclosure, implementation, browser, or accessibility gates.
 
 ## Contract Stack
 
@@ -39,6 +40,8 @@ Help an agent generate or critique UI that is relevant, succinct, and appropriat
 3. Disclosure Policy
 4. Judgment Example
 5. Optional visual-system adapter
+
+The `judgmentkit/react` pilot sits downstream of this stack under the active design-system source. It is optional presentation infrastructure, not a kernel layer, product-state owner, or fallback for an external design system.
 
 ## First Acceptance Test
 

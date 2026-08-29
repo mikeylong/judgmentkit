@@ -1,0 +1,1041 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "component_library_pilot_evidence",
+  "candidate": false,
+  "run_id": "component-pilot-browser-2026-08-28T20:02:23.987Z",
+  "generated_at": "2026-08-28T20:02:23.987Z",
+  "browser_version": "Chrome/152.0.7977.65",
+  "browser_get_version": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/152.0.7977.65",
+    "revision": "@fc4d67f1788019a27e32511137ceccbd2fafdaaa",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36",
+    "jsVersion": "15.2.124.18"
+  },
+  "package_status": "pass",
+  "automated_accessibility_status": "pass",
+  "reviewer_receipt": {
+    "path": "docs/evidence/component-library-pilot-accessibility-2026-08-28.md",
+    "status": "pass",
+    "hash": "sha256:78555c5d9524ea0bdea05f1e77a54a8a51c7bb686d4dac65de2935e1a230cea8"
+  },
+  "required_viewports": [
+    "1365x900",
+    "390x844"
+  ],
+  "required_appearances": [
+    "light",
+    "dark"
+  ],
+  "presentation_count": 80,
+  "scenario_count": 20,
+  "contract_hashes": {
+    "action_button": "sha256:65ff0e771384635b488735bb634702a8bcb64c0e306101823638aa9265d16ec2",
+    "form_field": "sha256:937019114f8389a1837300bf49d0174d02c2584bcb92d055506a75d9acb5cd85",
+    "text_field": "sha256:9b9f48aedec0ee773af6a3df7d81582609cf44be7b6777cbd8cc2926aed39aa6",
+    "toggle": "sha256:b73eef734a2ea1416bc6974fc1118fa4b85c5a66f84c355cd449ce854c904be9",
+    "status_message": "sha256:d56c305dd57038d63f87d205942cd6036405df7f94e24ce85c7344d63d4d4299"
+  },
+  "implementation_hashes": {
+    "action_button": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+    "form_field": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+    "text_field": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+    "toggle": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+    "status_message": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508"
+  },
+  "network_isolation": {
+    "policy": "unreachable_loopback_proxy_with_explicit_loopback_bypass",
+    "local_origin": "http://127.0.0.1:65526",
+    "external_network": "blocked",
+    "receipts": [
+      {
+        "viewport": "1365x900",
+        "appearance": "light",
+        "origin": "http://127.0.0.1:65526",
+        "external_request_blocked": true,
+        "isolation": "unreachable_loopback_proxy_with_explicit_loopback_bypass"
+      },
+      {
+        "viewport": "1365x900",
+        "appearance": "dark",
+        "origin": "http://127.0.0.1:65526",
+        "external_request_blocked": true,
+        "isolation": "unreachable_loopback_proxy_with_explicit_loopback_bypass"
+      },
+      {
+        "viewport": "390x844",
+        "appearance": "light",
+        "origin": "http://127.0.0.1:65526",
+        "external_request_blocked": true,
+        "isolation": "unreachable_loopback_proxy_with_explicit_loopback_bypass"
+      },
+      {
+        "viewport": "390x844",
+        "appearance": "dark",
+        "origin": "http://127.0.0.1:65526",
+        "external_request_blocked": true,
+        "isolation": "unreachable_loopback_proxy_with_explicit_loopback_bypass"
+      }
+    ]
+  },
+  "appearance_receipts": [
+    {
+      "viewport": "1365x900",
+      "appearance": "light",
+      "fingerprint": [
+        {
+          "selector": ".jk-text-field",
+          "color": "rgb(23, 23, 23)",
+          "backgroundColor": "rgb(248, 247, 242)",
+          "borderColor": "rgb(215, 211, 200)"
+        },
+        {
+          "selector": ".jk-action-button",
+          "color": "rgb(248, 247, 242)",
+          "backgroundColor": "rgb(36, 95, 115)",
+          "borderColor": "rgb(36, 95, 115)"
+        },
+        {
+          "selector": ".jk-status-message",
+          "color": "rgb(23, 23, 23)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "borderColor": "rgb(215, 211, 200) rgb(215, 211, 200) rgb(215, 211, 200) rgb(35, 97, 95)"
+        }
+      ]
+    },
+    {
+      "viewport": "1365x900",
+      "appearance": "dark",
+      "fingerprint": [
+        {
+          "selector": ".jk-text-field",
+          "color": "rgb(242, 244, 239)",
+          "backgroundColor": "rgb(16, 19, 18)",
+          "borderColor": "rgb(57, 66, 63)"
+        },
+        {
+          "selector": ".jk-action-button",
+          "color": "rgb(16, 19, 18)",
+          "backgroundColor": "rgb(125, 182, 199)",
+          "borderColor": "rgb(125, 182, 199)"
+        },
+        {
+          "selector": ".jk-status-message",
+          "color": "rgb(242, 244, 239)",
+          "backgroundColor": "rgb(24, 29, 27)",
+          "borderColor": "rgb(57, 66, 63) rgb(57, 66, 63) rgb(57, 66, 63) rgb(128, 203, 199)"
+        }
+      ]
+    },
+    {
+      "viewport": "390x844",
+      "appearance": "light",
+      "fingerprint": [
+        {
+          "selector": ".jk-text-field",
+          "color": "rgb(23, 23, 23)",
+          "backgroundColor": "rgb(248, 247, 242)",
+          "borderColor": "rgb(215, 211, 200)"
+        },
+        {
+          "selector": ".jk-action-button",
+          "color": "rgb(248, 247, 242)",
+          "backgroundColor": "rgb(36, 95, 115)",
+          "borderColor": "rgb(36, 95, 115)"
+        },
+        {
+          "selector": ".jk-status-message",
+          "color": "rgb(23, 23, 23)",
+          "backgroundColor": "rgb(255, 255, 255)",
+          "borderColor": "rgb(215, 211, 200) rgb(215, 211, 200) rgb(215, 211, 200) rgb(35, 97, 95)"
+        }
+      ]
+    },
+    {
+      "viewport": "390x844",
+      "appearance": "dark",
+      "fingerprint": [
+        {
+          "selector": ".jk-text-field",
+          "color": "rgb(242, 244, 239)",
+          "backgroundColor": "rgb(16, 19, 18)",
+          "borderColor": "rgb(57, 66, 63)"
+        },
+        {
+          "selector": ".jk-action-button",
+          "color": "rgb(16, 19, 18)",
+          "backgroundColor": "rgb(125, 182, 199)",
+          "borderColor": "rgb(125, 182, 199)"
+        },
+        {
+          "selector": ".jk-status-message",
+          "color": "rgb(242, 244, 239)",
+          "backgroundColor": "rgb(24, 29, 27)",
+          "borderColor": "rgb(57, 66, 63) rgb(57, 66, 63) rgb(57, 66, 63) rgb(128, 203, 199)"
+        }
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "action_button.ready",
+      "contract_id": "action_button",
+      "state": "ready",
+      "status": "verified",
+      "contract_hash": "sha256:65ff0e771384635b488735bb634702a8bcb64c0e306101823638aa9265d16ec2",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "action_button.disabled",
+      "contract_id": "action_button",
+      "state": "disabled",
+      "status": "verified",
+      "contract_hash": "sha256:65ff0e771384635b488735bb634702a8bcb64c0e306101823638aa9265d16ec2",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "action_button.focus-visible",
+      "contract_id": "action_button",
+      "state": "focus-visible",
+      "status": "verified",
+      "contract_hash": "sha256:65ff0e771384635b488735bb634702a8bcb64c0e306101823638aa9265d16ec2",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "action_button.loading",
+      "contract_id": "action_button",
+      "state": "loading",
+      "status": "verified",
+      "contract_hash": "sha256:65ff0e771384635b488735bb634702a8bcb64c0e306101823638aa9265d16ec2",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "form_field.empty",
+      "contract_id": "form_field",
+      "state": "empty",
+      "status": "verified",
+      "contract_hash": "sha256:937019114f8389a1837300bf49d0174d02c2584bcb92d055506a75d9acb5cd85",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "form_field.ready",
+      "contract_id": "form_field",
+      "state": "ready",
+      "status": "verified",
+      "contract_hash": "sha256:937019114f8389a1837300bf49d0174d02c2584bcb92d055506a75d9acb5cd85",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "form_field.error",
+      "contract_id": "form_field",
+      "state": "error",
+      "status": "verified",
+      "contract_hash": "sha256:937019114f8389a1837300bf49d0174d02c2584bcb92d055506a75d9acb5cd85",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "form_field.disabled",
+      "contract_id": "form_field",
+      "state": "disabled",
+      "status": "verified",
+      "contract_hash": "sha256:937019114f8389a1837300bf49d0174d02c2584bcb92d055506a75d9acb5cd85",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "form_field.focus-visible",
+      "contract_id": "form_field",
+      "state": "focus-visible",
+      "status": "verified",
+      "contract_hash": "sha256:937019114f8389a1837300bf49d0174d02c2584bcb92d055506a75d9acb5cd85",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "text_field.empty",
+      "contract_id": "text_field",
+      "state": "empty",
+      "status": "verified",
+      "contract_hash": "sha256:9b9f48aedec0ee773af6a3df7d81582609cf44be7b6777cbd8cc2926aed39aa6",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "text_field.ready",
+      "contract_id": "text_field",
+      "state": "ready",
+      "status": "verified",
+      "contract_hash": "sha256:9b9f48aedec0ee773af6a3df7d81582609cf44be7b6777cbd8cc2926aed39aa6",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "text_field.error",
+      "contract_id": "text_field",
+      "state": "error",
+      "status": "verified",
+      "contract_hash": "sha256:9b9f48aedec0ee773af6a3df7d81582609cf44be7b6777cbd8cc2926aed39aa6",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "text_field.disabled",
+      "contract_id": "text_field",
+      "state": "disabled",
+      "status": "verified",
+      "contract_hash": "sha256:9b9f48aedec0ee773af6a3df7d81582609cf44be7b6777cbd8cc2926aed39aa6",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "text_field.focus-visible",
+      "contract_id": "text_field",
+      "state": "focus-visible",
+      "status": "verified",
+      "contract_hash": "sha256:9b9f48aedec0ee773af6a3df7d81582609cf44be7b6777cbd8cc2926aed39aa6",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "toggle.ready",
+      "contract_id": "toggle",
+      "state": "ready",
+      "status": "verified",
+      "contract_hash": "sha256:b73eef734a2ea1416bc6974fc1118fa4b85c5a66f84c355cd449ce854c904be9",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "toggle.disabled",
+      "contract_id": "toggle",
+      "state": "disabled",
+      "status": "verified",
+      "contract_hash": "sha256:b73eef734a2ea1416bc6974fc1118fa4b85c5a66f84c355cd449ce854c904be9",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "toggle.focus-visible",
+      "contract_id": "toggle",
+      "state": "focus-visible",
+      "status": "verified",
+      "contract_hash": "sha256:b73eef734a2ea1416bc6974fc1118fa4b85c5a66f84c355cd449ce854c904be9",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "status_message.ready",
+      "contract_id": "status_message",
+      "state": "ready",
+      "status": "verified",
+      "contract_hash": "sha256:d56c305dd57038d63f87d205942cd6036405df7f94e24ce85c7344d63d4d4299",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "status_message.loading",
+      "contract_id": "status_message",
+      "state": "loading",
+      "status": "verified",
+      "contract_hash": "sha256:d56c305dd57038d63f87d205942cd6036405df7f94e24ce85c7344d63d4d4299",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "status_message.error",
+      "contract_id": "status_message",
+      "state": "error",
+      "status": "verified",
+      "contract_hash": "sha256:d56c305dd57038d63f87d205942cd6036405df7f94e24ce85c7344d63d4d4299",
+      "implementation_hash": "sha256:97c6d91310f4b4e5bfac630fe6f71527e8374879e4f2577c3406c567f69d1508",
+      "evidence_refs": [
+        "tests/components/component-browser.test.mjs",
+        "tests/components/component-package-surface.test.mjs",
+        "docs/evidence/component-library-pilot-accessibility-2026-08-28.md"
+      ],
+      "viewport_results": [
+        {
+          "viewport": "1365x900",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        },
+        {
+          "viewport": "390x844",
+          "status": "pass",
+          "appearances": [
+            {
+              "appearance": "light",
+              "status": "pass"
+            },
+            {
+              "appearance": "dark",
+              "status": "pass"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

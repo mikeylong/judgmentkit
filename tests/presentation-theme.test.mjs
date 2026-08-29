@@ -614,8 +614,14 @@ assert.deepEqual(
 );
 assert.deepEqual(
   Object.keys(packageJson.exports).sort(),
-  [".", "./presentation-theme", "./providers/openai-responses"].sort(),
-  "Package export keys should stay frozen.",
+  [
+    ".",
+    "./presentation-theme",
+    "./providers/openai-responses",
+    "./react",
+    "./react/styles.css",
+  ].sort(),
+  "Package export keys should contain only the approved public subpaths.",
 );
 assert.deepEqual(
   Object.keys(packageJson.bin).sort(),

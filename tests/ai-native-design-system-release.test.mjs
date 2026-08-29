@@ -93,7 +93,7 @@ async function assertRepairLoop({ contractInput, failingCandidate, repairedCandi
   );
   assert.equal(
     implementationContract.visual_token_adapter.deferred_renderer.renderer_package,
-    "deferred",
+    "not_selected_by_visual_token_adapter",
   );
 
   const failingReview = reviewUiImplementationCandidate(failingCandidate, {

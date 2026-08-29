@@ -1107,8 +1107,8 @@ assert.equal(
 );
 assert.equal(
   contract.implementation_contract.visual_token_adapter.deferred_renderer.renderer_package,
-  "deferred",
-  "The visual token adapter must defer renderer packages.",
+  "not_selected_by_visual_token_adapter",
+  "The visual token adapter must not select renderer packages.",
 );
 assert.ok(
   contract.implementation_contract.visual_token_adapter.adapter_rules.some((rule) =>

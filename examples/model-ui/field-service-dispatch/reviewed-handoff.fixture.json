@@ -337,7 +337,7 @@
     "default_ai_native_design_system": {
       "id": "judgmentkit.ai-native-default.contract-v1",
       "mode": "contract_defaults",
-      "purpose": "Govern agent-generated UI at the contract layer before any adapter-layer renderer choices.",
+      "purpose": "Govern agent-generated UI at the contract layer and expose runtime availability only through the canonical component registry.",
       "primitive_defaults": [
         "use only approved implementation primitives or documented repo-local equivalents",
         "new primitives require contract evidence before use",
@@ -429,8 +429,8 @@
         "accessibility evidence"
       ],
       "adapter_boundary": {
-        "visual_token_adapter": "boundary-only metadata lives at implementation_contract.visual_token_adapter; renderer use remains deferred",
-        "renderer_package": "deferred until a token adapter can drive rendered primitives without changing the activity contract"
+        "visual_token_adapter": "boundary-only token, font, and icon metadata lives at implementation_contract.visual_token_adapter; it does not select the component runtime",
+        "renderer_package": "the optional JudgmentKit React pilot is exposed by implementation_contract.design_system_source; generic rendering and product state remain consumer-owned"
       },
       "component_contracts": [
         {
@@ -1426,7 +1426,11 @@
         "overview": "/design-system/",
         "manifest": "/design-system/manifest.json",
         "visual_token_adapter": "/design-system/visual-token-adapter.json",
+        "component_inventory": "/design-system/component-inventory.json",
+        "component_registry": "/design-system/component-registry.json",
         "component_contracts": "/design-system/component-contracts.json",
+        "react_components": "judgmentkit/react",
+        "react_styles": "judgmentkit/react/styles.css",
         "pattern_contracts": "/design-system/pattern-contracts.json",
         "surface_presentation_profiles": "/design-system/surface-presentation-profiles.json",
         "accessibility_policy": "/design-system/accessibility-policy.json",
@@ -1468,22 +1472,22 @@
       },
       "renderer_components": [
         "action_button",
-        "segmented_control",
-        "checkbox",
-        "toggle_switch",
-        "text_input",
-        "select_menu",
+        "action_group",
+        "form_field",
+        "text_field",
+        "text_area",
+        "select_field",
+        "checkbox_group",
+        "radio_group",
+        "toggle",
         "tabs",
+        "menu",
         "dialog",
-        "status_badge",
-        "inline_alert",
-        "data_table",
-        "summary_metric",
-        "filter_bar",
-        "search_field",
-        "progress_steps",
-        "toast",
-        "empty_state"
+        "alert",
+        "table",
+        "panel",
+        "card",
+        "status_message"
       ],
       "component_contract_source": "implementation_contract.default_ai_native_design_system.component_contracts",
       "provenance_rules": [
@@ -1784,7 +1788,7 @@
     "visual_token_adapter": {
       "id": "judgmentkit.visual-token-adapter.boundary-v1",
       "mode": "boundary_only",
-      "purpose": "Define semantic token, font, and icon evidence after contract governance without selecting renderer components",
+      "purpose": "Define semantic token, font, and icon evidence after contract governance without selecting or loading a component runtime",
       "token_families": [
         "color",
         "type",
@@ -2124,7 +2128,7 @@
         "visual token, font, and icon evidence describes semantic roles and constraints; it does not create approved primitives",
         "visual token, font, and icon evidence cannot satisfy missing activity, primitive, state, action-boundary, data-visibility, accessibility, static-check, or browser-QA gates",
         "token, font, and icon names stay adapter metadata and must not become product UI vocabulary",
-        "renderer and component packages remain deferred until the token adapter can drive rendered primitives without changing the activity contract"
+        "the token adapter does not select, import, verify, or provide renderer and component packages; runtime availability comes from the active design-system source"
       ],
       "evidence_expectations": [
         "name visual token families used by the candidate",
@@ -2134,15 +2138,15 @@
         "include accessibility-relevant token evidence when color, motion, density, focus, or status roles affect readability or input"
       ],
       "deferred_renderer": {
-        "renderer_package": "deferred",
-        "component_package": "deferred",
+        "renderer_package": "not_selected_by_visual_token_adapter",
+        "component_package": "not_selected_by_visual_token_adapter",
         "catalog_compiler": "deferred"
       },
       "failure_signals": [
         "visual token, font, or icon evidence is used as a substitute for approved primitives or required states",
         "visual token, font, or icon evidence claims to pass accessibility, action, data-visibility, static, or browser gates without the required evidence",
         "unsupported token families, font roles, or icon roles are introduced without adapter evidence",
-        "renderer, component package, catalog, compiler, or A2UI work is introduced in the boundary-only slice"
+        "renderer, component, catalog, compiler, or A2UI authority is incorrectly attributed to the boundary-only token adapter"
       ],
       "appearance_policy": {
         "supported_modes": [

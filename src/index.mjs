@@ -14,6 +14,15 @@ import {
   cloneWorkbenchSurfaceProfile,
   listSurfacePresentationProfiles,
 } from "./surface-presentation-profiles.mjs";
+import {
+  COMPONENT_IMPLEMENTATION_REGISTRY,
+  COMPONENT_RUNTIME_ADAPTER,
+  coveredStatesForContract,
+  createComponentScenarioManifest,
+  listComponentImplementationRegistry,
+  listRendererComponentIds,
+  validateComponentImplementationRegistry,
+} from "./component-registry.mjs";
 import { deriveFieldValueTrailingIndicatorSlotObservation } from "./visual-composition-observation.mjs";
 
 export {
@@ -21,6 +30,20 @@ export {
   WORKBENCH_SURFACE_PROFILE_ID,
   listSurfacePresentationProfiles,
 } from "./surface-presentation-profiles.mjs";
+export {
+  COMPONENT_IMPLEMENTATION_REGISTRY,
+  COMPONENT_RUNTIME_ADAPTER,
+  coveredStatesForContract,
+  createComponentScenarioManifest,
+  listComponentImplementationRegistry,
+  listRendererComponentIds,
+  validateComponentImplementationRegistry,
+} from "./component-registry.mjs";
+export {
+  listComponentReferenceInventory,
+  summarizeComponentReferenceCoverage,
+  validateComponentReferenceInventory,
+} from "./component-reference-inventory.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const requireFromModule = createRequire(import.meta.url);
@@ -5596,11 +5619,16 @@ const DEFAULT_PATTERN_CONTRACTS = [
   },
 ];
 
+validateComponentImplementationRegistry(
+  DEFAULT_COMPONENT_CONTRACTS,
+  COMPONENT_IMPLEMENTATION_REGISTRY,
+);
+
 const DEFAULT_AI_NATIVE_DESIGN_SYSTEM = {
   id: "judgmentkit.ai-native-default.contract-v1",
   mode: "contract_defaults",
   purpose:
-    "Govern agent-generated UI at the contract layer before any adapter-layer renderer choices.",
+    "Govern agent-generated UI at the contract layer and expose runtime availability only through the canonical component registry.",
   primitive_defaults: [
     "use only approved implementation primitives or documented repo-local equivalents",
     "new primitives require contract evidence before use",
@@ -5695,9 +5723,9 @@ const DEFAULT_AI_NATIVE_DESIGN_SYSTEM = {
   ],
   adapter_boundary: {
     visual_token_adapter:
-      "boundary-only metadata lives at implementation_contract.visual_token_adapter; renderer use remains deferred",
+      "boundary-only token, font, and icon metadata lives at implementation_contract.visual_token_adapter; it does not select the component runtime",
     renderer_package:
-      "deferred until a token adapter can drive rendered primitives without changing the activity contract",
+      "the optional JudgmentKit React pilot is exposed by implementation_contract.design_system_source; generic rendering and product state remain consumer-owned",
   },
 };
 
@@ -6162,7 +6190,7 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
   id: "judgmentkit.visual-token-adapter.boundary-v1",
   mode: "boundary_only",
   purpose:
-    "Define semantic token, font, and icon evidence after contract governance without selecting renderer components.",
+    "Define semantic token, font, and icon evidence after contract governance without selecting or loading a component runtime.",
   token_families: [
     "color",
     "type",
@@ -6208,7 +6236,7 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
     "visual token, font, and icon evidence describes semantic roles and constraints; it does not create approved primitives",
     "visual token, font, and icon evidence cannot satisfy missing activity, primitive, state, action-boundary, data-visibility, accessibility, static-check, or browser-QA gates",
     "token, font, and icon names stay adapter metadata and must not become product UI vocabulary",
-    "renderer and component packages remain deferred until the token adapter can drive rendered primitives without changing the activity contract",
+    "the token adapter does not select, import, verify, or provide renderer and component packages; runtime availability comes from the active design-system source",
   ],
   evidence_expectations: [
     "name visual token families used by the candidate",
@@ -6218,15 +6246,15 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
     "include accessibility-relevant token evidence when color, motion, density, focus, or status roles affect readability or input",
   ],
   deferred_renderer: {
-    renderer_package: "deferred",
-    component_package: "deferred",
+    renderer_package: "not_selected_by_visual_token_adapter",
+    component_package: "not_selected_by_visual_token_adapter",
     catalog_compiler: "deferred",
   },
   failure_signals: [
     "visual token, font, or icon evidence is used as a substitute for approved primitives or required states",
     "visual token, font, or icon evidence claims to pass accessibility, action, data-visibility, static, or browser gates without the required evidence",
     "unsupported token families, font roles, or icon roles are introduced without adapter evidence",
-    "renderer, component package, catalog, compiler, or A2UI work is introduced in the boundary-only slice",
+    "renderer, component, catalog, compiler, or A2UI authority is incorrectly attributed to the boundary-only token adapter",
   ],
 };
 
@@ -6250,7 +6278,11 @@ const DEFAULT_DESIGN_SYSTEM_SOURCE = {
     overview: "/design-system/",
     manifest: "/design-system/manifest.json",
     visual_token_adapter: "/design-system/visual-token-adapter.json",
+    component_inventory: "/design-system/component-inventory.json",
+    component_registry: "/design-system/component-registry.json",
     component_contracts: "/design-system/component-contracts.json",
+    react_components: COMPONENT_RUNTIME_ADAPTER.package_export,
+    react_styles: COMPONENT_RUNTIME_ADAPTER.stylesheet_export,
     pattern_contracts: "/design-system/pattern-contracts.json",
     surface_presentation_profiles:
       "/design-system/surface-presentation-profiles.json",
@@ -6260,6 +6292,7 @@ const DEFAULT_DESIGN_SYSTEM_SOURCE = {
   },
   token_prefixes: ["--jk-"],
   icon_catalog: DEFAULT_ICON_CATALOG,
+  renderer_components: listRendererComponentIds(),
   component_contract_source:
     "implementation_contract.default_ai_native_design_system.component_contracts",
   provenance_rules: [
@@ -7518,7 +7551,9 @@ function normalizeDesignSystemSource(sourceValue, context = {}) {
     ),
     renderer_components: normalizePrimitiveList(
       source.renderer_components ?? source.rendererComponents,
-      componentContracts.map((contract) => contract.id),
+      mode === "judgmentkit_default"
+        ? fallback.renderer_components
+        : componentContracts.map((contract) => contract.id),
     ),
     component_contract_source:
       optionalString(
