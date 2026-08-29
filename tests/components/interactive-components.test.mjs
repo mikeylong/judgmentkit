@@ -6,6 +6,7 @@ import {
   Menu,
   Tabs,
 } from "../../src/react/interactive-components.mjs";
+import { LUCIDE_ICON_INDEX } from "../../src/lucide-icon-catalog.generated.mjs";
 
 const h = createElement;
 const render = (Component, props, ...children) =>
@@ -173,7 +174,25 @@ assert.match(readyDialogMarkup, /data-jk-open="true"/);
 assert.doesNotMatch(readyDialogMarkup, /<dialog[^>]* open=""/);
 assert.match(readyDialogMarkup, /<h2[^>]*>Approve exception<\/h2>/);
 assert.match(readyDialogMarkup, /aria-label="Close"/);
+assert.match(readyDialogMarkup, /data-jk-icon="x"/);
+assert.match(readyDialogMarkup, /<svg[^>]*aria-hidden="true"/);
+assert.match(readyDialogMarkup, /<svg[^>]*width="24"[^>]*height="24"/);
+assert.doesNotMatch(readyDialogMarkup, />Close<\/button>/);
+assert.deepEqual(
+  [...readyDialogMarkup.matchAll(/<path[^>]*d="([^"]+)"/gu)].map(
+    (match) => match[1],
+  ),
+  LUCIDE_ICON_INDEX.get("x").elements.map((element) => element.attrs.d),
+  "the Dialog dismiss glyph must match JudgmentKit's canonical Lucide x icon",
+);
 assert.equal(count(readyDialogMarkup, /<button/g), 3);
+
+const blankDismissLabelMarkup = render(Dialog, {
+  id: "blank-dismiss-label-dialog",
+  title: "Review decision",
+  dismissLabel: "  ",
+});
+assert.match(blankDismissLabelMarkup, /aria-label="Close"/);
 
 const loadingDialogMarkup = render(Dialog, {
   id: "saving-dialog",

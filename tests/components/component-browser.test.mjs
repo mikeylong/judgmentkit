@@ -1840,8 +1840,53 @@ async function assertMenuInteractions(client, sessionId, scenarioById) {
     await pointerActivate(client, sessionId, readyTrigger);
     await waitForMenuOpen(client, sessionId, ready, false);
   }
+  const closedLayout = await evaluate(
+    client,
+    sessionId,
+    `(() => {
+      const scenario = document.querySelector(${JSON.stringify(scenarioSelector(ready.id))});
+      const control = scenario?.querySelector(".jk-component-scenario__control");
+      const interaction = scenario?.querySelector(".jk-component-scenario__interaction");
+      if (!scenario || !control || !interaction) return null;
+      return {
+        scenarioHeight: scenario.getBoundingClientRect().height,
+        controlHeight: control.getBoundingClientRect().height,
+        interactionTop: interaction.getBoundingClientRect().top + window.scrollY
+      };
+    })()`,
+  );
+  assert.ok(closedLayout, `${ready.id}: layout metrics are unavailable`);
   await pointerActivate(client, sessionId, readyTrigger);
   await waitForMenuOpen(client, sessionId, ready, true);
+  const openLayout = await evaluate(
+    client,
+    sessionId,
+    `(() => {
+      const scenario = document.querySelector(${JSON.stringify(scenarioSelector(ready.id))});
+      const control = scenario?.querySelector(".jk-component-scenario__control");
+      const interaction = scenario?.querySelector(".jk-component-scenario__interaction");
+      const popup = scenario?.querySelector(".jk-menu__popup");
+      if (!scenario || !control || !interaction || !popup) return null;
+      return {
+        scenarioHeight: scenario.getBoundingClientRect().height,
+        controlHeight: control.getBoundingClientRect().height,
+        interactionTop: interaction.getBoundingClientRect().top + window.scrollY,
+        popupPosition: getComputedStyle(popup).position
+      };
+    })()`,
+  );
+  assert.ok(openLayout, `${ready.id}: open layout metrics are unavailable`);
+  assert.equal(
+    openLayout.popupPosition,
+    "absolute",
+    `${ready.id}: popup no longer overlays from its trigger`,
+  );
+  for (const metric of ["scenarioHeight", "controlHeight", "interactionTop"]) {
+    assert.ok(
+      Math.abs(openLayout[metric] - closedLayout[metric]) <= 1,
+      `${ready.id}: opening the popup reflowed ${metric}`,
+    );
+  }
   await waitForExpression(
     client,
     sessionId,
@@ -1959,6 +2004,12 @@ async function assertOpenDialogSemantics(client, sessionId, scenario) {
         actionsInert: actions?.inert ?? false,
         actionsDisabled: actions?.getAttribute("aria-disabled") ?? null,
         dismissDisabled: dismiss?.disabled ?? null,
+        dismissName: dismiss?.getAttribute("aria-label") ?? null,
+        dismissText: dismiss?.textContent.trim() ?? null,
+        dismissIcon: dismiss?.querySelector("[data-jk-icon='x']")?.tagName ?? null,
+        dismissIconHidden: dismiss?.querySelector("[data-jk-icon='x']")?.getAttribute("aria-hidden") ?? null,
+        dismissWidth: dismiss?.getBoundingClientRect().width ?? 0,
+        dismissHeight: dismiss?.getBoundingClientRect().height ?? 0,
         decisionDisabled: decision?.disabled ?? null,
         statusRole: dialog.querySelector(".jk-dialog__status")?.getAttribute("role") ?? null,
         statusText: dialog.querySelector(".jk-dialog__status")?.textContent.trim() ?? ""
@@ -1969,11 +2020,28 @@ async function assertOpenDialogSemantics(client, sessionId, scenario) {
   assert.equal(observed.open, true, `${scenario.id}: native modal is not open`);
   assert.equal(observed.activeInside, true, `${scenario.id}: focus escaped the modal`);
   assert.equal(observed.baseState, expectedBaseState(scenario), `${scenario.id}: open base state drifted`);
+  assert.equal(observed.dismissName, scenario.fixture.dismiss_label, `${scenario.id}: dismiss name drifted`);
+  assert.equal(observed.dismissText, "", `${scenario.id}: dismiss label is visually exposed`);
+  assert.equal(observed.dismissIcon, "svg", `${scenario.id}: Lucide close icon is missing`);
+  assert.equal(observed.dismissIconHidden, "true", `${scenario.id}: decorative close icon is exposed to assistive technology`);
+  assert.ok(observed.dismissWidth >= 44, `${scenario.id}: dismiss target is narrower than 44px`);
+  assert.ok(observed.dismissHeight >= 44, `${scenario.id}: dismiss target is shorter than 44px`);
 
   const ax = await getAxNode(client, sessionId, dialogSelector);
   assert.equal(ax.role, "dialog", `${scenario.id}: open AX role drifted`);
   assert.equal(ax.name, scenario.fixture.title, `${scenario.id}: open AX name drifted`);
   assert.equal(ax.properties.modal, true, `${scenario.id}: native dialog is not AX-modal`);
+  const dismissAx = await getAxNode(
+    client,
+    sessionId,
+    `${dialogSelector} .jk-dialog__dismiss`,
+  );
+  assert.equal(dismissAx.role, "button", `${scenario.id}: dismiss AX role drifted`);
+  assert.equal(
+    dismissAx.name,
+    scenario.fixture.dismiss_label,
+    `${scenario.id}: dismiss AX name drifted`,
+  );
 
   if (scenario.state === "loading") {
     assert.equal(observed.busy, "true", `${scenario.id}: aria-busy missing`);
@@ -2041,6 +2109,21 @@ async function assertDialogInteractions(
   await waitForScenarioInteractionCount(client, sessionId, error.id, 1);
   await assertOpenDialogSemantics(client, sessionId, error);
   await runAxeForScenario(client, sessionId, error, `${presentationLabel} open error modal`);
+  await evaluate(
+    client,
+    sessionId,
+    `(() => {
+      const dialog = document.querySelector(${JSON.stringify(componentSelector(error))});
+      window.__jkErrorDialogCloseSettled = new Promise((resolve) => {
+        dialog.addEventListener("close", () => {
+          setTimeout(() => {
+            requestAnimationFrame(() => requestAnimationFrame(() => resolve(true)));
+          }, 0);
+        }, { once: true });
+      });
+      return true;
+    })()`,
+  );
   await pointerActivate(client, sessionId, withinScenario(error, ".jk-dialog__dismiss"));
   await waitForScenarioInteractionCount(client, sessionId, error.id, 2);
   await waitForDialogOpen(client, sessionId, error, false);
@@ -2048,8 +2131,39 @@ async function assertDialogInteractions(
 
   const focus = scenarioById.get("dialog.focus-visible");
   await tabUntil(client, sessionId, semanticSelector(focus), { maxSteps: 240 });
+  await evaluate(
+    client,
+    sessionId,
+    `window.__jkErrorDialogCloseSettled.then((result) => {
+      delete window.__jkErrorDialogCloseSettled;
+      return result;
+    })`,
+  );
+  assert.equal(
+    await evaluate(
+      client,
+      sessionId,
+      `document.activeElement === document.querySelector(${JSON.stringify(
+        semanticSelector(focus),
+      )})`,
+    ),
+    true,
+    `${focus.id}: a delayed prior-dialog restore pulled focus backward`,
+  );
   await pressKey(client, sessionId, "Enter");
-  await waitForScenarioInteractionCount(client, sessionId, focus.id, 1);
+  await waitForExpression(
+    client,
+    sessionId,
+    `document.querySelector(${JSON.stringify(componentSelector(focus))})?.open === true &&
+      Number(document.querySelector(${JSON.stringify(
+        `${scenarioSelector(focus.id)} [data-scenario-interaction-count]`,
+      )})?.getAttribute("data-scenario-interaction-count") || 0) === 1 &&
+      document.querySelector(${JSON.stringify(componentSelector(error))})?.open === false &&
+      Number(document.querySelector(${JSON.stringify(
+        `${scenarioSelector(error.id)} [data-scenario-interaction-count]`,
+      )})?.getAttribute("data-scenario-interaction-count") || 0) === 2`,
+    { label: `${focus.id} open after prior-dialog focus settlement` },
+  );
   await assertOpenDialogSemantics(client, sessionId, focus);
   await assertFocusVisible(client, sessionId, focus);
   await runAxeForScenario(client, sessionId, focus, `${presentationLabel} open focused modal`);
