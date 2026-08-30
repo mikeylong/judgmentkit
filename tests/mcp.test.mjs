@@ -251,7 +251,7 @@ assert.deepEqual(
   ],
 );
 assert.equal(metadata.name, "JudgmentKit");
-assert.equal(metadata.version, "0.7.0");
+assert.equal(metadata.version, "0.8.0");
 assert.deepEqual(metadata.capabilities.prompts, []);
 
 {

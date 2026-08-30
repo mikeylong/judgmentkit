@@ -3611,10 +3611,24 @@ assert.ok(siteCss.includes(".evals-table-shell {\n  max-width: 100%;"));
 
 assert.equal(evalCatalog.catalog_id, "judgmentkit-ui-generation-eval-runs");
 assert.ok(evalCatalog.latest, "eval catalog should expose latest run");
-assert.equal(
+assert.match(
   evalCatalog.latest.mcp_release,
-  packageJson.version,
-  "latest public UI eval should match the current package version",
+  /^\d+\.\d+\.\d+$/,
+  "latest public UI eval should identify its historical MCP release",
+);
+assert.equal(
+  evalCatalog.latest.mcp_release_segment,
+  `mcp-${evalCatalog.latest.mcp_release}`,
+  "latest public UI eval release segment should match its historical MCP release",
+);
+assert.ok(
+  evalCatalog.runs.some(
+    (run) =>
+      run.run_path === evalCatalog.latest.run_path &&
+      run.json_report === evalCatalog.latest.json_report &&
+      run.html_report === evalCatalog.latest.html_report,
+  ),
+  "latest public UI eval should be present in the immutable run catalog",
 );
 assert.ok(evalCatalog.latest.html_report.endsWith("/ui-generation-report.html"));
 assert.ok(evalCatalog.latest.json_report.endsWith("/ui-generation-report.json"));
@@ -3630,6 +3644,11 @@ assert.equal(
 );
 const latestEvalReport = JSON.parse(
   fs.readFileSync(path.join(tempDir, "evals", evalCatalog.latest.json_report), "utf8"),
+);
+assert.equal(
+  latestEvalReport.run.mcp_release,
+  evalCatalog.latest.mcp_release,
+  "latest UI eval report should match its cataloged historical MCP release",
 );
 const latestScreenshotPath = latestEvalReport.results[0].variants[0].screenshots[0].path;
 assert.ok(latestScreenshotPath.endsWith(".png"));

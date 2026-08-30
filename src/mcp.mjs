@@ -37,7 +37,7 @@ import {
 } from "./presentation-theme/index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit";
-const MCP_SERVER_VERSION = "0.7.0";
+const MCP_SERVER_VERSION = "0.8.0";
 const SLIDE_DECK_SCHEMA = "judgmentkit.mcp.slide-deck/v1";
 const SLIDE_DECK_RECEIPT_SCHEMA = "judgmentkit.mcp.slide-deck.provenance-receipt/v1";
 const MAX_SLIDE_DECK_SLIDES = 24;

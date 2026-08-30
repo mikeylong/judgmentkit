@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.8.0 - 2026-08-30
+
+- Added Artifact Inspector as a versioned public interaction-model contract for grounded, artifact-primary review work.
+- Publishes the `artifact_inspector` surface, `artifact-inspector-ui` workflow profile, `artifact_centered` topology, and `judgmentkit.artifact-inspector.v1` presentation profile through the package and MCP APIs.
+- Carries the canonical work units, artifact identity, target model, active states, and scoped JudgmentKit authority through the workflow, handoff, and frontend boundaries.
+- Keeps legacy Workbench and marketing routing isolated from Artifact Inspector authority.
+- Keeps implementation review fail-closed at `review_required`; the primary artifact remains external and is not reviewed by JudgmentKit.
+- Keeps the Artifact Inspector surface and presentation profile at `proposed` promotion status while the runtime proof path remains deferred.
+- Defers trusted interactive runtime attestation to a separate release. This release does not expose an action or result that claims complete runtime boundary proof.
+
 ## 0.7.0 - 2026-08-08
 
 - Added the supported `judgmentkit.workbench.operational-v1` surface-presentation profile for grounded Workbench activity.
