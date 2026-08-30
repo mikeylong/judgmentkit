@@ -2403,7 +2403,7 @@ assert.ok(
     'data-surface-presentation-profile="judgmentkit.workbench.operational-v1"',
   ),
 );
-assert.ok(designSystemPatterns.includes("Supported surface presentation profiles"));
+assert.ok(designSystemPatterns.includes("Surface presentation profiles"));
 assert.ok(designSystemPatterns.includes('data-specimen-id="pattern.workbench"'));
 assert.ok(designSystemPatterns.includes('data-pattern-region="work-queue"'));
 assert.ok(designSystemPatterns.includes('data-pattern-control="decision-action"'));
@@ -2744,8 +2744,11 @@ assert.deepEqual(
   surfacePresentationProfilesExport.profiles,
   listSurfacePresentationProfiles(),
 );
-assert.equal(surfacePresentationProfilesExport.profiles.length, 1);
-const workbenchPresentationProfile = surfacePresentationProfilesExport.profiles[0];
+assert.equal(surfacePresentationProfilesExport.profiles.length, 2);
+const workbenchPresentationProfile = surfacePresentationProfilesExport.profiles.find(
+  (entry) => entry.id === "judgmentkit.workbench.operational-v1",
+);
+assert.ok(workbenchPresentationProfile);
 assert.equal(workbenchPresentationProfile.id, "judgmentkit.workbench.operational-v1");
 assert.equal(workbenchPresentationProfile.status, "supported");
 assert.equal(workbenchPresentationProfile.surface_type, "workbench");
@@ -2759,6 +2762,23 @@ assert.ok(
       entry.surface_type === workbenchPresentationProfile.surface_type,
   ),
   "the supported Workbench presentation profile must bind to the public Workbench pattern contract",
+);
+const artifactInspectorPresentationProfile =
+  surfacePresentationProfilesExport.profiles.find(
+    (entry) => entry.id === "judgmentkit.artifact-inspector.v1",
+  );
+assert.ok(artifactInspectorPresentationProfile);
+assert.equal(artifactInspectorPresentationProfile.status, "proposed");
+assert.equal(artifactInspectorPresentationProfile.surface_type, "artifact_inspector");
+assert.equal(artifactInspectorPresentationProfile.authority.public_contract, true);
+assert.equal(artifactInspectorPresentationProfile.authority.runtime_renderer, false);
+assert.equal(
+  artifactInspectorPresentationProfile.authority.pattern_contract_id,
+  "artifact-inspector",
+);
+assert.equal(
+  artifactInspectorPresentationProfile.provenance.external_artifact_review_status,
+  "external_not_reviewed",
 );
 const contractIds = componentContractsExport.contracts.map((entry) => entry.id);
 const registryIds = componentRegistryExport.registry.map(
@@ -3591,10 +3611,24 @@ assert.ok(siteCss.includes(".evals-table-shell {\n  max-width: 100%;"));
 
 assert.equal(evalCatalog.catalog_id, "judgmentkit-ui-generation-eval-runs");
 assert.ok(evalCatalog.latest, "eval catalog should expose latest run");
-assert.equal(
+assert.match(
   evalCatalog.latest.mcp_release,
-  packageJson.version,
-  "latest public UI eval should match the current package version",
+  /^\d+\.\d+\.\d+$/,
+  "latest public UI eval should identify its historical MCP release",
+);
+assert.equal(
+  evalCatalog.latest.mcp_release_segment,
+  `mcp-${evalCatalog.latest.mcp_release}`,
+  "latest public UI eval release segment should match its historical MCP release",
+);
+assert.ok(
+  evalCatalog.runs.some(
+    (run) =>
+      run.run_path === evalCatalog.latest.run_path &&
+      run.json_report === evalCatalog.latest.json_report &&
+      run.html_report === evalCatalog.latest.html_report,
+  ),
+  "latest public UI eval should be present in the immutable run catalog",
 );
 assert.ok(evalCatalog.latest.html_report.endsWith("/ui-generation-report.html"));
 assert.ok(evalCatalog.latest.json_report.endsWith("/ui-generation-report.json"));
@@ -3610,6 +3644,11 @@ assert.equal(
 );
 const latestEvalReport = JSON.parse(
   fs.readFileSync(path.join(tempDir, "evals", evalCatalog.latest.json_report), "utf8"),
+);
+assert.equal(
+  latestEvalReport.run.mcp_release,
+  evalCatalog.latest.mcp_release,
+  "latest UI eval report should match its cataloged historical MCP release",
 );
 const latestScreenshotPath = latestEvalReport.results[0].variants[0].screenshots[0].path;
 assert.ok(latestScreenshotPath.endsWith(".png"));

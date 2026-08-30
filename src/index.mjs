@@ -1,6 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import { createHash } from "node:crypto";
+import {
+  createHash,
+  createHmac,
+  randomBytes,
+  timingSafeEqual,
+} from "node:crypto";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
@@ -10,10 +15,14 @@ import {
   LUCIDE_ICON_SOURCE,
 } from "./lucide-icon-catalog.generated.mjs";
 import {
-  WORKBENCH_SURFACE_PROFILE_ID,
-  cloneWorkbenchSurfaceProfile,
+  cloneSurfacePresentationProfile,
   listSurfacePresentationProfiles,
 } from "./surface-presentation-profiles.mjs";
+import {
+  ARTIFACT_INSPECTOR_STATE_GROUP_IDS,
+  reviewArtifactInspectorAuthorityEvidence,
+  validateArtifactInspectorAuthorityContract,
+} from "./artifact-inspector-authority.mjs";
 import {
   COMPONENT_IMPLEMENTATION_REGISTRY,
   COMPONENT_RUNTIME_ADAPTER,
@@ -26,10 +35,29 @@ import {
 import { deriveFieldValueTrailingIndicatorSlotObservation } from "./visual-composition-observation.mjs";
 
 export {
+  ARTIFACT_INSPECTOR_SURFACE_PROFILE,
+  ARTIFACT_INSPECTOR_SURFACE_PROFILE_ID,
   WORKBENCH_SURFACE_PROFILE,
   WORKBENCH_SURFACE_PROFILE_ID,
+  cloneArtifactInspectorSurfaceProfile,
+  cloneSurfacePresentationProfile,
+  cloneWorkbenchSurfaceProfile,
+  getSurfacePresentationProfile,
   listSurfacePresentationProfiles,
 } from "./surface-presentation-profiles.mjs";
+export {
+  ARTIFACT_INSPECTOR_CANONICAL_BOUNDARY_CONTRACTS,
+  ARTIFACT_INSPECTOR_CANONICAL_SCOPES,
+  ARTIFACT_INSPECTOR_CANONICAL_STATE_GROUPS,
+  ARTIFACT_INSPECTOR_DIAGNOSTIC_CODES,
+  ARTIFACT_INSPECTOR_SCOPE_IDS,
+  ARTIFACT_INSPECTOR_STATE_GROUP_IDS,
+  createArtifactInspectorFinding,
+  normalizeArtifactInspectorBoundaryContracts,
+  normalizeArtifactInspectorScopes,
+  normalizeArtifactInspectorStateConfig,
+  validateArtifactInspectorAuthorityContract,
+} from "./artifact-inspector-authority.mjs";
 export {
   COMPONENT_IMPLEMENTATION_REGISTRY,
   COMPONENT_RUNTIME_ADAPTER,
@@ -57,9 +85,10 @@ const KERNEL_SCHEMA_PATH = path.resolve(
 );
 let validateVisualCompositionPolicySchema;
 const trustedVisualCompositionEvidence = new WeakMap();
+const artifactInspectorReviewIntegrityKey = randomBytes(32);
 const DEFAULT_WORKFLOW_ID = "workflow.ai-ui-generation";
 const OPERATOR_REVIEW_PROFILE_ID = "operator-review-ui";
-const SURFACE_TYPE_IDS = [
+const LEGACY_SURFACE_TYPE_IDS = [
   "marketing",
   "workbench",
   "operator_review",
@@ -69,13 +98,36 @@ const SURFACE_TYPE_IDS = [
   "setup_debug_tool",
   "conversation",
 ];
-const WORKFLOW_TOPOLOGY_IDS = [
+const LEGACY_WORKFLOW_TOPOLOGY_IDS = [
   "workspace",
   "multi_surface",
   "staged_flow",
   "dashboard",
   "report",
   "conversation",
+];
+const DEFAULT_ARTIFACT_INSPECTOR_SURFACE_TYPE_ID = "artifact_inspector";
+const DEFAULT_ARTIFACT_INSPECTOR_WORKFLOW_PROFILE_ID = "artifact-inspector-ui";
+const DEFAULT_ARTIFACT_INSPECTOR_TOPOLOGY_KIND = "artifact_centered";
+const DEFAULT_ARTIFACT_INSPECTOR_MANDATORY_EVIDENCE_IDS = [
+  "rendered_artifact_is_primary",
+  "locus_selection_required",
+  "support_context_is_locus_relative",
+];
+const DEFAULT_ARTIFACT_INSPECTOR_POSITIVE_EVIDENCE_IDS = [
+  ...DEFAULT_ARTIFACT_INSPECTOR_MANDATORY_EVIDENCE_IDS,
+  "completion_is_artifact_local",
+  "direct_or_spatial_interaction_required",
+  "external_artifact_visual_authority",
+];
+const DEFAULT_ARTIFACT_INSPECTOR_EXCLUSION_EVIDENCE_IDS = [
+  "queue_or_case_is_primary",
+  "many_items_are_primary",
+  "open_ended_creation_is_primary",
+  "conversation_turns_are_primary",
+  "linear_reading_is_completion",
+  "monitoring_is_completion",
+  "configuration_is_completion",
 ];
 
 export class JudgmentKitInputError extends Error {
@@ -98,18 +150,18 @@ export function loadActivityContract(contractPath = DEFAULT_CONTRACT_PATH) {
 }
 
 function getContractWorkflowId(contract) {
-  return contract.workflow?.id ?? DEFAULT_WORKFLOW_ID;
+  return contract?.workflow?.id ?? DEFAULT_WORKFLOW_ID;
 }
 
 function getWorkflowTopologyPolicy(contract) {
-  const policy = contract.workflow?.topology_policy;
+  const policy = contract?.workflow?.topology_policy;
 
   if (isPlainObject(policy)) {
     return policy;
   }
 
   return {
-    allowed_topologies: WORKFLOW_TOPOLOGY_IDS,
+    allowed_topologies: LEGACY_WORKFLOW_TOPOLOGY_IDS,
     preferred_default: "workspace",
     work_units_guidance: [
       "Name domain work units without implying a numbered sequence.",
@@ -126,16 +178,140 @@ function getWorkflowTopologyPolicy(contract) {
   };
 }
 
+function getArtifactInspectorModel(contract) {
+  const model = contract?.interaction_models?.artifact_inspector;
+
+  return isPlainObject(model) ? model : null;
+}
+
+function getArtifactInspectorIdentifiers(contract) {
+  const identifiers = getArtifactInspectorModel(contract)?.canonical_identifiers ?? {};
+
+  return {
+    surface_type:
+      optionalString(identifiers.surface_type) ||
+      DEFAULT_ARTIFACT_INSPECTOR_SURFACE_TYPE_ID,
+    workflow_profile:
+      optionalString(identifiers.workflow_profile) ||
+      DEFAULT_ARTIFACT_INSPECTOR_WORKFLOW_PROFILE_ID,
+    frontend_surface_profile:
+      optionalString(identifiers.frontend_surface_profile) ||
+      "judgmentkit.artifact-inspector.v1",
+    topology_kind:
+      optionalString(identifiers.topology_kind) ||
+      DEFAULT_ARTIFACT_INSPECTOR_TOPOLOGY_KIND,
+  };
+}
+
+function hasArtifactInspectorContract(contract) {
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+
+  return Boolean(
+    getArtifactInspectorModel(contract) ||
+      contract?.surface_types?.[identifiers.surface_type] ||
+      contract?.profiles?.[identifiers.workflow_profile] ||
+      toStringArray(contract?.workflow?.topology_policy?.allowed_topologies).includes(
+        identifiers.topology_kind,
+      ),
+  );
+}
+
+function getAllowedWorkflowTopologyIds(contract) {
+  const configured = toStringArray(
+    getWorkflowTopologyPolicy(contract).allowed_topologies,
+  );
+  const allowed = configured.length > 0
+    ? configured
+    : [...LEGACY_WORKFLOW_TOPOLOGY_IDS];
+
+  if (hasArtifactInspectorContract(contract)) {
+    allowed.push(getArtifactInspectorIdentifiers(contract).topology_kind);
+  }
+
+  return unique(allowed);
+}
+
 function getUiWorkflowProfiles(contract) {
-  return isPlainObject(contract.profiles) ? contract.profiles : {};
+  const profiles = isPlainObject(contract?.profiles) ? contract.profiles : {};
+  const model = getArtifactInspectorModel(contract);
+
+  if (!model) {
+    return profiles;
+  }
+
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+
+  if (profiles[identifiers.workflow_profile]) {
+    return profiles;
+  }
+
+  return {
+    ...profiles,
+    [identifiers.workflow_profile]: {
+      pattern_id: "artifact-inspector",
+      model_id: optionalString(model.id) || identifiers.surface_type,
+      model_version: optionalString(model.version) || "1.0.0",
+      applies_when_most_true: toStringArray(
+        model.activity_evidence?.positive,
+      ),
+      do_not_use_when: toStringArray(model.activity_evidence?.exclusions),
+      guardrails: [],
+      review_criteria: [
+        "The rendered artifact remains primary while locus-relative context and actions stay attached to it.",
+      ],
+      test_scenarios: [],
+      topology: isPlainObject(model.topology)
+        ? cloneWorkflowStructuredValue(model.topology)
+        : {},
+      work_units: Array.isArray(model.work_units)
+        ? cloneWorkflowStructuredValue(model.work_units)
+        : [],
+      target_model: isPlainObject(model.target_model)
+        ? cloneWorkflowStructuredValue(model.target_model)
+        : {},
+      composition_variants: Array.isArray(model.composition_variants)
+        ? cloneWorkflowStructuredValue(model.composition_variants)
+        : [],
+      state_groups: isPlainObject(model.state_groups)
+        ? cloneWorkflowStructuredValue(model.state_groups)
+        : {},
+    },
+  };
 }
 
 function getSurfaceTypes(contract) {
-  if (isPlainObject(contract.surface_types)) {
-    return contract.surface_types;
+  const surfaceTypes = isPlainObject(contract?.surface_types)
+    ? contract.surface_types
+    : {};
+  const model = getArtifactInspectorModel(contract);
+
+  if (!model) {
+    return surfaceTypes;
   }
 
-  return {};
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+
+  if (surfaceTypes[identifiers.surface_type]) {
+    return surfaceTypes;
+  }
+
+  return {
+    ...surfaceTypes,
+    [identifiers.surface_type]: {
+      label: "Artifact inspector",
+      purpose:
+        "Inspect one rendered artifact in place, act on a semantic locus, and verify the local result.",
+      applies_when_most_true: [
+        "One rendered artifact is the primary object.",
+        "The participant must select a semantic locus within the artifact.",
+        "Supporting context is meaningful only in relation to that locus.",
+      ],
+      do_not_use_when: [
+        "A queue, case list, record set, or many-item comparison is primary.",
+        "Open-ended creation, conversation, monitoring, reading, or configuration is completion.",
+      ],
+    },
+  };
 }
 
 function normalizeOptionalSurfaceType(surfaceType) {
@@ -164,7 +340,11 @@ function normalizeSurfaceProfileRequest(request) {
   }
 
   const normalized = request.trim();
-  const allowed = ["auto", "none", WORKBENCH_SURFACE_PROFILE_ID];
+  const allowed = [
+    "auto",
+    "none",
+    ...listSurfacePresentationProfiles().map((entry) => entry.id),
+  ];
 
   if (!allowed.includes(normalized)) {
     throw new JudgmentKitInputError(
@@ -197,33 +377,40 @@ function resolveSurfacePresentationProfile({
   }
 
   const normalizedSurfaceType = normalizeOptionalSurfaceType(surfaceType);
-  const explicitProfileRequest =
-    normalizedRequest === WORKBENCH_SURFACE_PROFILE_ID;
+  const explicitProfileRequest = !["auto", "none"].includes(normalizedRequest);
+  const explicitlyRequestedProfile = explicitProfileRequest
+    ? cloneSurfacePresentationProfile(normalizedRequest)
+    : null;
+  const eligibleProfile = explicitProfileRequest
+    ? explicitlyRequestedProfile
+    : listSurfacePresentationProfiles().find(
+        (entry) => entry.surface_type === normalizedSurfaceType,
+      ) ?? null;
 
   if (
     explicitProfileRequest &&
-    normalizedSurfaceType !== "workbench"
+    explicitlyRequestedProfile?.surface_type !== normalizedSurfaceType
   ) {
     throw new JudgmentKitInputError(
-      "The Workbench surface profile requires a selected surface_type of \"workbench\".",
+      `The ${explicitlyRequestedProfile?.name ?? "requested"} surface profile requires a selected surface_type of \"${explicitlyRequestedProfile?.surface_type ?? "unknown"}\".`,
       {
         details: {
           surface_profile: normalizedRequest,
           selected_surface_type: normalizedSurfaceType,
-          required_surface_type: "workbench",
+          required_surface_type: explicitlyRequestedProfile?.surface_type ?? null,
         },
       },
     );
   }
 
-  if (normalizedSurfaceType !== "workbench") {
+  if (!eligibleProfile) {
     return null;
   }
 
   if (designSystemMode !== "judgmentkit_default") {
     if (explicitProfileRequest) {
       throw new JudgmentKitInputError(
-        "The JudgmentKit Workbench surface profile is unavailable when an external design system is active.",
+        "JudgmentKit surface profiles are unavailable when an external design system is active.",
         {
           details: {
             surface_profile: normalizedRequest,
@@ -239,12 +426,16 @@ function resolveSurfacePresentationProfile({
 
   const normalizedConfidence =
     typeof confidence === "string" ? confidence.trim().toLowerCase() : "";
-  const acceptedConfidence = new Set(["medium", "high", "provided"]);
+  const acceptedConfidence = new Set(
+    Array.isArray(eligibleProfile.activation?.accepted_confidence)
+      ? eligibleProfile.activation.accepted_confidence
+      : ["medium", "high", "provided"],
+  );
 
   if (!acceptedConfidence.has(normalizedConfidence)) {
     if (explicitProfileRequest) {
       throw new JudgmentKitInputError(
-        "The Workbench surface profile requires an explicitly selected or sufficiently grounded Workbench surface.",
+        `The ${eligibleProfile.name} surface profile requires an explicitly selected or sufficiently grounded ${eligibleProfile.surface_type} surface.`,
         {
           details: {
             surface_profile: normalizedRequest,
@@ -261,7 +452,7 @@ function resolveSurfacePresentationProfile({
   }
 
   return {
-    ...cloneWorkbenchSurfaceProfile(),
+    ...cloneSurfacePresentationProfile(eligibleProfile.id),
     selection: {
       request: normalizedRequest,
       surface_type_source: surfaceTypeSource || "unspecified",
@@ -338,6 +529,46 @@ function resolveUiWorkflowGuidanceProfile(contract, profileId) {
 
 function normalizeText(value) {
   return value.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function canonicalIntegrityValue(value) {
+  if (Array.isArray(value)) {
+    return value.map((entry) => canonicalIntegrityValue(entry));
+  }
+
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .filter((key) => value[key] !== undefined)
+        .map((key) => [key, canonicalIntegrityValue(value[key])]),
+    );
+  }
+
+  return value === undefined ? null : value;
+}
+
+function createArtifactInspectorIntegritySeal(kind, payload) {
+  return createHmac("sha256", artifactInspectorReviewIntegrityKey)
+    .update(kind)
+    .update("\0")
+    .update(JSON.stringify(canonicalIntegrityValue(payload)))
+    .digest("base64url");
+}
+
+function artifactInspectorIntegritySealMatches(kind, payload, suppliedSeal) {
+  if (typeof suppliedSeal !== "string" || suppliedSeal.length === 0) {
+    return false;
+  }
+
+  const expected = Buffer.from(
+    createArtifactInspectorIntegritySeal(kind, payload),
+  );
+  const observed = Buffer.from(suppliedSeal);
+  return (
+    expected.length === observed.length &&
+    timingSafeEqual(expected, observed)
+  );
 }
 
 function toGlobalPattern(pattern) {
@@ -767,8 +998,7 @@ export function recommendUiWorkflowProfiles(input, options = {}) {
     matched_triggers: matchedTriggers.map((entry) => entry.id),
     matched_exclusions: matchedExclusions.map((entry) => entry.id),
   };
-
-  return {
+  const basePacket = {
     version: contract.version,
     contract_id: contract.id,
     workflow_id: getContractWorkflowId(contract),
@@ -783,10 +1013,314 @@ export function recommendUiWorkflowProfiles(input, options = {}) {
       },
     },
   };
+  const artifactEvidence = buildArtifactInspectorEvidence(input, contract);
+
+  if (!artifactEvidence.should_include) {
+    return basePacket;
+  }
+
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+  const artifactProfile = resolveUiWorkflowGuidanceProfile(
+    contract,
+    identifiers.workflow_profile,
+  );
+  const artifactStatus = artifactEvidence.conflict
+    ? "review_required"
+    : artifactEvidence.mandatory_satisfied
+      ? "recommended"
+      : "not_recommended";
+  const artifactSummary = {
+    profile_id: artifactProfile.profile_id,
+    workflow_id: artifactProfile.workflow_id,
+    pattern_id: artifactProfile.pattern_id,
+    model_id:
+      optionalString(artifactProfile.model_id) || artifactEvidence.model_id,
+    model_version:
+      optionalString(artifactProfile.model_version) || artifactEvidence.model_version,
+    status: artifactStatus,
+    trigger_threshold: artifactEvidence.mandatory_evidence_ids.length,
+    trigger_match_count: artifactEvidence.matched_mandatory_evidence.length,
+    matched_triggers: artifactEvidence.matched_positive_evidence,
+    matched_exclusions: artifactEvidence.matched_exclusion_evidence,
+  };
+
+  return {
+    ...basePacket,
+    recommended_profile_ids:
+      artifactStatus === "recommended"
+        ? [artifactProfile.profile_id]
+        : basePacket.recommended_profile_ids,
+    ...(artifactStatus === "review_required"
+      ? { review_required_profile_ids: [artifactProfile.profile_id] }
+      : {}),
+    recommendations: [
+      ...basePacket.recommendations,
+      artifactSummary,
+    ],
+    evidence: {
+      ...basePacket.evidence,
+      [artifactProfile.profile_id]: {
+        mandatory_evidence_ids: artifactEvidence.mandatory_evidence_ids,
+        positives: artifactEvidence.positives,
+        exclusions: artifactEvidence.exclusions,
+        matched_mandatory_evidence:
+          artifactEvidence.matched_mandatory_evidence,
+        missing_mandatory_evidence:
+          artifactEvidence.missing_mandatory_evidence,
+        matched_exclusion_evidence:
+          artifactEvidence.matched_exclusion_evidence,
+        conflict: artifactEvidence.conflict,
+      },
+    },
+  };
 }
 
 function surfaceEvidence(id, label, matched, reason) {
   return matchedEvidence(id, label, matched, reason);
+}
+
+function hasConversationTurnActivity(input) {
+  const text = normalizeText(input);
+  const hasConversationObject = hasAffirmedAny(text, [
+    /\b(?:chat|conversation|message exchange|message thread|live chat|assistant exchange)\b/,
+    /\bthread\b/,
+  ]);
+  const hasTurnBehavior = hasAffirmedAny(text, [
+    /\b(?:message turns?|messages?|composer|send(?:s|ing)?|reply|replies|replying|respond|responds|responding|back and forth)\b/,
+    /\bask(?:s|ing)? (?:a |the )?(?:question|questions)\b/,
+    /\b(?:participant|participants|people|teammates?|agents?|customers?|users?)\s+(?:exchange|reply|respond|message)\b/,
+  ]);
+  const hasExchangeContinuity = hasAffirmedAny(text, [
+    /\b(?:open-ended|open ended|continue|continues|continuing|keep(?:s|ing)? (?:the )?(?:thread|conversation|chat)|close(?:s|d|ing)? (?:the )?(?:thread|conversation|chat)|response continuity|conversation continuity|exchange continuity)\b/,
+    /\b(?:message exchange|back and forth)\b/,
+  ]);
+
+  return hasConversationObject && hasTurnBehavior && hasExchangeContinuity;
+}
+
+function artifactInspectorEvidenceDefinition(input) {
+  const text = normalizeText(input);
+  const explicitStructuredCollectionPrimary = hasAffirmedAny(text, [
+    /\b(?:structured\s+)?(?:intake|submission|record-entry|record entry|data-entry|data entry)?\s*form\s+(?:is|remains|stays)\s+(?:the\s+)?primary\b/,
+    /\bprimary (?:activity|work|surface|object)\s+(?:is|remains|stays)\s+(?:required\s+)?(?:field entry|data entry|record entry|structured collection|intake|form completion|validation|submission)\b/,
+    /\bcompletion\s+(?:is|means)\s+(?:required\s+)?(?:field entry|data entry|record entry|structured collection|form validation|validation and submission|submitting (?:the\s+)?(?:form|record))\b/,
+  ]);
+  const explicitRenderedArtifactPrimarySignal = hasAffirmedAny(text, [
+    /\b(?:artifact|interface|document|composition|diagram|result|prototype|screen)\s+(?:that\s+)?(?:is|remains|stays|must remain|must stay)\s+(?:visible\s+and\s+)?(?:the\s+)?(?:primary|central|dominant)\b/,
+    /\bprimary (?:object|artifact)\s+(?:is|remains|stays|must remain|must stay)\s+(?:an?\s+|the\s+)?(?:rendered\s+)?(?:artifact|interface|document|composition|diagram|result|prototype|screen)\b/,
+  ]);
+  const explicitRenderedArtifactSecondarySignal = hasAffirmedAny(text, [
+    /\b(?:a|an|the|one)\s+(?:secondary|supporting)\s+(?:rendered\s+)?(?:artifact|interface|document|composition|diagram|result|prototype|screen)\b/,
+  ]);
+  const queueOrCaseIsPrimary = hasAffirmedAny(text, [
+    /\b(?:queue|case list|record set|work queue|review queue)\s+(?:is|remains|stays|as)\s+(?:the\s+)?primary\b/,
+    /\bprimary (?:object|work|surface)\s+(?:is|remains|stays)\s+(?:a\s+|the\s+)?(?:queue|case|case list|record set|work queue)\b/,
+    /\b(?:work through|review|triage|handle)\s+(?:a\s+|the\s+)?(?:queue|case list|record set)\b/,
+  ]);
+  const renderedArtifactIsDetailLocal = hasAffirmedAny(text, [
+    /\b(?:artifact|interface|document|composition|diagram|result|prototype|screen)\s+(?:that\s+)?(?:is|remains|stays|must remain|must stay)\s+(?:visible\s+and\s+)?(?:the\s+)?(?:primary|central|dominant)\b[^.]{0,100}\b(?:inside|within|in)\s+(?:the\s+)?selected[- ]case detail\b/,
+    /\b(?:inside|within|in)\s+(?:the\s+)?selected[- ]case detail\b[^.]{0,100}\b(?:artifact|interface|document|composition|diagram|result|prototype|screen)\s+(?:that\s+)?(?:is|remains|stays|must remain|must stay)\s+(?:visible\s+and\s+)?(?:the\s+)?(?:primary|central|dominant)\b/,
+    /\b(?:artifact|interface|document|composition|diagram|result|prototype|screen)\s+(?:that\s+)?(?:is|remains|stays|must remain|must stay)\s+(?:visible\s+and\s+)?(?:the\s+)?(?:primary|central|dominant)\b[^.]{0,100}\b(?:inside|within|in)\s+(?:the\s+)?detail (?:pane|panel|view) for (?:the\s+)?selected case\b/,
+    /\b(?:inside|within|in)\s+(?:the\s+)?detail (?:pane|panel|view) for (?:the\s+)?selected case\b[^.]{0,100}\b(?:artifact|interface|document|composition|diagram|result|prototype|screen)\s+(?:that\s+)?(?:is|remains|stays|must remain|must stay)\s+(?:visible\s+and\s+)?(?:the\s+)?(?:primary|central|dominant)\b/,
+  ]);
+  const renderedArtifactIsPrimary =
+    !explicitStructuredCollectionPrimary &&
+    explicitRenderedArtifactPrimarySignal &&
+    !explicitRenderedArtifactSecondarySignal &&
+    !(queueOrCaseIsPrimary && renderedArtifactIsDetailLocal);
+  const locusSelectionRequired = hasAffirmedAny(text, [
+    /\b(?:select|selects|selecting|focus|focuses|focusing|mark|marks|marking|inspect|inspects|inspecting|activate|activates|activating|choose|chooses|choosing|target|targets|targeting)\s+(?:an?\s+|the\s+|one\s+|a specific\s+|specific\s+|that\s+|this\s+)?(?:artifact\s+)?(?:locus|control|element|passage|text range|range|region|node|point|object|feature|part)\b/,
+    /\b(?:locus|control|element|passage|text range|region|node|point|feature)\s+(?:selection|is selected|must be selected|needs? to be selected)\b/,
+    /\bselect(?:ion)?\s+(?:within|inside|on)\s+(?:an?\s+|the\s+)?(?:artifact|interface|document|composition|diagram|result|prototype|screen)\b/,
+  ]);
+  const supportContextIsLocusRelative = hasAffirmedAny(text, [
+    /\b(?:context|evidence|authority|rule|source|observation|correction|comparison|diagnostic|action|feedback|reason|receipt|support)\b[^.]{0,120}\b(?:attach(?:es|ed|ing)?|relat(?:e|es|ed|ing)|link(?:s|ed|ing)?|anchor(?:s|ed|ing)?|connect(?:s|ed|ing)?|belong(?:s|ed|ing)?|apply|applies|applied)\b[^.]{0,80}\b(?:locus|selected (?:control|element|passage|range|region|node|point|object|feature|part)|that (?:control|element|passage|range|region|node|point|object|feature|part|location))\b/,
+    /\b(?:bring|brings|bringing|attach|attaches|attaching|relate|relates|relating|show|shows|showing|reveal|reveals|revealing)\b[^.]{0,100}\b(?:context|evidence|authority|rule|source|observation|correction|comparison|diagnostic|action|feedback|reason|receipt|support)\b[^.]{0,80}\b(?:to|at|beside|for|in relation to)\s+(?:the\s+|that\s+|this\s+|selected\s+|active\s+)?(?:locus|control|element|passage|range|region|node|point|object|feature|part|location)\b/,
+    /\b(?:context|evidence|authority|rule|source|observation|correction|comparison|diagnostic|action|feedback|reason|receipt|support)\s+(?:is|only becomes|becomes|remains)\s+(?:meaningful|relevant|available|visible)\s+(?:in relation to|for|at|beside)\s+(?:the\s+|that\s+|this\s+|selected\s+|active\s+)?(?:locus|control|element|passage|range|region|node|point|object|feature|part|location)\b/,
+  ]);
+  const completionIsArtifactLocal = hasAffirmedAny(text, [
+    /\b(?:completion|result|resulting state|verified state|receipt|feedback|outcome)\b[^.]{0,100}\b(?:on|beside|next to|attached to|at|within)\s+(?:the\s+|that\s+|this\s+|selected\s+|active\s+)?(?:artifact|locus|control|element|passage|range|region|node|point|object|feature|part|location)\b/,
+    /\b(?:verify|verifies|verifying|confirm|confirms|confirming|show|shows|showing)\s+(?:the\s+|a\s+)?(?:local\s+)?(?:result|state|change|receipt|outcome)\s+(?:on|beside|next to|at|within)\s+(?:the\s+|that\s+|this\s+|selected\s+|active\s+)?(?:artifact|locus|control|element|passage|range|region|node|point|object|feature|part|location)\b/,
+    /\bartifact-local (?:completion|result|state|feedback|receipt)\b/,
+  ]);
+  const directOrSpatialInteractionRequired = hasAffirmedAny(text, [
+    /\b(?:direct manipulation|directly on|in place|spatial interaction|select-then-target|drag|touch|tap|pointer|keyboard)\b/,
+    /\b(?:select|mark|target|pin|connect|attach|preview)\b[^.]{0,80}\b(?:locus|control|element|passage|range|region|node|point|artifact)\b/,
+  ]);
+  const externalArtifactVisualAuthority = hasAffirmedAny(text, [
+    /\b(?:external|independent|separate|declared)\s+(?:artifact\s+)?(?:visual authority|design system|styling authority|style authority)\b/,
+    /\b(?:artifact|interface|document|composition|diagram)\s+(?:keeps|retains|uses|has|owns)\s+(?:its\s+|an?\s+)?(?:own|independent|external|separate)\s+(?:visual language|design system|styling|style)\b/,
+    /\b(?:who|which system)\s+owns\s+(?:the\s+)?artifact(?:'s)?\s+(?:styling|visual design|design system)\b/,
+  ]);
+  const manyItemsArePrimary = hasAffirmedAny(text, [
+    /\b(?:many|multiple|several|a set of|a list of|a queue of|side by side)\b[^.]{0,60}\b(?:artifacts?|items?|cases?|records?|objects?|documents?|interfaces?|results?)\b/,
+    /\b(?:compare|review|inspect)\s+(?:many|multiple|several|a set of|a list of)\b[^.]{0,60}\b(?:artifacts?|items?|cases?|records?|objects?|documents?|interfaces?|results?)\b/,
+  ]);
+  const openEndedCreationIsPrimary = hasAffirmedAny(text, [
+    /\b(?:primarily|primary activity is|activity is)\s+(?:freely\s+|open-endedly\s+)?(?:creating|authoring|drawing|designing|composing|editing)\b/,
+    /\b(?:open-ended|open ended|freeform|free-form)\s+(?:creation|authoring|drawing|design|composition|editing)\b/,
+    /\b(?:create|author|draw|design|compose|edit)\s+(?:the\s+)?artifact\s+freely\b/,
+  ]);
+  const linearReadingIsCompletion = hasAffirmedAny(text, [
+    /\b(?:linear reading|reading only|read-only report|only for reading)\b/,
+    /\bcompletion\s+(?:is|means)\s+(?:reading|understanding|citing|sharing)\b/,
+    /\b(?:primary activity is|activity is)\s+(?:reading|understanding|citing|sharing)\s+(?:a\s+|the\s+)?(?:document|report|memo|article|guide)\b/,
+  ]);
+  const monitoringIsCompletion = hasAffirmedAny(text, [
+    /\bcompletion\s+(?:is|means)\s+(?:monitoring|knowing current status|status awareness|tracking trends)\b/,
+    /\b(?:primary activity is|activity is)\s+(?:monitoring|tracking|watching)\b/,
+    /\b(?:dashboard|monitor)\s+(?:is|remains|stays)\s+(?:the\s+)?primary\b/,
+  ]);
+  const configurationIsCompletion = hasAffirmedAny(text, [
+    /\bcompletion\s+(?:is|means)\s+(?:a\s+)?(?:valid setup|configuration|configured integration|working integration)\b/,
+    /\b(?:primary activity is|activity is)\s+(?:setup|configuration|configuring|debugging|troubleshooting)\b/,
+    /\b(?:setup|configuration|debugging)\s+(?:is|remains|stays)\s+(?:the\s+)?primary\b/,
+  ]);
+
+  return {
+    rendered_artifact_is_primary: surfaceEvidence(
+      "rendered_artifact_is_primary",
+      "One rendered artifact is the primary object.",
+      renderedArtifactIsPrimary,
+      "Looked for one bounded rendered artifact that remains the primary visible object.",
+    ),
+    locus_selection_required: surfaceEvidence(
+      "locus_selection_required",
+      "The participant must select a semantic locus within the artifact.",
+      locusSelectionRequired,
+      "Looked for required selection of a control, element, passage, range, region, node, point, or other artifact locus.",
+    ),
+    support_context_is_locus_relative: surfaceEvidence(
+      "support_context_is_locus_relative",
+      "Supporting context is meaningful in relation to the selected locus.",
+      supportContextIsLocusRelative,
+      "Looked for evidence, authority, corrections, actions, feedback, or receipts attached to the active locus.",
+    ),
+    completion_is_artifact_local: surfaceEvidence(
+      "completion_is_artifact_local",
+      "Completion is visible on or directly beside the artifact.",
+      completionIsArtifactLocal,
+      "Looked for a verified result, state, feedback, or receipt local to the artifact or locus.",
+    ),
+    direct_or_spatial_interaction_required: surfaceEvidence(
+      "direct_or_spatial_interaction_required",
+      "The activity requires direct or spatial interaction with the artifact.",
+      directOrSpatialInteractionRequired,
+      "Looked for in-place selection, targeting, preview, touch, pointer, drag, or keyboard-equivalent interaction.",
+    ),
+    external_artifact_visual_authority: surfaceEvidence(
+      "external_artifact_visual_authority",
+      "The artifact may retain declared visual authority independent from the inspector chrome.",
+      externalArtifactVisualAuthority,
+      "Looked for an external or independent artifact design system, visual language, or styling authority.",
+    ),
+    queue_or_case_is_primary: surfaceEvidence(
+      "queue_or_case_is_primary",
+      "A queue, case list, or record set is primary.",
+      queueOrCaseIsPrimary,
+      "Looked for queue, case-list, record-set, or repeated case work as the primary object.",
+    ),
+    many_items_are_primary: surfaceEvidence(
+      "many_items_are_primary",
+      "Many items or artifacts are primary.",
+      manyItemsArePrimary,
+      "Looked for multiple or side-by-side artifacts, items, cases, records, or results as peers.",
+    ),
+    open_ended_creation_is_primary: surfaceEvidence(
+      "open_ended_creation_is_primary",
+      "Open-ended creation or editing is primary.",
+      openEndedCreationIsPrimary,
+      "Looked for freeform authoring, drawing, designing, composing, or editing as completion.",
+    ),
+    conversation_turns_are_primary: surfaceEvidence(
+      "conversation_turns_are_primary",
+      "Conversation turns and response continuity are primary.",
+      hasConversationTurnActivity(text),
+      "Required a conversation object, message-turn behavior, and exchange continuity; the word thread alone is insufficient.",
+    ),
+    linear_reading_is_completion: surfaceEvidence(
+      "linear_reading_is_completion",
+      "Linear reading, understanding, citing, or sharing is completion.",
+      linearReadingIsCompletion,
+      "Looked for reading-only or linear report completion.",
+    ),
+    monitoring_is_completion: surfaceEvidence(
+      "monitoring_is_completion",
+      "Monitoring status, trends, or operational health is completion.",
+      monitoringIsCompletion,
+      "Looked for monitoring or status awareness as the primary completion.",
+    ),
+    configuration_is_completion: surfaceEvidence(
+      "configuration_is_completion",
+      "Setup, configuration, or debugging is completion.",
+      configurationIsCompletion,
+      "Looked for valid setup, configuration, debugging, or troubleshooting as completion.",
+    ),
+  };
+}
+
+function buildArtifactInspectorEvidence(input, contract) {
+  const model = getArtifactInspectorModel(contract);
+  const configuredEvidence = model?.activity_evidence ?? {};
+  const mandatoryIds = toStringArray(configuredEvidence.mandatory);
+  const positiveIds = toStringArray(configuredEvidence.positive);
+  const exclusionIds = toStringArray(configuredEvidence.exclusions);
+  const resolvedMandatoryIds = mandatoryIds.length > 0
+    ? mandatoryIds
+    : DEFAULT_ARTIFACT_INSPECTOR_MANDATORY_EVIDENCE_IDS;
+  const resolvedPositiveIds = positiveIds.length > 0
+    ? positiveIds
+    : DEFAULT_ARTIFACT_INSPECTOR_POSITIVE_EVIDENCE_IDS;
+  const resolvedExclusionIds = exclusionIds.length > 0
+    ? exclusionIds
+    : DEFAULT_ARTIFACT_INSPECTOR_EXCLUSION_EVIDENCE_IDS;
+  const definitions = artifactInspectorEvidenceDefinition(input);
+  const evidenceFor = (id) => definitions[id] ?? surfaceEvidence(
+    id,
+    id.replaceAll("_", " "),
+    false,
+    `No deterministic detector is registered for ${id}.`,
+  );
+  const positives = resolvedPositiveIds.map(evidenceFor);
+  const exclusions = resolvedExclusionIds.map(evidenceFor);
+  const matchedPositiveIds = positives
+    .filter((entry) => entry.matched)
+    .map((entry) => entry.id);
+  const matchedExclusionIds = exclusions
+    .filter((entry) => entry.matched)
+    .map((entry) => entry.id);
+  const matchedMandatoryIds = resolvedMandatoryIds.filter((id) =>
+    matchedPositiveIds.includes(id));
+  const missingMandatoryIds = resolvedMandatoryIds.filter((id) =>
+    !matchedPositiveIds.includes(id));
+  const mandatorySatisfied = missingMandatoryIds.length === 0;
+  const explicitInspectorIntent = /\b(?:artifact inspector|artifact inspection|artifact-centered|artifact centered)\b/i.test(input);
+  const shouldInclude =
+    hasArtifactInspectorContract(contract) &&
+    (mandatorySatisfied || matchedMandatoryIds.length >= 2 || explicitInspectorIntent);
+  const conflict = mandatorySatisfied && matchedExclusionIds.length > 0;
+
+  return {
+    model_id: optionalString(model?.id) || DEFAULT_ARTIFACT_INSPECTOR_SURFACE_TYPE_ID,
+    model_version: optionalString(model?.version) || "1.0.0",
+    mandatory_evidence_ids: resolvedMandatoryIds,
+    matched_mandatory_evidence: matchedMandatoryIds,
+    missing_mandatory_evidence: missingMandatoryIds,
+    matched_positive_evidence: matchedPositiveIds,
+    matched_exclusion_evidence: matchedExclusionIds,
+    mandatory_satisfied: mandatorySatisfied,
+    conflict,
+    should_include: shouldInclude,
+    status: conflict
+      ? "review_required"
+      : mandatorySatisfied
+        ? "matched"
+        : shouldInclude
+          ? "partial"
+          : "not_matched",
+    positives,
+    exclusions,
+  };
 }
 
 function buildSurfaceTypeInputs(input, activityReview, contract, options = {}) {
@@ -842,6 +1376,10 @@ function buildSurfaceTypeInputs(input, activityReview, contract, options = {}) {
     implementationTermsDetected,
     { directActionSource },
   );
+  const artifactInspectorEvidence = buildArtifactInspectorEvidence(
+    sourceText,
+    contract,
+  );
 
   return {
     source_text: sourceText,
@@ -850,6 +1388,7 @@ function buildSurfaceTypeInputs(input, activityReview, contract, options = {}) {
     normalized: normalizeText(sourceText),
     implementation_terms_detected: implementationTermsDetected,
     purpose_evidence: purposeEvidence,
+    artifact_inspector_evidence: artifactInspectorEvidence,
   };
 }
 
@@ -1133,9 +1672,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       hasAffirmedAny(text, [
         /\b(?:schema change|prompt template|api endpoint|tool call trace|raw system mechanics|mcp server|json schema)\b/,
       ]));
-  const hasConversationPrimary = hasAffirmedAny(text, [
-    /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended|reply|respond|back and forth)\b/,
-  ]);
+  const hasConversationPrimary = hasConversationTurnActivity(text);
   const hasReadingOrReportPrimary =
     hasAffirmedAny(text, [
       /\b(?:content page|report|memo|article|doc|docs|documentation|guide|read|reads|reading|understand|understanding|learn|cite|citing|share|sharing|reference|summary|narrative)\b/,
@@ -1156,12 +1693,40 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   const hasSetupDebug =
     hasRawSetupDebugIntent ||
     (hasSetupDebugActivityContext && hasImplementationMachineryCue);
-  const hasConversation =
-    hasAffirmedAny(text, [
-      /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended)\b/,
-    ]);
+  const hasConversation = hasConversationTurnActivity(text);
   const definitions = getSurfaceTypes(contract);
   const definition = definitions[surfaceType] ?? {};
+  const artifactIdentifiers = getArtifactInspectorIdentifiers(contract);
+
+  if (surfaceType === artifactIdentifiers.surface_type) {
+    const artifactEvidence = inputContext.artifact_inspector_evidence ??
+      buildArtifactInspectorEvidence(inputContext.source_text, contract);
+    const baseScore = makeSurfaceScore(
+      surfaceType,
+      artifactEvidence.positives,
+      artifactEvidence.exclusions,
+      definition,
+    );
+
+    return {
+      ...baseScore,
+      score: artifactEvidence.mandatory_satisfied && !artifactEvidence.conflict
+        ? Math.max(baseScore.score, artifactEvidence.mandatory_evidence_ids.length)
+        : 0,
+      profile_id: artifactIdentifiers.workflow_profile,
+      profile_status: artifactEvidence.conflict
+        ? "review_required"
+        : artifactEvidence.mandatory_satisfied
+          ? "recommended"
+          : "not_recommended",
+      mandatory_evidence_ids: artifactEvidence.mandatory_evidence_ids,
+      matched_mandatory_evidence:
+        artifactEvidence.matched_mandatory_evidence,
+      missing_mandatory_evidence:
+        artifactEvidence.missing_mandatory_evidence,
+      routing_conflict: artifactEvidence.conflict,
+    };
+  }
 
   if (surfaceType === "marketing") {
     const triggers = [
@@ -1521,13 +2086,14 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
         "thread_is_product_surface",
         "The thread or message exchange is the product surface.",
         hasConversation,
-        "Looked for chat, conversation, thread, message composer, live chat, or open-ended exchange language.",
+        "Required a conversation object, message-turn behavior, and exchange continuity; the word thread alone is insufficient.",
       ),
       surfaceEvidence(
         "open_ended_exchange",
         "The activity is open-ended exchange rather than a bounded handoff.",
-        /\b(?:open-ended|open ended|back and forth|ask questions|respond|reply)\b/.test(text),
-        "Looked for open-ended exchange language.",
+        hasConversation &&
+          /\b(?:open-ended|open ended|back and forth|ask questions|respond|reply|continue|continuing)\b/.test(text),
+        "Looked for open-ended exchange language after confirming message turns and response continuity.",
       ),
     ];
     const exclusions = [
@@ -1555,6 +2121,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
 
 function chooseSurfaceType(scores) {
   const positivePriority = [
+    DEFAULT_ARTIFACT_INSPECTOR_SURFACE_TYPE_ID,
     "setup_debug_tool",
     "operator_review",
     "workbench",
@@ -1573,6 +2140,7 @@ function chooseSurfaceType(scores) {
     "conversation",
     "marketing",
     "setup_debug_tool",
+    DEFAULT_ARTIFACT_INSPECTOR_SURFACE_TYPE_ID,
   ];
 
   return [...scores].sort((left, right) => {
@@ -1621,6 +2189,66 @@ function surfaceConfidence(activityReview, bestScore) {
 
 function buildSurfaceImplications(surfaceType) {
   const implications = {
+    artifact_inspector: {
+      interaction_implications: {
+        primary_structure:
+          "Persistent artifact, selectable loci, contextual support, local feedback, and artifact-local completion.",
+        make_easy: [
+          "Orient to the artifact",
+          "Select the locus that matters",
+          "Inspect locus-relative context",
+          "Preview and validate locally",
+          "Verify the result beside the artifact",
+        ],
+        make_harder: [
+          "Displace the artifact with persistent chrome",
+          "Detach evidence or actions from the active locus",
+          "Intercept native artifact interaction without explicit inspection mode",
+        ],
+        completion_focus:
+          "The participant can verify the bounded result on or directly beside the artifact and recover to the last safe state.",
+      },
+      disclosure_implications: {
+        product_ui_rule:
+          "Use artifact and domain terms; keep implementation machinery diagnostic while naming visual-authority boundaries only when they affect inspection or audit.",
+        reveal_implementation_terms: false,
+        diagnostic_contexts: [
+          "auditing",
+          "debugging",
+          "explicit source inspection",
+          "boundary inspection",
+        ],
+      },
+      frontend_posture: {
+        density: "artifact-first contextual",
+        navigation_shape:
+          "artifact persistent; supporting context revealed from the active locus",
+        state_coverage: [
+          "artifact loading",
+          "artifact ready",
+          "no active locus",
+          "locus selected",
+          "context loading",
+          "preview",
+          "supported",
+          "invalid or ambiguous",
+          "stale or unavailable",
+          "local result",
+          "recovery",
+        ],
+        responsive_expectations:
+          "Wide and narrow layouts must preserve the artifact, active locus, local feedback, and recovery path without obscuring the inspected target.",
+        component_families: [
+          "artifact viewport",
+          "locus selection",
+          "context anchor or tray",
+          "relation preview",
+          "local feedback",
+          "receipt marker",
+          "back or reset action",
+        ],
+      },
+    },
     marketing: {
       interaction_implications: {
         primary_structure: "Audience need, offer, proof, and primary action.",
@@ -1804,29 +2432,134 @@ export function recommendSurfaceTypes(input, options = {}) {
   const inputContext = buildSurfaceTypeInputs(input.trim(), activityReview, contract, {
     hasExplicitActivityReview,
   });
-  const scores = SURFACE_TYPE_IDS.map((surfaceType) =>
+  const artifactIdentifiers = getArtifactInspectorIdentifiers(contract);
+  const artifactEvidence = inputContext.artifact_inspector_evidence;
+  const surfaceTypeIds = [
+    ...LEGACY_SURFACE_TYPE_IDS,
+    ...(artifactEvidence.should_include &&
+    getSurfaceTypes(contract)[artifactIdentifiers.surface_type]
+      ? [artifactIdentifiers.surface_type]
+      : []),
+  ];
+  const scores = surfaceTypeIds.map((surfaceType) =>
     buildSurfaceTypeScore(surfaceType, inputContext, contract),
   );
-  const recommended = chooseSurfaceType(scores);
-  const confidence = surfaceConfidence(activityReview, recommended.score);
+  const scoredRecommendation = chooseSurfaceType(scores);
+  const artifactScore = scores.find(
+    (entry) => entry.surface_type === artifactIdentifiers.surface_type,
+  );
+  const routingConflict = artifactEvidence.conflict
+    ? {
+        status: "review_required",
+        surface_type: artifactIdentifiers.surface_type,
+        matched_mandatory_evidence:
+          artifactEvidence.matched_mandatory_evidence,
+        matched_exclusion_evidence:
+          artifactEvidence.matched_exclusion_evidence,
+        conflicting_signals: [
+          ...artifactEvidence.matched_mandatory_evidence.map((id) => ({
+            kind: "mandatory",
+            id,
+          })),
+          ...artifactEvidence.matched_exclusion_evidence.map((id) => ({
+            kind: "exclusion",
+            id,
+          })),
+        ],
+        competing_surface_types: scores
+          .filter((entry) =>
+            entry.surface_type !== artifactIdentifiers.surface_type &&
+            (entry.score > 0 || entry.exclusion_match_count > 0))
+          .map((entry) => ({
+            surface_type: entry.surface_type,
+            score: entry.score,
+            matched_triggers: entry.matched_triggers,
+            matched_exclusions: entry.matched_exclusions,
+          })),
+      }
+    : null;
+  const recommended =
+    artifactEvidence.mandatory_satisfied && !routingConflict && artifactScore
+      ? artifactScore
+      : scoredRecommendation;
+  const recommendedSurfaceType = routingConflict
+    ? null
+    : recommended.surface_type;
+  const confidence = routingConflict
+    ? "low"
+    : surfaceConfidence(activityReview, recommended.score);
   const blockedSurfaceTypes = scores
-    .filter((entry) => entry.surface_type !== recommended.surface_type)
+    .filter((entry) => entry.surface_type !== recommendedSurfaceType)
     .filter((entry) => entry.exclusion_match_count > 0 || entry.profile_status === "blocked")
     .map((entry) => entry.surface_type);
-  const implications = buildSurfaceImplications(recommended.surface_type);
+  const implications = recommendedSurfaceType
+    ? buildSurfaceImplications(recommendedSurfaceType)
+    : {
+        interaction_implications: {},
+        disclosure_implications: {},
+        frontend_posture: {},
+      };
+  const artifactRecommendationOutput = isPlainObject(
+    getArtifactInspectorModel(contract)?.recommendation_output,
+  )
+    ? getArtifactInspectorModel(contract).recommendation_output
+    : {};
   const packet = {
     version: contract.version,
     contract_id: contract.id,
     workflow_id: getContractWorkflowId(contract),
-    status: activityReview.review_status === "ready_for_review" ? "ready" : "needs_source_context",
-    recommended_surface_type: recommended.surface_type,
+    status: routingConflict
+      ? "review_required"
+      : activityReview.review_status === "ready_for_review"
+        ? "ready"
+        : "needs_source_context",
+    recommended_surface_type: recommendedSurfaceType,
+    ...(recommendedSurfaceType === artifactIdentifiers.surface_type
+      ? {
+          profile_id:
+            optionalString(artifactRecommendationOutput.profile_id) ||
+            artifactIdentifiers.workflow_profile,
+          primary_structure:
+            optionalString(artifactRecommendationOutput.primary_structure) ||
+            "persistent artifact, selectable loci, contextual support, local feedback, and artifact-local completion",
+          density:
+            optionalString(artifactRecommendationOutput.density) ||
+            "artifact-first contextual",
+          navigation_shape:
+            optionalString(artifactRecommendationOutput.navigation_shape) ||
+            "artifact persistent; supporting context revealed from the active locus",
+        }
+      : {}),
     blocked_surface_types: unique(blockedSurfaceTypes),
     confidence,
+    ...(routingConflict ? { routing_conflict: routingConflict } : {}),
     evidence: {
       activity_review_status: activityReview.review_status,
       input_excerpt: input.trim().slice(0, 240),
       implementation_terms_detected: inputContext.implementation_terms_detected,
       purpose_evidence: inputContext.purpose_evidence,
+      ...(artifactEvidence.should_include
+        ? {
+            artifact_inspector: {
+              model_id: artifactEvidence.model_id,
+              model_version: artifactEvidence.model_version,
+              status: artifactEvidence.status,
+              mandatory_evidence_ids:
+                artifactEvidence.mandatory_evidence_ids,
+              matched_mandatory_evidence:
+                artifactEvidence.matched_mandatory_evidence,
+              missing_mandatory_evidence:
+                artifactEvidence.missing_mandatory_evidence,
+              matched_positive_evidence:
+                artifactEvidence.matched_positive_evidence,
+              matched_exclusion_evidence:
+                artifactEvidence.matched_exclusion_evidence,
+              positives: artifactEvidence.positives,
+              exclusions: artifactEvidence.exclusions,
+              conflict: artifactEvidence.conflict,
+            },
+          }
+        : {}),
       surface_type_scores: scores.map((entry) => ({
         surface_type: entry.surface_type,
         label: entry.label,
@@ -1843,7 +2576,9 @@ export function recommendSurfaceTypes(input, options = {}) {
             }
           : {}),
       })),
-      selected_definition: resolveSurfaceType(contract, recommended.surface_type),
+      selected_definition: recommendedSurfaceType
+        ? resolveSurfaceType(contract, recommendedSurfaceType)
+        : null,
     },
     interaction_implications: implications.interaction_implications,
     disclosure_implications: implications.disclosure_implications,
@@ -1868,6 +2603,16 @@ function summarizeSurfaceReview(surfaceReview, { includeFrontendPosture = false 
     disclosure_implications: isPlainObject(surfaceReview.disclosure_implications)
       ? surfaceReview.disclosure_implications
       : {},
+    ...(optionalString(surfaceReview.status) === "review_required"
+      ? { status: "review_required" }
+      : {}),
+    ...(isPlainObject(surfaceReview.routing_conflict)
+      ? {
+          routing_conflict: cloneWorkflowStructuredValue(
+            surfaceReview.routing_conflict,
+          ),
+        }
+      : {}),
   };
 
   if (includeFrontendPosture) {
@@ -1879,31 +2624,171 @@ function summarizeSurfaceReview(surfaceReview, { includeFrontendPosture = false 
   return summary;
 }
 
-function selectedSurfaceTypeFromImplementationReviewOptions(options = {}) {
+function implementationCandidateSurfaceSignals(candidate, contract) {
+  if (!isPlainObject(candidate) && typeof candidate !== "string") {
+    return [];
+  }
+
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+  const signals = [];
+  if (isPlainObject(candidate)) {
+    signals.push(
+      ["candidate.surface_type", candidate.surface_type],
+      ["candidate.surfaceType", candidate.surfaceType],
+      [
+        "candidate.pattern_contract_evidence.surface_type",
+        candidate.pattern_contract_evidence?.surface_type,
+      ],
+      [
+        "candidate.patternContractEvidence.surfaceType",
+        candidate.patternContractEvidence?.surfaceType,
+      ],
+    );
+    const patternId = optionalString(
+      candidate.pattern_contract_evidence?.pattern_id ??
+        candidate.patternContractEvidence?.patternId,
+    );
+    if (
+      [
+        "artifact-inspector",
+        identifiers.surface_type,
+        identifiers.workflow_profile,
+        identifiers.frontend_surface_profile,
+      ].includes(patternId)
+    ) {
+      signals.push([
+        "candidate.pattern_contract_evidence.pattern_id",
+        identifiers.surface_type,
+      ]);
+    }
+  }
+
+  const markupText = (
+    typeof candidate === "string"
+      ? [candidate]
+      : collectStringValues({
+          implementation_source:
+            candidateImplementationSourceText(candidate),
+          code: candidate.code,
+          markup: candidate.markup,
+          rendered_html: candidate.rendered_html,
+          renderedHtml: candidate.renderedHtml,
+          rendered_markup: candidate.rendered_markup,
+          renderedMarkup: candidate.renderedMarkup,
+          primary_artifact: candidate.primary_artifact,
+          primaryArtifact: candidate.primaryArtifact,
+        })
+  ).join(" ");
+  const hasArtifactRoot =
+    /\bdata-artifact-root(?:\s|=|>)/i.test(markupText) ||
+    /\bdata-jk-scope\s*=\s*["']primary[-_]artifact["']/i.test(
+      markupText,
+    );
+  const hasInspectorChrome =
+    /\bdata-jk-scope\s*=\s*["']inspector[-_]chrome["']/i.test(
+      markupText,
+    );
+  const hasInspectionOverlay =
+    /\bdata-jk-scope\s*=\s*["']inspection[-_]overlay["']/i.test(
+      markupText,
+    );
+  if (hasArtifactRoot && hasInspectorChrome && hasInspectionOverlay) {
+    signals.push([
+      "candidate.canonical_artifact_inspector_roots",
+      identifiers.surface_type,
+    ]);
+  }
+
+  return signals;
+}
+
+function selectedSurfaceTypeFromImplementationReviewOptions(
+  options = {},
+  contract,
+  candidate,
+) {
   const surfaceReview = options.surface_review ?? options.surfaceReview;
   const frontendGenerationContext =
     options.frontend_generation_context ?? options.frontendGenerationContext;
   const candidates = [
-    options.surface_type,
-    options.surfaceType,
-    surfaceReview?.recommended_surface_type,
-    surfaceReview?.recommendedSurfaceType,
-    surfaceReview?.surface_type,
-    surfaceReview?.surfaceType,
-    frontendGenerationContext?.surface_type,
-    frontendGenerationContext?.surfaceType,
-    frontendGenerationContext?.surface_guidance?.recommended_surface_type,
-    frontendGenerationContext?.surfaceGuidance?.recommendedSurfaceType,
-    frontendGenerationContext?.implementation_guidance?.surface_type,
-    frontendGenerationContext?.implementationGuidance?.surfaceType,
-    frontendGenerationContext?.surface_review?.recommended_surface_type,
-    frontendGenerationContext?.surfaceReview?.recommendedSurfaceType,
-  ];
-  const selected = candidates.find(
-    (candidate) => typeof candidate === "string" && candidate.trim().length > 0,
+    ["surface_type", options.surface_type],
+    ["surfaceType", options.surfaceType],
+    [
+      "surface_review.recommended_surface_type",
+      surfaceReview?.recommended_surface_type,
+    ],
+    [
+      "surfaceReview.recommendedSurfaceType",
+      surfaceReview?.recommendedSurfaceType,
+    ],
+    ["surface_review.surface_type", surfaceReview?.surface_type],
+    ["surfaceReview.surfaceType", surfaceReview?.surfaceType],
+    [
+      "frontend_generation_context.surface_type",
+      frontendGenerationContext?.surface_type,
+    ],
+    [
+      "frontendGenerationContext.surfaceType",
+      frontendGenerationContext?.surfaceType,
+    ],
+    [
+      "frontend_generation_context.surface_guidance.recommended_surface_type",
+      frontendGenerationContext?.surface_guidance?.recommended_surface_type,
+    ],
+    [
+      "frontendGenerationContext.surfaceGuidance.recommendedSurfaceType",
+      frontendGenerationContext?.surfaceGuidance?.recommendedSurfaceType,
+    ],
+    [
+      "frontend_generation_context.implementation_guidance.surface_type",
+      frontendGenerationContext?.implementation_guidance?.surface_type,
+    ],
+    [
+      "frontendGenerationContext.implementationGuidance.surfaceType",
+      frontendGenerationContext?.implementationGuidance?.surfaceType,
+    ],
+    [
+      "frontend_generation_context.surface_review.recommended_surface_type",
+      frontendGenerationContext?.surface_review?.recommended_surface_type,
+    ],
+    [
+      "frontendGenerationContext.surfaceReview.recommendedSurfaceType",
+      frontendGenerationContext?.surfaceReview?.recommendedSurfaceType,
+    ],
+    ...implementationCandidateSurfaceSignals(candidate, contract),
+  ].filter(
+    ([, candidate]) =>
+      typeof candidate === "string" && candidate.trim().length > 0,
   );
+  const normalizedCandidates = candidates.map(([field, candidate]) => [
+    field,
+    normalizeOptionalSurfaceType(candidate),
+  ]);
+  const distinctSurfaceTypes = unique(
+    normalizedCandidates.map(([, candidate]) => candidate),
+  );
+  const artifactInspectorSurfaceType =
+    getArtifactInspectorIdentifiers(contract).surface_type;
+  if (
+    distinctSurfaceTypes.includes(artifactInspectorSurfaceType) &&
+    distinctSurfaceTypes.some(
+      (surfaceType) => surfaceType !== artifactInspectorSurfaceType,
+    )
+  ) {
+    throw new JudgmentKitInputError(
+      "Implementation review received conflicting Artifact Inspector and legacy surface signals.",
+      {
+        code: "invalid_artifact_inspector_authority_contract",
+        details: {
+          field: "surface_type",
+          surface_type_candidates: Object.fromEntries(normalizedCandidates),
+        },
+      },
+    );
+  }
+  const selected = normalizedCandidates[0]?.[1] ?? null;
 
-  return selected ? normalizeOptionalSurfaceType(selected) : null;
+  return selected;
 }
 
 function inferActivityEvidence(input) {
@@ -2183,7 +3068,11 @@ function extractObservedBriefDetails(input, contract, implementationTermsDetecte
   };
 }
 
-function buildReviewQuestions(evidence, implementationTermsDetected) {
+function buildReviewQuestions(
+  evidence,
+  implementationTermsDetected,
+  artifactInspectorEvidence = null,
+) {
   const questions = [];
 
   if (!evidence.hasActivity) {
@@ -2206,6 +3095,50 @@ function buildReviewQuestions(evidence, implementationTermsDetected) {
     questions.push(
       "Which detected implementation details are diagnostic only, and which should be translated into domain language?",
     );
+  }
+
+  if (artifactInspectorEvidence?.should_include) {
+    const missing = new Set(
+      artifactInspectorEvidence.missing_mandatory_evidence,
+    );
+
+    if (missing.has("rendered_artifact_is_primary")) {
+      questions.push(
+        "Is one bounded rendered artifact the primary object that must remain visible throughout the work?",
+      );
+    }
+
+    if (missing.has("locus_selection_required")) {
+      questions.push(
+        "Must the participant select a specific semantic locus within the artifact to complete the work?",
+      );
+    }
+
+    if (missing.has("support_context_is_locus_relative")) {
+      questions.push(
+        "Does the supporting context only become meaningful in relation to the active artifact locus?",
+      );
+    }
+
+    if (
+      !artifactInspectorEvidence.matched_positive_evidence.includes(
+        "completion_is_artifact_local",
+      )
+    ) {
+      questions.push(
+        "What completion state or result must remain visible on or directly beside the artifact?",
+      );
+    }
+
+    if (
+      !artifactInspectorEvidence.matched_positive_evidence.includes(
+        "external_artifact_visual_authority",
+      )
+    ) {
+      questions.push(
+        "Who owns the artifact's visual styling, and is that authority independent from the inspector chrome?",
+      );
+    }
   }
 
   return questions;
@@ -2423,6 +3356,11 @@ function buildCandidateDisclosurePolicy(analyzerPacket) {
 
 function selectTargetedQuestions(reviewQuestions) {
   const priorities = [
+    /bounded rendered artifact|primary object/i,
+    /semantic locus|artifact locus/i,
+    /supporting context|active artifact locus/i,
+    /completion state|result.*artifact/i,
+    /owns.*artifact.*visual styling|authority independent/i,
     /activity/i,
     /decision|next action/i,
     /leave the surface|knowing|done|outcome/i,
@@ -2561,8 +3499,12 @@ function buildCandidatePrimaryTermsDetected(candidate, contract) {
 }
 
 function buildCandidateMissingFields(candidate) {
-  const activityModel = candidate.activity_model;
-  const interactionContract = candidate.interaction_contract;
+  const activityModel = isPlainObject(candidate?.activity_model)
+    ? candidate.activity_model
+    : {};
+  const interactionContract = isPlainObject(candidate?.interaction_contract)
+    ? candidate.interaction_contract
+    : {};
   const participants = toStringArray(activityModel.participants);
   const vocabulary = toStringArray(activityModel.domain_vocabulary);
   const outcomes = toStringArray(activityModel.outcomes);
@@ -2720,6 +3662,7 @@ function buildActivityModelReviewPacket(analyzerPacket, candidate, source, contr
     candidateGuardrails.candidate_primary_terms_detected.length === 0;
   const sourceQuestions = selectTargetedQuestions(analyzerPacket.review_questions);
   const candidateQuestions = buildCandidateQuestions(candidateGuardrails);
+  const artifactInspectorEvidence = analyzerPacket.artifact_inspector_evidence;
   const packet = {
     version: analyzerPacket.version,
     contract_id: analyzerPacket.contract_id,
@@ -2739,6 +3682,9 @@ function buildActivityModelReviewPacket(analyzerPacket, candidate, source, contr
         decision: evidence.decision,
         outcome: evidence.outcome,
         implementation_terms_detected: analyzerPacket.implementation_terms_detected,
+        ...(artifactInspectorEvidence?.should_include
+          ? { artifact_inspector: artifactInspectorEvidence }
+          : {}),
       },
       assumptions: buildReviewAssumptions(analyzerPacket, source),
       confidence: buildReviewConfidence(
@@ -2762,6 +3708,9 @@ function buildActivityModelReviewPacket(analyzerPacket, candidate, source, contr
       disclosure_translation_candidates:
         analyzerPacket.disclosure_policy.translation_candidates,
       original_review_questions: analyzerPacket.review_questions,
+      ...(artifactInspectorEvidence?.should_include
+        ? { artifact_inspector: artifactInspectorEvidence }
+        : {}),
     },
   };
 
@@ -2815,7 +3764,12 @@ export function analyzeImplementationBrief(input, options = {}) {
   const implementationTermsDetected = detectImplementationTerms(input, contract);
   const observed = extractObservedBriefDetails(input, contract, implementationTermsDetected);
   const evidence = inferActivityEvidence(input);
-  const reviewQuestions = buildReviewQuestions(evidence, implementationTermsDetected);
+  const artifactInspectorEvidence = buildArtifactInspectorEvidence(input, contract);
+  const reviewQuestions = buildReviewQuestions(
+    evidence,
+    implementationTermsDetected,
+    artifactInspectorEvidence,
+  );
   const status = reviewQuestions.length === 0 ? "ready" : "needs_review";
   const packet = {
     version: contract.version,
@@ -2827,6 +3781,9 @@ export function analyzeImplementationBrief(input, options = {}) {
     implementation_terms_detected: implementationTermsDetected,
     review_questions: reviewQuestions,
     ui_brief: buildUiBrief(contract, evidence, status, observed, implementationTermsDetected),
+    ...(artifactInspectorEvidence.should_include
+      ? { artifact_inspector_evidence: artifactInspectorEvidence }
+      : {}),
   };
 
   assertNoStyleFields(packet);
@@ -3045,6 +4002,9 @@ const REVIEW_PACKET_LABEL_TERMS = [
   "Primary user",
   "Review status",
 ];
+const REVIEW_PACKET_ALLOWED_DOMAIN_PHRASES = new Set([
+  "outcome pending",
+]);
 
 function collectStringValues(value, values = []) {
   if (typeof value === "string") {
@@ -3079,6 +4039,10 @@ function uiWorkflowPrimaryFields(candidate) {
 function textContainsReviewPacketMetaTerm(value) {
   const normalized = normalizeText(value);
 
+  if (REVIEW_PACKET_ALLOWED_DOMAIN_PHRASES.has(normalized)) {
+    return false;
+  }
+
   if (
     REVIEW_PACKET_MACHINE_TERMS.some((term) =>
       normalized.includes(normalizeText(term)),
@@ -3103,6 +4067,10 @@ function buildCandidatePrimaryMetaTermsDetected(candidate) {
 
   for (const value of collectStringValues(uiWorkflowPrimaryFields(candidate))) {
     const normalized = normalizeText(value);
+
+    if (REVIEW_PACKET_ALLOWED_DOMAIN_PHRASES.has(normalized)) {
+      continue;
+    }
 
     for (const term of REVIEW_PACKET_MACHINE_TERMS) {
       if (normalized.includes(normalizeText(term))) {
@@ -3186,14 +4154,660 @@ function toSurfaceSetArray(value) {
   return value.filter(isPlainObject);
 }
 
-function rawWorkflowTopology(value) {
-  const topology = optionalString(value);
+function cloneWorkflowStructuredValue(value) {
+  if (Array.isArray(value)) {
+    return value.map((entry) => cloneWorkflowStructuredValue(entry));
+  }
 
-  return WORKFLOW_TOPOLOGY_IDS.includes(topology) ? topology : "";
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [
+        key,
+        cloneWorkflowStructuredValue(entry),
+      ]),
+    );
+  }
+
+  return value;
+}
+
+function toWorkflowWorkUnitArray(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((entry) =>
+    (typeof entry === "string" && cleanClause(entry).length > 0) ||
+      isPlainObject(entry));
+}
+
+function workflowWorkUnitId(entry) {
+  if (isPlainObject(entry)) {
+    return optionalString(entry.id);
+  }
+
+  const value = optionalString(entry);
+
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function workflowWorkUnitIds(value) {
+  return unique(toWorkflowWorkUnitArray(value).map(workflowWorkUnitId));
+}
+
+function duplicateWorkflowWorkUnitIds(value) {
+  const counts = new Map();
+  for (const workUnit of toWorkflowWorkUnitArray(value)) {
+    const workUnitId = workflowWorkUnitId(workUnit);
+    if (!workUnitId) continue;
+    counts.set(workUnitId, (counts.get(workUnitId) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .filter(([, count]) => count > 1)
+    .map(([workUnitId]) => workUnitId);
+}
+
+function rawWorkflowTopology(value, contract) {
+  const topology = isPlainObject(value)
+    ? optionalString(value.kind)
+    : optionalString(value);
+
+  return getAllowedWorkflowTopologyIds(contract).includes(topology)
+    ? topology
+    : "";
+}
+
+function assertConsistentWorkflowTopology(
+  workflow,
+  {
+    code = "invalid_input",
+    message =
+      "Workflow topology and topology_contract.kind must agree when both are provided.",
+  } = {},
+) {
+  const topology = isPlainObject(workflow?.topology)
+    ? optionalString(workflow.topology.kind)
+    : optionalString(workflow?.topology);
+  const topologyContractKind = optionalString(
+    workflow?.topology_contract?.kind,
+  );
+
+  if (
+    topology &&
+    topologyContractKind &&
+    topology !== topologyContractKind
+  ) {
+    throw new JudgmentKitInputError(message, {
+      code,
+      details: {
+        field: "workflow.topology",
+        topology,
+        topology_contract_kind: topologyContractKind,
+        diagnostic_code: "JK_ARTIFACT_INSPECTOR_TOPOLOGY_KIND_INVALID",
+      },
+    });
+  }
+
+  return topology || topologyContractKind;
+}
+
+function artifactInspectorAuthorityCandidate(implementationContract) {
+  const source = isPlainObject(implementationContract)
+    ? implementationContract
+    : {};
+  const fieldAliases = {
+    design_system_scopes: ["design_system_scopes", "designSystemScopes"],
+    boundary_contracts: ["boundary_contracts", "boundaryContracts"],
+    artifact_inspector: ["artifact_inspector", "artifactInspector"],
+  };
+  const candidate = {};
+  let present = false;
+
+  for (const [canonicalField, aliases] of Object.entries(fieldAliases)) {
+    const suppliedAlias = aliases.find((field) =>
+      Object.prototype.hasOwnProperty.call(source, field),
+    );
+    if (!suppliedAlias) continue;
+    present = true;
+    candidate[canonicalField] = source[suppliedAlias];
+  }
+
+  return { candidate, present };
+}
+
+function artifactInspectorRequiredStructureIssue({
+  workflow,
+  contract,
+  activeStateGroupIds,
+}) {
+  const model = getArtifactInspectorModel(contract) ?? {};
+  const topologyContract = isPlainObject(workflow?.topology_contract)
+    ? workflow.topology_contract
+    : {};
+  const canonicalTopology = isPlainObject(model.topology)
+    ? model.topology
+    : {};
+  const workUnits = toWorkflowWorkUnitArray(workflow?.work_units);
+  const observedWorkUnitIds = workUnits.map(workflowWorkUnitId);
+  const canonicalWorkUnits = Array.isArray(model.work_units)
+    ? model.work_units.filter(isPlainObject)
+    : [];
+  const canonicalWorkUnitIds = canonicalWorkUnits
+    .map(workflowWorkUnitId)
+    .filter(Boolean);
+  const duplicateWorkUnitIds = duplicateWorkflowWorkUnitIds(workUnits);
+  const missingWorkUnitIds = canonicalWorkUnitIds.filter(
+    (workUnitId) => !observedWorkUnitIds.includes(workUnitId),
+  );
+  const unexpectedWorkUnitIds = observedWorkUnitIds.filter(
+    (workUnitId) => !canonicalWorkUnitIds.includes(workUnitId),
+  );
+
+  if (
+    duplicateWorkUnitIds.length > 0 ||
+    missingWorkUnitIds.length > 0 ||
+    unexpectedWorkUnitIds.length > 0 ||
+    observedWorkUnitIds.length !== canonicalWorkUnitIds.length
+  ) {
+    return {
+      field: "workflow.work_units",
+      expected: canonicalWorkUnitIds,
+      observed: observedWorkUnitIds,
+      duplicate_work_unit_ids: duplicateWorkUnitIds,
+      missing_work_unit_ids: missingWorkUnitIds,
+      unexpected_work_unit_ids: unexpectedWorkUnitIds,
+      diagnostic_code: "JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID",
+    };
+  }
+
+  for (const canonicalWorkUnit of canonicalWorkUnits) {
+    const workUnitId = workflowWorkUnitId(canonicalWorkUnit);
+    const observedWorkUnit = workUnits.find(
+      (workUnit) => workflowWorkUnitId(workUnit) === workUnitId,
+    );
+    for (const fieldName of [
+      "participant_intent",
+      "system_responsibility",
+    ]) {
+      if (
+        optionalString(observedWorkUnit?.[fieldName]) !==
+        optionalString(canonicalWorkUnit[fieldName])
+      ) {
+        return {
+          field: `workflow.work_units.${workUnitId}.${fieldName}`,
+          expected: optionalString(canonicalWorkUnit[fieldName]),
+          observed: optionalString(observedWorkUnit?.[fieldName]) || null,
+          diagnostic_code:
+            "JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID",
+        };
+      }
+    }
+  }
+
+  const entryWorkUnitId = optionalString(topologyContract.entry_work_unit_id);
+  if (
+    !entryWorkUnitId ||
+    entryWorkUnitId !== optionalString(canonicalTopology.entry_work_unit_id) ||
+    !observedWorkUnitIds.includes(entryWorkUnitId)
+  ) {
+    return {
+      field: "workflow.topology_contract.entry_work_unit_id",
+      expected: optionalString(canonicalTopology.entry_work_unit_id),
+      observed: entryWorkUnitId || null,
+      diagnostic_code: "JK_ARTIFACT_INSPECTOR_ENTRY_REFERENCE_INVALID",
+    };
+  }
+
+  const completionWorkUnitIds = toStringArray(
+    topologyContract.completion_work_unit_ids,
+  );
+  const canonicalCompletionWorkUnitIds = toStringArray(
+    canonicalTopology.completion_work_unit_ids,
+  );
+  if (
+    completionWorkUnitIds.length !== canonicalCompletionWorkUnitIds.length ||
+    canonicalCompletionWorkUnitIds.some(
+      (workUnitId, index) => completionWorkUnitIds[index] !== workUnitId,
+    ) ||
+    completionWorkUnitIds.some(
+      (workUnitId) => !observedWorkUnitIds.includes(workUnitId),
+    )
+  ) {
+    return {
+      field: "workflow.topology_contract.completion_work_unit_ids",
+      expected: canonicalCompletionWorkUnitIds,
+      observed: completionWorkUnitIds,
+      diagnostic_code:
+        "JK_ARTIFACT_INSPECTOR_COMPLETION_REFERENCE_INVALID",
+    };
+  }
+
+  const transitions = Array.isArray(topologyContract.transitions)
+    ? topologyContract.transitions
+    : [];
+  const canonicalTransitions = Array.isArray(canonicalTopology.transitions)
+    ? canonicalTopology.transitions
+    : [];
+  const hasRecoveryEntry = transitions.some(
+    (transition) =>
+      optionalString(transition?.to) === "recover" &&
+      observedWorkUnitIds.includes(optionalString(transition?.from)),
+  );
+  const hasRecoveryExit = transitions.some(
+    (transition) =>
+      optionalString(transition?.from) === "recover" &&
+      observedWorkUnitIds.includes(optionalString(transition?.to)),
+  );
+  if (
+    !observedWorkUnitIds.includes("recover") ||
+    !hasRecoveryEntry ||
+    !hasRecoveryExit
+  ) {
+    return {
+      field: "workflow.topology_contract.transitions",
+      expected: "Canonical inbound and outbound recovery transitions.",
+      observed: transitions,
+      diagnostic_code: "JK_ARTIFACT_INSPECTOR_RECOVERY_PATH_MISSING",
+    };
+  }
+
+  const transitionsMatch =
+    transitions.length === canonicalTransitions.length &&
+    canonicalTransitions.every((canonicalTransition, index) => {
+      const transition = transitions[index];
+      return Boolean(
+        isPlainObject(transition) &&
+          optionalString(transition.from) ===
+            optionalString(canonicalTransition.from) &&
+          optionalString(transition.to) ===
+            optionalString(canonicalTransition.to) &&
+          optionalString(transition.when) ===
+            optionalString(canonicalTransition.when) &&
+          observedWorkUnitIds.includes(optionalString(transition.from)) &&
+          observedWorkUnitIds.includes(optionalString(transition.to)),
+      );
+    });
+  if (!transitionsMatch) {
+    return {
+      field: "workflow.topology_contract.transitions",
+      expected: cloneWorkflowStructuredValue(canonicalTransitions),
+      observed: transitions,
+      diagnostic_code:
+        "JK_ARTIFACT_INSPECTOR_TRANSITION_REFERENCE_INVALID",
+    };
+  }
+
+  const primaryObjectId = optionalString(
+    topologyContract.primary_object_id,
+  );
+  const canonicalPrimaryObjectId =
+    optionalString(canonicalTopology.primary_object_id) || "artifact";
+  if (primaryObjectId !== canonicalPrimaryObjectId) {
+    return {
+      field: "workflow.topology_contract.primary_object_id",
+      expected: canonicalPrimaryObjectId,
+      observed: primaryObjectId || null,
+      diagnostic_code: "JK_ARTIFACT_INSPECTOR_PRIMARY_ARTIFACT_MISSING",
+    };
+  }
+  const artifact = isPlainObject(workflow?.artifact)
+    ? workflow.artifact
+    : null;
+  const artifactId = optionalString(
+    artifact?.id ?? artifact?.artifact_id,
+  );
+
+  if (
+    !artifact ||
+    !artifactId ||
+    !optionalString(artifact.boundary) ||
+    !primaryObjectId ||
+    artifactId !== primaryObjectId
+  ) {
+    return {
+      field: "workflow.artifact",
+      expected: {
+        id: primaryObjectId || "artifact",
+        boundary: "A non-empty rendered artifact boundary description.",
+      },
+      observed: artifact,
+      diagnostic_code: "JK_ARTIFACT_INSPECTOR_PRIMARY_ARTIFACT_MISSING",
+    };
+  }
+
+  const targetModel = isPlainObject(workflow?.target_model)
+    ? workflow.target_model
+    : null;
+  const canonicalTargetModel = isPlainObject(model.target_model)
+    ? model.target_model
+    : {};
+  const targetArtifactId = optionalString(
+    targetModel?.artifact_id ?? targetModel?.primary_object_id,
+  );
+  const canonicalArrayField = (field) => {
+    const observed = toStringArray(targetModel?.[field]);
+    const allowed = toStringArray(canonicalTargetModel[field]);
+    return (
+      observed.length > 0 &&
+      observed.every((entry) => allowed.includes(entry))
+    );
+  };
+  const targetModelValid = Boolean(
+    targetModel &&
+      targetArtifactId === primaryObjectId &&
+      canonicalArrayField("target_kinds") &&
+      canonicalArrayField("target_identity_sources") &&
+      canonicalArrayField("label_sources") &&
+      canonicalArrayField("artifact_interactivity") &&
+      optionalString(targetModel.geometry_policy) ===
+        optionalString(canonicalTargetModel.geometry_policy) &&
+      optionalString(targetModel.native_interaction_precedence) ===
+        optionalString(canonicalTargetModel.native_interaction_precedence)
+  );
+
+  if (!targetModelValid) {
+    return {
+      field: "workflow.target_model",
+      expected: {
+        ...cloneWorkflowStructuredValue(canonicalTargetModel),
+        artifact_id: primaryObjectId,
+      },
+      observed: targetModel,
+      diagnostic_code: "JK_ARTIFACT_INSPECTOR_LOCUS_MODEL_MISSING",
+    };
+  }
+
+  const workflowStateGroups = isPlainObject(workflow?.state_groups)
+    ? workflow.state_groups
+    : null;
+  const canonicalStateGroups = isPlainObject(model.state_groups)
+    ? model.state_groups
+    : {};
+  const expectedActiveStateGroupIds = toStringArray(activeStateGroupIds);
+  const observedStateGroupIds = workflowStateGroups
+    ? Object.keys(workflowStateGroups)
+    : [];
+  const activeGroupsMatch =
+    expectedActiveStateGroupIds.length > 0 &&
+    expectedActiveStateGroupIds.length === observedStateGroupIds.length &&
+    expectedActiveStateGroupIds.every((groupId) =>
+      observedStateGroupIds.includes(groupId),
+    );
+  const activeStatesMatch =
+    workflowStateGroups &&
+    expectedActiveStateGroupIds.every((groupId) => {
+      const expectedStates = toStringArray(canonicalStateGroups[groupId]);
+      const observedStates = toStringArray(workflowStateGroups[groupId]);
+      return (
+        expectedStates.length > 0 &&
+        observedStates.length === expectedStates.length &&
+        expectedStates.every((state) => observedStates.includes(state))
+      );
+    });
+
+  if (!activeGroupsMatch || !activeStatesMatch) {
+    return {
+      field: "workflow.state_groups",
+      expected: Object.fromEntries(
+        expectedActiveStateGroupIds.map((groupId) => [
+          groupId,
+          cloneWorkflowStructuredValue(canonicalStateGroups[groupId] ?? []),
+        ]),
+      ),
+      observed: workflowStateGroups,
+      diagnostic_code:
+        "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+    };
+  }
+
+  return null;
+}
+
+function assertArtifactInspectorBoundaryConsistency({
+  workflow,
+  surfaceTypes = [],
+  profileIds = [],
+  implementationContract,
+  additionalAuthoritySignals = [],
+  activityModel,
+  interactionContract,
+  reviewedActiveStateGroups: reviewedActiveStateGroupsInput,
+  contract,
+  code = "invalid_artifact_inspector_authority_contract",
+  message =
+    "Artifact Inspector surface, topology, profile, and scoped authority must agree.",
+} = {}) {
+  const resolvedContract = contract ?? loadActivityContract();
+  const identifiers = getArtifactInspectorIdentifiers(resolvedContract);
+  const topology = assertConsistentWorkflowTopology(workflow, {
+    code,
+    message,
+  });
+  const normalizedSurfaceTypes = unique(
+    [
+      ...surfaceTypes,
+      implementationContract?.surface_type,
+      implementationContract?.surfaceType,
+    ]
+      .map((value) => optionalString(value))
+      .filter(Boolean),
+  );
+  const normalizedProfileIds = unique(
+    profileIds.map(optionalString).filter(Boolean),
+  );
+  const topologyString =
+    typeof workflow?.topology === "string"
+      ? optionalString(workflow.topology)
+      : "";
+  const topologyContractKind = optionalString(
+    workflow?.topology_contract?.kind,
+  );
+  const topologyIsArtifact = topology === identifiers.topology_kind;
+  const canonicalArtifactTopologyShape = Boolean(
+    topologyString === identifiers.topology_kind &&
+      isPlainObject(workflow?.topology_contract) &&
+      topologyContractKind === identifiers.topology_kind,
+  );
+  const surfaceSignalsArtifact = normalizedSurfaceTypes.includes(
+    identifiers.surface_type,
+  );
+  const profileSignalsArtifact = normalizedProfileIds.includes(
+    identifiers.workflow_profile,
+  );
+  const { candidate: authorityCandidate, present: authorityBundlePresent } =
+    artifactInspectorAuthorityCandidate(implementationContract);
+  const additionalAuthoritySignalPresent = additionalAuthoritySignals.some(
+    (value) => Boolean(value),
+  );
+  let authorityBundleActive = false;
+  let normalizedAuthority = null;
+  let authorityError = null;
+
+  if (authorityBundlePresent) {
+    try {
+      normalizedAuthority =
+        validateArtifactInspectorAuthorityContract(authorityCandidate);
+      authorityBundleActive = normalizedAuthority.active;
+    } catch (error) {
+      authorityError = error;
+    }
+  }
+
+  const anyArtifactSignal = Boolean(
+    topologyIsArtifact ||
+      surfaceSignalsArtifact ||
+      profileSignalsArtifact ||
+      authorityBundlePresent ||
+      additionalAuthoritySignalPresent,
+  );
+  const surfaceAligned =
+    normalizedSurfaceTypes.length > 0 &&
+    normalizedSurfaceTypes.every(
+      (surfaceType) => surfaceType === identifiers.surface_type,
+    );
+  const profileAligned = normalizedProfileIds.every(
+    (profileId) => profileId === identifiers.workflow_profile,
+  );
+  const allArtifactSignalsAgree = Boolean(
+    surfaceAligned &&
+      canonicalArtifactTopologyShape &&
+      authorityBundleActive &&
+      profileAligned,
+  );
+  const reviewedActiveStateGroups = Array.isArray(
+    reviewedActiveStateGroupsInput,
+  )
+    ? ARTIFACT_INSPECTOR_STATE_GROUP_IDS.filter((groupId) =>
+        reviewedActiveStateGroupsInput.includes(groupId),
+      )
+    : deriveArtifactInspectorActiveStateGroups({
+        workflow: isPlainObject(workflow) ? workflow : {},
+        activity_model: activityModel,
+        interaction_contract: interactionContract,
+      });
+  const authorityActiveStateGroups = toStringArray(
+    normalizedAuthority?.artifact_inspector?.active_state_groups,
+  );
+
+  if (anyArtifactSignal && !allArtifactSignalsAgree) {
+    throw new JudgmentKitInputError(message, {
+      code,
+      details: {
+        field: "artifact_inspector.boundary_consistency",
+        expected: {
+          surface_type: identifiers.surface_type,
+          topology: identifiers.topology_kind,
+          topology_contract_kind: identifiers.topology_kind,
+          workflow_profile: identifiers.workflow_profile,
+          authority_bundle_active: true,
+        },
+        observed: {
+          surface_types: normalizedSurfaceTypes,
+          topology: isPlainObject(workflow?.topology)
+            ? optionalString(workflow.topology.kind) || null
+            : optionalString(workflow?.topology) || null,
+          topology_representation: isPlainObject(workflow?.topology)
+            ? "object"
+            : typeof workflow?.topology,
+          topology_contract_kind: topologyContractKind || null,
+          canonical_topology_shape: canonicalArtifactTopologyShape,
+          workflow_profile_ids: normalizedProfileIds,
+          authority_bundle_present: authorityBundlePresent,
+          authority_bundle_active: authorityBundleActive,
+          additional_authority_signal_present:
+            additionalAuthoritySignalPresent,
+          ...(authorityError
+            ? {
+                authority_error:
+                  optionalString(authorityError.message) ||
+                  "invalid_artifact_inspector_authority_contract",
+              }
+            : {}),
+        },
+        reason: "artifact_inspector_boundary_signal_mismatch",
+      },
+    });
+  }
+
+  if (allArtifactSignalsAgree) {
+    if (
+      !artifactInspectorStateGroupsMatch(
+        authorityActiveStateGroups,
+        reviewedActiveStateGroups,
+      )
+    ) {
+      throw new JudgmentKitInputError(
+        "Artifact Inspector authority cannot activate state groups absent from the reviewed activity and workflow.",
+        {
+          code,
+          details: {
+            field: "artifact_inspector.active_state_groups",
+            expected: reviewedActiveStateGroups,
+            observed: authorityActiveStateGroups,
+            diagnostic_code:
+              "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+          },
+        },
+      );
+    }
+    const requiredStructureIssue = artifactInspectorRequiredStructureIssue({
+      workflow,
+      contract: resolvedContract,
+      activeStateGroupIds: reviewedActiveStateGroups,
+    });
+    if (requiredStructureIssue) {
+      throw new JudgmentKitInputError(
+        "Artifact Inspector packets must preserve the reviewed artifact, locus model, and active state structures across every boundary.",
+        {
+          code,
+          details: {
+            ...requiredStructureIssue,
+            reason: "artifact_inspector_required_structure_invalid",
+          },
+        },
+      );
+    }
+  }
+
+  return {
+    artifactInspectorActive: anyArtifactSignal,
+    artifactSurfaceSelected: surfaceSignalsArtifact,
+    artifactTopologySelected: topologyIsArtifact,
+    authorityBundleActive,
+  };
+}
+
+function normalizeArtifactTopologyContract(candidate, contract, { force = false } = {}) {
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+  const workflow = candidate.workflow ?? {};
+  const supplied = isPlainObject(workflow.topology)
+    ? workflow.topology
+    : isPlainObject(workflow.topology_contract)
+      ? workflow.topology_contract
+      : null;
+  const source = supplied;
+
+  if (!source) {
+    return null;
+  }
+
+  if (
+    !force &&
+    rawWorkflowTopology(workflow.topology, contract) !==
+      identifiers.topology_kind &&
+    optionalString(source.kind) !== identifiers.topology_kind
+  ) {
+    return null;
+  }
+
+  return {
+    ...cloneWorkflowStructuredValue(source),
+    kind: optionalString(source.kind) || identifiers.topology_kind,
+    primary_object_id: optionalString(source.primary_object_id),
+    entry_work_unit_id: optionalString(source.entry_work_unit_id),
+    completion_work_unit_ids: toStringArray(source.completion_work_unit_ids),
+    transitions: Array.isArray(source.transitions)
+      ? source.transitions.filter(isPlainObject).map((transition) => ({
+          ...cloneWorkflowStructuredValue(transition),
+          from: optionalString(transition.from),
+          to: optionalString(transition.to),
+          ...(optionalString(transition.when)
+            ? { when: optionalString(transition.when) }
+            : {}),
+        }))
+      : [],
+  };
 }
 
 function inferWorkflowTopology(candidate, surfaceGuidance, contract) {
-  const explicitTopology = rawWorkflowTopology(candidate.workflow?.topology);
+  const explicitTopology = rawWorkflowTopology(
+    candidate.workflow?.topology,
+    contract,
+  );
 
   if (explicitTopology) {
     return explicitTopology;
@@ -3222,7 +4836,7 @@ function inferWorkflowTopology(candidate, surfaceGuidance, contract) {
   const policy = getWorkflowTopologyPolicy(contract);
   const preferredDefault = optionalString(policy.preferred_default);
 
-  return WORKFLOW_TOPOLOGY_IDS.includes(preferredDefault)
+  return getAllowedWorkflowTopologyIds(contract).includes(preferredDefault)
     ? preferredDefault
     : "workspace";
 }
@@ -3266,9 +4880,25 @@ function normalizeUiWorkflowSurfaceSet(candidate, implementationTermsDetected) {
   }));
 }
 
-function collectStepperEligibilityText(activityReview, candidate, surfaceGuidance) {
+function collectStepperEligibilityText(
+  activityReview,
+  candidate,
+  surfaceGuidance,
+  contract,
+) {
   const activityCandidate = activityReview?.candidate ?? {};
   const workflow = candidate.workflow ?? {};
+  const topology = rawWorkflowTopology(workflow.topology, contract);
+  const workUnitText = toWorkflowWorkUnitArray(workflow.work_units).flatMap(
+    (workUnit) =>
+      isPlainObject(workUnit)
+        ? [
+            workUnit.id,
+            workUnit.participant_intent,
+            workUnit.system_responsibility,
+          ]
+        : [workUnit],
+  );
 
   return [
     activityReview?.source?.input_excerpt,
@@ -3282,8 +4912,8 @@ function collectStepperEligibilityText(activityReview, candidate, surfaceGuidanc
     activityCandidate.interaction_contract?.completion,
     surfaceGuidance?.recommended_surface_type,
     workflow.surface_name,
-    workflow.topology,
-    ...(toStringArray(workflow.work_units)),
+    topology,
+    ...workUnitText,
     ...(toSurfaceSetArray(candidate.surface_set).flatMap((surface) => [
       surface.name,
       surface.purpose,
@@ -3295,10 +4925,15 @@ function collectStepperEligibilityText(activityReview, candidate, surfaceGuidanc
 }
 
 function buildStepperEligibility(activityReview, candidate, surfaceGuidance, contract) {
-  const topology = rawWorkflowTopology(candidate.workflow?.topology);
+  const topology = rawWorkflowTopology(candidate.workflow?.topology, contract);
   const surfaceType = optionalString(surfaceGuidance?.recommended_surface_type);
   const text = normalizeText(
-    collectStepperEligibilityText(activityReview, candidate, surfaceGuidance),
+    collectStepperEligibilityText(
+      activityReview,
+      candidate,
+      surfaceGuidance,
+      contract,
+    ),
   );
   const explicitStagedRequest =
     /\b(?:wizard|stepper|stepped|step by step|step-by-step|multi-step|multistep|staged flow|guided flow|guided setup|setup wizard|onboarding sequence)\b/.test(text);
@@ -3313,6 +4948,7 @@ function buildStepperEligibility(activityReview, candidate, surfaceGuidance, con
     "dashboard_monitor",
     "content_report",
     "conversation",
+    getArtifactInspectorIdentifiers(contract).surface_type,
   ].includes(surfaceType);
   const allowed =
     explicitStagedRequest ||
@@ -3342,7 +4978,7 @@ function buildStepperEligibility(activityReview, candidate, surfaceGuidance, con
   };
 }
 
-function assertUiWorkflowCandidateShape(candidate) {
+function assertUiWorkflowCandidateShape(candidate, contract) {
   if (!isPlainObject(candidate)) {
     throw new JudgmentKitInputError("UI workflow candidate must be an object.");
   }
@@ -3363,13 +4999,16 @@ function assertUiWorkflowCandidateShape(candidate) {
     );
   }
 
-  if (!rawWorkflowTopology(candidate.workflow.topology)) {
+  const suppliedTopology = candidate.workflow.topology;
+  const artifactTopologyCandidate = isArtifactTopologyCandidate(candidate, contract);
+
+  if (!rawWorkflowTopology(suppliedTopology, contract) && !artifactTopologyCandidate) {
     throw new JudgmentKitInputError(
       "UI workflow candidate requires workflow.topology.",
     );
   }
 
-  if (toStringArray(candidate.workflow.work_units).length === 0) {
+  if (toWorkflowWorkUnitArray(candidate.workflow.work_units).length === 0) {
     throw new JudgmentKitInputError(
       "UI workflow candidate requires workflow.work_units.",
     );
@@ -3395,7 +5034,7 @@ function buildUiWorkflowCandidateMissingFields(candidate) {
   const handoffCompletion =
     optionalString(handoff.next_action).length > 0 &&
     optionalString(handoff.reason).length > 0;
-  const workUnits = toStringArray(workflow.work_units);
+  const workUnits = toWorkflowWorkUnitArray(workflow.work_units);
   const surfaceSet = toSurfaceSetArray(candidate.surface_set);
   const hasSurfaceStructure =
     surfaceSet.some((surface) => toStringArray(surface.sections).length > 0);
@@ -3410,12 +5049,779 @@ function buildUiWorkflowCandidateMissingFields(candidate) {
   };
 }
 
+function isArtifactTopologyCandidate(candidate, contract) {
+  if (!hasArtifactInspectorContract(contract)) {
+    return false;
+  }
+
+  const workflow = candidate?.workflow ?? {};
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+  const suppliedTopology = isPlainObject(workflow.topology)
+    ? workflow.topology
+    : isPlainObject(workflow.topology_contract)
+      ? workflow.topology_contract
+      : null;
+
+  return Boolean(
+    rawWorkflowTopology(workflow.topology, contract) ===
+      identifiers.topology_kind ||
+      optionalString(workflow.topology_contract?.kind) ===
+        identifiers.topology_kind ||
+      (suppliedTopology &&
+        [
+          "primary_object_id",
+          "entry_work_unit_id",
+          "completion_work_unit_ids",
+          "transitions",
+        ].some((key) => Object.prototype.hasOwnProperty.call(suppliedTopology, key))),
+  );
+}
+
+function isArtifactInspectorWorkflowSelected(
+  candidate,
+  contract,
+  guidanceProfile,
+  surfaceGuidance,
+) {
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+
+  return Boolean(
+    hasArtifactInspectorContract(contract) &&
+      (isArtifactTopologyCandidate(candidate, contract) ||
+        optionalString(guidanceProfile?.profile_id) ===
+          identifiers.workflow_profile ||
+        optionalString(surfaceGuidance?.recommended_surface_type) ===
+          identifiers.surface_type),
+  );
+}
+
+function getArtifactInspectorDiagnosticMeaning(contract, code, fallback) {
+  const diagnostics = getArtifactInspectorModel(contract)?.diagnostics;
+
+  if (Array.isArray(diagnostics)) {
+    const match = diagnostics.find(
+      (entry) => isPlainObject(entry) && optionalString(entry.code) === code,
+    );
+
+    return optionalString(match?.meaning) || fallback;
+  }
+
+  if (isPlainObject(diagnostics)) {
+    const entry = diagnostics[code];
+
+    return optionalString(isPlainObject(entry) ? entry.meaning : entry) || fallback;
+  }
+
+  return fallback;
+}
+
+function createArtifactInspectorWorkflowDiagnostic(
+  contract,
+  { code, field, meaning, expected, observed, repair_instruction: repairInstruction },
+) {
+  return {
+    code,
+    meaning: getArtifactInspectorDiagnosticMeaning(contract, code, meaning),
+    field,
+    expected_contract: expected,
+    observed: observed === undefined
+      ? null
+      : cloneWorkflowStructuredValue(observed),
+    repair_instruction: repairInstruction,
+  };
+}
+
+function artifactTargetModel(candidate) {
+  if (isPlainObject(candidate?.workflow?.target_model)) {
+    return candidate.workflow.target_model;
+  }
+
+  return isPlainObject(candidate?.target_model) ? candidate.target_model : null;
+}
+
+function artifactTargetKinds(targetModel) {
+  if (!isPlainObject(targetModel)) {
+    return [];
+  }
+
+  return unique([
+    ...toStringArray(targetModel.target_kinds),
+    ...toStringArray(targetModel.kinds),
+    optionalString(targetModel.target_kind),
+    optionalString(targetModel.kind),
+  ]);
+}
+
+function buildArtifactInspectorWorkflowDiagnostics(
+  candidate,
+  contract,
+  guidanceProfile,
+  surfaceGuidance,
+  activityReview,
+  sourceInput,
+) {
+  const groundedActivityArtifactEvidence = buildArtifactInspectorEvidence(
+    sourceInput,
+    contract,
+  );
+  if (
+    !groundedActivityArtifactEvidence.mandatory_satisfied &&
+    !isArtifactInspectorWorkflowSelected(
+      candidate,
+      contract,
+      guidanceProfile,
+      surfaceGuidance,
+    )
+  ) {
+    return null;
+  }
+
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+  const workflow = candidate.workflow ?? {};
+  const topologySource = isPlainObject(workflow.topology)
+    ? workflow.topology
+    : isPlainObject(workflow.topology_contract)
+      ? workflow.topology_contract
+      : {};
+  const observedTopologyKind = isPlainObject(workflow.topology)
+    ? optionalString(workflow.topology.kind)
+    : optionalString(workflow.topology) || optionalString(topologySource.kind);
+  const topologyContract = normalizeArtifactTopologyContract(candidate, contract, {
+    force: true,
+  });
+  const canonicalTopology = isPlainObject(
+    getArtifactInspectorModel(contract)?.topology,
+  )
+    ? getArtifactInspectorModel(contract).topology
+    : {};
+  const workUnits = toWorkflowWorkUnitArray(workflow.work_units);
+  const workUnitIds = workflowWorkUnitIds(workUnits);
+  const diagnostics = [];
+  const push = (diagnostic) => {
+    diagnostics.push(createArtifactInspectorWorkflowDiagnostic(contract, diagnostic));
+  };
+  const suppliedActivityArtifactEvidence =
+    activityReview?.review?.evidence?.artifact_inspector ??
+    activityReview?.guardrails?.artifact_inspector ??
+    null;
+  const selectedSurfaceType = optionalString(
+    surfaceGuidance?.recommended_surface_type,
+  );
+  const selectedGuidanceProfileId = optionalString(guidanceProfile?.profile_id);
+  const hasRoutingConflict = Boolean(
+    !groundedActivityArtifactEvidence.mandatory_satisfied ||
+      groundedActivityArtifactEvidence.conflict ||
+      suppliedActivityArtifactEvidence?.conflict ||
+      optionalString(surfaceGuidance?.status) === "review_required" ||
+      (selectedSurfaceType && selectedSurfaceType !== identifiers.surface_type) ||
+      (selectedGuidanceProfileId &&
+        selectedGuidanceProfileId !== identifiers.workflow_profile),
+  );
+
+  if (hasRoutingConflict) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_KEYWORD_ROUTING_CONFLICT",
+      field: "artifact_inspector.routing",
+      meaning:
+        "Artifact Inspector selection conflicts with grounded activity, surface, or workflow-profile evidence.",
+      expected: {
+        mandatory_evidence_satisfied: true,
+        activity_conflict: false,
+        surface_type: identifiers.surface_type,
+        workflow_profile: identifiers.workflow_profile,
+      },
+      observed: {
+        mandatory_evidence_satisfied:
+          groundedActivityArtifactEvidence.mandatory_satisfied,
+        missing_mandatory_evidence:
+          groundedActivityArtifactEvidence.missing_mandatory_evidence,
+        activity_conflict: Boolean(groundedActivityArtifactEvidence.conflict),
+        matched_exclusion_evidence:
+          groundedActivityArtifactEvidence.matched_exclusion_evidence,
+        surface_review_status: optionalString(surfaceGuidance?.status) || null,
+        surface_type: selectedSurfaceType || null,
+        workflow_profile: selectedGuidanceProfileId || null,
+      },
+      repair_instruction:
+        "Resolve missing mandatory evidence and any activity, surface, or profile conflict before accepting an Artifact Inspector workflow; topology and profile metadata cannot override grounded routing.",
+    });
+  }
+
+  if (!topologyContract) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_TOPOLOGY_CONTRACT_MISSING",
+      field: "workflow.topology_contract",
+      meaning: "The artifact-centered workflow has no explicit structured topology contract.",
+      expected:
+        "The normative artifact_centered topology object in workflow.topology or workflow.topology_contract.",
+      observed: workflow.topology,
+      repair_instruction:
+        "Provide the full artifact_centered topology object; the legacy topology string is only a downstream compatibility projection.",
+    });
+  }
+
+  if (observedTopologyKind !== identifiers.topology_kind) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_TOPOLOGY_KIND_INVALID",
+      field: isPlainObject(workflow.topology)
+        ? "workflow.topology.kind"
+        : "workflow.topology",
+      meaning: "The artifact-inspector workflow does not declare the artifact-centered topology kind.",
+      expected: identifiers.topology_kind,
+      observed: observedTopologyKind || null,
+      repair_instruction: `Set workflow.topology.kind to "${identifiers.topology_kind}" or use that legacy topology string.`,
+    });
+  }
+
+  workUnits.forEach((workUnit, index) => {
+    if (isPlainObject(workUnit) && !optionalString(workUnit.id)) {
+      push({
+        code: "JK_ARTIFACT_INSPECTOR_WORK_UNIT_ID_MISSING",
+        field: `workflow.work_units[${index}].id`,
+        meaning: "A structured artifact work unit has no stable identifier.",
+        expected: "A non-empty work-unit id referenced by the topology.",
+        observed: workUnit.id,
+        repair_instruction: "Add a stable id to this work unit and use it in topology references.",
+      });
+    }
+  });
+
+  const duplicateWorkUnitIds = duplicateWorkflowWorkUnitIds(workUnits);
+  if (duplicateWorkUnitIds.length > 0) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID",
+      field: "workflow.work_units",
+      meaning:
+        "Artifact work-unit identifiers must be unique so topology references resolve unambiguously.",
+      expected: "Exactly one work-unit object for each canonical id.",
+      observed: duplicateWorkUnitIds,
+      repair_instruction: `Remove duplicate work-unit ids: ${duplicateWorkUnitIds.join(", ")}.`,
+    });
+  }
+
+  const canonicalWorkUnits = Array.isArray(
+    getArtifactInspectorModel(contract)?.work_units,
+  )
+    ? getArtifactInspectorModel(contract).work_units.filter(isPlainObject)
+    : [];
+  const canonicalWorkUnitIds = canonicalWorkUnits
+    .map((workUnit) => optionalString(workUnit.id))
+    .filter(Boolean);
+  const missingCanonicalWorkUnitIds = canonicalWorkUnitIds.filter(
+    (workUnitId) => !workUnitIds.includes(workUnitId),
+  );
+  const unexpectedWorkUnitIds = workUnitIds.filter(
+    (workUnitId) => !canonicalWorkUnitIds.includes(workUnitId),
+  );
+
+  if (missingCanonicalWorkUnitIds.length > 0) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_WORK_UNIT_ID_MISSING",
+      field: "workflow.work_units",
+      meaning: "The artifact workflow omits one or more required work units.",
+      expected: canonicalWorkUnitIds,
+      observed: workUnitIds,
+      repair_instruction: `Add the missing canonical work units: ${missingCanonicalWorkUnitIds.join(", ")}.`,
+    });
+  }
+
+  if (unexpectedWorkUnitIds.length > 0) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID",
+      field: "workflow.work_units",
+      meaning:
+        "The artifact workflow includes work-unit identifiers outside the canonical interaction model.",
+      expected: canonicalWorkUnitIds,
+      observed: workUnitIds,
+      repair_instruction: `Remove unexpected work-unit ids: ${unexpectedWorkUnitIds.join(", ")}.`,
+    });
+  }
+
+  for (const canonicalWorkUnit of canonicalWorkUnits) {
+    const workUnitIndex = workUnits.findIndex(
+      (workUnit) =>
+        workflowWorkUnitId(workUnit) === optionalString(canonicalWorkUnit.id),
+    );
+    if (workUnitIndex === -1) {
+      continue;
+    }
+    const observedWorkUnit = workUnits[workUnitIndex];
+    for (const fieldName of [
+      "participant_intent",
+      "system_responsibility",
+    ]) {
+      const expectedValue = optionalString(canonicalWorkUnit[fieldName]);
+      const observedValue = optionalString(observedWorkUnit[fieldName]);
+      if (observedValue !== expectedValue) {
+        push({
+          code: "JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID",
+          field: `workflow.work_units[${workUnitIndex}].${fieldName}`,
+          meaning:
+            "A required artifact work unit does not preserve its canonical participant intent or system responsibility.",
+          expected: expectedValue,
+          observed: observedValue || null,
+          repair_instruction: `Restore the canonical ${fieldName} for the ${canonicalWorkUnit.id} work unit.`,
+        });
+      }
+    }
+  }
+
+  const primaryObjectId = optionalString(topologyContract?.primary_object_id);
+  const canonicalPrimaryObjectId =
+    optionalString(
+      getArtifactInspectorModel(contract)?.topology?.primary_object_id,
+    ) || "artifact";
+
+  if (topologyContract && !primaryObjectId) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_PRIMARY_ARTIFACT_MISSING",
+      field: "workflow.topology.primary_object_id",
+      meaning: "No bounded rendered artifact is declared.",
+      expected: "A non-empty primary artifact id.",
+      observed: topologyContract?.primary_object_id,
+      repair_instruction: "Declare the bounded rendered artifact in workflow.topology.primary_object_id.",
+    });
+  } else if (primaryObjectId !== canonicalPrimaryObjectId) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_PRIMARY_ARTIFACT_MISSING",
+      field: "workflow.topology.primary_object_id",
+      meaning:
+        "The artifact-centered topology does not preserve the canonical primary artifact identity.",
+      expected: canonicalPrimaryObjectId,
+      observed: primaryObjectId || null,
+      repair_instruction: `Set workflow.topology.primary_object_id to "${canonicalPrimaryObjectId}" and use that id for the artifact and target model.`,
+    });
+  }
+
+  const candidateArtifact = isPlainObject(workflow.artifact)
+    ? workflow.artifact
+    : isPlainObject(candidate.artifact)
+      ? candidate.artifact
+      : null;
+  const declaredArtifactId = optionalString(
+    candidateArtifact?.id ?? candidateArtifact?.artifact_id,
+  );
+
+  if (!candidateArtifact || !declaredArtifactId) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_PRIMARY_ARTIFACT_MISSING",
+      field: "workflow.artifact.id",
+      meaning: "No bounded rendered artifact is declared.",
+      expected: primaryObjectId || "artifact",
+      observed: declaredArtifactId || null,
+      repair_instruction:
+        "Declare workflow.artifact with the same stable id used by workflow.topology.primary_object_id.",
+    });
+  }
+
+  if (!optionalString(candidateArtifact?.boundary)) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_PRIMARY_ARTIFACT_MISSING",
+      field: "workflow.artifact.boundary",
+      meaning: "The rendered artifact has no explicit boundary declaration.",
+      expected: "A non-empty rendered artifact boundary description.",
+      observed: candidateArtifact?.boundary,
+      repair_instruction:
+        "Declare the bounded rendered region owned by the external artifact authority.",
+    });
+  }
+
+  if (declaredArtifactId && primaryObjectId && declaredArtifactId !== primaryObjectId) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_PRIMARY_ARTIFACT_MISSING",
+      field: "workflow.topology.primary_object_id",
+      meaning: "The artifact-centered topology references a different primary object than the declared artifact.",
+      expected: declaredArtifactId,
+      observed: primaryObjectId,
+      repair_instruction: "Point primary_object_id at the declared artifact id.",
+    });
+  }
+
+  const targetModel = artifactTargetModel(candidate);
+  const canonicalTargetModel = getArtifactInspectorModel(contract)?.target_model ?? {};
+  const targetValuesAreCanonicalSubset = (value, canonicalValue) => {
+    const observed = toStringArray(value);
+    const allowed = toStringArray(canonicalValue);
+    return (
+      observed.length > 0 &&
+      observed.every((entry) => allowed.includes(entry))
+    );
+  };
+  const targetFieldRequirements = [
+    {
+      key: "target_kinds",
+      valid: targetValuesAreCanonicalSubset(
+        targetModel?.target_kinds,
+        canonicalTargetModel.target_kinds,
+      ),
+      expected:
+        canonicalTargetModel.target_kinds ??
+        ["whole_artifact", "element", "text_range", "region", "point"],
+      repair: "Declare the semantic locus kinds the participant can select.",
+    },
+    {
+      key: "target_identity_sources",
+      valid: targetValuesAreCanonicalSubset(
+        targetModel?.target_identity_sources,
+        canonicalTargetModel.target_identity_sources,
+      ),
+      expected:
+        canonicalTargetModel.target_identity_sources ??
+        ["artifact_supplied", "participant_selection"],
+      repair:
+        "Declare whether target identity comes from the artifact or explicit participant selection.",
+    },
+    {
+      key: "geometry_policy",
+      valid:
+        optionalString(targetModel?.geometry_policy) ===
+        optionalString(canonicalTargetModel.geometry_policy),
+      expected:
+        optionalString(canonicalTargetModel.geometry_policy) ||
+        "A read-only geometry and semantic re-anchoring policy.",
+      repair:
+        "Declare how target geometry stays stable, re-anchors, or becomes stale across artifact revisions.",
+    },
+    {
+      key: "label_sources",
+      valid: targetValuesAreCanonicalSubset(
+        targetModel?.label_sources,
+        canonicalTargetModel.label_sources,
+      ),
+      expected:
+        canonicalTargetModel.label_sources ??
+        ["artifact_supplied", "artifact_authorized_proxy", "Unavailable"],
+      repair:
+        "Declare the artifact-authorized sources for accessible target labels.",
+    },
+    {
+      key: "artifact_interactivity",
+      valid: targetValuesAreCanonicalSubset(
+        targetModel?.artifact_interactivity,
+        canonicalTargetModel.artifact_interactivity,
+      ),
+      expected:
+        canonicalTargetModel.artifact_interactivity ?? ["static", "live", "hybrid"],
+      repair:
+        "Declare the supported artifact interactivity modes so native interaction precedence can be protected.",
+    },
+    {
+      key: "native_interaction_precedence",
+      valid:
+        optionalString(targetModel?.native_interaction_precedence) ===
+        optionalString(canonicalTargetModel.native_interaction_precedence),
+      expected:
+        optionalString(canonicalTargetModel.native_interaction_precedence) ||
+        "A policy preserving native artifact actions until explicit inspection is active.",
+      repair:
+        "Declare when inspection may capture an action and when the artifact retains native interaction precedence.",
+    },
+  ];
+
+  for (const requirement of targetFieldRequirements) {
+    if (!requirement.valid) {
+      push({
+        code: "JK_ARTIFACT_INSPECTOR_LOCUS_MODEL_MISSING",
+        field: `workflow.target_model.${requirement.key}`,
+        meaning: "The participant cannot reliably select and retain a semantic artifact locus.",
+        expected: requirement.expected,
+        observed: targetModel?.[requirement.key],
+        repair_instruction: requirement.repair,
+      });
+    }
+  }
+
+  const targetArtifactId = optionalString(
+    targetModel?.artifact_id ?? targetModel?.primary_object_id,
+  );
+
+  if (!targetArtifactId) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_LOCUS_MODEL_MISSING",
+      field: "workflow.target_model.artifact_id",
+      meaning: "The target model is not attached to the declared primary artifact.",
+      expected: primaryObjectId || "workflow.topology.primary_object_id",
+      observed: targetArtifactId || null,
+      repair_instruction:
+        "Set workflow.target_model.artifact_id to the topology primary_object_id.",
+    });
+  } else if (primaryObjectId && targetArtifactId !== primaryObjectId) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_LOCUS_MODEL_MISSING",
+      field: "workflow.target_model.artifact_id",
+      meaning: "The target model is attached to a different artifact than the topology primary object.",
+      expected: primaryObjectId,
+      observed: targetArtifactId,
+      repair_instruction: "Attach the target model to workflow.topology.primary_object_id.",
+    });
+  }
+
+  const entryWorkUnitId = optionalString(topologyContract?.entry_work_unit_id);
+  const canonicalEntryWorkUnitId = optionalString(
+    canonicalTopology.entry_work_unit_id,
+  );
+
+  if (
+    topologyContract &&
+    (!entryWorkUnitId ||
+      entryWorkUnitId !== canonicalEntryWorkUnitId ||
+      !workUnitIds.includes(entryWorkUnitId))
+  ) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_ENTRY_REFERENCE_INVALID",
+      field: "workflow.topology.entry_work_unit_id",
+      meaning: "The topology entry does not preserve the canonical entry work unit.",
+      expected: canonicalEntryWorkUnitId,
+      observed: entryWorkUnitId || null,
+      repair_instruction: `Set the topology entry to the canonical "${canonicalEntryWorkUnitId}" work unit.`,
+    });
+  }
+
+  const completionWorkUnitIds = toStringArray(
+    topologyContract?.completion_work_unit_ids,
+  );
+  const canonicalCompletionWorkUnitIds = toStringArray(
+    canonicalTopology.completion_work_unit_ids,
+  );
+  const invalidCompletionIds = completionWorkUnitIds.filter(
+    (id) => !workUnitIds.includes(id),
+  );
+  const completionContractMismatch =
+    completionWorkUnitIds.length !== canonicalCompletionWorkUnitIds.length ||
+    canonicalCompletionWorkUnitIds.some(
+      (workUnitId, index) => completionWorkUnitIds[index] !== workUnitId,
+    );
+
+  if (
+    topologyContract &&
+    (completionWorkUnitIds.length === 0 ||
+      invalidCompletionIds.length > 0 ||
+      completionContractMismatch)
+  ) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_COMPLETION_REFERENCE_INVALID",
+      field: "workflow.topology.completion_work_unit_ids",
+      meaning: "Artifact-local completion does not preserve the canonical completion set.",
+      expected: canonicalCompletionWorkUnitIds,
+      observed: completionWorkUnitIds,
+      repair_instruction:
+        "Restore the ordered canonical completion work-unit ids for artifact-local verification and return to orientation.",
+    });
+  }
+
+  const transitions = Array.isArray(topologyContract?.transitions)
+    ? topologyContract.transitions
+    : [];
+  const invalidTransitions = transitions
+    .map((transition, index) => ({
+      index,
+      from: optionalString(transition.from),
+      to: optionalString(transition.to),
+    }))
+    .filter(
+      (transition) =>
+        !workUnitIds.includes(transition.from) ||
+        !workUnitIds.includes(transition.to),
+    );
+  const canonicalTransitions = Array.isArray(
+    getArtifactInspectorModel(contract)?.topology?.transitions,
+  )
+    ? getArtifactInspectorModel(contract).topology.transitions
+    : [];
+  const transitionContractMismatch =
+    transitions.length !== canonicalTransitions.length ||
+    canonicalTransitions.some((expectedTransition, index) => {
+      const observedTransition = transitions[index];
+      return (
+        !isPlainObject(observedTransition) ||
+        optionalString(observedTransition.from) !==
+          optionalString(expectedTransition.from) ||
+        optionalString(observedTransition.to) !==
+          optionalString(expectedTransition.to) ||
+        optionalString(observedTransition.when) !==
+          optionalString(expectedTransition.when)
+      );
+    });
+
+  if (
+    topologyContract &&
+    (transitions.length === 0 ||
+      invalidTransitions.length > 0 ||
+      transitionContractMismatch)
+  ) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_TRANSITION_REFERENCE_INVALID",
+      field: "workflow.topology.transitions",
+      meaning: "One or more topology transitions do not connect declared work units.",
+      expected: canonicalTransitions,
+      observed:
+        transitions.length === 0
+          ? []
+          : invalidTransitions.length > 0
+            ? invalidTransitions
+            : transitions,
+      repair_instruction:
+        "Restore the ordered canonical transition contract so every required work unit is reachable from orient through artifact-local verification and recovery.",
+    });
+  }
+
+  const recoveryWorkUnitId = "recover";
+  const hasRecoveryEntry = transitions.some(
+    (transition) =>
+      optionalString(transition.to) === recoveryWorkUnitId &&
+      workUnitIds.includes(optionalString(transition.from)),
+  );
+  const hasRecoveryExit = transitions.some(
+    (transition) =>
+      optionalString(transition.from) === recoveryWorkUnitId &&
+      workUnitIds.includes(optionalString(transition.to)),
+  );
+
+  if (
+    topologyContract &&
+    (!workUnitIds.includes(recoveryWorkUnitId) ||
+      !hasRecoveryEntry ||
+      !hasRecoveryExit)
+  ) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_RECOVERY_PATH_MISSING",
+      field: "workflow.topology.transitions",
+      meaning: "The artifact workflow has no explicit connected recovery work unit.",
+      expected:
+        "Declared transitions enter and leave the recover work unit using valid work-unit ids.",
+      observed: transitions,
+      repair_instruction:
+        "Add valid inbound and outbound transitions for the recover work unit so cancellation or invalid work returns to a declared safe state.",
+    });
+  }
+
+  const workflowStateGroups = isPlainObject(workflow.state_groups)
+    ? workflow.state_groups
+    : null;
+  const canonicalStateGroups = isPlainObject(
+    getArtifactInspectorModel(contract)?.state_groups,
+  )
+    ? getArtifactInspectorModel(contract).state_groups
+    : {};
+  const canonicalStateGroupIds = Object.keys(canonicalStateGroups);
+  const activityActivatedStateGroups = deriveArtifactInspectorActiveStateGroups({
+    source_input: sourceInput,
+    workflow: {
+      ...workflow,
+      state_groups: {},
+    },
+    activity_model: activityReview?.candidate?.activity_model,
+    interaction_contract: activityReview?.candidate?.interaction_contract,
+  });
+
+  if (!workflowStateGroups) {
+    push({
+      code: "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+      field: "workflow.state_groups",
+      meaning: "The artifact workflow does not declare its active state groups.",
+      expected: { core: canonicalStateGroups.core ?? [] },
+      observed: workflow.state_groups,
+      repair_instruction:
+        "Declare the core state group and only the conditional state groups activated by the activity.",
+    });
+  } else {
+    const observedGroupIds = Object.keys(workflowStateGroups);
+    const missingActivityGroups = activityActivatedStateGroups.filter(
+      (groupId) => !observedGroupIds.includes(groupId),
+    );
+    const unexpectedGroupIds = observedGroupIds.filter(
+      (groupId) => !canonicalStateGroupIds.includes(groupId),
+    );
+    const inventedConditionalGroupIds = observedGroupIds.filter(
+      (groupId) => !activityActivatedStateGroups.includes(groupId),
+    );
+    if (!observedGroupIds.includes("core") || unexpectedGroupIds.length > 0) {
+      push({
+        code: "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+        field: "workflow.state_groups",
+        meaning:
+          "The artifact workflow must declare core and only canonical conditional state groups.",
+        expected: {
+          required: ["core"],
+          allowed: canonicalStateGroupIds,
+        },
+        observed: observedGroupIds,
+        repair_instruction:
+          "Restore core and remove unknown state-group ids; add conditional groups only when the activity activates them.",
+      });
+    }
+    if (missingActivityGroups.length > 0) {
+      push({
+        code: "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+        field: "workflow.state_groups",
+        meaning:
+          "The artifact workflow omits conditional state groups activated by the reviewed activity.",
+        expected: activityActivatedStateGroups,
+        observed: observedGroupIds,
+        repair_instruction: `Add the activity-required state groups from the registry: ${missingActivityGroups.join(", ")}.`,
+      });
+    }
+    if (inventedConditionalGroupIds.length > 0) {
+      push({
+        code: "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+        field: "workflow.state_groups",
+        meaning:
+          "The artifact workflow invents conditional state groups that the reviewed activity does not activate.",
+        expected: activityActivatedStateGroups,
+        observed: observedGroupIds,
+        repair_instruction: `Remove inactive conditional state groups: ${inventedConditionalGroupIds.join(", ")}.`,
+      });
+    }
+    for (const groupId of observedGroupIds.filter((id) =>
+      canonicalStateGroupIds.includes(id),
+    )) {
+      const expectedStates = toStringArray(canonicalStateGroups[groupId]);
+      const observedStates = toStringArray(workflowStateGroups[groupId]);
+      if (
+        observedStates.length !== expectedStates.length ||
+        expectedStates.some((state) => !observedStates.includes(state))
+      ) {
+        push({
+          code: "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+          field: `workflow.state_groups.${groupId}`,
+          meaning:
+            "An active Artifact Inspector state group does not match the canonical registry definition.",
+          expected: expectedStates,
+          observed: observedStates,
+          repair_instruction: `Restore the canonical ${groupId} state set from the interaction-model registry.`,
+        });
+      }
+    }
+  }
+
+  return {
+    selected: true,
+    surface_type: identifiers.surface_type,
+    workflow_profile: identifiers.workflow_profile,
+    topology_kind: identifiers.topology_kind,
+    active_state_groups: activityActivatedStateGroups,
+    valid: diagnostics.length === 0,
+    diagnostics,
+  };
+}
+
 function buildUiWorkflowCandidateGuardrails(
   candidate,
   contract,
   activityReview,
   surfaceGuidance,
+  guidanceProfile,
+  sourceInput,
 ) {
+  const artifactInspector = buildArtifactInspectorWorkflowDiagnostics(
+    candidate,
+    contract,
+    guidanceProfile,
+    surfaceGuidance,
+    activityReview,
+    sourceInput,
+  );
+
   return {
     candidate_primary_terms_detected: buildUiWorkflowPrimaryTermsDetected(
       candidate,
@@ -3430,6 +5836,7 @@ function buildUiWorkflowCandidateGuardrails(
       surfaceGuidance,
       contract,
     ),
+    ...(artifactInspector ? { artifact_inspector: artifactInspector } : {}),
   };
 }
 
@@ -3444,6 +5851,7 @@ function normalizeUiWorkflowCandidate(
   {
     contract,
     surfaceGuidance,
+    guidanceProfile,
     stepperEligibility,
   } = {},
 ) {
@@ -3472,11 +5880,46 @@ function normalizeUiWorkflowCandidate(
     candidate,
     candidatePrimaryTermsDetected,
   );
-  const workUnits = sanitizeUiWorkflowList(
-    workflow.work_units,
-    candidatePrimaryTermsDetected,
+  const artifactInspectorSelected = isArtifactInspectorWorkflowSelected(
+    candidate,
+    contract,
+    guidanceProfile,
+    surfaceGuidance,
   );
-  const topology = inferWorkflowTopology(candidate, surfaceGuidance, contract);
+  const workUnits = artifactInspectorSelected
+    ? cloneWorkflowStructuredValue(toWorkflowWorkUnitArray(workflow.work_units))
+    : sanitizeUiWorkflowList(
+        workflow.work_units,
+        candidatePrimaryTermsDetected,
+      );
+  const topology = artifactInspectorSelected
+    ? getArtifactInspectorIdentifiers(contract).topology_kind
+    : inferWorkflowTopology(candidate, surfaceGuidance, contract);
+  const topologyContract = artifactInspectorSelected
+    ? normalizeArtifactTopologyContract(candidate, contract, { force: true })
+    : null;
+  const workflowArtifact = isPlainObject(workflow.artifact)
+    ? cloneWorkflowStructuredValue(workflow.artifact)
+    : artifactInspectorSelected && isPlainObject(candidate.artifact)
+      ? cloneWorkflowStructuredValue(candidate.artifact)
+      : null;
+  const workflowTargetModel = isPlainObject(workflow.target_model)
+    ? cloneWorkflowStructuredValue(workflow.target_model)
+    : artifactInspectorSelected && isPlainObject(candidate.target_model)
+      ? cloneWorkflowStructuredValue(candidate.target_model)
+      : null;
+  const workflowStateGroups = isPlainObject(workflow.state_groups)
+    ? cloneWorkflowStructuredValue(workflow.state_groups)
+    : null;
+  const topLevelArtifact = isPlainObject(candidate.artifact)
+    ? cloneWorkflowStructuredValue(candidate.artifact)
+    : null;
+  const topLevelTargetModel = isPlainObject(candidate.target_model)
+    ? cloneWorkflowStructuredValue(candidate.target_model)
+    : null;
+  const topLevelStateGroups = isPlainObject(candidate.state_groups)
+    ? cloneWorkflowStructuredValue(candidate.state_groups)
+    : null;
 
   return {
     workflow: {
@@ -3486,7 +5929,11 @@ function normalizeUiWorkflowCandidate(
         "Workflow review",
       ),
       topology,
+      ...(topologyContract ? { topology_contract: topologyContract } : {}),
       work_units: workUnits,
+      ...(workflowArtifact ? { artifact: workflowArtifact } : {}),
+      ...(workflowTargetModel ? { target_model: workflowTargetModel } : {}),
+      ...(workflowStateGroups ? { state_groups: workflowStateGroups } : {}),
       stepper_eligibility: stepperEligibility,
       primary_actions: sanitizeUiWorkflowList(
         workflow.primary_actions,
@@ -3502,6 +5949,13 @@ function normalizeUiWorkflowCandidate(
         activityCandidate?.interaction_contract?.completion ?? "",
       ),
     },
+    ...(!artifactInspectorSelected && topLevelArtifact
+      ? { artifact: topLevelArtifact }
+      : {}),
+    ...(!artifactInspectorSelected && topLevelTargetModel
+      ? { target_model: topLevelTargetModel }
+      : {}),
+    ...(topLevelStateGroups ? { state_groups: topLevelStateGroups } : {}),
     surface_set: surfaceSet,
     product_terms: sanitizedUserTerms,
     handoff: {
@@ -3573,6 +6027,11 @@ function buildUiWorkflowQuestions(activityReview, candidateGuardrails) {
     );
   }
 
+  for (const diagnostic of
+    candidateGuardrails.artifact_inspector?.diagnostics ?? []) {
+    questions.push(diagnostic.repair_instruction);
+  }
+
   return selectTargetedQuestionsFromCandidates(questions);
 }
 
@@ -3619,6 +6078,7 @@ function buildUiWorkflowConfidence(activityReview, candidateGuardrails) {
     activityReview.review_status !== "ready_for_review" ||
     hasUiWorkflowMissingField(candidateGuardrails.candidate_missing_fields) ||
     candidateGuardrails.stepper_eligibility?.blocked ||
+    candidateGuardrails.artifact_inspector?.valid === false ||
     candidateGuardrails.candidate_primary_terms_detected.length > 0 ||
     candidateGuardrails.candidate_primary_meta_terms_detected.length > 0
   ) {
@@ -3639,6 +6099,7 @@ function buildUiWorkflowReviewPacket(
   contract,
   guidanceProfile = null,
   surfaceReview = null,
+  sourceInput = "",
 ) {
   const sourceReady = activityReview.review_status === "ready_for_review";
   const surfaceGuidance = summarizeSurfaceReview(surfaceReview);
@@ -3647,10 +6108,28 @@ function buildUiWorkflowReviewPacket(
     contract,
     activityReview,
     surfaceGuidance,
+    guidanceProfile,
+    sourceInput,
   );
+  const validatedArtifactInspector =
+    candidateGuardrails.artifact_inspector?.valid === true
+      ? candidateGuardrails.artifact_inspector
+      : null;
+  const resolvedSurfaceGuidance =
+    validatedArtifactInspector &&
+    !optionalString(surfaceGuidance?.recommended_surface_type)
+      ? {
+          recommended_surface_type: validatedArtifactInspector.surface_type,
+          confidence: "validated_workflow",
+          blocked_surface_types: [],
+          ...buildSurfaceImplications(validatedArtifactInspector.surface_type),
+        }
+      : surfaceGuidance;
   const candidateReady =
     !hasUiWorkflowMissingField(candidateGuardrails.candidate_missing_fields) &&
     !candidateGuardrails.stepper_eligibility?.blocked &&
+    candidateGuardrails.artifact_inspector?.valid !== false &&
+    resolvedSurfaceGuidance?.status !== "review_required" &&
     candidateGuardrails.candidate_primary_terms_detected.length === 0 &&
     candidateGuardrails.candidate_primary_meta_terms_detected.length === 0;
   const normalizedCandidate = normalizeUiWorkflowCandidate(
@@ -3659,7 +6138,8 @@ function buildUiWorkflowReviewPacket(
     candidateGuardrails.candidate_primary_terms_detected,
     {
       contract,
-      surfaceGuidance,
+      surfaceGuidance: resolvedSurfaceGuidance,
+      guidanceProfile,
       stepperEligibility: candidateGuardrails.stepper_eligibility,
     },
   );
@@ -3677,12 +6157,17 @@ function buildUiWorkflowReviewPacket(
     source: {
       ...source,
       input_excerpt: activityReview.source?.input_excerpt,
+      ...(candidateGuardrails.artifact_inspector &&
+      typeof sourceInput === "string" &&
+      sourceInput.trim().length > 0
+        ? { reviewed_activity_input: sourceInput.trim() }
+        : {}),
     },
     ...(guidanceProfile ? { guidance_profile: guidanceProfile } : {}),
-    ...(surfaceGuidance
+    ...(resolvedSurfaceGuidance
       ? {
-          surface_type: surfaceGuidance.recommended_surface_type,
-          surface_guidance: surfaceGuidance,
+          surface_type: resolvedSurfaceGuidance.recommended_surface_type,
+          surface_guidance: resolvedSurfaceGuidance,
         }
       : {}),
     activity_review: activityReview,
@@ -3706,12 +6191,15 @@ function buildUiWorkflowReviewPacket(
           candidateGuardrails.candidate_primary_terms_detected,
         candidate_primary_meta_terms_detected:
           candidateGuardrails.candidate_primary_meta_terms_detected,
+        ...(candidateGuardrails.artifact_inspector
+          ? { artifact_inspector: candidateGuardrails.artifact_inspector }
+          : {}),
       },
       assumptions: buildUiWorkflowReviewAssumptions(
         activityReview,
         source,
         guidanceProfile,
-        surfaceGuidance,
+        resolvedSurfaceGuidance,
       ),
       confidence: buildUiWorkflowConfidence(activityReview, candidateGuardrails),
       targeted_questions: buildUiWorkflowQuestions(activityReview, candidateGuardrails),
@@ -3725,24 +6213,41 @@ function buildUiWorkflowReviewPacket(
       candidate_primary_meta_terms_detected:
         candidateGuardrails.candidate_primary_meta_terms_detected,
       stepper_eligibility: candidateGuardrails.stepper_eligibility,
+      ...(candidateGuardrails.artifact_inspector
+        ? { artifact_inspector: candidateGuardrails.artifact_inspector }
+        : {}),
       implementation_terms_detected:
         activityReview.guardrails?.implementation_terms_detected ?? [],
       disclosure_translation_candidates:
         activityReview.guardrails?.disclosure_translation_candidates ?? [],
       ...(guidanceProfile ? { guidance_profile_id: guidanceProfile.profile_id } : {}),
-      ...(surfaceGuidance
-        ? { recommended_surface_type: surfaceGuidance.recommended_surface_type }
+      ...(resolvedSurfaceGuidance
+        ? {
+            recommended_surface_type:
+              resolvedSurfaceGuidance.recommended_surface_type,
+          }
         : {}),
     },
   };
+
+  if (validatedArtifactInspector) {
+    packet.source.artifact_inspector_review_integrity =
+      createArtifactInspectorIntegritySeal(
+        "workflow_review",
+        artifactInspectorWorkflowReviewIntegrityPayload(packet, contract),
+      );
+  }
 
   assertNoStyleFields(packet);
 
   return packet;
 }
 
-function buildUiWorkflowCandidateShapeGuide() {
-  return {
+function buildUiWorkflowCandidateShapeGuide(
+  contract,
+  { artifactInspector = false } = {},
+) {
+  const guide = {
     workflow: {
       surface_name: "Short domain name for the workflow.",
       topology:
@@ -3774,6 +6279,49 @@ function buildUiWorkflowCandidateShapeGuide() {
       reveal_contexts: ["Contexts where diagnostics may be shown."],
     },
   };
+
+  if (!artifactInspector) {
+    return guide;
+  }
+
+  const model = getArtifactInspectorModel(contract) ?? {};
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+  const topology = isPlainObject(model.topology)
+    ? cloneWorkflowStructuredValue(model.topology)
+    : {
+        kind: identifiers.topology_kind,
+        primary_object_id: "artifact",
+        entry_work_unit_id: "orient",
+        completion_work_unit_ids: ["verify_result"],
+        transitions: [],
+      };
+
+  guide.workflow.topology = topology;
+  guide.workflow.work_units = Array.isArray(model.work_units)
+    ? cloneWorkflowStructuredValue(model.work_units)
+    : [
+        {
+          id: "orient",
+          participant_intent: "What the participant is trying to understand or do.",
+          system_responsibility: "What the UI must preserve or reveal.",
+        },
+      ];
+  guide.workflow.artifact = {
+    id: optionalString(topology.primary_object_id) || "artifact",
+    boundary: "The bounded rendered artifact that remains primary.",
+  };
+  guide.workflow.target_model = isPlainObject(model.target_model)
+    ? cloneWorkflowStructuredValue(model.target_model)
+    : {
+        target_kinds: ["whole_artifact", "element", "text_range", "region", "point"],
+      };
+  guide.workflow.state_groups = isPlainObject(model.state_groups)
+    ? {
+        core: cloneWorkflowStructuredValue(model.state_groups.core ?? []),
+      }
+    : {};
+
+  return guide;
 }
 
 function buildUiWorkflowReviewContext(activityReview) {
@@ -3816,18 +6364,38 @@ export function buildUiWorkflowCandidateRequest({
     );
   }
 
+  const resolvedContract = contract ?? loadActivityContract(contractPath);
   const guidanceProfile = profileId === undefined || profileId === null
     ? null
     : resolveUiWorkflowGuidanceProfile(
-        contract ?? loadActivityContract(contractPath),
+        resolvedContract,
         profileId,
       );
+  const surfaceGuidance = summarizeSurfaceReview(surfaceReview);
+  const artifactInspectorRequested = isArtifactInspectorWorkflowSelected(
+    { workflow: {} },
+    resolvedContract,
+    guidanceProfile,
+    surfaceGuidance,
+  ) || Boolean(
+    activityReview.review?.evidence?.artifact_inspector?.mandatory_satisfied ||
+      activityReview.guardrails?.artifact_inspector?.mandatory_satisfied,
+  );
   const userPayload = {
     brief: brief.trim(),
     activity_review: buildUiWorkflowReviewContext(activityReview),
-    candidate_shape: buildUiWorkflowCandidateShapeGuide(),
+    candidate_shape: buildUiWorkflowCandidateShapeGuide(resolvedContract, {
+      artifactInspector: artifactInspectorRequested,
+    }),
+    ...(artifactInspectorRequested
+      ? {
+          artifact_inspector_state_group_catalog:
+            cloneWorkflowStructuredValue(
+              getArtifactInspectorModel(resolvedContract)?.state_groups ?? {},
+            ),
+        }
+      : {}),
   };
-  const surfaceGuidance = summarizeSurfaceReview(surfaceReview);
 
   if (guidanceProfile) {
     userPayload.guidance_profile = guidanceProfile;
@@ -3845,6 +6413,9 @@ export function buildUiWorkflowCandidateRequest({
           "You propose a reviewable JudgmentKit UI workflow candidate.",
           "Return only JSON whose root object matches the UI workflow candidate shape.",
           "Ground topology, work units, coordinated surfaces, actions, decisions, handoff, and user-facing terms in the source brief and activity review.",
+          artifactInspectorRequested
+            ? "Use the artifact_centered topology object, stable structured work-unit ids, one artifact boundary, a semantic target model, explicit recovery transitions, artifact-local completion, and only the conditional state groups the activity needs."
+            : "",
           "Do not use staged_flow or numbered wizard/stepper framing unless the source has strong staged-flow intent such as explicit wizard wording, ordered setup/onboarding, form validation sequence, or strict dependency order.",
           "Keep implementation terms and JudgmentKit review-packet terms out of workflow, surface_set, and handoff.",
           "Implementation terms may appear only in diagnostics when they are diagnostic.",
@@ -3905,6 +6476,8 @@ export function createUiWorkflowProposer({
     );
   }
 
+  const resolvedContract = contract ?? loadActivityContract(contractPath);
+
   return async function proposeUiWorkflowCandidate({
     brief,
     activity_review: activityReview,
@@ -3916,12 +6489,11 @@ export function createUiWorkflowProposer({
       activity_review: activityReview,
       profile_id: requestProfileId ?? defaultProfileId,
       surface_review: surfaceReview,
-      contract,
-      contractPath,
+      contract: resolvedContract,
     });
     const candidate = parseCandidateResponse(await callModel(request));
 
-    assertUiWorkflowCandidateShape(candidate);
+    assertUiWorkflowCandidateShape(candidate, resolvedContract);
 
     return candidate;
   };
@@ -3937,11 +6509,11 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
     ...analysisOptions
   } = options;
 
-  assertUiWorkflowCandidateShape(candidate);
+  const contract = analysisOptions.contract ?? loadActivityContract(analysisOptions.contractPath);
+  assertUiWorkflowCandidateShape(candidate, contract);
 
   const activityReview =
     providedActivityReview ?? createActivityModelReview(input, analysisOptions);
-  const contract = analysisOptions.contract ?? loadActivityContract(analysisOptions.contractPath);
   const guidanceProfile = resolveUiWorkflowGuidanceProfile(contract, profileId);
   const resolvedSurfaceType = providedSurfaceType
     ? resolveSurfaceType(contract, providedSurfaceType).surface_type
@@ -3964,6 +6536,7 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
     contract,
     guidanceProfile,
     surfaceReview,
+    input,
   );
 }
 
@@ -4383,6 +6956,96 @@ function buildCognitiveDimensionsReviewFindings({
     optionalString(interactionContract.primary_decision),
   ]).filter(Boolean);
   const findings = [];
+  const artifactInspectorSelected =
+    surfaceType === getArtifactInspectorIdentifiers(contract).surface_type;
+
+  if (artifactInspectorSelected) {
+    const hasSemanticLocus = /\b(?:semantic\s+)?(?:locus|selected (?:element|passage|range|region|node|point|control)|active (?:element|passage|range|region|node|point|control))\b/.test(
+      normalizedPrimary,
+    );
+    const hasLocusRelativeContext = /\b(?:context|evidence|authority|action|feedback|reason|receipt)\b[^.]{0,140}\b(?:locus|selected|active|attached|anchored|beside|local)\b/.test(
+      normalizedPrimary,
+    );
+    const hasPreviewCommitSeparation =
+      /\bpreview\b/.test(normalizedPrimary) &&
+      /\b(?:commit|confirm|complete|result)\b/.test(normalizedPrimary);
+    const hasLocalEvaluation = /\b(?:validate|supported|incompatible|unavailable|stale|ambiguous|blocked|local (?:feedback|result|status))\b/.test(
+      normalizedPrimary,
+    );
+    const hasBoundedRecovery = /\b(?:back|cancel|recover|retry|reconcile|last safe|uncommitted)\b/.test(
+      normalizedPrimary,
+    );
+
+    if (!hasSemanticLocus) {
+      findings.push(createCognitiveFinding({
+        dimension: "closeness_of_mapping",
+        evidence:
+          "Artifact Inspector candidate does not name the semantic artifact locus that actions and context operate on.",
+        user_cost:
+          "The participant cannot tell which part of the artifact an action will inspect or change.",
+        repair_instruction:
+          "Name the selectable semantic locus and keep every action mapped to that active target.",
+        acceptance_check:
+          "The selected locus and the action that operates on it are legible together.",
+      }));
+    }
+
+    if (!hasLocusRelativeContext) {
+      findings.push(createCognitiveFinding({
+        dimension: "hidden_dependencies",
+        evidence:
+          "Artifact Inspector support is not visibly or semantically attached to the active locus.",
+        user_cost:
+          "The participant must remember which evidence, authority, or reason applies to the selected target.",
+        repair_instruction:
+          "Attach decision-changing context, authority, feedback, and receipts to the active semantic locus.",
+        acceptance_check:
+          "Every support object exposes its relation to the active locus without relying on memory.",
+      }));
+    }
+
+    if (!hasPreviewCommitSeparation) {
+      findings.push(createCognitiveFinding({
+        dimension: "premature_commitment",
+        evidence:
+          "Artifact Inspector candidate does not distinguish reversible preview from commitment or durable result.",
+        user_cost:
+          "A participant can mistake provisional state for a committed outcome or commit before validation.",
+        repair_instruction:
+          "Declare separate preview, local validation, explicit commitment when consequential, and durable result states.",
+        acceptance_check:
+          "Preview and committed result remain visibly and semantically distinct with no default affirmative.",
+      }));
+    }
+
+    if (!hasLocalEvaluation) {
+      findings.push(createCognitiveFinding({
+        dimension: "progressive_evaluation",
+        evidence:
+          "Artifact Inspector candidate lacks locus-local supported, invalid, unavailable, stale, ambiguous, or blocked evaluation state.",
+        user_cost:
+          "The participant cannot evaluate the relation or action before completing it.",
+        repair_instruction:
+          "Show validation and failure meaning on or immediately beside the active locus before completion.",
+        acceptance_check:
+          "The participant can evaluate a preview locally before commitment or bounded completion.",
+      }));
+    }
+
+    if (!hasBoundedRecovery) {
+      findings.push(createCognitiveFinding({
+        dimension: "viscosity",
+        evidence:
+          "Artifact Inspector candidate lacks Back, cancellation, retry, or reconciliation behavior tied to uncommitted state.",
+        user_cost:
+          "Recovering from a wrong target or invalid preview may discard committed work or require restarting the inspection.",
+        repair_instruction:
+          "Add a recovery path that reverses only uncommitted state and preserves committed results.",
+        acceptance_check:
+          "Back and cancellation return to the last safe state without erasing committed results.",
+      }));
+    }
+  }
 
   if (implementationTermsDetected.length > 0 && !setupDiagnosticContext) {
     findings.push(createCognitiveFinding({
@@ -4812,6 +7475,266 @@ function assertReadyUiWorkflowReviewShape(workflowReview) {
       "createUiGenerationHandoff requires activity_review.candidate.",
     );
   }
+}
+
+function objectHasTruthyReviewFlag(value) {
+  return isPlainObject(value) && Object.values(value).some(Boolean);
+}
+
+function artifactInspectorWorkflowReviewIntegrityPayload(
+  workflowReview,
+  contract,
+) {
+  const source = isPlainObject(workflowReview?.source)
+    ? { ...workflowReview.source }
+    : workflowReview?.source;
+  if (isPlainObject(source)) {
+    delete source.artifact_inspector_review_integrity;
+  }
+
+  return {
+    contract_model: getArtifactInspectorModel(contract),
+    packet: {
+      ...workflowReview,
+      source,
+    },
+  };
+}
+
+function artifactInspectorBoundaryIntegrityPayload(packet) {
+  const source = isPlainObject(packet?.source)
+    ? { ...packet.source }
+    : packet?.source;
+  if (isPlainObject(source)) {
+    delete source.artifact_inspector_boundary_integrity;
+  }
+
+  return {
+    ...packet,
+    source,
+  };
+}
+
+function assertUiWorkflowReviewStillReady(workflowReview, contract) {
+  const activityReview = workflowReview.activity_review;
+  const activityEvidence = activityReview?.review?.evidence ?? {};
+  const retainedActivityCandidateMissingFields =
+    activityReview?.guardrails?.candidate_missing_fields ?? {};
+  const recomputedActivityCandidateMissingFields =
+    buildCandidateMissingFields(activityReview?.candidate ?? {});
+  const retainedActivityPrimaryTerms = Array.isArray(
+    activityReview?.guardrails?.candidate_primary_terms_detected,
+  )
+    ? activityReview.guardrails.candidate_primary_terms_detected
+    : [];
+  const recomputedActivityPrimaryTerms = buildCandidatePrimaryTermsDetected(
+    activityReview?.candidate ?? {},
+    contract,
+  );
+  const retainedSourceMissingEvidence =
+    workflowReview.guardrails?.source_missing_evidence ?? {};
+  const activitySourceMissingEvidence =
+    activityReview?.guardrails?.source_missing_evidence ??
+    activityReview?.guardrails?.missing_evidence ??
+    {};
+  const retainedCandidateMissingFields =
+    workflowReview.guardrails?.candidate_missing_fields ?? {};
+  const recomputedCandidateMissingFields = buildUiWorkflowCandidateMissingFields(
+    workflowReview.candidate,
+  );
+  const recomputedPrimaryTerms = buildUiWorkflowPrimaryTermsDetected(
+    workflowReview.candidate,
+    contract,
+  );
+  const recomputedPrimaryMetaTerms = buildCandidatePrimaryMetaTermsDetected(
+    workflowReview.candidate,
+  );
+  const failures = [];
+  const requireReady = (condition, field, observed) => {
+    if (!condition) failures.push({ field, observed });
+  };
+
+  requireReady(
+    activityReview?.review_status === "ready_for_review",
+    "activity_review.review_status",
+    activityReview?.review_status ?? null,
+  );
+  requireReady(
+    workflowReview.guardrails?.activity_review_status === "ready_for_review",
+    "guardrails.activity_review_status",
+    workflowReview.guardrails?.activity_review_status ?? null,
+  );
+  requireReady(
+    workflowReview.review?.evidence?.activity_review_ready === true,
+    "review.evidence.activity_review_ready",
+    workflowReview.review?.evidence?.activity_review_ready ?? null,
+  );
+  for (const field of ["activity", "domain_vocabulary", "decision", "outcome"]) {
+    requireReady(
+      activityEvidence[field] === true,
+      `activity_review.review.evidence.${field}`,
+      activityEvidence[field] ?? null,
+    );
+  }
+  requireReady(
+    !objectHasTruthyReviewFlag(retainedSourceMissingEvidence),
+    "guardrails.source_missing_evidence",
+    retainedSourceMissingEvidence,
+  );
+  requireReady(
+    !objectHasTruthyReviewFlag(activitySourceMissingEvidence),
+    "activity_review.guardrails.source_missing_evidence",
+    activitySourceMissingEvidence,
+  );
+  requireReady(
+    !objectHasTruthyReviewFlag(retainedActivityCandidateMissingFields) &&
+      !objectHasTruthyReviewFlag(recomputedActivityCandidateMissingFields),
+    "activity_review.candidate",
+    recomputedActivityCandidateMissingFields,
+  );
+  requireReady(
+    retainedActivityPrimaryTerms.length === 0 &&
+      recomputedActivityPrimaryTerms.length === 0,
+    "activity_review.guardrails.candidate_primary_terms_detected",
+    recomputedActivityPrimaryTerms,
+  );
+  requireReady(
+    !objectHasTruthyReviewFlag(retainedCandidateMissingFields),
+    "guardrails.candidate_missing_fields",
+    retainedCandidateMissingFields,
+  );
+  requireReady(
+    !objectHasTruthyReviewFlag(recomputedCandidateMissingFields),
+    "candidate",
+    recomputedCandidateMissingFields,
+  );
+  requireReady(
+    toStringArray(workflowReview.guardrails?.candidate_primary_terms_detected)
+      .length === 0 && recomputedPrimaryTerms.length === 0,
+    "guardrails.candidate_primary_terms_detected",
+    recomputedPrimaryTerms,
+  );
+  requireReady(
+    toStringArray(
+      workflowReview.guardrails?.candidate_primary_meta_terms_detected,
+    ).length === 0 && recomputedPrimaryMetaTerms.length === 0,
+    "guardrails.candidate_primary_meta_terms_detected",
+    recomputedPrimaryMetaTerms,
+  );
+
+  const artifactInspectorSelected = isArtifactInspectorWorkflowSelected(
+    workflowReview.candidate,
+    contract,
+    workflowReview.guidance_profile,
+    workflowReview.surface_guidance,
+  );
+  let reviewedActiveStateGroups = [];
+  if (artifactInspectorSelected) {
+    const reviewedArtifactEvidence =
+      workflowReview.review?.evidence?.artifact_inspector;
+    const reviewedArtifactGuardrail =
+      workflowReview.guardrails?.artifact_inspector;
+    const activityArtifactEvidence =
+      activityEvidence.artifact_inspector ??
+      activityReview?.guardrails?.artifact_inspector;
+    const evidenceStateGroups = toStringArray(
+      reviewedArtifactEvidence?.active_state_groups,
+    );
+    const guardrailStateGroups = toStringArray(
+      reviewedArtifactGuardrail?.active_state_groups,
+    );
+    reviewedActiveStateGroups = ARTIFACT_INSPECTOR_STATE_GROUP_IDS.filter(
+      (groupId) => guardrailStateGroups.includes(groupId),
+    );
+    const reviewedActivityInput = optionalRawString(
+      workflowReview.source?.reviewed_activity_input,
+    );
+    const revalidatedArtifactGuardrail = reviewedActivityInput
+      ? buildArtifactInspectorWorkflowDiagnostics(
+          workflowReview.candidate,
+          contract,
+          workflowReview.guidance_profile,
+          workflowReview.surface_guidance,
+          activityReview,
+          reviewedActivityInput,
+        )
+      : null;
+    const independentlyDerivedActiveStateGroups = toStringArray(
+      revalidatedArtifactGuardrail?.active_state_groups,
+    );
+    const revalidatedStateGroupDiagnostics = Array.isArray(
+      revalidatedArtifactGuardrail?.diagnostics,
+    )
+      ? revalidatedArtifactGuardrail.diagnostics.filter(
+          (diagnostic) =>
+            optionalString(diagnostic?.code) ===
+            "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+        )
+      : [];
+    requireReady(
+      reviewedActivityInput.length > 0 &&
+        revalidatedArtifactGuardrail !== null &&
+        revalidatedStateGroupDiagnostics.length === 0,
+      "guardrails.artifact_inspector.active_state_groups",
+      {
+        reviewed_activity_input_present: reviewedActivityInput.length > 0,
+        diagnostics: revalidatedStateGroupDiagnostics,
+      },
+    );
+    requireReady(
+      reviewedArtifactEvidence?.valid === true &&
+        reviewedArtifactGuardrail?.valid === true,
+      "guardrails.artifact_inspector.valid",
+      {
+        review: reviewedArtifactEvidence?.valid ?? null,
+        guardrails: reviewedArtifactGuardrail?.valid ?? null,
+      },
+    );
+    requireReady(
+      artifactInspectorStateGroupsMatch(
+        evidenceStateGroups,
+        guardrailStateGroups,
+      ) &&
+        artifactInspectorStateGroupsMatch(
+          guardrailStateGroups,
+          reviewedActiveStateGroups,
+        ) &&
+        artifactInspectorStateGroupsMatch(
+          reviewedActiveStateGroups,
+          independentlyDerivedActiveStateGroups,
+        ) &&
+        reviewedActiveStateGroups.includes("core"),
+      "guardrails.artifact_inspector.active_state_groups",
+      {
+        review: evidenceStateGroups,
+        guardrails: guardrailStateGroups,
+        independently_derived: independentlyDerivedActiveStateGroups,
+      },
+    );
+    requireReady(
+      activityArtifactEvidence?.mandatory_satisfied === true &&
+        activityArtifactEvidence?.conflict !== true &&
+        toStringArray(activityArtifactEvidence?.missing_mandatory_evidence)
+          .length === 0,
+      "activity_review.review.evidence.artifact_inspector",
+      activityArtifactEvidence ?? null,
+    );
+  }
+
+  if (failures.length > 0) {
+    throw new JudgmentKitInputError(
+      "UI generation handoff requires the nested reviewed evidence and candidate guardrails to remain ready.",
+      {
+        code: "handoff_blocked",
+        details: {
+          reason: "review_packet_no_longer_ready",
+          failures,
+        },
+      },
+    );
+  }
+
+  return reviewedActiveStateGroups;
 }
 
 function termEntriesToNames(entries) {
@@ -6600,6 +9523,33 @@ function normalizeDefaultAiNativeDesignSystem(sourcePolicy, fallbackPolicy) {
   };
 }
 
+function canonicalJudgmentKitDesignSystemAuthority() {
+  const implementationContract = getContractUiImplementationContract(
+    loadActivityContract(),
+  );
+  const defaultDesignSystem = normalizeDefaultAiNativeDesignSystem(
+    implementationContract.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
+  const visualTokenAdapter = normalizeVisualTokenAdapter(
+    implementationContract.visual_token_adapter,
+    DEFAULT_VISUAL_TOKEN_ADAPTER,
+  );
+  const designSystemSource = normalizeDesignSystemSource(
+    implementationContract.design_system_source,
+    {
+      visualTokenAdapter,
+      componentContracts: defaultDesignSystem.component_contracts,
+    },
+  );
+
+  return {
+    defaultDesignSystem,
+    visualTokenAdapter,
+    designSystemSource,
+  };
+}
+
 function firstDefined(...values) {
   return values.find((value) => value !== undefined && value !== null);
 }
@@ -8295,6 +11245,232 @@ function localComponentAuthorityIsActive(authority) {
   return policy.mode === "repo_local" || policy.enforcement === "required";
 }
 
+function deriveArtifactInspectorActiveStateGroups(source = {}) {
+  const explicit = toStringArray(
+    source.artifact_inspector?.active_state_groups ??
+      source.artifactInspector?.activeStateGroups,
+  );
+
+  if (explicit.length > 0) {
+    return ARTIFACT_INSPECTOR_STATE_GROUP_IDS.filter((groupId) =>
+      explicit.includes(groupId),
+    );
+  }
+
+  const declaredStateGroups = isPlainObject(source.workflow?.state_groups)
+    ? source.workflow.state_groups
+    : isPlainObject(source.state_groups)
+      ? source.state_groups
+      : {};
+  const activityText = normalizeText(
+    collectStringValues({
+      source_input: source.source_input,
+      workflow: source.workflow,
+      activity_model: source.activity_model,
+      interaction_contract: source.interaction_contract,
+    }).join(" "),
+  );
+  const active = new Set(["core"]);
+
+  for (const groupId of ARTIFACT_INSPECTOR_STATE_GROUP_IDS.slice(1)) {
+    if (
+      Array.isArray(declaredStateGroups[groupId]) &&
+      declaredStateGroups[groupId].length > 0
+    ) {
+      active.add(groupId);
+    }
+  }
+
+  if (
+    /\b(?:consequential|commit|approve|reject|publish|external effect|outcome pending|committing|commit succeeded|known failure|unknown result|receipt reconciliation|immutable receipt|concurrent result|superseding action)\b/.test(
+      activityText,
+    )
+  ) {
+    active.add("consequential");
+  }
+
+  if (
+    /\b(?:reusable guidance|later repeats?|future cases?|accepted version|accepting guidance|supersession|revocation)\b/.test(
+      activityText,
+    )
+  ) {
+    active.add("reusable_guidance");
+  }
+
+  if (
+    /\b(?:automation|automatic resolution|match preflight|exact match|near or partial match|inline causal receipt|exception returned to human review)\b/.test(
+      activityText,
+    )
+  ) {
+    active.add("automation");
+  }
+
+  return ARTIFACT_INSPECTOR_STATE_GROUP_IDS.filter((groupId) =>
+    active.has(groupId),
+  );
+}
+
+function deriveArtifactInspectorReviewedActiveStateGroups({
+  sourceInput,
+} = {}) {
+  return deriveArtifactInspectorActiveStateGroups({
+    source_input: sourceInput,
+    workflow: { state_groups: {} },
+    activity_model: {},
+    interaction_contract: {},
+  });
+}
+
+function artifactInspectorStateGroupsMatch(left, right) {
+  return (
+    Array.isArray(left) &&
+    Array.isArray(right) &&
+    left.length === right.length &&
+    left.every((groupId, index) => groupId === right[index])
+  );
+}
+
+function artifactInspectorImplementationFields(source, contract) {
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+  const requestedSurfaceType = normalizeOptionalSurfaceType(
+    source.surface_type ?? source.surfaceType,
+  );
+  const suppliedScopes =
+    source.design_system_scopes ?? source.designSystemScopes;
+  const suppliedBoundaries =
+    source.boundary_contracts ?? source.boundaryContracts;
+  const suppliedArtifactInspector =
+    source.artifact_inspector ?? source.artifactInspector;
+  const hasAnyBundleField =
+    suppliedScopes !== undefined ||
+    suppliedBoundaries !== undefined ||
+    suppliedArtifactInspector !== undefined;
+  const model = getArtifactInspectorModel(contract);
+
+  if (requestedSurfaceType === identifiers.surface_type && !model) {
+    throw new JudgmentKitInputError(
+      "The active contract does not support the requested Artifact Inspector profile.",
+      {
+        code: "artifact_inspector_profile_unsupported",
+        details: {
+          surface_type: identifiers.surface_type,
+          workflow_profile: identifiers.workflow_profile,
+          frontend_surface_profile: identifiers.frontend_surface_profile,
+          fallback_applied: false,
+        },
+      },
+    );
+  }
+
+  if (requestedSurfaceType) {
+    resolveSurfaceType(contract, requestedSurfaceType);
+  }
+
+  if (
+    requestedSurfaceType &&
+    requestedSurfaceType !== identifiers.surface_type &&
+    hasAnyBundleField
+  ) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector authority fields cannot be attached to a different surface type.",
+      {
+        code: "invalid_artifact_inspector_authority_contract",
+        details: {
+          selected_surface_type: requestedSurfaceType,
+          required_surface_type: identifiers.surface_type,
+        },
+      },
+    );
+  }
+
+  const activate = requestedSurfaceType === identifiers.surface_type;
+  if (!activate && !hasAnyBundleField) {
+    return {};
+  }
+
+  if (!model) {
+    throw new JudgmentKitInputError(
+      "The active contract does not support Artifact Inspector authority.",
+      {
+        code: "artifact_inspector_profile_unsupported",
+        details: {
+          surface_type: identifiers.surface_type,
+          frontend_surface_profile: identifiers.frontend_surface_profile,
+        },
+      },
+    );
+  }
+
+  const canonicalArtifactInspector = {
+    registry_id: optionalString(model.id) || identifiers.surface_type,
+    registry_version: optionalString(model.version) || "1.0.0",
+    surface_type: identifiers.surface_type,
+    workflow_profile: identifiers.workflow_profile,
+    frontend_surface_profile: identifiers.frontend_surface_profile,
+    topology_kind: identifiers.topology_kind,
+    active_state_groups: deriveArtifactInspectorActiveStateGroups(source),
+    state_groups: cloneWorkflowStructuredValue(model.state_groups ?? {}),
+    trusted_runtime_evidence_required: true,
+    external_artifact_review_status: "external_not_reviewed",
+  };
+  const candidate = {
+    ...(activate
+      ? {
+          design_system_scopes:
+            suppliedScopes ??
+            cloneWorkflowStructuredValue(model.design_system?.scopes ?? []),
+          boundary_contracts:
+            suppliedBoundaries ??
+            cloneWorkflowStructuredValue(
+              model.design_system?.boundary_contracts ?? [],
+            ),
+          artifact_inspector: isPlainObject(suppliedArtifactInspector)
+            ? {
+                ...canonicalArtifactInspector,
+                ...cloneWorkflowStructuredValue(suppliedArtifactInspector),
+                state_groups:
+                  suppliedArtifactInspector.state_groups ??
+                  canonicalArtifactInspector.state_groups,
+              }
+            : canonicalArtifactInspector,
+        }
+      : {
+          ...(suppliedScopes !== undefined
+            ? { design_system_scopes: suppliedScopes }
+            : {}),
+          ...(suppliedBoundaries !== undefined
+            ? { boundary_contracts: suppliedBoundaries }
+            : {}),
+          ...(suppliedArtifactInspector !== undefined
+            ? { artifact_inspector: suppliedArtifactInspector }
+            : {}),
+        }),
+  };
+
+  try {
+    const normalized = validateArtifactInspectorAuthorityContract(candidate);
+    return normalized.active
+      ? {
+          design_system_scopes: normalized.design_system_scopes,
+          boundary_contracts: normalized.boundary_contracts,
+          artifact_inspector: normalized.artifact_inspector,
+        }
+      : {};
+  } catch (error) {
+    throw new JudgmentKitInputError(
+      error instanceof Error
+        ? error.message
+        : "Artifact Inspector authority contract is invalid.",
+      {
+        code:
+          optionalString(error?.code) ||
+          "invalid_artifact_inspector_authority_contract",
+        details: isPlainObject(error?.details) ? error.details : {},
+      },
+    );
+  }
+}
+
 function normalizeUiImplementationContract(input = {}, options = {}) {
   const contract = options.contract ?? loadActivityContract(options.contractPath);
   const base = getContractUiImplementationContract(contract);
@@ -8350,6 +11526,64 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
     visualCompositionPolicyAuthority,
     designSystemAdapter,
   } = resolveImplementationDesignSystem(source, base);
+  const artifactInspectorFields = artifactInspectorImplementationFields(
+    source,
+    contract,
+  );
+  const artifactInspectorComponentRoleIds = new Set(
+    toStringArray(
+      getArtifactInspectorModel(contract)?.design_system?.component_roles,
+    ),
+  );
+  const artifactInspectorPatternId =
+    optionalString(
+      contract.ui_workflow_profiles?.[
+        getArtifactInspectorIdentifiers(contract).workflow_profile
+      ]?.pattern_id,
+    ) || "artifact-inspector";
+  const artifactInspectorActive = Boolean(
+    artifactInspectorFields.artifact_inspector,
+  );
+  const canonicalArtifactInspectorDesignSystem = artifactInspectorActive
+    ? canonicalJudgmentKitDesignSystemAuthority()
+    : null;
+  const effectiveDefaultDesignSystem =
+    canonicalArtifactInspectorDesignSystem?.defaultDesignSystem ??
+    defaultDesignSystem;
+  const scopedDefaultDesignSystem = {
+    ...effectiveDefaultDesignSystem,
+    component_contracts: normalizeComponentContracts(
+      effectiveDefaultDesignSystem.component_contracts,
+    ).filter(
+      (entry) =>
+        artifactInspectorActive ||
+        !artifactInspectorComponentRoleIds.has(optionalString(entry.id)),
+    ),
+    pattern_contracts: normalizePatternContracts(
+      effectiveDefaultDesignSystem.pattern_contracts,
+    ).filter(
+      (entry) =>
+        artifactInspectorActive ||
+        optionalString(entry.id) !== artifactInspectorPatternId,
+    ),
+  };
+  if (
+    artifactInspectorFields.artifact_inspector &&
+    designSystemSource.mode !== "judgmentkit_default"
+  ) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector requires JudgmentKit authority for its chrome and overlay scopes; external visual authority belongs only to the declared primary_artifact scope.",
+      {
+        code: "invalid_artifact_inspector_authority_contract",
+        details: {
+          field: "design_system_source.mode",
+          expected: "judgmentkit_default",
+          observed: designSystemSource.mode,
+          external_artifact_scope: "primary_artifact",
+        },
+      },
+    );
+  }
 
   return {
     id: optionalString(source.id) || optionalString(base.id) || "judgmentkit.ui-implementation-contract.portable",
@@ -8385,12 +11619,15 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
             : true,
       checks: browserQaChecks,
     },
-    default_ai_native_design_system: defaultDesignSystem,
+    default_ai_native_design_system: scopedDefaultDesignSystem,
     iteration_policy: normalizeIterationPolicy(
       source.iteration_policy ?? source.iterationPolicy,
       base.iteration_policy,
     ),
-    design_system_source: designSystemSource,
+    design_system_source:
+      canonicalArtifactInspectorDesignSystem?.designSystemSource ??
+      designSystemSource,
+    ...artifactInspectorFields,
     ...(designSystemAdapter
       ? { design_system_adapter: designSystemAdapter }
       : {}),
@@ -8410,7 +11647,9 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
         source.defaultAiNativeDesignSystem?.localComponentAuthority,
       base.local_component_authority,
     ),
-    visual_token_adapter: visualTokenAdapter,
+    visual_token_adapter:
+      canonicalArtifactInspectorDesignSystem?.visualTokenAdapter ??
+      visualTokenAdapter,
     visual_asset_policy: normalizeVisualAssetPolicy(
       source.visual_asset_policy ?? source.visualAssetPolicy,
       base.visual_asset_policy,
@@ -8484,6 +11723,13 @@ export function createUiImplementationContract(input = {}, options = {}) {
       mode: implementationContractSource(input ?? {}),
       repo_name: optionalString(input?.repo_name),
       target_stack: optionalString(input?.target_stack),
+      ...(normalizeOptionalSurfaceType(input?.surface_type ?? input?.surfaceType)
+        ? {
+            surface_type: normalizeOptionalSurfaceType(
+              input?.surface_type ?? input?.surfaceType,
+            ),
+          }
+        : {}),
       external_authority: optionalString(
         input?.external_authority ?? input?.external_system_name,
       ),
@@ -8529,6 +11775,22 @@ export function createUiImplementationContract(input = {}, options = {}) {
             : []),
         ],
       },
+      ...(normalized.artifact_inspector
+        ? [
+            {
+              id: "artifact_inspector_authority_gate",
+              status: "review_required",
+              requirement:
+                "This interaction-model release has no accepting interactive-attestation producer; implementation review remains review_required.",
+              checks: [
+                "JudgmentKit chrome scope",
+                "JudgmentKit inspection overlay scope",
+                "external artifact preservation",
+                "declared cross-boundary interaction",
+              ],
+            },
+          ]
+        : []),
     ],
   };
 
@@ -8631,6 +11893,166 @@ function candidateImplementationSourceText(value) {
   }
 
   return unique(collectSourceEntries(value)).join("\n");
+}
+
+const ARTIFACT_INSPECTOR_EXTERNAL_SOURCE_KEYS = new Set([
+  "artifact",
+  "artifactMarkup",
+  "artifactSource",
+  "artifact_markup",
+  "artifact_source",
+  "externalArtifact",
+  "external_artifact",
+  "primaryArtifact",
+  "primary_artifact",
+]);
+
+const HTML_VOID_ELEMENT_NAMES = new Set([
+  "area",
+  "base",
+  "br",
+  "col",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr",
+]);
+
+function omitDeclaredExternalArtifactSources(value, depth = 0) {
+  if (!value || depth > 5) {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((entry) =>
+      omitDeclaredExternalArtifactSources(entry, depth + 1),
+    );
+  }
+  if (!isPlainObject(value)) {
+    return value;
+  }
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => !ARTIFACT_INSPECTOR_EXTERNAL_SOURCE_KEYS.has(key))
+      .map(([key, entry]) => [
+        key,
+        omitDeclaredExternalArtifactSources(entry, depth + 1),
+      ]),
+  );
+}
+
+function matchingElementEnd(source, tagName, openingEnd) {
+  const tagPattern = /<\s*(\/?)\s*([A-Za-z][\w:.-]*)\b[^>]*?>/g;
+  const normalizedTagName = tagName.toLowerCase();
+  let depth = 1;
+  tagPattern.lastIndex = openingEnd;
+  let match;
+  while ((match = tagPattern.exec(source)) !== null) {
+    if (match[2].toLowerCase() !== normalizedTagName) {
+      continue;
+    }
+    const closing = match[1] === "/";
+    const selfClosing = /\/\s*>$/.test(match[0]);
+    if (closing) {
+      depth -= 1;
+      if (depth === 0) {
+        return tagPattern.lastIndex;
+      }
+    } else if (!selfClosing) {
+      depth += 1;
+    }
+  }
+  return null;
+}
+
+function stripBoundedPrimaryArtifactMarkup(value) {
+  const source = optionalString(value);
+  if (!source || !/\bdata-artifact-root\b/i.test(source)) {
+    return source;
+  }
+  const tagPattern = /<\s*(\/?)\s*([A-Za-z][\w:.-]*)\b[^>]*?>/g;
+  const kept = [];
+  let cursor = 0;
+  let match;
+  while ((match = tagPattern.exec(source)) !== null) {
+    if (
+      match[1] === "/" ||
+      !/\bdata-artifact-root\b/i.test(match[0])
+    ) {
+      continue;
+    }
+    const tagName = match[2];
+    const selfClosing =
+      /\/\s*>$/.test(match[0]) ||
+      HTML_VOID_ELEMENT_NAMES.has(tagName.toLowerCase());
+    const elementEnd = selfClosing
+      ? tagPattern.lastIndex
+      : matchingElementEnd(source, tagName, tagPattern.lastIndex);
+    if (elementEnd === null) {
+      continue;
+    }
+    kept.push(source.slice(cursor, match.index));
+    cursor = elementEnd;
+    tagPattern.lastIndex = elementEnd;
+  }
+  kept.push(source.slice(cursor));
+  return kept.join("\n");
+}
+
+function stripPrimaryArtifactScopedCss(value) {
+  const source = optionalString(value);
+  if (!source || !/\bdata-artifact-root\b/i.test(source)) {
+    return source;
+  }
+  return source.replace(
+    /(<style\b[^>]*>)([\s\S]*?)(<\/style\s*>)/gi,
+    (_styleBlock, opening, cssText, closing) => {
+      const filteredCss = cssText.replace(
+        /([^{}]+)\{([^{}]*)\}/g,
+        (rule, selectorText) => {
+          const selectors = selectorText
+            .split(",")
+            .map((selector) => selector.trim())
+            .filter(Boolean);
+          return selectors.length > 0 &&
+            selectors.every((selector) => {
+              const artifactRootMatch =
+                /\[data-artifact-root(?:\s|\]|=)/i.exec(selector);
+              if (!artifactRootMatch) {
+                return false;
+              }
+              const prefix = selector.slice(0, artifactRootMatch.index);
+              const rootAppearsInsideFunctionalPseudo =
+                prefix.lastIndexOf("(") > prefix.lastIndexOf(")");
+              return (
+                !rootAppearsInsideFunctionalPseudo &&
+                !/[+~]/.test(selector) &&
+                !/:(?:has|is|not|where)\s*\(/i.test(selector)
+              );
+            })
+            ? ""
+            : rule;
+        },
+      );
+      return `${opening}${filteredCss}${closing}`;
+    },
+  );
+}
+
+function artifactInspectorOwnedImplementationText(candidate) {
+  const candidateWithoutExternalSources = omitDeclaredExternalArtifactSources(
+    candidate,
+  );
+  return stripPrimaryArtifactScopedCss(
+    stripBoundedPrimaryArtifactMarkup(
+      candidateImplementationSourceText(candidateWithoutExternalSources),
+    ),
+  );
 }
 
 function normalizeCandidateList(candidate, keys) {
@@ -12592,6 +16014,11 @@ function reviewEvidenceFieldMapping(
       "token family, font role, icon role, and catalog icon-id boundary proof -> visual_token_evidence",
       "visual-token, typography, icon asset, renderer component, import, package, and source-export proof -> design_system_provenance",
       "repo-local component selector and computed-style proof -> local_component_authority_evidence",
+      ...(sourceContract.artifact_inspector
+        ? [
+            "deferred owned-scope, artifact-preservation, and boundary attestation requirement -> checks.artifact_inspector (no accepting producer or candidate-authored field in this release)",
+          ]
+        : []),
     ],
     primitives_used: {
       field: "primitives_used",
@@ -12708,6 +16135,20 @@ function reviewEvidenceFieldMapping(
       not_for:
         "Do not use local_component_authority_evidence as component contract evidence, approved primitive evidence, accessibility evidence, static evidence, or browser QA evidence.",
     },
+    ...(sourceContract.artifact_inspector
+      ? {
+          artifact_inspector_authority_evidence: {
+            field: null,
+            reviewed_by: "checks.artifact_inspector",
+            source_path:
+              "implementation_contract.design_system_scopes + implementation_contract.boundary_contracts + implementation_contract.artifact_inspector",
+            accepts:
+              "No accepting evidence source is available in this release; the separately deferred interactive attestation must eventually separate inspector_chrome, inspection_overlay, primary_artifact preservation, and boundary results.",
+            candidate_authored_evidence_accepted: false,
+            external_artifact_review_status: "external_not_reviewed",
+          },
+        }
+      : {}),
     ...(sourceContract.visual_composition_policy
       ? {
           visual_composition_evidence: {
@@ -12812,7 +16253,10 @@ function candidateVisualCompositionEvidence(candidate) {
   );
 }
 
-function candidateTextWithoutVisualCompositionEvidence(candidate) {
+function candidateTextWithoutVisualCompositionEvidence(
+  candidate,
+  implementationContract,
+) {
   if (!isPlainObject(candidate)) return candidateText(candidate);
   const {
     visual_composition_manifest: _manifest,
@@ -12830,10 +16274,15 @@ function candidateTextWithoutVisualCompositionEvidence(candidate) {
     delete browserQa.visual_composition_manifest;
     delete browserQa.visualCompositionManifest;
   }
-  return candidateText({
+  const candidateWithoutVisualCompositionEvidence = {
     ...rest,
     ...(browserQa ? { browser_qa: browserQa } : {}),
-  });
+  };
+  return implementationContract?.artifact_inspector
+    ? artifactInspectorOwnedImplementationText(
+        candidateWithoutVisualCompositionEvidence,
+      )
+    : candidateText(candidateWithoutVisualCompositionEvidence);
 }
 
 function visualCompositionManifestSamples(manifest) {
@@ -13943,7 +17392,10 @@ function buildImplementationCandidateChecks(
   implementationContract,
   { selectedSurfaceType } = {},
 ) {
-  const text = candidateTextWithoutVisualCompositionEvidence(candidate);
+  const text = candidateTextWithoutVisualCompositionEvidence(
+    candidate,
+    implementationContract,
+  );
   const rawControls = detectRawControls(text);
   const primitivesUsed = normalizeCandidateList(candidate, [
     "primitives_used",
@@ -13964,7 +17416,23 @@ function buildImplementationCandidateChecks(
     "states_verified",
     "state_coverage",
   ]);
-  const requiredStates = implementationContract.state_coverage.required_states;
+  const artifactInspectorStateConfig = isPlainObject(
+    implementationContract.artifact_inspector,
+  )
+    ? implementationContract.artifact_inspector
+    : null;
+  const activeArtifactInspectorStateGroups = artifactInspectorStateConfig
+    ? toStringArray(artifactInspectorStateConfig.active_state_groups)
+    : [];
+  const artifactInspectorRequiredStates = artifactInspectorStateConfig
+    ? activeArtifactInspectorStateGroups.flatMap((groupId) =>
+        toStringArray(artifactInspectorStateConfig.state_groups?.[groupId]),
+      )
+    : [];
+  const requiredStates = unique([
+    ...implementationContract.state_coverage.required_states,
+    ...artifactInspectorRequiredStates,
+  ]);
   const missingStates = requiredStates.filter((state) => !statesCovered.includes(state));
   const staticChecks = normalizeCandidateList(candidate, [
     "static_checks",
@@ -14243,11 +17711,19 @@ function findingContractArea(check) {
     return "visual_composition";
   }
 
+  if (String(check).startsWith("artifact_inspector")) {
+    return "artifact_inspector_authority";
+  }
+
   return "evidence_gates";
 }
 
 function repairInstructionForFinding(finding, implementationContract) {
   const check = optionalString(finding.check);
+
+  if (optionalString(finding.repair_instruction)) {
+    return optionalString(finding.repair_instruction);
+  }
 
   if (check === "raw_controls") {
     return "Replace raw form controls with approved primitives or repo-local helpers before resubmitting.";
@@ -14381,7 +17857,11 @@ function buildRepairInstructions(findings, implementationContract) {
   };
 }
 
-function buildAutofixLoop(failed, iterationContext, iterationPolicy) {
+function buildAutofixLoop(
+  { failed, reviewRequired },
+  iterationContext,
+  iterationPolicy,
+) {
   const currentAttempt = iterationContext.current_attempt;
   const maxAttempts = iterationContext.max_attempts;
   const remainingAttempts = Math.max(0, maxAttempts - currentAttempt);
@@ -14389,10 +17869,14 @@ function buildAutofixLoop(failed, iterationContext, iterationPolicy) {
 
   return {
     owner: iterationPolicy.owner,
-    status: failed ? (stopForHuman ? "stopped" : "repairable") : "passed",
+    status: reviewRequired
+      ? "not_applicable"
+      : failed
+        ? (stopForHuman ? "stopped" : "repairable")
+        : "passed",
     current_attempt: currentAttempt,
     max_attempts: maxAttempts,
-    remaining_attempts: failed ? remainingAttempts : maxAttempts - currentAttempt,
+    remaining_attempts: remainingAttempts,
     loop: iterationPolicy.loop,
     judgmentkit_role: iterationPolicy.judgmentkit_role,
   };
@@ -14426,37 +17910,94 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
     throwIncompleteDesignSystemAuthority();
   }
   const selectedSurfaceType =
-    selectedSurfaceTypeFromImplementationReviewOptions(options);
+    selectedSurfaceTypeFromImplementationReviewOptions(
+      options,
+      contract,
+      candidate,
+    );
   const checks = buildImplementationCandidateChecks(
     candidate,
     implementationContract,
     { selectedSurfaceType },
   );
-  const designSystemFailed = designSystemGateFailed(checks);
-  const failed = checks.findings.some((finding) => finding.severity === "fail");
+  const artifactInspectorReview = reviewArtifactInspectorAuthorityEvidence(
+    implementationContract,
+  );
+  if (
+    selectedSurfaceType === getArtifactInspectorIdentifiers(contract).surface_type &&
+    !artifactInspectorReview.applicable
+  ) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector implementation review requires the scoped authority contract returned by create_ui_implementation_contract.",
+      {
+        code: "invalid_artifact_inspector_authority_contract",
+        details: {
+          selected_surface_type: selectedSurfaceType,
+          required_fields: [
+            "design_system_scopes",
+            "boundary_contracts",
+            "artifact_inspector",
+          ],
+        },
+      },
+    );
+  }
+  const artifactInspectorApplicable = artifactInspectorReview.applicable;
+  const artifactInspectorFailed = artifactInspectorReview.status === "fail";
+  const artifactInspectorReviewRequired =
+    artifactInspectorReview.status === "review_required";
+  const combinedFindings = artifactInspectorApplicable
+    ? [...checks.findings, ...artifactInspectorReview.findings]
+    : checks.findings;
+  const designSystemFailed =
+    designSystemGateFailed(checks) || artifactInspectorFailed;
+  const failed =
+    checks.findings.some((finding) => finding.severity === "fail") ||
+    artifactInspectorFailed;
+  const reviewRequired = !failed && artifactInspectorReviewRequired;
   const iterationPolicy = implementationContract.iteration_policy;
   const iterationContext = normalizeIterationContext(
     options.iteration_context ?? options.iterationContext,
     iterationPolicy,
   );
-  const autofixLoop = buildAutofixLoop(failed, iterationContext, iterationPolicy);
-  const nextAgentAction = failed
+  const autofixLoop = buildAutofixLoop(
+    { failed, reviewRequired },
+    iterationContext,
+    iterationPolicy,
+  );
+  const nextAgentAction = reviewRequired
+    ? "none"
+    : failed
     ? autofixLoop.status === "stopped"
       ? "stop_for_human"
       : "repair_and_resubmit"
     : "accept";
+  const implementationReviewStatus = failed
+    ? "failed"
+    : reviewRequired
+      ? "review_required"
+      : "passed";
+  const designSystemAcceptanceStatus = designSystemFailed
+    ? "failed"
+    : reviewRequired
+      ? "review_required"
+      : "passed";
   const packet = {
     version: contract.version,
     contract_id: contract.id,
     workflow_id: getContractWorkflowId(contract),
-    implementation_review_status: failed ? "failed" : "passed",
-    candidate_artifact_status: failed ? "not_an_artifact" : "accepted_artifact",
-    design_system_acceptance_status: designSystemFailed ? "failed" : "passed",
+    implementation_review_status: implementationReviewStatus,
+    candidate_artifact_status: failed
+      ? "not_an_artifact"
+      : reviewRequired
+        ? "review_required"
+        : "accepted_artifact",
+    design_system_acceptance_status: designSystemAcceptanceStatus,
     implementation_contract_id: implementationContract.id,
     next_agent_action: nextAgentAction,
     autofix_loop: autofixLoop,
     repair_instructions: buildRepairInstructions(
-      failed ? checks.findings : [],
+      failed ? combinedFindings : [],
       implementationContract,
     ),
     generation_gates: [
@@ -14468,16 +18009,26 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       },
       {
         id: "implementation_gate",
-        status: failed ? "failed" : "passed",
+        status: failed ? "failed" : reviewRequired ? "review_required" : "passed",
         requirement:
           "Generated UI must use approved primitives, respect local component authority, and provide static, browser QA, and applicable rendered visual composition evidence.",
       },
       {
         id: "design_system_gate",
-        status: designSystemFailed ? "failed" : "passed",
+        status: designSystemAcceptanceStatus,
         requirement:
           "Generated UI must prove active design-system provenance for visual tokens, typography, icon assets, renderer components, component contracts, and pattern contracts before it can count as an artifact.",
       },
+      ...(artifactInspectorApplicable
+        ? [
+            {
+              id: "artifact_inspector_authority_gate",
+              status: artifactInspectorReview.status,
+              requirement:
+                "Acceptance requires the separately deferred trusted interactive attestation for JudgmentKit chrome, inspection overlay, external artifact preservation, and boundary behavior; this release remains review_required.",
+            },
+          ]
+        : []),
     ],
     checks: {
       raw_controls: checks.raw_controls,
@@ -14495,8 +18046,11 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       component_contracts: checks.component_contracts,
       pattern_contracts: checks.pattern_contracts,
       visual_composition: checks.visual_composition,
+      ...(artifactInspectorApplicable
+        ? { artifact_inspector: artifactInspectorReview }
+        : {}),
     },
-    findings: checks.findings,
+    findings: combinedFindings,
     implementation_contract: implementationContract,
   };
 
@@ -14525,9 +18079,9 @@ function withoutCallerVisualCompositionEvidence(candidate) {
 }
 
 /**
- * Independently render and measure a candidate before reviewing it. The
- * private browser attestation exists only for this call; neither an attacher
- * nor the attested candidate is exposed to callers.
+ * Independently render and measure generic visual-composition relationships
+ * before reviewing a candidate. This static browser path does not produce or
+ * satisfy Artifact Inspector interactive-attestation evidence.
  */
 export async function reviewUiImplementationCandidateWithBrowserRuntime(
   candidate,
@@ -14634,6 +18188,15 @@ function compactImplementationContractForHandoff(implementationContract) {
       implementationContract.default_ai_native_design_system,
     iteration_policy: implementationContract.iteration_policy,
     design_system_source: implementationContract.design_system_source,
+    ...(implementationContract.design_system_scopes
+      ? { design_system_scopes: implementationContract.design_system_scopes }
+      : {}),
+    ...(implementationContract.boundary_contracts
+      ? { boundary_contracts: implementationContract.boundary_contracts }
+      : {}),
+    ...(implementationContract.artifact_inspector
+      ? { artifact_inspector: implementationContract.artifact_inspector }
+      : {}),
     ...(implementationContract.design_system_adapter
       ? { design_system_adapter: implementationContract.design_system_adapter }
       : {}),
@@ -14699,23 +18262,180 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
   const activityCandidate = workflowReview.activity_review.candidate;
   const workflowCandidate = workflowReview.candidate;
   const contract = options.contract ?? loadActivityContract(options.contractPath);
-  const implementationContract = normalizeUiImplementationContract(
+  const reviewedArtifactInspectorStateGroups =
+    assertUiWorkflowReviewStillReady(workflowReview, contract);
+  const identifiers = getArtifactInspectorIdentifiers(contract);
+  const workflowSelectsArtifactInspector = isArtifactTopologyCandidate(
+    workflowCandidate,
+    contract,
+  );
+  const declaredSurfaceType = normalizeOptionalSurfaceType(
+    workflowReview.surface_type,
+  );
+  const guidanceSurfaceType = normalizeOptionalSurfaceType(
+    workflowReview.surface_guidance?.recommended_surface_type,
+  );
+  if (
+    declaredSurfaceType &&
+    guidanceSurfaceType &&
+    declaredSurfaceType !== guidanceSurfaceType
+  ) {
+    throw new JudgmentKitInputError(
+      "UI generation handoff received conflicting reviewed surface fields.",
+      {
+        code: "handoff_blocked",
+        details: {
+          surface_type: declaredSurfaceType,
+          surface_guidance_type: guidanceSurfaceType,
+        },
+      },
+    );
+  }
+  const reviewedSurfaceType = declaredSurfaceType ?? guidanceSurfaceType;
+  if (
+    workflowSelectsArtifactInspector &&
+    reviewedSurfaceType &&
+    reviewedSurfaceType !== identifiers.surface_type
+  ) {
+    throw new JudgmentKitInputError(
+      "UI generation handoff cannot route an artifact-centered workflow to a conflicting surface.",
+      {
+        code: "handoff_blocked",
+        details: {
+          expected_surface_type: identifiers.surface_type,
+          observed_surface_type: reviewedSurfaceType,
+          workflow_topology: identifiers.topology_kind,
+        },
+      },
+    );
+  }
+  const handoffSurfaceType = workflowSelectsArtifactInspector
+    ? identifiers.surface_type
+    : reviewedSurfaceType;
+  const duplicateWorkUnitIds = duplicateWorkflowWorkUnitIds(
+    workflowCandidate.workflow?.work_units,
+  );
+  if (
+    handoffSurfaceType === identifiers.surface_type &&
+    duplicateWorkUnitIds.length > 0
+  ) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector handoff requires unique work-unit identifiers.",
+      {
+        code: "handoff_blocked",
+        details: {
+          field: "workflow.work_units",
+          duplicate_work_unit_ids: duplicateWorkUnitIds,
+          diagnostic_code:
+            "JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID",
+        },
+      },
+    );
+  }
+  const implementationContractInput =
     options.implementation_contract ??
-      options.ui_implementation_contract ??
-      contract.implementation_contract,
+    options.ui_implementation_contract ??
+    contract.implementation_contract;
+  if (
+    workflowSelectsArtifactInspector &&
+    !isPlainObject(implementationContractInput)
+  ) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector handoff requires an object implementation contract so scoped authority cannot be omitted.",
+      {
+        code: "invalid_artifact_inspector_authority_contract",
+        details: {
+          field: "implementation_contract",
+          observed_type: Array.isArray(implementationContractInput)
+            ? "array"
+            : typeof implementationContractInput,
+        },
+      },
+    );
+  }
+  const handoffActiveStateGroups = ARTIFACT_INSPECTOR_STATE_GROUP_IDS.filter(
+    (groupId) => reviewedArtifactInspectorStateGroups.includes(groupId),
+  );
+  const implementationContract = normalizeUiImplementationContract(
+    handoffSurfaceType === identifiers.surface_type
+      ? {
+          ...implementationContractInput,
+          surface_type: handoffSurfaceType,
+          artifact_inspector: {
+            ...(isPlainObject(implementationContractInput.artifact_inspector)
+              ? implementationContractInput.artifact_inspector
+              : {}),
+            active_state_groups: handoffActiveStateGroups,
+          },
+        }
+      : implementationContractInput,
     { contract },
   );
+  assertArtifactInspectorBoundaryConsistency({
+    workflow: workflowCandidate.workflow,
+    surfaceTypes: [handoffSurfaceType],
+    profileIds: [workflowReview.guidance_profile?.profile_id],
+    implementationContract,
+    activityModel: activityCandidate.activity_model,
+    interactionContract: activityCandidate.interaction_contract,
+    reviewedActiveStateGroups: handoffActiveStateGroups,
+    contract,
+    code: "handoff_blocked",
+    message:
+      "UI generation handoff cannot accept conflicting Artifact Inspector surface, topology, profile, or authority signals.",
+  });
+  if (
+    workflowSelectsArtifactInspector &&
+    !artifactInspectorIntegritySealMatches(
+      "workflow_review",
+      artifactInspectorWorkflowReviewIntegrityPayload(
+        workflowReview,
+        contract,
+      ),
+      workflowReview.source?.artifact_inspector_review_integrity,
+    )
+  ) {
+    throw new JudgmentKitInputError(
+      "UI generation handoff requires an intact workflow review from the current trusted review process.",
+      {
+        code: "handoff_blocked",
+        details: {
+          reason: "review_packet_no_longer_ready",
+          failures: [
+            {
+              field: "source.artifact_inspector_review_integrity",
+              observed: "invalid_or_stale",
+            },
+          ],
+        },
+      },
+    );
+  }
   const workflowSurfaceSet = toSurfaceSetArray(workflowCandidate.surface_set);
-  const handoffSurfaceGuidance = summarizeSurfaceReview(
+  let handoffSurfaceGuidance = summarizeSurfaceReview(
     workflowReview.surface_guidance,
     { includeFrontendPosture: true },
   );
 
-  if (handoffSurfaceGuidance?.recommended_surface_type) {
-    handoffSurfaceGuidance.frontend_posture =
-      buildSurfaceImplications(
-        handoffSurfaceGuidance.recommended_surface_type,
-      ).frontend_posture;
+  if (workflowSelectsArtifactInspector) {
+    const canonicalSurfaceImplications = buildSurfaceImplications(
+      identifiers.surface_type,
+    );
+    handoffSurfaceGuidance = {
+      ...(handoffSurfaceGuidance ?? {}),
+      recommended_surface_type: identifiers.surface_type,
+      blocked_surface_types: toStringArray(
+        handoffSurfaceGuidance?.blocked_surface_types,
+      ),
+      confidence:
+        optionalString(handoffSurfaceGuidance?.confidence) ||
+        optionalString(workflowReview.review?.confidence),
+      ...canonicalSurfaceImplications,
+    };
+  } else if (handoffSurfaceGuidance?.recommended_surface_type) {
+    handoffSurfaceGuidance.frontend_posture = buildSurfaceImplications(
+      handoffSurfaceGuidance.recommended_surface_type,
+    ).frontend_posture;
   }
   const handoff = {
     version: workflowReview.version,
@@ -14725,11 +18445,19 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
       mode: workflowReview.source?.mode,
       proposer: workflowReview.source?.proposer,
       input_excerpt: workflowReview.source?.input_excerpt,
+      ...(workflowSelectsArtifactInspector
+        ? {
+            reviewed_activity_input: optionalRawString(
+              workflowReview.source?.reviewed_activity_input,
+            ),
+            reviewed_active_state_groups: handoffActiveStateGroups,
+          }
+        : {}),
     },
     ...(workflowReview.guidance_profile
       ? { guidance_profile: workflowReview.guidance_profile }
       : {}),
-    ...(workflowReview.surface_type ? { surface_type: workflowReview.surface_type } : {}),
+    ...(handoffSurfaceType ? { surface_type: handoffSurfaceType } : {}),
     ...(handoffSurfaceGuidance
       ? { surface_guidance: handoffSurfaceGuidance }
       : {}),
@@ -14753,7 +18481,42 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
     workflow: {
       surface_name: optionalString(workflowCandidate.workflow.surface_name),
       topology: optionalString(workflowCandidate.workflow.topology),
-      work_units: toStringArray(workflowCandidate.workflow.work_units),
+      ...(isPlainObject(workflowCandidate.workflow.topology_contract)
+        ? {
+            topology_contract: cloneWorkflowStructuredValue(
+              workflowCandidate.workflow.topology_contract,
+            ),
+          }
+        : {}),
+      work_units: cloneWorkflowStructuredValue(
+        toWorkflowWorkUnitArray(workflowCandidate.workflow.work_units),
+      ),
+      ...((isPlainObject(workflowCandidate.workflow.artifact) ||
+        isPlainObject(workflowCandidate.artifact))
+        ? {
+            artifact: cloneWorkflowStructuredValue(
+              workflowCandidate.workflow.artifact ?? workflowCandidate.artifact,
+            ),
+          }
+        : {}),
+      ...((isPlainObject(workflowCandidate.workflow.target_model) ||
+        isPlainObject(workflowCandidate.target_model))
+        ? {
+            target_model: cloneWorkflowStructuredValue(
+              workflowCandidate.workflow.target_model ??
+                workflowCandidate.target_model,
+            ),
+          }
+        : {}),
+      ...((isPlainObject(workflowCandidate.workflow.state_groups) ||
+        isPlainObject(workflowCandidate.state_groups))
+        ? {
+            state_groups: cloneWorkflowStructuredValue(
+              workflowCandidate.workflow.state_groups ??
+                workflowCandidate.state_groups,
+            ),
+          }
+        : {}),
       stepper_eligibility:
         workflowCandidate.workflow.stepper_eligibility ?? workflowReview.guardrails?.stepper_eligibility,
       primary_actions: toStringArray(workflowCandidate.workflow.primary_actions),
@@ -14827,6 +18590,39 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
     ],
     implementation_contract:
       compactImplementationContractForHandoff(implementationContract),
+    ...(implementationContract.artifact_inspector
+      ? {
+          artifact_inspector: {
+            registry: cloneWorkflowStructuredValue(
+              implementationContract.artifact_inspector,
+            ),
+            artifact: cloneWorkflowStructuredValue(
+              workflowCandidate.workflow.artifact ??
+                workflowCandidate.artifact ??
+                {},
+            ),
+            target_model: cloneWorkflowStructuredValue(
+              workflowCandidate.workflow.target_model ??
+                workflowCandidate.target_model ??
+                {},
+            ),
+            state_groups: cloneWorkflowStructuredValue(
+              workflowCandidate.workflow.state_groups ??
+                workflowCandidate.state_groups ??
+                {},
+            ),
+            design_system_scopes: cloneWorkflowStructuredValue(
+              implementationContract.design_system_scopes,
+            ),
+            boundary_contracts: cloneWorkflowStructuredValue(
+              implementationContract.boundary_contracts,
+            ),
+            responsive_posture:
+              handoffSurfaceGuidance?.frontend_posture?.responsive_expectations ??
+              null,
+          },
+        }
+      : {}),
     ...(isPlainObject(cognitiveDimensionsReview)
       ? {
           cognitive_dimensions_review: {
@@ -14840,12 +18636,33 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
       : {}),
   };
 
+  if (workflowSelectsArtifactInspector) {
+    handoff.source.artifact_inspector_boundary_integrity =
+      createArtifactInspectorIntegritySeal(
+        "ui_generation_handoff",
+        artifactInspectorBoundaryIntegrityPayload(handoff),
+      );
+  }
+
   assertNoStyleFields(handoff);
 
   return handoff;
 }
 
 function textFromHandoff(handoff) {
+  const workflowWorkUnitText = toWorkflowWorkUnitArray(
+    handoff.workflow?.work_units,
+  ).flatMap((workUnit) =>
+    typeof workUnit === "string"
+      ? [workUnit]
+      : [
+          workUnit.id,
+          workUnit.label,
+          workUnit.participant_intent,
+          workUnit.system_responsibility,
+        ],
+  );
+
   return [
     handoff.activity_model?.activity,
     handoff.activity_model?.objective,
@@ -14857,7 +18674,7 @@ function textFromHandoff(handoff) {
     handoff.interaction_contract?.completion,
     handoff.workflow?.surface_name,
     handoff.workflow?.topology,
-    ...(toStringArray(handoff.workflow?.work_units)),
+    ...workflowWorkUnitText,
     ...(toStringArray(handoff.workflow?.primary_actions)),
     ...(toStringArray(handoff.workflow?.decision_points)),
     handoff.workflow?.completion_state,
@@ -14974,9 +18791,21 @@ function hasCompleteExternalImplementationAuthority({
   )
     .map((contract) => normalizeText(contract.id))
     .filter(Boolean);
+  const governedSurfaceComponentIds = listSurfacePresentationProfiles()
+    .flatMap((profile) =>
+      Array.isArray(profile.component_roles) ? profile.component_roles : [],
+    )
+    .map((component) => normalizeText(component?.id))
+    .filter(Boolean);
+  const canonicalJudgmentKitComponentIds = unique([
+    ...defaultComponentIds,
+    ...governedSurfaceComponentIds,
+  ]);
   const usesOnlyDefaultComponentContracts =
-    externalComponentIds.length === defaultComponentIds.length &&
-    externalComponentIds.every((id) => defaultComponentIds.includes(id));
+    externalComponentIds.length > 0 &&
+    externalComponentIds.every((id) =>
+      canonicalJudgmentKitComponentIds.includes(id),
+    );
   const rendererComponentIds = toStringArray(
     designSystemSource.renderer_components,
   )
@@ -15382,6 +19211,7 @@ export function createFrontendGenerationContext({
   surface_review: surfaceReview,
   surface_type: surfaceType,
   surface_profile: surfaceProfile,
+  supported_surface_profiles: supportedSurfaceProfiles,
   frontend_context: frontendContext,
   verification,
   contract,
@@ -15407,6 +19237,14 @@ export function createFrontendGenerationContext({
   }
 
   const resolvedContract = contract ?? loadActivityContract(contractPath);
+  const artifactIdentifiers = getArtifactInspectorIdentifiers(resolvedContract);
+  const handoffArtifactTopologySelected = isArtifactTopologyCandidate(
+    uiGenerationHandoff,
+    resolvedContract,
+  );
+  const topologySurfaceType = handoffArtifactTopologySelected
+    ? artifactIdentifiers.surface_type
+    : null;
   const providedSurfaceType = normalizeOptionalSurfaceType(surfaceType);
   const handoffSurfaceType = normalizeOptionalSurfaceType(
     uiGenerationHandoff.surface_type,
@@ -15422,7 +19260,11 @@ export function createFrontendGenerationContext({
     ? normalizeOptionalSurfaceType(surfaceReview.recommended_surface_type)
     : null;
   const selectedSurfaceType =
-    providedSurfaceType ?? handoffSurfaceType ?? reviewedSurfaceType;
+    providedSurfaceType ??
+    handoffSurfaceType ??
+    handoffGuidanceSurfaceType ??
+    reviewedSurfaceType ??
+    topologySurfaceType;
   const surfaceTypeCandidates = [
     ["surface_type", providedSurfaceType],
     ["ui_generation_handoff.surface_type", handoffSurfaceType],
@@ -15431,6 +19273,7 @@ export function createFrontendGenerationContext({
       handoffGuidanceSurfaceType,
     ],
     ["surface_review.recommended_surface_type", reviewedSurfaceType],
+    ["ui_generation_handoff.workflow.topology", topologySurfaceType],
   ].filter(([, value]) => value);
   const conflictingSurfaceTypes = surfaceTypeCandidates.filter(
     ([, value]) => value !== selectedSurfaceType,
@@ -15443,6 +19286,24 @@ export function createFrontendGenerationContext({
         details: {
           selected_surface_type: selectedSurfaceType,
           surface_type_candidates: Object.fromEntries(surfaceTypeCandidates),
+        },
+      },
+    );
+  }
+
+  if (
+    selectedSurfaceType === artifactIdentifiers.surface_type &&
+    !handoffArtifactTopologySelected
+  ) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector frontend context requires artifact-centered workflow topology.",
+      {
+        code: "frontend_context_blocked",
+        details: {
+          surface_type: selectedSurfaceType,
+          expected_topology: artifactIdentifiers.topology_kind,
+          observed_topology:
+            optionalString(uiGenerationHandoff.workflow?.topology) || null,
         },
       },
     );
@@ -15475,26 +19336,164 @@ export function createFrontendGenerationContext({
               },
             },
           });
-  const surfaceGuidance = summarizeSurfaceReview(inferredSurfaceReview, {
+  let surfaceGuidance = summarizeSurfaceReview(inferredSurfaceReview, {
     includeFrontendPosture: true,
   });
+  const artifactInspectorSelected =
+    handoffArtifactTopologySelected ||
+    surfaceGuidance.recommended_surface_type === artifactIdentifiers.surface_type;
+  if (artifactInspectorSelected) {
+    surfaceGuidance = {
+      ...(surfaceGuidance ?? {}),
+      recommended_surface_type: artifactIdentifiers.surface_type,
+      ...buildSurfaceImplications(artifactIdentifiers.surface_type),
+    };
+  }
+  const serializedImplementationContract = isPlainObject(
+    uiGenerationHandoff.implementation_contract,
+  )
+    ? uiGenerationHandoff.implementation_contract
+    : {};
+  const serializedDesignSystemMode = optionalString(
+    serializedImplementationContract.design_system_source?.mode,
+  );
+  if (
+    artifactInspectorSelected &&
+    serializedDesignSystemMode &&
+    serializedDesignSystemMode !== "judgmentkit_default"
+  ) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector frontend context requires JudgmentKit authority for inspector chrome and the inspection overlay.",
+      {
+        code: "invalid_artifact_inspector_authority_contract",
+        details: {
+          field: "design_system_source.mode",
+          expected: "judgmentkit_default",
+          observed: serializedDesignSystemMode,
+          external_artifact_scope: "primary_artifact",
+        },
+      },
+    );
+  }
+  let effectiveImplementationContract = serializedImplementationContract;
+  if (artifactInspectorSelected) {
+    const canonicalDesignSystem =
+      canonicalJudgmentKitDesignSystemAuthority();
+    const serializedWithoutDesignSystemAuthority = {
+      ...serializedImplementationContract,
+    };
+    delete serializedWithoutDesignSystemAuthority.design_system_adapter;
+    delete serializedWithoutDesignSystemAuthority.designSystemAdapter;
+    delete serializedWithoutDesignSystemAuthority.default_ai_native_design_system;
+    delete serializedWithoutDesignSystemAuthority.defaultAiNativeDesignSystem;
+    delete serializedWithoutDesignSystemAuthority.visual_token_adapter;
+    delete serializedWithoutDesignSystemAuthority.visualTokenAdapter;
+    delete serializedWithoutDesignSystemAuthority.design_system_source;
+    delete serializedWithoutDesignSystemAuthority.designSystemSource;
+    effectiveImplementationContract = {
+      ...serializedWithoutDesignSystemAuthority,
+      default_ai_native_design_system:
+        canonicalDesignSystem.defaultDesignSystem,
+      visual_token_adapter: canonicalDesignSystem.visualTokenAdapter,
+      design_system_source: canonicalDesignSystem.designSystemSource,
+    };
+  }
+  const reviewedActivityInput = optionalRawString(
+    uiGenerationHandoff.source?.reviewed_activity_input,
+  );
+  const reviewedActiveStateGroups = artifactInspectorSelected
+    ? deriveArtifactInspectorReviewedActiveStateGroups({
+        sourceInput: reviewedActivityInput,
+      })
+    : undefined;
+  const serializedReviewedActiveStateGroups = toStringArray(
+    uiGenerationHandoff.source?.reviewed_active_state_groups,
+  );
+  if (artifactInspectorSelected && !reviewedActivityInput) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector frontend context requires the reviewed activity input used to justify conditional state groups.",
+      {
+        code: "frontend_context_blocked",
+        details: {
+          field: "source.reviewed_activity_input",
+          diagnostic_code:
+            "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+        },
+      },
+    );
+  }
+  if (
+    artifactInspectorSelected &&
+    !artifactInspectorStateGroupsMatch(
+      serializedReviewedActiveStateGroups,
+      reviewedActiveStateGroups,
+    )
+  ) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector frontend context requires the serialized reviewed-state ceiling to match the grounded activity.",
+      {
+        code: "frontend_context_blocked",
+        details: {
+          field: "source.reviewed_active_state_groups",
+          expected: reviewedActiveStateGroups,
+          observed: serializedReviewedActiveStateGroups,
+          diagnostic_code:
+            "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+        },
+      },
+    );
+  }
+  assertArtifactInspectorBoundaryConsistency({
+    workflow: uiGenerationHandoff.workflow,
+    surfaceTypes: [surfaceGuidance.recommended_surface_type],
+    profileIds: [uiGenerationHandoff.guidance_profile?.profile_id],
+    implementationContract: effectiveImplementationContract,
+    additionalAuthoritySignals: [uiGenerationHandoff.artifact_inspector],
+    activityModel: uiGenerationHandoff.activity_model,
+    interactionContract: uiGenerationHandoff.interaction_contract,
+    reviewedActiveStateGroups,
+    contract: resolvedContract,
+    code: "frontend_context_blocked",
+    message:
+      "Frontend generation context cannot accept conflicting Artifact Inspector surface, topology, profile, or authority signals.",
+  });
+  if (
+    artifactInspectorSelected &&
+    !artifactInspectorIntegritySealMatches(
+      "ui_generation_handoff",
+      artifactInspectorBoundaryIntegrityPayload(uiGenerationHandoff),
+      uiGenerationHandoff.source?.artifact_inspector_boundary_integrity,
+    )
+  ) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector frontend context requires an intact handoff from the current trusted review process.",
+      {
+        code: "frontend_context_blocked",
+        details: {
+          field: "source.artifact_inspector_boundary_integrity",
+          diagnostic_code:
+            "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+        },
+      },
+    );
+  }
   const normalizedFrontendContext = normalizeFrontendContext(frontendContext);
   const normalizedVerification = normalizeVerificationContext(verification);
   const requiredSurfaces = toSurfaceSetArray(uiGenerationHandoff.surface_set);
   const requiredSurfaceAggregate = aggregateSurfaceSet(requiredSurfaces);
   const designSystemContract = normalizeDefaultAiNativeDesignSystem(
-    uiGenerationHandoff.implementation_contract?.default_ai_native_design_system,
+    effectiveImplementationContract.default_ai_native_design_system,
     DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
   );
   const localComponentAuthority = normalizeLocalComponentAuthority(
-    uiGenerationHandoff.implementation_contract?.local_component_authority,
+    effectiveImplementationContract.local_component_authority,
     DEFAULT_LOCAL_COMPONENT_AUTHORITY,
   );
   const visualCompositionPolicy =
-    uiGenerationHandoff.implementation_contract?.visual_composition_policy ??
+    effectiveImplementationContract.visual_composition_policy ??
     null;
   const evidenceFieldMapping = reviewEvidenceFieldMapping(
-    uiGenerationHandoff.implementation_contract,
+    effectiveImplementationContract,
     designSystemContract,
     { selectedSurfaceType: surfaceGuidance.recommended_surface_type },
   );
@@ -15515,8 +19514,113 @@ export function createFrontendGenerationContext({
           ? "surface_review"
           : "inferred_from_handoff";
   const designSystemSource =
-    uiGenerationHandoff.implementation_contract?.design_system_source ??
+    effectiveImplementationContract.design_system_source ??
     DEFAULT_DESIGN_SYSTEM_SOURCE;
+  const supportedProfileIds = supportedSurfaceProfiles === undefined
+    ? listSurfacePresentationProfiles().map((entry) => entry.id)
+    : toStringArray(supportedSurfaceProfiles);
+  if (
+    supportedSurfaceProfiles !== undefined &&
+    (!Array.isArray(supportedSurfaceProfiles) ||
+      supportedProfileIds.length !== supportedSurfaceProfiles.length)
+  ) {
+    throw new JudgmentKitInputError(
+      "supported_surface_profiles must be an array of non-empty canonical profile ids when provided.",
+    );
+  }
+  const frontendDuplicateWorkUnitIds = duplicateWorkflowWorkUnitIds(
+    uiGenerationHandoff.workflow?.work_units,
+  );
+  if (
+    artifactInspectorSelected &&
+    frontendDuplicateWorkUnitIds.length > 0
+  ) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector frontend context requires unique work-unit identifiers.",
+      {
+        code: "invalid_artifact_inspector_authority_contract",
+        details: {
+          field: "workflow.work_units",
+          duplicate_work_unit_ids: frontendDuplicateWorkUnitIds,
+          diagnostic_code:
+            "JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID",
+        },
+      },
+    );
+  }
+  if (
+    artifactInspectorSelected &&
+    !supportedProfileIds.includes(artifactIdentifiers.frontend_surface_profile)
+  ) {
+    throw new JudgmentKitInputError(
+      "The caller cannot consume the selected Artifact Inspector frontend profile.",
+      {
+        code: "artifact_inspector_profile_unsupported",
+        details: {
+          surface_type: artifactIdentifiers.surface_type,
+          required_surface_profile:
+            artifactIdentifiers.frontend_surface_profile,
+          supported_surface_profiles: supportedProfileIds,
+          fallback_applied: false,
+        },
+      },
+    );
+  }
+  let artifactInspectorAuthority = null;
+  if (artifactInspectorSelected) {
+    try {
+      artifactInspectorAuthority = validateArtifactInspectorAuthorityContract(
+        effectiveImplementationContract,
+      );
+    } catch (error) {
+      throw new JudgmentKitInputError(
+        error instanceof Error
+          ? error.message
+          : "Artifact Inspector authority contract is invalid.",
+        {
+          code: "invalid_artifact_inspector_authority_contract",
+          details: isPlainObject(error?.details) ? error.details : {},
+        },
+      );
+    }
+    if (!artifactInspectorAuthority.active) {
+      throw new JudgmentKitInputError(
+        "Artifact Inspector frontend context requires scoped authority fields from the implementation contract.",
+        {
+          code: "invalid_artifact_inspector_authority_contract",
+          details: {
+            required_fields: [
+              "design_system_scopes",
+              "boundary_contracts",
+              "artifact_inspector",
+            ],
+          },
+        },
+      );
+    }
+    if (
+      !artifactInspectorStateGroupsMatch(
+        artifactInspectorAuthority.artifact_inspector.active_state_groups,
+        reviewedActiveStateGroups,
+      )
+    ) {
+      throw new JudgmentKitInputError(
+        "Artifact Inspector frontend context cannot activate state groups absent from the reviewed workflow.",
+        {
+          code: "invalid_artifact_inspector_authority_contract",
+          details: {
+            field: "artifact_inspector.active_state_groups",
+            expected: reviewedActiveStateGroups,
+            observed:
+              artifactInspectorAuthority.artifact_inspector
+                .active_state_groups,
+            diagnostic_code:
+              "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+          },
+        },
+      );
+    }
+  }
   const normalizedSurfaceProfileRequest =
     normalizeSurfaceProfileRequest(surfaceProfile);
   const selectedSurfaceProfile = resolveSurfacePresentationProfile({
@@ -15530,7 +19634,7 @@ export function createFrontendGenerationContext({
     designSystemMode: designSystemSource.mode,
   });
 
-  return {
+  const packet = {
     version: uiGenerationHandoff.version,
     contract_id: uiGenerationHandoff.contract_id,
     workflow_id: getContractWorkflowId(resolvedContract),
@@ -15539,6 +19643,16 @@ export function createFrontendGenerationContext({
       handoff_status: uiGenerationHandoff.handoff_status,
       surface_type_source: surfaceTypeSource,
       surface_profile_request: normalizedSurfaceProfileRequest,
+      supported_surface_profiles: supportedProfileIds,
+      ...(artifactInspectorSelected
+        ? {
+            reviewed_activity_input: reviewedActivityInput,
+            reviewed_active_state_groups: reviewedActiveStateGroups,
+            artifact_inspector_boundary_integrity:
+              uiGenerationHandoff.source
+                ?.artifact_inspector_boundary_integrity,
+          }
+        : {}),
     },
     surface_type: surfaceGuidance.recommended_surface_type,
     surface_guidance: surfaceGuidance,
@@ -15551,7 +19665,7 @@ export function createFrontendGenerationContext({
     surface_set: requiredSurfaces,
     product_terms: toStringArray(uiGenerationHandoff.product_terms),
     handoff: uiGenerationHandoff.handoff,
-    implementation_contract: uiGenerationHandoff.implementation_contract,
+    implementation_contract: effectiveImplementationContract,
     disclosure_reminders: uiGenerationHandoff.disclosure_reminders,
     frontend_context: {
       target_runtime: optionalString(normalizedFrontendContext.target_runtime),
@@ -15575,7 +19689,7 @@ export function createFrontendGenerationContext({
       interaction_implications: surfaceGuidance.interaction_implications,
       disclosure_implications: surfaceGuidance.disclosure_implications,
       frontend_posture: surfaceGuidance.frontend_posture,
-      implementation_contract: uiGenerationHandoff.implementation_contract,
+      implementation_contract: effectiveImplementationContract,
       design_system_source: designSystemSource,
       local_component_authority:
         localComponentAuthority,
@@ -15583,14 +19697,47 @@ export function createFrontendGenerationContext({
         ? { visual_composition_policy: visualCompositionPolicy }
         : {}),
       visual_asset_policy:
-        uiGenerationHandoff.implementation_contract?.visual_asset_policy ??
+        effectiveImplementationContract.visual_asset_policy ??
         DEFAULT_VISUAL_ASSET_POLICY,
       accessibility_policy:
-        uiGenerationHandoff.implementation_contract?.accessibility_policy ??
+        effectiveImplementationContract.accessibility_policy ??
         DEFAULT_ACCESSIBILITY_POLICY,
       evidence_field_mapping: evidenceFieldMapping,
       component_contracts: designSystemContract.component_contracts,
       pattern_contracts: designSystemContract.pattern_contracts,
+      ...(artifactInspectorAuthority?.active
+        ? {
+            artifact_inspector: {
+              registry: cloneWorkflowStructuredValue(
+                artifactInspectorAuthority.artifact_inspector,
+              ),
+              artifact: cloneWorkflowStructuredValue(
+                isPlainObject(uiGenerationHandoff.workflow?.artifact)
+                  ? uiGenerationHandoff.workflow.artifact
+                  : {},
+              ),
+              target_model: cloneWorkflowStructuredValue(
+                isPlainObject(uiGenerationHandoff.workflow?.target_model)
+                  ? uiGenerationHandoff.workflow.target_model
+                  : {},
+              ),
+              state_groups: cloneWorkflowStructuredValue(
+                isPlainObject(uiGenerationHandoff.workflow?.state_groups)
+                  ? uiGenerationHandoff.workflow.state_groups
+                  : {},
+              ),
+              active_state_groups:
+                artifactInspectorAuthority.artifact_inspector
+                  .active_state_groups,
+              design_system_scopes:
+                artifactInspectorAuthority.design_system_scopes,
+              boundary_contracts:
+                artifactInspectorAuthority.boundary_contracts,
+              external_artifact_review_status:
+                "external_not_reviewed",
+            },
+          }
+        : {}),
       required_surfaces: requiredSurfaces,
       required_sections: requiredSurfaceAggregate.sections,
       required_controls: requiredSurfaceAggregate.controls,
@@ -15601,6 +19748,14 @@ export function createFrontendGenerationContext({
           ...(visualCompositionPolicy
             ? [
                 "Render declared visual-composition relationships at required viewports after fonts are ready, measure DOM geometry under the active policy, and attach candidate-scoped visual_composition_evidence.",
+              ]
+            : []),
+          ...(artifactInspectorAuthority?.active
+            ? [
+                "Verify JudgmentKit chrome and inspection overlay scopes independently from the external artifact.",
+                "Verify artifact render fingerprints remain stable across chrome-only transitions.",
+                "Verify native artifact actions retain precedence until explicit inspection mode is active.",
+                "Verify semantic target re-anchoring, stale-target handling, overlay occlusion, focus return, and cross-boundary status announcements.",
               ]
             : []),
         ]),
@@ -15616,8 +19771,20 @@ export function createFrontendGenerationContext({
       diagnostic_contexts:
         uiGenerationHandoff.disclosure_reminders?.diagnostic_contexts ?? [],
       approved_primitives:
-        uiGenerationHandoff.implementation_contract?.approved_primitives ?? [],
+        effectiveImplementationContract.approved_primitives ?? [],
       design_system_source: designSystemSource,
+      ...(artifactInspectorAuthority?.active
+        ? {
+            artifact_inspector_authority: {
+              design_system_scopes:
+                artifactInspectorAuthority.design_system_scopes,
+              boundary_contracts:
+                artifactInspectorAuthority.boundary_contracts,
+              external_artifact_review_status: "external_not_reviewed",
+              trusted_runtime_evidence_required: true,
+            },
+          }
+        : {}),
       ...(visualCompositionPolicy
         ? { visual_composition_policy: visualCompositionPolicy }
         : {}),
@@ -15626,6 +19793,16 @@ export function createFrontendGenerationContext({
         : {}),
     },
   };
+
+  if (artifactInspectorSelected) {
+    packet.source.artifact_inspector_boundary_integrity =
+      createArtifactInspectorIntegritySeal(
+        "frontend_generation_context",
+        artifactInspectorBoundaryIntegrityPayload(packet),
+      );
+  }
+
+  return packet;
 }
 
 function buildFrontendImplementationInstructionMarkdown({
@@ -15634,8 +19811,16 @@ function buildFrontendImplementationInstructionMarkdown({
   selectedSurfaceProfile,
   targetClient,
   evidenceFieldMapping,
+  artifactInspectorGuidance: trustedArtifactInspectorGuidance,
 }) {
   const implementationGuidance = frontendGenerationContext.implementation_guidance ?? {};
+  const artifactInspectorGuidance = isPlainObject(
+    trustedArtifactInspectorGuidance,
+  )
+    ? trustedArtifactInspectorGuidance
+    : isPlainObject(implementationGuidance.artifact_inspector)
+      ? implementationGuidance.artifact_inspector
+      : null;
   const reviewEvidenceMapping =
     evidenceFieldMapping ?? implementationGuidance.evidence_field_mapping ?? {};
   const primitiveEvidenceMapping = reviewEvidenceMapping.primitives_used ?? {};
@@ -15654,6 +19839,15 @@ function buildFrontendImplementationInstructionMarkdown({
   const verification = implementationGuidance.verification_expectations ?? {};
   const frontendContext = frontendGenerationContext.frontend_context ?? {};
   const workflow = frontendGenerationContext.workflow ?? {};
+  const workflowWorkUnitLabels = toWorkflowWorkUnitArray(workflow.work_units)
+    .map((workUnit) =>
+      typeof workUnit === "string"
+        ? workUnit
+        : optionalString(
+            workUnit.label ?? workUnit.participant_intent ?? workUnit.id,
+          ),
+    )
+    .filter(Boolean);
   const requiredSurfaces = toSurfaceSetArray(implementationGuidance.required_surfaces);
   const visualAssetPolicy =
     implementationGuidance.visual_asset_policy ?? DEFAULT_VISUAL_ASSET_POLICY;
@@ -15708,7 +19902,7 @@ function buildFrontendImplementationInstructionMarkdown({
     "- Shape the interface around the selected surface type and surface set before choosing section layout.",
     ...(selectedSurfaceProfile
       ? [
-          "- Apply the selected surface presentation profile after the activity and Workbench pattern contract are satisfied; it does not replace runtime truth or the active design-system source.",
+          "- Apply the selected surface presentation profile after the activity and matching pattern contract are satisfied; it does not replace runtime truth or the active design-system source.",
         ]
       : []),
     "- Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
@@ -15729,6 +19923,13 @@ function buildFrontendImplementationInstructionMarkdown({
           "- After implementation, render every declared relationship at required desktop and mobile viewports, await document.fonts.ready, measure DOM geometry, and attach a candidate-scoped visual_composition_evidence receipt.",
           "- Bind the receipt to the policy, implementation contract, manifest, candidate source, and rendered document SHA-256 values; the reviewer recomputes outcomes from raw measurements.",
           "- Repair fail or review outcomes, rerender, and replace the receipt before resubmitting. Keep browser_owned_indicator_unmeasured as the policy-declared non-blocking warning for native select arrows.",
+        ]
+      : []),
+    ...(artifactInspectorGuidance
+      ? [
+          "- Keep the rendered artifact primary and preserve its external visual authority; apply JudgmentKit tokens and component conformance only inside inspector_chrome and inspection_overlay.",
+          "- Use declared semantic locus identifiers for every overlay-to-artifact event, preserve native live-artifact actions until explicit inspection mode, and re-anchor to the same target or mark it stale.",
+          "- Treat candidate-authored scope, preservation, or boundary claims as non-accepting context. This release cannot produce or accept the deferred interactive attestation, so implementation review remains review_required and the primary artifact remains external_not_reviewed.",
         ]
       : []),
     "- Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
@@ -15761,7 +19962,7 @@ function buildFrontendImplementationInstructionMarkdown({
     "",
     "## Required Surface",
     `- Topology: ${workflow.topology || "workspace"}`,
-    `- Work units: ${toStringArray(workflow.work_units).join("; ") || "none supplied"}`,
+    `- Work units: ${workflowWorkUnitLabels.join("; ") || "none supplied"}`,
     `- Stepper eligibility: ${workflow.stepper_eligibility?.allowed ? "allowed" : "not allowed"}`,
     `- Surfaces: ${requiredSurfaces.map((surface) => `${surface.name}: ${surface.purpose}`).join("; ") || "none supplied"}`,
     `- Sections: ${toStringArray(implementationGuidance.required_sections).join("; ") || "none supplied"}`,
@@ -15847,13 +20048,13 @@ function buildFrontendImplementationInstructionMarkdown({
           `- Type aliases: ${formatRoleEntries(selectedSurfaceProfile.typography?.css_custom_properties, (entry) => `${entry.name}: ${entry.value}`) || "none supplied"}`,
           `- Density aliases: ${formatRoleEntries(selectedSurfaceProfile.density?.css_custom_properties, (entry) => `${entry.name}: ${entry.value}`) || "none supplied"}`,
           `- Composition: ${selectedSurfaceProfile.composition?.density || "operational"} density; ${selectedSurfaceProfile.composition?.hierarchy || "flat_border_led"} hierarchy`,
-          `- Navigation shapes: ${toStringArray(selectedSurfaceProfile.composition?.navigation_shapes).join("; ") || "none supplied"}`,
+          `- Navigation shapes: ${toStringArray(selectedSurfaceProfile.composition?.navigation_shapes).join("; ") || optionalString(selectedSurfaceProfile.composition?.navigation_shape) || "none supplied"}`,
           `- Interaction regions and controls: governed by the ${selectedSurfaceProfile.authority?.pattern_contract_id || "selected"} pattern contract`,
           `- Profile rules: ${toStringArray(selectedSurfaceProfile.composition?.rules).join("; ") || "none supplied"}`,
           `- State coverage: ${toStringArray(selectedSurfaceProfile.state_coverage).join("; ") || "none supplied"}`,
-          `- Desktop: ${selectedSurfaceProfile.responsive?.desktop || "none supplied"}`,
-          `- Compact: ${selectedSurfaceProfile.responsive?.compact || "none supplied"}`,
-          `- Product adapter owns: ${toStringArray(selectedSurfaceProfile.product_adapter_boundary?.product_adapter_owns).join("; ") || "none supplied"}`,
+          `- Desktop or wide: ${selectedSurfaceProfile.responsive?.desktop || selectedSurfaceProfile.responsive?.wide || "none supplied"}`,
+          `- Compact or narrow: ${selectedSurfaceProfile.responsive?.compact || selectedSurfaceProfile.responsive?.narrow || "none supplied"}`,
+          `- Product or external artifact authority owns: ${toStringArray(selectedSurfaceProfile.product_adapter_boundary?.product_adapter_owns).join("; ") || toStringArray(selectedSurfaceProfile.product_adapter_boundary?.external_artifact_authority_owns).join("; ") || "none supplied"}`,
           `- Excluded from this generic profile: ${toStringArray(selectedSurfaceProfile.product_adapter_boundary?.excluded_from_generic_profile).join("; ") || "none supplied"}`,
         ]
       : []),
@@ -15955,6 +20156,11 @@ export function createFrontendImplementationSkillContext({
     implementationGuidance.visual_composition_policy ??
     implementationContract.visual_composition_policy ??
     null;
+  let artifactInspectorGuidance = isPlainObject(
+    implementationGuidance.artifact_inspector,
+  )
+    ? cloneWorkflowStructuredValue(implementationGuidance.artifact_inspector)
+    : null;
   let visualTokenAdapter = normalizeVisualTokenAdapter(
     implementationContract.visual_token_adapter ?? {},
     DEFAULT_VISUAL_TOKEN_ADAPTER,
@@ -15974,6 +20180,215 @@ export function createFrontendImplementationSkillContext({
   const hasInlineDesignSystemAdapter = hasDesignGuidanceValue(
     normalizedDesignSystemAdapter,
   );
+  const frontendSurfaceTypeCandidates = [
+    optionalString(frontendGenerationContext.surface_type),
+    optionalString(frontendGenerationContext.surface_guidance?.recommended_surface_type),
+    optionalString(implementationGuidance.surface_type),
+  ].filter(Boolean);
+  const reviewedActivityInput = optionalRawString(
+    frontendGenerationContext.source?.reviewed_activity_input,
+  );
+  const reviewedActiveStateGroups = reviewedActivityInput
+    ? deriveArtifactInspectorReviewedActiveStateGroups({
+        sourceInput: reviewedActivityInput,
+      })
+    : undefined;
+  const serializedReviewedActiveStateGroups = toStringArray(
+    frontendGenerationContext.source?.reviewed_active_state_groups,
+  );
+  const skillArtifactConsistency = assertArtifactInspectorBoundaryConsistency({
+    workflow,
+    surfaceTypes: frontendSurfaceTypeCandidates,
+    profileIds: [
+      frontendGenerationContext.guidance_profile?.profile_id,
+      implementationGuidance.guidance_profile_id,
+    ],
+    implementationContract,
+    additionalAuthoritySignals: [artifactInspectorGuidance],
+    activityModel: frontendGenerationContext.activity_model,
+    interactionContract: frontendGenerationContext.interaction_contract,
+    reviewedActiveStateGroups,
+    code: "invalid_artifact_inspector_authority_contract",
+    message:
+      "Frontend implementation skill context cannot accept conflicting Artifact Inspector surface, topology, profile, or authority signals.",
+  });
+  const artifactInspectorContextActive =
+    skillArtifactConsistency.artifactInspectorActive;
+
+  if (artifactInspectorContextActive) {
+    if (!reviewedActivityInput) {
+      throw new JudgmentKitInputError(
+        "Artifact Inspector frontend skill context requires the reviewed activity input used to justify conditional state groups.",
+        {
+          code: "invalid_artifact_inspector_authority_contract",
+          details: {
+            field: "source.reviewed_activity_input",
+            diagnostic_code:
+              "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+          },
+        },
+      );
+    }
+    if (
+      !artifactInspectorStateGroupsMatch(
+        serializedReviewedActiveStateGroups,
+        reviewedActiveStateGroups,
+      )
+    ) {
+      throw new JudgmentKitInputError(
+        "Artifact Inspector frontend skill context requires the serialized reviewed-state ceiling to match the grounded activity.",
+        {
+          code: "invalid_artifact_inspector_authority_contract",
+          details: {
+            field: "source.reviewed_active_state_groups",
+            expected: reviewedActiveStateGroups,
+            observed: serializedReviewedActiveStateGroups,
+            diagnostic_code:
+              "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+          },
+        },
+      );
+    }
+    const frontendDuplicateWorkUnitIds = duplicateWorkflowWorkUnitIds(
+      workflow.work_units,
+    );
+    if (frontendDuplicateWorkUnitIds.length > 0) {
+      throw new JudgmentKitInputError(
+        "Artifact Inspector frontend skill context requires unique work-unit identifiers.",
+        {
+          code: "invalid_artifact_inspector_authority_contract",
+          details: {
+            field: "workflow.work_units",
+            duplicate_work_unit_ids: frontendDuplicateWorkUnitIds,
+            diagnostic_code:
+              "JK_ARTIFACT_INSPECTOR_WORK_UNIT_CONTRACT_INVALID",
+          },
+        },
+      );
+    }
+    let serializedArtifactInspectorAuthority;
+    try {
+      serializedArtifactInspectorAuthority =
+        validateArtifactInspectorAuthorityContract(implementationContract);
+    } catch (error) {
+      throw new JudgmentKitInputError(
+        error instanceof Error
+          ? error.message
+          : "Artifact Inspector frontend skill authority is invalid.",
+        {
+          code: "invalid_artifact_inspector_authority_contract",
+          details: isPlainObject(error?.details) ? error.details : {},
+        },
+      );
+    }
+    if (!serializedArtifactInspectorAuthority.active) {
+      throw new JudgmentKitInputError(
+        "Artifact Inspector frontend skill context requires the scoped authority bundle.",
+        {
+          code: "invalid_artifact_inspector_authority_contract",
+          details: {
+            required_fields: [
+              "design_system_scopes",
+              "boundary_contracts",
+              "artifact_inspector",
+            ],
+          },
+        },
+      );
+    }
+    const declaredStateGroupSelections = [
+      serializedArtifactInspectorAuthority.artifact_inspector
+        .active_state_groups,
+      ...(Array.isArray(artifactInspectorGuidance?.active_state_groups)
+        ? [artifactInspectorGuidance.active_state_groups]
+        : []),
+      ...(Array.isArray(
+        artifactInspectorGuidance?.registry?.active_state_groups,
+      )
+        ? [artifactInspectorGuidance.registry.active_state_groups]
+        : []),
+    ];
+    if (
+      declaredStateGroupSelections.some(
+        (selection) =>
+          !artifactInspectorStateGroupsMatch(
+            selection,
+            reviewedActiveStateGroups,
+          ),
+      )
+    ) {
+      throw new JudgmentKitInputError(
+        "Artifact Inspector frontend skill context cannot activate state groups absent from the reviewed workflow.",
+        {
+          code: "invalid_artifact_inspector_authority_contract",
+          details: {
+            field: "artifact_inspector.active_state_groups",
+            expected: reviewedActiveStateGroups,
+            observed: declaredStateGroupSelections,
+            diagnostic_code:
+              "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+          },
+        },
+      );
+    }
+    artifactInspectorGuidance = {
+      registry: cloneWorkflowStructuredValue(
+        serializedArtifactInspectorAuthority.artifact_inspector,
+      ),
+      artifact: cloneWorkflowStructuredValue(
+        isPlainObject(workflow.artifact) ? workflow.artifact : {},
+      ),
+      target_model: cloneWorkflowStructuredValue(
+        isPlainObject(workflow.target_model) ? workflow.target_model : {},
+      ),
+      state_groups: cloneWorkflowStructuredValue(
+        isPlainObject(workflow.state_groups) ? workflow.state_groups : {},
+      ),
+      active_state_groups: reviewedActiveStateGroups,
+      design_system_scopes: cloneWorkflowStructuredValue(
+        serializedArtifactInspectorAuthority.design_system_scopes,
+      ),
+      boundary_contracts: cloneWorkflowStructuredValue(
+        serializedArtifactInspectorAuthority.boundary_contracts,
+      ),
+      external_artifact_review_status: "external_not_reviewed",
+    };
+    if (optionalString(designSystemSource.mode) !== "judgmentkit_default") {
+      throw new JudgmentKitInputError(
+        "Artifact Inspector frontend skill context requires JudgmentKit authority for inspector chrome and the inspection overlay.",
+        {
+          code: "invalid_artifact_inspector_authority_contract",
+          details: {
+            field: "design_system_source.mode",
+            expected: "judgmentkit_default",
+            observed: optionalString(designSystemSource.mode) || null,
+            external_artifact_scope: "primary_artifact",
+          },
+        },
+      );
+    }
+    const canonicalDesignSystem = canonicalJudgmentKitDesignSystemAuthority();
+    visualTokenAdapter = canonicalDesignSystem.visualTokenAdapter;
+    designSystemContract = canonicalDesignSystem.defaultDesignSystem;
+    designSystemSource = canonicalDesignSystem.designSystemSource;
+  }
+
+  if (artifactInspectorContextActive && hasInlineDesignSystemAdapter) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector frontend skill context cannot replace JudgmentKit authority for inspector chrome or the inspection overlay with a whole-context design-system adapter.",
+      {
+        code: "invalid_artifact_inspector_authority_contract",
+        details: {
+          field: "design_system_adapter",
+          judgmentkit_owned_scopes: [
+            "inspector_chrome",
+            "inspection_overlay",
+          ],
+          external_artifact_scope: "primary_artifact",
+        },
+      },
+    );
+  }
 
   if (
     designSystemSource.mode === "external_design_system" &&
@@ -15998,6 +20413,30 @@ export function createFrontendImplementationSkillContext({
       ...externalDesignSystem.designSystemSource,
       definition_point: "frontend_skill_context.design_system_adapter_compat",
     };
+  }
+
+  if (
+    artifactInspectorContextActive &&
+    !artifactInspectorIntegritySealMatches(
+      "frontend_generation_context",
+      artifactInspectorBoundaryIntegrityPayload(
+        frontendGenerationContext,
+      ),
+      frontendGenerationContext.source
+        ?.artifact_inspector_boundary_integrity,
+    )
+  ) {
+    throw new JudgmentKitInputError(
+      "Artifact Inspector frontend skill context requires an intact serialized boundary from the current trusted review process.",
+      {
+        code: "invalid_artifact_inspector_authority_contract",
+        details: {
+          field: "source.artifact_inspector_boundary_integrity",
+          diagnostic_code:
+            "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
+        },
+      },
+    );
   }
 
   const selectedSurfaceProfileCandidate =
@@ -16028,7 +20467,10 @@ export function createFrontendImplementationSkillContext({
     }
 
     if (designSystemSource.mode === "judgmentkit_default") {
-      if (selectedSurfaceProfileCandidate.id !== WORKBENCH_SURFACE_PROFILE_ID) {
+      const supportedCanonicalProfile = cloneSurfacePresentationProfile(
+        selectedSurfaceProfileCandidate.id,
+      );
+      if (!supportedCanonicalProfile) {
         throw new JudgmentKitInputError(
           "selected_surface_profile must name a supported canonical profile id.",
           {
@@ -16056,7 +20498,7 @@ export function createFrontendImplementationSkillContext({
       const candidateSelection = selectedSurfaceProfileCandidate.selection;
 
       if (
-        !["auto", WORKBENCH_SURFACE_PROFILE_ID].includes(recordedRequest) ||
+        !["auto", supportedCanonicalProfile.id].includes(recordedRequest) ||
         !isPlainObject(candidateSelection) ||
         candidateSelection.request !== recordedRequest ||
         candidateSelection.surface_type_source !== recordedSurfaceTypeSource ||
@@ -16171,6 +20613,14 @@ export function createFrontendImplementationSkillContext({
           "When local component authority is active, scan component-specific selectors for visual identity declarations and direct --jk-* token use.",
         ]
       : []),
+    ...(artifactInspectorGuidance
+      ? [
+          "Record inspector_chrome, inspection_overlay, external-artifact preservation, and boundary behavior as separate deferred attestation requirements.",
+          "Do not infer artifact preservation from static roots or unchanged fingerprints.",
+          "Leave native-action precedence, semantic target re-anchoring, overlay occlusion, focus return, cross-boundary announcements, and the required state/viewport matrix unverified in this release.",
+          "Keep primary_artifact external_not_reviewed and owned scopes review_required.",
+        ]
+      : []),
     "Verify substantive visuals use imagegen or premium Three.js/WebGL/D3-style rendering when the spec calls for them.",
     "Provide browser-rendered visual-background contrast evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.",
     "Verify non-text contrast for meaningful icons, charts, state indicators, custom controls, and authored focus indicators.",
@@ -16193,6 +20643,17 @@ export function createFrontendImplementationSkillContext({
       (state) => `Verify required state: ${state}`,
     ),
   ]);
+  const skillSurfaceImplications = artifactInspectorContextActive
+    ? buildSurfaceImplications(
+        DEFAULT_ARTIFACT_INSPECTOR_SURFACE_TYPE_ID,
+      )
+    : {
+        interaction_implications:
+          implementationGuidance.interaction_implications ?? {},
+        disclosure_implications:
+          implementationGuidance.disclosure_implications ?? {},
+        frontend_posture: implementationGuidance.frontend_posture ?? {},
+      };
   const packet = {
     version: frontendGenerationContext.version,
     contract_id: frontendGenerationContext.contract_id,
@@ -16215,13 +20676,14 @@ export function createFrontendImplementationSkillContext({
       selectedSurfaceProfile,
       targetClient: normalizedTargetClient,
       evidenceFieldMapping,
+      artifactInspectorGuidance,
     }),
     implementation_sequence: [
       "Confirm the activity, primary decision, workflow topology, work units, coordinated surfaces, and handoff from the ready frontend context.",
       "Map the selected surface type to the surface set, required sections, controls, density, navigation, and responsive expectations.",
       ...(selectedSurfaceProfile
         ? [
-            "Apply selected_surface_profile as supported presentation guidance after satisfying the activity, Workbench pattern, and active design-system source contracts.",
+            "Apply selected_surface_profile as supported presentation guidance after satisfying the activity, matching pattern, and active design-system source contracts.",
           ]
         : []),
       "Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
@@ -16244,6 +20706,12 @@ export function createFrontendImplementationSkillContext({
             "On a visual composition fail or review outcome, repair only the declared relationship, rerender, replace the receipt, and resubmit before acceptance.",
           ]
         : []),
+      ...(artifactInspectorGuidance
+        ? [
+            "Keep the artifact dominant; attach context, action, feedback, and results to the active semantic locus without restyling the artifact.",
+            "Apply JudgmentKit design-system conformance only to inspector_chrome and inspection_overlay, preserve primary_artifact as external_not_reviewed, and require trusted scope, preservation, and boundary proof before acceptance.",
+          ]
+        : []),
       "Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
       "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
       "Verify core accessibility evidence: automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.",
@@ -16258,14 +20726,36 @@ export function createFrontendImplementationSkillContext({
         ? { presentation_profile_id: selectedSurfaceProfile.id }
         : {}),
       workflow_topology: optionalString(workflow.topology) || "workspace",
-      work_units: toStringArray(workflow.work_units),
+      ...(isPlainObject(workflow.topology_contract)
+        ? {
+            topology_contract: cloneWorkflowStructuredValue(
+              workflow.topology_contract,
+            ),
+          }
+        : {}),
+      work_units: cloneWorkflowStructuredValue(
+        toWorkflowWorkUnitArray(workflow.work_units),
+      ),
+      ...(isPlainObject(workflow.artifact)
+        ? { artifact: cloneWorkflowStructuredValue(workflow.artifact) }
+        : {}),
+      ...(isPlainObject(workflow.target_model)
+        ? {
+            target_model: cloneWorkflowStructuredValue(workflow.target_model),
+          }
+        : {}),
+      ...(isPlainObject(workflow.state_groups)
+        ? {
+            state_groups: cloneWorkflowStructuredValue(workflow.state_groups),
+          }
+        : {}),
       stepper_eligibility: workflow.stepper_eligibility ?? {},
       surface_set: requiredSurfaces,
       interaction_implications:
-        implementationGuidance.interaction_implications ?? {},
+        skillSurfaceImplications.interaction_implications,
       disclosure_implications:
-        implementationGuidance.disclosure_implications ?? {},
-      frontend_posture: implementationGuidance.frontend_posture ?? {},
+        skillSurfaceImplications.disclosure_implications,
+      frontend_posture: skillSurfaceImplications.frontend_posture,
     },
     approved_primitives: toStringArray(implementationContract.approved_primitives),
     approved_component_families: toStringArray(
@@ -16281,6 +20771,9 @@ export function createFrontendImplementationSkillContext({
     local_component_authority: localComponentAuthority,
     ...(visualCompositionPolicy
       ? { visual_composition_policy: visualCompositionPolicy }
+      : {}),
+    ...(artifactInspectorGuidance
+      ? { artifact_inspector: artifactInspectorGuidance }
       : {}),
     ...(selectedSurfaceProfile
       ? { selected_surface_profile: selectedSurfaceProfile }
@@ -16308,6 +20801,18 @@ export function createFrontendImplementationSkillContext({
         : {}),
       ...(visualCompositionPolicy
         ? { visual_composition_policy: visualCompositionPolicy }
+        : {}),
+      ...(artifactInspectorGuidance
+        ? {
+            artifact_inspector_authority: {
+              design_system_scopes:
+                artifactInspectorGuidance.design_system_scopes,
+              boundary_contracts:
+                artifactInspectorGuidance.boundary_contracts,
+              external_artifact_review_status: "external_not_reviewed",
+              trusted_runtime_evidence_required: true,
+            },
+          }
         : {}),
       visual_asset_policy: visualAssetPolicy,
       accessibility_policy: accessibilityPolicy,

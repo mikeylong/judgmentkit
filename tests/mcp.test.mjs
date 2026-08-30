@@ -251,7 +251,7 @@ assert.deepEqual(
   ],
 );
 assert.equal(metadata.name, "JudgmentKit");
-assert.equal(metadata.version, "0.7.0");
+assert.equal(metadata.version, "0.8.0");
 assert.deepEqual(metadata.capabilities.prompts, []);
 
 {
@@ -473,6 +473,18 @@ assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.design_system_adapter.type, "object");
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.design_system_source.type, "object");
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.visual_token_adapter.type, "object");
+for (const callerAuthorityField of [
+  "design_system_scopes",
+  "boundary_contracts",
+  "artifact_inspector",
+]) {
+  assert.equal(
+    callerAuthorityField in
+      toolByName.create_ui_implementation_contract.inputSchema.properties,
+    false,
+    `${callerAuthorityField} must not be caller-authored through the public MCP contract tool.`,
+  );
+}
 assert.equal(
   toolByName.create_ui_implementation_contract.inputSchema.properties.visual_composition_policy.type,
   "object",
@@ -498,6 +510,16 @@ assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.propertie
 assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.surfaceType.type, "string");
 assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.surface_review.type, "object");
 assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.surfaceReview.type, "object");
+assert.equal(
+  "trustedRuntimeEvidence" in
+    toolByName.review_ui_implementation_candidate.inputSchema.properties,
+  false,
+);
+assert.equal(
+  "trusted_runtime_evidence" in
+    toolByName.review_ui_implementation_candidate.inputSchema.properties,
+  false,
+);
 assert.equal(
   toolByName.review_ui_implementation_candidate.inputSchema.properties.frontend_generation_context.type,
   "object",
@@ -1736,6 +1758,30 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   );
   assert.ok(
     formatPlanningCard(missingProvenanceReview).includes("This is not an artifact"),
+  );
+
+  const artifactInspectorReviewRequiredCard = formatPlanningCard({
+    implementation_review_status: "review_required",
+    candidate_artifact_status: "review_required",
+    design_system_acceptance_status: "review_required",
+    next_agent_action: "none",
+    findings: [],
+    checks: {
+      artifact_inspector: { status: "review_required" },
+    },
+  });
+  assert.match(
+    artifactInspectorReviewRequiredCard,
+    /\*\*Status:\*\* Review required; interactive attestation deferred/,
+  );
+  assert.ok(
+    artifactInspectorReviewRequiredCard.includes(
+      "keep the external artifact external_not_reviewed",
+    ),
+  );
+  assert.equal(
+    artifactInspectorReviewRequiredCard.includes("Repair the failed gates"),
+    false,
   );
 
   const implementationReview = await handleToolCall("review_ui_implementation_candidate", {

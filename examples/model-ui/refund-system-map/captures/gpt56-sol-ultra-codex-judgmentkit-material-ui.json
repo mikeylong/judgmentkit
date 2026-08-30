@@ -76,7 +76,7 @@
   },
   "source_context_sha256": "f30b4a0322c9f9329d0c178948700c523fece1e246db91c7b97105b37a15ca92",
   "source_context_status": "legacy_accepted",
-  "current_source_context_sha256": "14f1e278c94ad1827608195b9f46e1156cf89e177184ebb773ff10e2c7e1f0ad",
+  "current_source_context_sha256": "99266252a708f96c7bdd5395fa7aca1c342df9cbf79310507c3c7fc0b3fca593",
   "accepted_source_context_sha256": "f30b4a0322c9f9329d0c178948700c523fece1e246db91c7b97105b37a15ca92",
   "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
   "prompt_sha256": "c659a3708b454999c97408c454852adb42c4b82a38dbceebca1b9877aa43070a",

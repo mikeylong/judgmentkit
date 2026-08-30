@@ -561,10 +561,24 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc, expectedPackageVer
   assert.ok(catalog.latest, "eval catalog should include latest run");
   assert.ok(Array.isArray(catalog.runs), "eval catalog should include runs");
   assert.ok(catalog.runs.length > 0, "eval catalog should include at least one run");
-  assert.equal(
+  assert.match(
     catalog.latest.mcp_release,
-    expectedPackageVersion,
-    "latest public UI eval should match the current hosted MCP release",
+    /^\d+\.\d+\.\d+$/,
+    "latest public UI eval should identify its historical MCP release",
+  );
+  assert.equal(
+    catalog.latest.mcp_release_segment,
+    `mcp-${catalog.latest.mcp_release}`,
+    "latest public UI eval release segment should match its historical MCP release",
+  );
+  assert.ok(
+    catalog.runs.some(
+      (run) =>
+        run.run_path === catalog.latest.run_path &&
+        run.json_report === catalog.latest.json_report &&
+        run.html_report === catalog.latest.html_report,
+    ),
+    "latest public UI eval should be present in the immutable run catalog",
   );
   assertIncludes(
     index.text,
@@ -638,7 +652,11 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc, expectedPackageVer
 
   const latestJson = JSON.parse((await fetchText(baseUrl, latestJsonRoute)).text);
   assert.equal(latestJson.eval_id, "judgmentkit-ui-generation-paired-artifact-v1");
-  assert.equal(latestJson.run.mcp_release, expectedPackageVersion);
+  assert.equal(
+    latestJson.run.mcp_release,
+    catalog.latest.mcp_release,
+    "latest UI eval report should match its cataloged historical MCP release",
+  );
   assert.equal(latestJson.run.html_report, catalog.latest.html_report);
   assert.equal(latestJson.run.json_report, catalog.latest.json_report);
   assert.equal(latestJson.visual_evidence.capture_engine, "chrome_devtools_protocol");
