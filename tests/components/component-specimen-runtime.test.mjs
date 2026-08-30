@@ -361,6 +361,8 @@ const dialogLoadingMarkup = renderToStaticMarkup(
 assert.match(dialogLoadingMarkup, /aria-busy="true"/u);
 assert.match(dialogLoadingMarkup, /role="status"/u);
 assert.match(dialogLoadingMarkup, />Sending the refund handoff\.</u);
+assert.match(dialogLoadingMarkup, /aria-label="Close handoff status"/u);
+assert.doesNotMatch(dialogLoadingMarkup, /aria-label="Cancel handoff"/u);
 
 const dialogErrorMarkup = renderToStaticMarkup(
   createElement(ComponentSpecimenPreview, {

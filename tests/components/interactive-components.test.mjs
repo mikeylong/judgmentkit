@@ -212,7 +212,16 @@ assert.match(
   /aria-describedby="saving-dialog-context saving-dialog-loading"/,
 );
 assert.match(loadingDialogMarkup, /inert=""/);
-assert.equal(count(loadingDialogMarkup, /disabled=""/g), 2);
+assert.doesNotMatch(
+  loadingDialogMarkup,
+  /class="jk-dialog__dismiss"[^>]*disabled=""/,
+  "a loading Dialog must retain its dismiss path",
+);
+assert.equal(
+  count(loadingDialogMarkup, /disabled=""/g),
+  1,
+  "loading must disable the decision action without disabling dismissal",
+);
 
 const errorDialogMarkup = render(Dialog, {
   id: "error-dialog",
