@@ -7236,14 +7236,19 @@ function renderDesignSystemPatternsPage(model) {
           </section>
           <section class="design-system-section" aria-labelledby="presentation-profiles">
             <h2 id="presentation-profiles">Presentation profiles</h2>
-            <p class="note">Presentation profiles specialize a supported surface pattern after the activity, interaction contract, and active design-system source are established. They do not reclassify the activity or select a runtime renderer.</p>
+            <p class="note">Presentation profiles specialize a surface pattern after the activity, interaction contract, and active design-system source are established. Their status identifies whether the profile is supported or still proposed; they do not reclassify the activity or select a runtime renderer.</p>
             ${renderDesignSystemTable({
-              caption: "Supported surface presentation profiles",
+              caption: "Surface presentation profiles",
               columns: [
                 {
                   key: "id",
                   label: "Profile",
                   render: (row) => `<code>${escapeHtml(row.id)}</code><br>${escapeHtml(row.name)}`,
+                },
+                {
+                  key: "status",
+                  label: "Status",
+                  render: (row) => escapeHtml(row.status ?? "proposed"),
                 },
                 {
                   key: "surface_type",
@@ -7266,7 +7271,10 @@ function renderDesignSystemPatternsPage(model) {
                 {
                   key: "responsive",
                   label: "Compact behavior",
-                  render: (row) => escapeHtml(row.responsive?.compact ?? ""),
+                  render: (row) =>
+                    escapeHtml(
+                      row.responsive?.compact ?? row.responsive?.narrow ?? "",
+                    ),
                 },
               ],
               rows: profiles,
@@ -7594,7 +7602,7 @@ function renderDesignSystemPageMarkdown(model, pageEntry) {
       markdownList(
         model.surface_presentation_profiles.map(
           (entry) =>
-            `\`${entry.id}\` (${entry.surface_type}, ${entry.status}): ${entry.purpose}; pattern: \`${entry.authority?.pattern_contract_id}\`; appearance: ${entry.appearance?.default_mode ?? "system"}; presentation: ${entry.composition?.density ?? "unspecified"}, ${entry.composition?.hierarchy ?? "unspecified"}; compact: ${entry.responsive?.compact ?? "unspecified"}`,
+            `\`${entry.id}\` (${entry.surface_type}, ${entry.status}): ${entry.purpose}; pattern: \`${entry.authority?.pattern_contract_id}\`; appearance: ${entry.appearance?.default_mode ?? "system"}; presentation: ${entry.composition?.density ?? "unspecified"}, ${entry.composition?.hierarchy ?? "unspecified"}; compact or narrow: ${entry.responsive?.compact ?? entry.responsive?.narrow ?? "unspecified"}`,
         ),
       ),
       "",

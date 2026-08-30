@@ -23,8 +23,11 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 - Treat `ready_for_review` as permission to proceed with UI concept work, not final product approval.
 - Treat `needs_source_context` as a prompt to gather source context or ask the packet's targeted questions.
 - Treat surface type as activity-purpose guidance, not visual styling.
+- Select `artifact_inspector` only when the rendered artifact is primary, semantic locus selection is required, and support is locus-relative. If those mandatory signals conflict with a queue, creation, conversation, linear-reading, monitoring, or configuration activity, stop at `review_required`; do not break the tie from layout vocabulary.
 - Treat the implementation contract as the authority for allowed primitives, control semantics, states, static checks, browser QA, visual asset handling, and accessibility evidence.
 - Treat `implementation_contract.design_system_source` as the active authority for visual tokens, typography, icon assets, and renderer components. `judgmentkit_default` uses JudgmentKit `/design-system/` exports; `external_design_system` requires a complete adapter and has no implicit JudgmentKit fallback. `external_authority` is trace metadata unless paired with `design_system_adapter`.
+- For Artifact Inspector, preserve `design_system_scopes`, `boundary_contracts`, and `artifact_inspector` as one bundle through workflow review, implementation handoff, frontend context, and implementation review. Apply JudgmentKit conformance only to owned chrome and overlay scopes; keep `primary_artifact` as `external_not_reviewed`.
+- Do not accept candidate-authored claims or static browser-composition observations as Artifact Inspector authority proof. This release has no accepting interactive-attestation producer or verifier: retain `review_required`, emit the stable missing-attestation diagnostic, and expose no runnable runtime-review action.
 - Treat `visual_token_adapter` as the token/font/icon evidence envelope for the active design-system source. Asset guidance cannot replace activity fit, primitive coverage, state coverage, accessibility evidence, static checks, or browser QA.
 - Keep implementation terms out of product UI unless the activity is setup, debugging, auditing, integration, or explicit source inspection.
 - When a model proposes an activity model, call `review_activity_model_candidate` before trusting it.
@@ -53,6 +56,7 @@ Before handing off UI work, confirm:
 - implementation terms contained in disclosure, evidence, or guardrails
 - workflow topology, work units, surface set, primary actions, decision support, and handoff are named
 - implementation contract names approved primitives and required states
+- Artifact Inspector handoffs, when applicable, preserve the artifact identity, semantic locus model, `artifact_centered` topology, active state groups, authority scopes, boundary contract, and external artifact status
 - token, font, icon, and renderer component guidance comes from `implementation_contract.design_system_source`, with no implied font CDN, remote icon package, or fallback from external systems to JudgmentKit defaults
 - substantive visual requirements have an image-generation, premium 3D/rendering, or high-quality visualization path when present
 - static checks, browser QA, core accessibility evidence, and any conditional visual-background contrast, non-text contrast, forced-colors, target-size, focus-not-obscured, no-keyboard-trap, reduced-motion, pause/stop/hide, form/error/status, media alternative, or semantic fallback evidence are specified when required

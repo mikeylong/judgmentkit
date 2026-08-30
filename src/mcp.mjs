@@ -121,7 +121,7 @@ const ACTIVITY_MODEL_REVIEW_TOOL = {
 const RECOMMEND_SURFACE_TYPES_TOOL = {
   name: "recommend_surface_types",
   description:
-    "Recommend a purpose-based UI surface type from activity evidence before workflow review or frontend implementation.",
+    "Recommend a purpose-based UI surface type from activity evidence before workflow review or frontend implementation, including artifact_inspector only when its mandatory evidence is satisfied.",
   inputSchema: {
     type: "object",
     required: ["brief"],
@@ -130,7 +130,7 @@ const RECOMMEND_SURFACE_TYPES_TOOL = {
         type: "string",
         minLength: 1,
         description:
-          "Source UI brief to classify by activity and purpose.",
+          "Source UI brief to classify by activity and purpose, including rendered-artifact, selectable-locus, and locus-relative support evidence when artifact_inspector may apply.",
       },
       activity_review: {
         type: "object",
@@ -150,7 +150,7 @@ const RECOMMEND_SURFACE_TYPES_TOOL = {
 const RECOMMEND_UI_WORKFLOW_PROFILES_TOOL = {
   name: "recommend_ui_workflow_profiles",
   description:
-    "Recommend optional UI workflow guidance profiles for a source brief without applying them automatically.",
+    "Recommend optional UI workflow guidance profiles, including artifact-inspector-ui when its artifact activity evidence applies, without applying them automatically.",
   inputSchema: {
     type: "object",
     required: ["brief"],
@@ -205,12 +205,12 @@ const REVIEW_UI_WORKFLOW_CANDIDATE_TOOL = {
       candidate: {
         type: "object",
         description:
-          "Externally proposed UI workflow candidate with workflow, surface_set, handoff, and diagnostics.",
+          "Externally proposed UI workflow candidate with workflow, surface_set, handoff, and diagnostics. workflow.topology may be a legacy topology string or an artifact-centered topology object; workflow.topology_contract is also accepted for artifact-centered candidates.",
       },
       profile_id: {
         type: "string",
         description:
-          "Optional guidance profile id, such as operator-review-ui.",
+          "Optional guidance profile id, such as operator-review-ui or artifact-inspector-ui.",
       },
       surface_review: {
         type: "object",
@@ -220,7 +220,7 @@ const REVIEW_UI_WORKFLOW_CANDIDATE_TOOL = {
       surface_type: {
         type: "string",
         description:
-          "Optional selected surface type, such as workbench, marketing, setup_debug_tool, or operator_review.",
+          "Optional selected surface type, such as workbench, marketing, setup_debug_tool, operator_review, or artifact_inspector.",
       },
     },
     additionalProperties: false,
@@ -253,7 +253,7 @@ const REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL = {
       surface_type: {
         type: "string",
         description:
-          "Optional selected surface type, such as workbench, operator_review, dashboard_monitor, or setup_debug_tool.",
+          "Optional selected surface type, such as workbench, operator_review, dashboard_monitor, setup_debug_tool, or artifact_inspector.",
       },
       surface_evidence: {
         type: "object",
@@ -296,7 +296,7 @@ const UI_GENERATION_HANDOFF_TOOL = {
 const UI_IMPLEMENTATION_CONTRACT_TOOL = {
   name: "create_ui_implementation_contract",
   description:
-    "Create an implementation contract for generated UI, using JudgmentKit design-system authority by default, optional repo-local component authority, or a complete external design-system adapter when supplied.",
+    "Create an implementation contract for generated UI, using JudgmentKit design-system authority by default, optional repo-local component authority, or a complete external design-system adapter when supplied. surface_type artifact_inspector activates scoped JudgmentKit chrome and overlay authority while keeping the primary artifact external_not_reviewed.",
   inputSchema: {
     type: "object",
     properties: {
@@ -307,6 +307,11 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
       target_stack: {
         type: "string",
         description: "Optional frontend stack, such as vanilla JS, React, or server-rendered HTML.",
+      },
+      surface_type: {
+        type: "string",
+        description:
+          "Optional selected surface type. artifact_inspector activates the canonical design_system_scopes, boundary_contracts, and artifact_inspector bundle.",
       },
       external_authority: {
         type: "string",
@@ -383,7 +388,7 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
   name: "review_ui_implementation_candidate",
   description:
-    "Review generated UI or code evidence against an active UI implementation contract. The active design-system gate is hard: missing or failing design_system_provenance means the candidate is not an artifact and must be repaired and resubmitted. Include local_component_authority_evidence when repo-local component authority is active. When visual_composition_policy applies, the hosted MCP renders exact self-contained HTML in an isolated browser, measures declared and discovered relationships, and attaches a server-trusted receipt; caller-authored visual_composition_evidence cannot satisfy acceptance.",
+    "Review generated UI or code evidence against an active UI implementation contract. The active design-system gate is hard: missing or failing design_system_provenance means the candidate is not an artifact and must be repaired and resubmitted. Include local_component_authority_evidence when repo-local component authority is active. When visual_composition_policy applies, the hosted MCP renders exact self-contained HTML in an isolated browser, measures declared and discovered relationships, and attaches a server-trusted receipt; caller-authored visual_composition_evidence cannot satisfy acceptance. The hosted static renderer cannot satisfy Artifact Inspector authority: that surface remains review_required until the separately deferred interactive attestation exists, and the external artifact always remains external_not_reviewed.",
   inputSchema: {
     type: "object",
     required: ["candidate", "implementation_contract"],
@@ -457,13 +462,24 @@ const FRONTEND_GENERATION_CONTEXT_TOOL = {
       surface_type: {
         type: "string",
         description:
-          "Optional selected surface type, such as marketing, workbench, setup_debug_tool, or operator_review.",
+          "Optional selected surface type, such as marketing, workbench, setup_debug_tool, operator_review, or artifact_inspector.",
       },
       surface_profile: {
         type: "string",
-        enum: ["auto", "none", "judgmentkit.workbench.operational-v1"],
+        enum: [
+          "auto",
+          "none",
+          "judgmentkit.workbench.operational-v1",
+          "judgmentkit.artifact-inspector.v1",
+        ],
         description:
-          "Optional surface presentation profile request. Defaults to auto; use none to opt out. It does not change surface classification or design-system authority.",
+          "Optional surface presentation profile request. Defaults to auto; use none to opt out. artifact_inspector may use judgmentkit.artifact-inspector.v1. It does not change surface classification or design-system authority.",
+      },
+      supported_surface_profiles: {
+        type: "array",
+        items: { type: "string" },
+        description:
+          "Optional caller capability list. If artifact_inspector is selected and judgmentkit.artifact-inspector.v1 is absent, return artifact_inspector_profile_unsupported without fallback.",
       },
       frontend_context: {
         type: "object",
@@ -496,7 +512,7 @@ const FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL = {
       design_system_adapter: {
         type: "object",
         description:
-          "Deprecated compatibility path for complete external design-system authority. Prefer supplying design_system_adapter to create_ui_implementation_contract so the frontend context receives implementation_contract.design_system_source.",
+          "Deprecated compatibility path for complete external design-system authority. Prefer supplying design_system_adapter to create_ui_implementation_contract so the frontend context receives implementation_contract.design_system_source. Rejected for Artifact Inspector because JudgmentKit must retain authority over inspector chrome and the inspection overlay.",
       },
       target_client: {
         type: "string",
@@ -737,7 +753,14 @@ function toDisplayList(values, limit = 4) {
   }
 
   return values
-    .map((entry) => compactText(entry) || (isRecord(entry) ? compactText(entry.message) : ""))
+    .map((entry) =>
+      compactText(entry) ||
+      (isRecord(entry)
+        ? [entry.label, entry.participant_intent, entry.id, entry.message]
+            .map(compactText)
+            .find(Boolean) ?? ""
+        : ""),
+    )
     .filter(Boolean)
     .slice(0, limit);
 }
@@ -2560,6 +2583,10 @@ function planningStatus(result) {
     return "Implementation gate passed";
   }
 
+  if (result.implementation_review_status === "review_required") {
+    return "Review required; interactive attestation deferred";
+  }
+
   if (result.implementation_review_status === "failed") {
     return "Implementation gate failed";
   }
@@ -2574,6 +2601,10 @@ function planningStatus(result) {
 
   if (result.skill_context_status === "ready") {
     return "Frontend skill context ready";
+  }
+
+  if (result.status === "review_required") {
+    return "Review required";
   }
 
   if (result.recommended_surface_type) {
@@ -2664,6 +2695,79 @@ function diagnosticSummary(result) {
   return diagnostics.length > 0 ? diagnostics.join("; ") : "No blocking diagnostics in the planning card.";
 }
 
+function artifactTopologyDiagnosticCodes(result) {
+  const artifactGuardrail = result.guardrails?.artifact_inspector;
+  const entries = [
+    ...(Array.isArray(artifactGuardrail?.diagnostics)
+      ? artifactGuardrail.diagnostics
+      : []),
+    ...(Array.isArray(result.guardrails?.artifact_topology_diagnostics)
+      ? result.guardrails.artifact_topology_diagnostics
+      : []),
+  ];
+
+  return [
+    ...new Set(
+      entries
+        .map((entry) =>
+          typeof entry === "string"
+            ? compactText(entry)
+            : isRecord(entry)
+              ? compactText(entry.code)
+              : "",
+        )
+        .filter(Boolean),
+    ),
+  ];
+}
+
+function routingConflictSignalList(routingConflict) {
+  if (!isRecord(routingConflict)) {
+    return [];
+  }
+
+  const signals = Array.isArray(routingConflict.conflicting_signals)
+    ? routingConflict.conflicting_signals
+    : [];
+
+  return signals
+    .map((signal) => {
+      if (typeof signal === "string") {
+        return compactText(signal);
+      }
+
+      if (!isRecord(signal)) {
+        return "";
+      }
+
+      const kind = compactText(signal.kind);
+      const id = compactText(signal.id ?? signal.evidence_id ?? signal.message);
+
+      return [kind, id].filter(Boolean).join(": ");
+    })
+    .filter(Boolean);
+}
+
+function competingSurfaceTypeList(routingConflict) {
+  if (!isRecord(routingConflict)) {
+    return [];
+  }
+
+  const entries = Array.isArray(routingConflict.competing_surface_types)
+    ? routingConflict.competing_surface_types
+    : [];
+
+  return entries
+    .map((entry) =>
+      typeof entry === "string"
+        ? compactText(entry)
+        : isRecord(entry)
+          ? compactText(entry.surface_type ?? entry.id ?? entry.label)
+          : "",
+    )
+    .filter(Boolean);
+}
+
 function formatActivityReviewCard(result) {
   const activity = result.candidate?.activity_model ?? {};
   const interaction = result.candidate?.interaction_contract ?? {};
@@ -2726,7 +2830,13 @@ function formatWorkflowReviewCard(result) {
     firstLine("Handoff", handoff.next_action),
   ]);
   addSection(lines, "Targeted questions", bulletList(result.review?.targeted_questions));
-  addSection(lines, "Diagnostics", [`${diagnosticSummary(result)}`]);
+  addSection(lines, "Diagnostics", [
+    `${diagnosticSummary(result)}`,
+    listLine(
+      "Artifact topology diagnostics",
+      artifactTopologyDiagnosticCodes(result),
+    ),
+  ]);
 
   return lines.join("\n");
 }
@@ -2786,10 +2896,16 @@ function formatAnalysisCard(result) {
 }
 
 function formatSurfaceRecommendationCard(result) {
+  const recommendedSurfaceType = compactText(result.recommended_surface_type);
+  const nextStep = recommendedSurfaceType
+    ? `Use surface_type "${recommendedSurfaceType}" as purpose guidance before workflow review and frontend implementation.`
+    : isRecord(result.routing_conflict)
+      ? "Resolve the routing conflict before choosing a surface type or continuing to workflow review."
+      : "Resolve the missing surface evidence before workflow review and frontend implementation.";
   const lines = [
     "## JudgmentKit Surface Recommendation",
     `**Status:** ${planningStatus(result)}`,
-    `**Next step:** Use surface_type "${compactText(result.recommended_surface_type)}" as purpose guidance before workflow review and frontend implementation.`,
+    `**Next step:** ${nextStep}`,
   ];
 
   addSection(lines, "Plan from this", [
@@ -2807,6 +2923,14 @@ function formatSurfaceRecommendationCard(result) {
     listLine(
       "Implementation terms",
       termList(result.evidence?.implementation_terms_detected),
+    ),
+    listLine(
+      "Routing conflict signals",
+      routingConflictSignalList(result.routing_conflict),
+    ),
+    listLine(
+      "Competing surface types",
+      competingSurfaceTypeList(result.routing_conflict),
     ),
   ]);
 
@@ -2943,12 +3067,16 @@ function formatImplementationReviewCard(result) {
       "pattern_contracts",
     ].includes(finding.check),
   );
+  const nextStep =
+    result.implementation_review_status === "passed"
+      ? "**Next step:** The candidate passed the implementation gate; use the evidence in the final handoff."
+      : result.implementation_review_status === "review_required"
+          ? "**Next step:** Stop before acceptance. This release cannot produce the deferred Artifact Inspector interactive attestation; keep the external artifact external_not_reviewed and owned scopes review_required."
+          : "**Next step:** This is not an artifact. Repair the failed gates and resubmit before final UI handoff.";
   const lines = [
     "## JudgmentKit Implementation Review",
     `**Status:** ${planningStatus(result)}`,
-    result.implementation_review_status === "passed"
-      ? "**Next step:** The candidate passed the implementation gate; use the evidence in the final handoff."
-      : "**Next step:** This is not an artifact. Repair the failed gates and resubmit before final UI handoff.",
+    nextStep,
   ];
 
   addSection(lines, "Checks", [
@@ -3354,7 +3482,10 @@ export function formatPlanningCard(result) {
     return formatImplementationContractCard(result);
   }
 
-  if (result?.recommended_surface_type) {
+  if (
+    result?.recommended_surface_type ||
+    (isRecord(result) && Object.hasOwn(result, "recommended_surface_type"))
+  ) {
     return formatSurfaceRecommendationCard(result);
   }
 
@@ -3599,6 +3730,7 @@ export async function handleToolCall(name, args = {}) {
         surface_review: args.surface_review,
         surface_type: args.surface_type,
         surface_profile: args.surface_profile,
+        supported_surface_profiles: args.supported_surface_profiles,
         frontend_context: args.frontend_context,
         verification: args.verification,
       });
@@ -3828,6 +3960,7 @@ export function createJudgmentKitMcpServer() {
       inputSchema: {
         repo_name: z.string().optional(),
         target_stack: z.string().optional(),
+        surface_type: z.string().optional(),
         external_authority: z.string().optional(),
         design_system_adapter: z.record(z.any()).optional(),
         design_system_source: z.record(z.any()).optional(),
@@ -3900,8 +4033,14 @@ export function createJudgmentKitMcpServer() {
         surface_review: z.record(z.any()).optional(),
         surface_type: z.string().optional(),
         surface_profile: z
-          .enum(["auto", "none", "judgmentkit.workbench.operational-v1"])
+          .enum([
+            "auto",
+            "none",
+            "judgmentkit.workbench.operational-v1",
+            "judgmentkit.artifact-inspector.v1",
+          ])
           .optional(),
+        supported_surface_profiles: z.array(z.string()).optional(),
         frontend_context: z.record(z.any()).optional(),
         verification: z.record(z.any()).optional(),
       },

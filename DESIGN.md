@@ -21,13 +21,15 @@ The interaction contract translates that activity into a surface: what the user 
 
 ### Surface Type
 
-The surface type classifies activity purpose before frontend implementation: marketing, workbench, operator review, form flow, dashboard monitor, content/report, setup/debug tool, or conversation. It is interaction guidance, not a visual theme.
+The surface type classifies activity purpose before frontend implementation: marketing, workbench, operator review, artifact inspector, form flow, dashboard monitor, content/report, setup/debug tool, or conversation. It is interaction guidance, not a visual theme. Artifact Inspector applies only when one rendered artifact is primary, semantic locus selection is required, and supporting context is meaningful relative to that locus; layout vocabulary or a keyword alone is insufficient.
 
 ### Surface Presentation Profile
 
 A surface presentation profile applies governed design-system guidance after the surface type is grounded. It can shape density, type hierarchy, region hierarchy, action emphasis, status treatment, and responsive behavior without reclassifying the activity or replacing the interaction contract.
 
-The JudgmentKit default design system selects `judgmentkit.workbench.operational-v1` automatically for a Workbench supplied by the caller or recommended with medium or high confidence. `surface_profile: "none"` opts out, while the exact profile id locks that supported version. The neutral low-confidence Workbench fallback selects no profile. External design systems receive no JudgmentKit profile fallback.
+The JudgmentKit default design system selects `judgmentkit.workbench.operational-v1` automatically for a Workbench supplied by the caller or recommended with medium or high confidence. It selects `judgmentkit.artifact-inspector.v1` for a grounded Artifact Inspector. `surface_profile: "none"` opts out, while an exact profile id locks that version. The neutral low-confidence Workbench fallback selects no profile. External design systems receive no JudgmentKit profile fallback.
+
+Artifact Inspector has scoped visual authority rather than whole-surface JudgmentKit authority. JudgmentKit governs the inspector chrome and inspection overlay; the rendered artifact preserves its declared external authority. Reviews must report owned-scope, artifact-preservation, and boundary results separately and must not describe the external artifact as JudgmentKit-conformant. This contract release has no trusted interactive-attestation producer or verifier, so an otherwise valid implementation remains `review_required`.
 
 Profiles remain adapter-layer contracts. JudgmentKit may expose an optional component adapter downstream of the kernel, but a profile does not select it or turn it into kernel authority. Product vocabulary, product geometry, data, runtime state, authorization truth, and side effects stay with the implementing product.
 
