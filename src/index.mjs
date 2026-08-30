@@ -5189,6 +5189,11 @@ function buildArtifactInspectorWorkflowDiagnostics(
   const topologyContract = normalizeArtifactTopologyContract(candidate, contract, {
     force: true,
   });
+  const canonicalTopology = isPlainObject(
+    getArtifactInspectorModel(contract)?.topology,
+  )
+    ? getArtifactInspectorModel(contract).topology
+    : {};
   const workUnits = toWorkflowWorkUnitArray(workflow.work_units);
   const workUnitIds = workflowWorkUnitIds(workUnits);
   const diagnostics = [];
@@ -5552,44 +5557,55 @@ function buildArtifactInspectorWorkflowDiagnostics(
   }
 
   const entryWorkUnitId = optionalString(topologyContract?.entry_work_unit_id);
+  const canonicalEntryWorkUnitId = optionalString(
+    canonicalTopology.entry_work_unit_id,
+  );
 
   if (
     topologyContract &&
-    (!entryWorkUnitId || !workUnitIds.includes(entryWorkUnitId))
+    (!entryWorkUnitId ||
+      entryWorkUnitId !== canonicalEntryWorkUnitId ||
+      !workUnitIds.includes(entryWorkUnitId))
   ) {
     push({
       code: "JK_ARTIFACT_INSPECTOR_ENTRY_REFERENCE_INVALID",
       field: "workflow.topology.entry_work_unit_id",
-      meaning: "The topology entry does not reference a declared work unit.",
-      expected: workUnitIds,
+      meaning: "The topology entry does not preserve the canonical entry work unit.",
+      expected: canonicalEntryWorkUnitId,
       observed: entryWorkUnitId || null,
-      repair_instruction: "Reference one declared workflow.work_units id as the topology entry.",
+      repair_instruction: `Set the topology entry to the canonical "${canonicalEntryWorkUnitId}" work unit.`,
     });
   }
 
   const completionWorkUnitIds = toStringArray(
     topologyContract?.completion_work_unit_ids,
   );
+  const canonicalCompletionWorkUnitIds = toStringArray(
+    canonicalTopology.completion_work_unit_ids,
+  );
   const invalidCompletionIds = completionWorkUnitIds.filter(
     (id) => !workUnitIds.includes(id),
   );
+  const completionContractMismatch =
+    completionWorkUnitIds.length !== canonicalCompletionWorkUnitIds.length ||
+    canonicalCompletionWorkUnitIds.some(
+      (workUnitId, index) => completionWorkUnitIds[index] !== workUnitId,
+    );
 
   if (
     topologyContract &&
     (completionWorkUnitIds.length === 0 ||
       invalidCompletionIds.length > 0 ||
-      !completionWorkUnitIds.includes("verify_result"))
+      completionContractMismatch)
   ) {
     push({
       code: "JK_ARTIFACT_INSPECTOR_COMPLETION_REFERENCE_INVALID",
       field: "workflow.topology.completion_work_unit_ids",
-      meaning: "Artifact-local completion does not reference declared work units.",
-      expected: {
-        declared_work_unit_ids: workUnitIds,
-        required_artifact_local_completion: "verify_result",
-      },
+      meaning: "Artifact-local completion does not preserve the canonical completion set.",
+      expected: canonicalCompletionWorkUnitIds,
       observed: completionWorkUnitIds,
-      repair_instruction: "Reference one or more declared work-unit ids that visibly complete the artifact-local activity.",
+      repair_instruction:
+        "Restore the ordered canonical completion work-unit ids for artifact-local verification and return to orientation.",
     });
   }
 

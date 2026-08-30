@@ -2454,6 +2454,14 @@ const MALFORMED_CASES = [
     field: "workflow.topology.entry_work_unit_id",
   },
   {
+    label: "noncanonical declared entry reference",
+    mutate(candidate) {
+      candidate.workflow.topology.entry_work_unit_id = "select_locus";
+    },
+    code: "JK_ARTIFACT_INSPECTOR_ENTRY_REFERENCE_INVALID",
+    field: "workflow.topology.entry_work_unit_id",
+  },
+  {
     label: "invalid completion reference",
     mutate(candidate) {
       candidate.workflow.topology.completion_work_unit_ids = [
@@ -2467,6 +2475,25 @@ const MALFORMED_CASES = [
     label: "completion omits artifact-local verification",
     mutate(candidate) {
       candidate.workflow.topology.completion_work_unit_ids = ["orient"];
+    },
+    code: "JK_ARTIFACT_INSPECTOR_COMPLETION_REFERENCE_INVALID",
+    field: "workflow.topology.completion_work_unit_ids",
+  },
+  {
+    label: "completion omits canonical return to orientation",
+    mutate(candidate) {
+      candidate.workflow.topology.completion_work_unit_ids = ["verify_result"];
+    },
+    code: "JK_ARTIFACT_INSPECTOR_COMPLETION_REFERENCE_INVALID",
+    field: "workflow.topology.completion_work_unit_ids",
+  },
+  {
+    label: "completion reverses canonical ordering",
+    mutate(candidate) {
+      candidate.workflow.topology.completion_work_unit_ids = [
+        "orient",
+        "verify_result",
+      ];
     },
     code: "JK_ARTIFACT_INSPECTOR_COMPLETION_REFERENCE_INVALID",
     field: "workflow.topology.completion_work_unit_ids",
