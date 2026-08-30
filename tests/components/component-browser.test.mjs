@@ -2048,7 +2048,7 @@ async function assertOpenDialogSemantics(client, sessionId, scenario) {
     assert.equal(observed.invalid, null, `${scenario.id}: loading marked invalid`);
     assert.equal(observed.actionsInert, true, `${scenario.id}: loading actions are not inert`);
     assert.equal(observed.actionsDisabled, "true", `${scenario.id}: loading action group is not disabled`);
-    assert.equal(observed.dismissDisabled, true, `${scenario.id}: loading dismiss is enabled`);
+    assert.equal(observed.dismissDisabled, false, `${scenario.id}: loading dismiss is disabled`);
     assert.equal(observed.decisionDisabled, true, `${scenario.id}: loading decision is enabled`);
     assert.equal(observed.statusRole, "status", `${scenario.id}: loading status role drifted`);
     assert.equal(observed.statusText, scenario.fixture.loading_message, `${scenario.id}: loading text drifted`);
@@ -2178,13 +2178,19 @@ async function assertDialogInteractions(
   await assertOpenDialogSemantics(client, sessionId, loading);
   await runAxeForScenario(client, sessionId, loading, `${presentationLabel} open loading modal`);
   await pressKey(client, sessionId, "Escape");
-  await pointerActivate(client, sessionId, withinScenario(loading, ".jk-dialog__dismiss"));
+  await waitForScenarioInteractionCount(client, sessionId, loading.id, 2);
+  await waitForDialogOpen(client, sessionId, loading, false);
+  await assertDialogFocusReturned(client, sessionId, loading);
+
+  await pointerActivate(client, sessionId, semanticSelector(loading));
+  await waitForScenarioInteractionCount(client, sessionId, loading.id, 3);
+  await assertOpenDialogSemantics(client, sessionId, loading);
   await pointerActivate(client, sessionId, focusTargetSelector(loading));
   await delay();
   assert.equal(
     await scenarioInteractionCount(client, sessionId, loading.id),
-    1,
-    `${loading.id}: loading dismissal or decision dispatched`,
+    3,
+    `${loading.id}: disabled decision dispatched while loading`,
   );
   assert.equal(
     await evaluate(
@@ -2193,46 +2199,12 @@ async function assertDialogInteractions(
       `document.querySelector(${JSON.stringify(componentSelector(loading))})?.open`,
     ),
     true,
-    `${loading.id}: loading dialog was dismissed`,
+    `${loading.id}: disabled decision closed the loading dialog`,
   );
-  await evaluate(
-    client,
-    sessionId,
-    `document.querySelector(${JSON.stringify(componentSelector(loading))})?.close()`,
-  );
-  await delay(100);
-  const loadingNativeCloseRecovery = await evaluate(
-    client,
-    sessionId,
-    `(() => {
-      const dialog = document.querySelector(${JSON.stringify(withinScenario(loading, "dialog"))});
-      return dialog ? {
-        open: dialog.open,
-        dataOpen: dialog.getAttribute("data-jk-open"),
-        activeInside: dialog.contains(document.activeElement),
-        activeIsDialog: document.activeElement === dialog,
-        activeTag: document.activeElement?.tagName ?? null,
-        tabIndex: dialog.tabIndex
-      } : null;
-    })()`,
-  );
-  assert.deepEqual(
-    loadingNativeCloseRecovery,
-    {
-      open: true,
-      dataOpen: "true",
-      activeInside: true,
-      activeIsDialog: true,
-      activeTag: "DIALOG",
-      tabIndex: -1,
-    },
-    `${loading.id}: native-close refusal did not reopen and focus the named dialog`,
-  );
-  assert.equal(
-    await scenarioInteractionCount(client, sessionId, loading.id),
-    1,
-    `${loading.id}: rejected native close dispatched a parent update`,
-  );
+  await pointerActivate(client, sessionId, withinScenario(loading, ".jk-dialog__dismiss"));
+  await waitForScenarioInteractionCount(client, sessionId, loading.id, 4);
+  await waitForDialogOpen(client, sessionId, loading, false);
+  await assertDialogFocusReturned(client, sessionId, loading);
 }
 
 async function normalizeDefaultOpenMenuClosed(client, sessionId, scenarioById) {
@@ -3222,11 +3194,6 @@ async function verifyBrowserEdgeProbe(client, baseUrl) {
       "loading dialog without enabled descendant controls",
     );
     await pressKey(client, page.sessionId, "Escape");
-    await pointerActivate(
-      client,
-      page.sessionId,
-      "#loading-no-control-dialog-probe .jk-dialog__dismiss",
-    );
     await pointerActivate(
       client,
       page.sessionId,

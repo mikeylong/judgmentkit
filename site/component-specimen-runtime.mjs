@@ -468,7 +468,7 @@ export const RUNTIME_COMPONENT_SCENARIOS = Object.freeze([
     message: "Refund RF-1842 is being sent to the payments team.",
     loading_message: "Sending the refund handoff.",
     action_label: "Confirm handoff",
-    dismiss_label: "Cancel handoff",
+    dismiss_label: "Close handoff status",
     counter_label: "Dialog actions",
   }),
   scenario("dialog", "error", {

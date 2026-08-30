@@ -744,7 +744,6 @@ export function Dialog({
   const reconciledCloseEventsRef = useRef(0);
   const controlledRef = useRef(controlled);
   const dismissibleRef = useRef(dismissible);
-  const isLoadingRef = useRef(false);
   const initialFocusRefProp = useRef(initialFocusRef);
   const returnFocusRefProp = useRef(returnFocusRef);
   const onOpenChangeRef = useRef(onOpenChange);
@@ -754,7 +753,6 @@ export function Dialog({
   const isLoading = Boolean(loading && !errorMessage);
   controlledRef.current = controlled;
   dismissibleRef.current = dismissible;
-  isLoadingRef.current = isLoading;
   initialFocusRefProp.current = initialFocusRef;
   returnFocusRefProp.current = returnFocusRef;
   onOpenChangeRef.current = onOpenChange;
@@ -793,7 +791,7 @@ export function Dialog({
   }
 
   function requestDismiss(reason, event) {
-    if (!dismissible || isLoading) {
+    if (!dismissible) {
       event?.preventDefault?.();
       return;
     }
@@ -823,8 +821,7 @@ export function Dialog({
       if (reconciledClose) {
         reconciledCloseEventsRef.current -= 1;
       }
-      const nativeCloseAllowed =
-        dismissibleRef.current && !isLoadingRef.current;
+      const nativeCloseAllowed = dismissibleRef.current;
       if (
         !nativeCloseAllowed &&
         isOpenRef.current &&
@@ -937,7 +934,7 @@ export function Dialog({
       onFocusCapture: focus.onFocusCapture,
       onBlurCapture: focus.onBlurCapture,
       onCancel: (event) => {
-        if (!dismissible || isLoading) {
+        if (!dismissible) {
           event.preventDefault();
           return;
         }
@@ -963,7 +960,6 @@ export function Dialog({
             {
               className: "jk-dialog__dismiss",
               type: "button",
-              disabled: isLoading || undefined,
               "aria-label": resolvedDismissLabel,
               onClick: (event) => requestDismiss("dismiss-button", event),
             },
