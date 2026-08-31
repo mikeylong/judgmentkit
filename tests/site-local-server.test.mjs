@@ -804,6 +804,10 @@ try {
       "/design-system/manifest.json",
       "/design-system/surface-presentation-profiles.json",
     ]);
+    assert.deepEqual(verification.profiles, {
+      "judgmentkit.workbench.operational-v1": "supported",
+      "judgmentkit.artifact-inspector.v1": "proposed",
+    });
     assert.equal(
       verification.profile_id,
       "judgmentkit.workbench.operational-v1",
