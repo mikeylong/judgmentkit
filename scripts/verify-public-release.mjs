@@ -1030,12 +1030,36 @@ export async function verifyDesignSystemSurfaceProfiles(baseUrl) {
   assert.equal(workbenchProfile.authority?.public_contract, true);
   assert.equal(workbenchProfile.authority?.runtime_renderer, false);
 
+  const artifactInspectorProfile = catalog.profiles.find(
+    (profile) => profile.id === "judgmentkit.artifact-inspector.v1",
+  );
+  assert.ok(
+    artifactInspectorProfile,
+    "surface-presentation profile catalog should include the proposed Artifact Inspector profile",
+  );
+  assert.equal(artifactInspectorProfile.status, "proposed");
+  assert.equal(artifactInspectorProfile.surface_type, "artifact_inspector");
+  assert.equal(artifactInspectorProfile.authority?.public_contract, true);
+  assert.equal(artifactInspectorProfile.authority?.runtime_renderer, false);
+  assert.equal(
+    artifactInspectorProfile.authority?.pattern_contract_id,
+    "artifact-inspector",
+  );
+  assert.equal(
+    artifactInspectorProfile.provenance?.external_artifact_review_status,
+    "external_not_reviewed",
+  );
+
   return {
     checked: [manifestRoute, profileCatalogRoute],
     manifest_route: manifestRoute,
     catalog_route: profileCatalogRoute,
     profile_id: workbenchProfile.id,
     profile_status: workbenchProfile.status,
+    profiles: {
+      [workbenchProfile.id]: workbenchProfile.status,
+      [artifactInspectorProfile.id]: artifactInspectorProfile.status,
+    },
   };
 }
 
@@ -1069,6 +1093,13 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "Use JudgmentKit’s design system—or bring your own.",
       "A design system can make the wrong interface consistent.",
       "JudgmentKit prevents that mistake before the components are composed.",
+      "Artifact Inspector",
+      "Proposed",
+      "one rendered artifact stays primary",
+      "inspector chrome and inspection overlay",
+      "The artifact keeps its own visual language.",
+      'href="/docs/#artifact-inspector"',
+      `href="https://github.com/mikeylong/judgmentkit/releases/tag/v${expectedPackageVersion}"`,
       "See a screen repaired",
       "Explore examples",
       '<link rel="canonical" href="https://judgmentkit.ai/">',
@@ -1138,6 +1169,15 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "create_frontend_implementation_skill_context",
       "create_slide_deck",
       "operator-review-ui",
+      "Artifact Inspector",
+      "Status: proposed",
+      "artifact-inspector-ui",
+      "judgmentkit.artifact-inspector.v1",
+      "review_required",
+      "external_not_reviewed",
+      "inspector chrome and inspection overlay",
+      "not the artifact itself",
+      `href="https://github.com/mikeylong/judgmentkit/releases/tag/v${expectedPackageVersion}"`,
     ],
     "docs",
   );

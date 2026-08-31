@@ -25,6 +25,7 @@ import {
   listComponentImplementationRegistry,
   listIconCatalog,
   listSurfacePresentationProfiles,
+  loadActivityContract,
   searchIconCatalog,
   summarizeComponentReferenceCoverage,
 } from "../src/index.mjs";
@@ -39,6 +40,7 @@ const DEFAULT_OUT_DIR = path.join(__dirname, "dist");
 const require = createRequire(import.meta.url);
 const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
 const JUDGMENTKIT_PACKAGE_VERSION = require("../package.json").version;
+const ACTIVITY_CONTRACT = loadActivityContract();
 const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-design-source-authority";
 const COMPONENT_SPECIMEN_ASSET_VERSION =
   "judgmentkit-react-component-candidate-v1";
@@ -1944,6 +1946,7 @@ h2 {
 .homepage-preview,
 .homepage-category,
 .homepage-failure,
+.homepage-artifact-inspector,
 .proof-paths,
 .adoption-paths {
   display: block;
@@ -2041,6 +2044,7 @@ pre {
 }
 .homepage-category .homepage-section-shell > div:first-child,
 .homepage-failure .homepage-section-shell > div:first-child,
+.homepage-artifact-inspector .homepage-section-shell > div:first-child,
 .proof-paths .homepage-section-shell > div:first-child,
 .adoption-paths .homepage-section-shell > div:first-child {
   max-width: 900px;
@@ -2497,6 +2501,26 @@ pre {
 }
 .doc-section {
   padding-bottom: 28px;
+}
+.surface-type-list {
+  display: grid;
+  margin: 18px 0 0;
+  border-top: 1px solid var(--line);
+}
+.surface-type-entry {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.32fr) minmax(0, 1fr);
+  gap: 18px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--line);
+}
+.surface-type-entry dt {
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+.surface-type-entry dd {
+  margin: 0;
+  color: var(--muted);
 }
 .docs-page {
   padding-top: var(--site-page-top);
@@ -4680,6 +4704,10 @@ pre {
   .homepage-hero-art img {
     object-position: 50% 43%;
   }
+  .surface-type-entry {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 5px;
+  }
 }
 @media (max-width: 767px) {
   .surfaces-navigation-inner {
@@ -4998,6 +5026,33 @@ export function renderHomepage({ homepageFilmEnabled = HOMEPAGE_FILM_ENABLED } =
             <h3>After repair</h3>
             <p>The interface can be generated from a product-language handoff that makes evidence, decisions, and completion states explicit.</p>
           </article>
+        </div>
+      </div>
+    </section>
+    <section class="section homepage-artifact-inspector" aria-labelledby="artifact-inspector-title">
+      <div class="site-shell homepage-section-shell">
+        <div>
+          <p class="eyebrow">Artifact Inspector · Proposed</p>
+          <h2 id="artifact-inspector-title">Keep the artifact at the center of the review.</h2>
+          <p>Artifact Inspector is for work where one rendered artifact stays primary and the person must act on a specific part of it.</p>
+        </div>
+        <div class="failure-grid">
+          <article>
+            <h3>Artifact first</h3>
+            <p>People select the exact locus that matters. Evidence, actions, feedback, and results stay attached to that location.</p>
+          </article>
+          <article>
+            <h3>Scoped chrome</h3>
+            <p>JudgmentKit governs the inspector chrome and inspection overlay. The artifact keeps its own visual language.</p>
+          </article>
+          <article>
+            <h3>Current boundary</h3>
+            <p>Version ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)} can guide the model, but it cannot yet verify the complete working interaction, so review remains required.</p>
+          </article>
+        </div>
+        <div class="link-row">
+          <a class="pill-link" href="/docs/#artifact-inspector">Read the Artifact Inspector guide</a>
+          <a class="pill-link" href="${escapeHtml(GITHUB_RELEASE_URL)}">Read the ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)} release notes</a>
         </div>
       </div>
     </section>
@@ -6129,7 +6184,7 @@ function buildDesignSystemContentModel() {
       title: "Patterns",
       href: "/design-system/patterns/",
       summary:
-        "Surface contracts for marketing, workbench, review, form, dashboard, report, setup, and conversation work.",
+        "Surface contracts for marketing, workbench, review, artifact inspection, form, dashboard, report, setup, and conversation work.",
       meta: `${patternContracts.length} patterns + specimens`,
     },
     {
@@ -7785,6 +7840,18 @@ async function valuePage() {
   );
 }
 
+function renderSurfaceTypeEntries() {
+  return Object.entries(ACTIVITY_CONTRACT.surface_types ?? {})
+    .map(
+      ([surfaceTypeId, surfaceType]) => `
+        <div class="surface-type-entry" data-surface-type="${escapeHtml(surfaceTypeId)}">
+          <dt>${escapeHtml(surfaceType.label)}</dt>
+          <dd>${escapeHtml(surfaceType.purpose)}</dd>
+        </div>`,
+    )
+    .join("");
+}
+
 const DOCS_SECTION_ITEMS = [
   { href: "#quickstart", label: "Quickstart", current: true, currentValue: "location" },
   { href: "#first-use", label: "First 10 Minutes" },
@@ -7795,6 +7862,7 @@ const DOCS_SECTION_ITEMS = [
   { href: "#workflow-review", label: "Workflow Review" },
   { href: "#cognitive-dimensions", label: "Cognitive Dimensions" },
   { href: "#surface-type", label: "Surface Type" },
+  { href: "#artifact-inspector", label: "Artifact Inspector" },
   { href: "#handoff", label: "Handoff" },
   { href: "#implementation-contract", label: "Implementation Contract" },
   { href: "#frontend-context", label: "Frontend Context" },
@@ -7870,7 +7938,7 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
               <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>
               <p><strong>JudgmentKit kernel:</strong> deterministic review, candidate review, disclosure rules, targeted questions, and the handoff gate decide whether UI generation is ready.</p>
               <p><strong>LLM / provider seam:</strong> a model may propose activity or workflow candidates, but JudgmentKit reviews those candidates before trusting them.</p>
-              <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose as marketing, workbench, operator review, form flow, dashboard monitor, content/report, setup/debug tool, or conversation before frontend implementation guidance.</p>
+              <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose as marketing, workbench, operator review, artifact inspection, form flow, dashboard monitoring, content/report, setup/debug work, or conversation before frontend implementation guidance.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
               <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies <code>implementation_contract.design_system_source</code>, <code>implementation_contract.local_component_authority</code>, <code>implementation_contract.visual_token_adapter</code>, <code>implementation_contract.default_ai_native_design_system</code>, approved primitives, required states, static checks, browser QA expectations, <code>implementation_contract.visual_asset_policy</code>, and <code>implementation_contract.accessibility_policy</code> before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract and marks failed design-system candidates as repair-only diagnostics, not accepted artifacts.</p>
               <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, Lucide icon catalog policy, design-system provenance expectations, and local component authority without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
@@ -7894,6 +7962,31 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
           <section class="doc-section" id="surface-type">
             <h2>Surface Type</h2>
             <p>Call <code>recommend_surface_types</code> after activity review and before workflow or frontend implementation guidance. Surface type is activity-purpose guidance, not a visual theme.</p>
+            <dl class="surface-type-list" aria-label="Canonical surface types">
+              ${renderSurfaceTypeEntries()}
+            </dl>
+          </section>
+          <section class="doc-section" id="artifact-inspector">
+            <p class="eyebrow">Status: ${escapeHtml(ACTIVITY_CONTRACT.interaction_models.artifact_inspector.status)}</p>
+            <h2>Artifact Inspector</h2>
+            <p>Artifact Inspector is a proposed interaction model for work centered on one rendered artifact. Use it only when the artifact must remain visible and primary, the person must select a semantic locus within it, and supporting evidence, actions, or results are meaningful in relation to that locus.</p>
+            <p>Keep the existing surface type when a queue, case, collection, report, dashboard, form, setup flow, or conversation is primary. A live artifact keeps its native behavior until the person explicitly enters inspection mode.</p>
+            <h3>Identifiers and current status</h3>
+            <pre><code>surface_type: artifact_inspector
+workflow_profile: artifact-inspector-ui
+frontend_surface_profile: judgmentkit.artifact-inspector.v1
+topology_kind: artifact_centered
+status: proposed
+implementation_review_status: review_required
+primary_artifact_review_status: external_not_reviewed</code></pre>
+            <h3>Authority boundary</h3>
+            <p>JudgmentKit governs the inspector chrome and inspection overlay, not the artifact itself. The declared external authority owns the artifact’s typography, components, color, elevation, internal layout, semantics, and native interactions. Reviews report chrome, overlay, artifact preservation, and boundary behavior separately.</p>
+            <h3>Current review boundary</h3>
+            <p>JudgmentKit ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)} can identify and validate the artifact-centered contract and carry it into generation guidance. It does not yet have a trusted interactive-attestation producer or verifier, so an otherwise valid implementation remains <code>review_required</code>.</p>
+            <p>Screenshots, static metadata, caller-authored evidence, or unchanged fingerprints cannot close that gate. Future acceptance must verify real pointer, touch, keyboard, and assistive-technology crossings; focus order and return; overlay obstruction and target drift; style isolation in both directions; artifact preservation; and required states across desktop and narrow viewports.</p>
+            <div class="link-row">
+              <a class="pill-link" href="${escapeHtml(GITHUB_RELEASE_URL)}">Read the ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)} release notes</a>
+            </div>
           </section>
           <section class="doc-section" id="handoff">
             <h2>Handoff</h2>
@@ -7913,7 +8006,7 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
           </section>
           <section class="doc-section" id="profiles">
             <h2>Guidance Profiles</h2>
-            <p>Call <code>recommend_ui_workflow_profiles</code> when a brief sounds like specialized review work. Pass <code>profile_id: "operator-review-ui"</code> only when the recommendation evidence supports it.</p>
+            <p>Call <code>recommend_ui_workflow_profiles</code> when a brief sounds like specialized review work. Pass <code>profile_id: "operator-review-ui"</code> only when the recommendation evidence supports it. Artifact-centered work may use the proposed <code>artifact-inspector-ui</code> workflow profile with <code>judgmentkit.artifact-inspector.v1</code>; that profile guides generation but does not change its <code>review_required</code> status.</p>
           </section>
         </div>
       </div>
@@ -7921,7 +8014,7 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
   `,
     {
       description:
-        "JudgmentKit docs for CLI, MCP, activity review, workflow review, handoff, and guidance profiles.",
+        "JudgmentKit docs for CLI, MCP, activity review, workflow review, Artifact Inspector, handoff, and guidance profiles.",
       headExtra: systemMapFlowAssets(),
       path: "/docs/",
     },

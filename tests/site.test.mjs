@@ -20,6 +20,7 @@ import { getHostedMcpMetadata } from "../src/mcp-http.mjs";
 import {
   createUiImplementationContract,
   listSurfacePresentationProfiles,
+  loadActivityContract,
 } from "../src/index.mjs";
 
 const EXPECTED_TOOL_NAMES = [
@@ -78,6 +79,7 @@ const PUBLIC_DIAGNOSTIC_CANDIDATE_KEYS = [
   "use_case_label",
 ];
 const root = path.resolve(".");
+const activityContract = loadActivityContract();
 const RAW_COLOR_VALUE_PATTERN =
   /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(|hwb\(|(?:ok)?lab\(|(?:ok)?lch\(|color\(|\b(?:white|black)\b/i;
 const APPEARANCE_INVARIANT_SITE_TOKENS = [
@@ -1737,6 +1739,32 @@ assert.ok(homepage.includes("The problem is not ugly UI. It is the wrong concept
 assert.ok(homepage.includes("Before judgment"));
 assert.ok(homepage.includes("With JudgmentKit"));
 assert.ok(homepage.includes("After repair"));
+const homepageFailureIndex = homepage.indexOf('class="section homepage-failure"');
+const homepageArtifactInspectorIndex = homepage.indexOf(
+  'class="section homepage-artifact-inspector"',
+);
+const homepageProofPathsIndex = homepage.indexOf('class="section proof-paths"');
+assert.ok(
+  homepageFailureIndex < homepageArtifactInspectorIndex &&
+    homepageArtifactInspectorIndex < homepageProofPathsIndex,
+  "Artifact Inspector should follow failure recognition and precede proof paths",
+);
+const homepageArtifactInspector = homepage.slice(
+  homepageArtifactInspectorIndex,
+  homepageProofPathsIndex,
+);
+assert.ok(homepageArtifactInspector.includes("Artifact Inspector"));
+assert.ok(homepageArtifactInspector.includes("Proposed"));
+assert.ok(homepageArtifactInspector.includes("one rendered artifact stays primary"));
+assert.ok(homepageArtifactInspector.includes("inspector chrome and inspection overlay"));
+assert.ok(homepageArtifactInspector.includes("The artifact keeps its own visual language."));
+assert.ok(homepageArtifactInspector.includes("review remains required"));
+assert.ok(homepageArtifactInspector.includes('href="/docs/#artifact-inspector"'));
+assert.ok(
+  homepageArtifactInspector.includes(
+    `href="https://github.com/mikeylong/judgmentkit/releases/tag/v${packageJson.version}"`,
+  ),
+);
 assert.ok(homepage.includes('class="section proof-paths" aria-labelledby="proof-paths-title"'));
 assert.ok(homepage.includes("Inspect the loop from product value to repeatable evidence."));
 assert.ok(homepage.includes("What it prevents"));
@@ -1961,6 +1989,61 @@ assert.ok(docs.includes("resolve targeted questions or leakage details before ge
 assert.ok(docs.includes("not the final UI renderer"));
 assert.equal(docs.includes("optional styling path"), false);
 assert.ok(docs.includes("operator-review-ui"));
+assert.ok(
+  docs.includes(
+    '<a href="#artifact-inspector" data-section-rail-link data-section-rail-target="artifact-inspector">Artifact Inspector</a>',
+  ),
+);
+const surfaceTypeStart = docs.indexOf('<section class="doc-section" id="surface-type">');
+const artifactInspectorStart = docs.indexOf(
+  '<section class="doc-section" id="artifact-inspector">',
+);
+const handoffStart = docs.indexOf('<section class="doc-section" id="handoff">');
+assert.ok(surfaceTypeStart > -1 && artifactInspectorStart > surfaceTypeStart);
+assert.ok(handoffStart > artifactInspectorStart);
+const surfaceTypeSection = docs.slice(surfaceTypeStart, artifactInspectorStart);
+const documentedSurfaceTypeIds = [
+  ...surfaceTypeSection.matchAll(/data-surface-type="([^"]+)"/g),
+].map((match) => match[1]);
+assert.deepEqual(
+  documentedSurfaceTypeIds,
+  Object.keys(activityContract.surface_types),
+  "docs should list every canonical surface type in contract order",
+);
+for (const [surfaceTypeId, surfaceType] of Object.entries(
+  activityContract.surface_types,
+)) {
+  assert.ok(
+    surfaceTypeSection.includes(
+      `<div class="surface-type-entry" data-surface-type="${surfaceTypeId}">`,
+    ),
+  );
+  assert.ok(surfaceTypeSection.includes(`<dt>${surfaceType.label}</dt>`));
+  assert.ok(surfaceTypeSection.includes(`<dd>${surfaceType.purpose}</dd>`));
+}
+const artifactInspectorSection = docs.slice(artifactInspectorStart, handoffStart);
+assert.ok(artifactInspectorSection.includes("Artifact Inspector"));
+assert.ok(artifactInspectorSection.includes("Identifiers and current status"));
+assert.ok(
+  artifactInspectorSection.includes(
+    `Status: ${activityContract.interaction_models.artifact_inspector.status}`,
+  ),
+);
+assert.ok(artifactInspectorSection.includes("judgmentkit.artifact-inspector.v1"));
+assert.ok(artifactInspectorSection.includes("artifact-inspector-ui"));
+assert.ok(artifactInspectorSection.includes("frontend_surface_profile"));
+assert.ok(artifactInspectorSection.includes("topology_kind"));
+assert.equal(artifactInspectorSection.includes("frontend_profile:"), false);
+assert.equal(artifactInspectorSection.includes("surface_status:"), false);
+assert.ok(artifactInspectorSection.includes("review_required"));
+assert.ok(artifactInspectorSection.includes("external_not_reviewed"));
+assert.ok(artifactInspectorSection.includes("inspector chrome and inspection overlay"));
+assert.ok(artifactInspectorSection.includes("not the artifact itself"));
+assert.ok(
+  artifactInspectorSection.includes(
+    `href="https://github.com/mikeylong/judgmentkit/releases/tag/v${packageJson.version}"`,
+  ),
+);
 assert.equal(docs.includes("judgmentkit2"), false);
 
 const designSystem = fs.readFileSync(path.join(tempDir, "design-system", "index.html"), "utf8");
@@ -2401,6 +2484,11 @@ assert.ok(
 assert.ok(
   designSystemPatterns.includes(
     'data-surface-presentation-profile="judgmentkit.workbench.operational-v1"',
+  ),
+);
+assert.ok(
+  designSystemPatterns.includes(
+    'data-surface-presentation-profile="judgmentkit.artifact-inspector.v1"',
   ),
 );
 assert.ok(designSystemPatterns.includes("Surface presentation profiles"));
