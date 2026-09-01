@@ -17,6 +17,107 @@
     "turn implementation artifacts into the primary user experience",
     "copy JudgmentKit v1 resource, prompt, schema, or MCP structures"
   ],
+  "activity_case_policy": {
+    "default_mode": "inference_first",
+    "context_item_kinds": [
+      "user_answer",
+      "workspace_evidence",
+      "provided_artifact",
+      "authoritative_source"
+    ],
+    "claim_origins": [
+      "source_supported",
+      "workspace_observed",
+      "model_inferred",
+      "convention_assumed"
+    ],
+    "materiality_levels": [
+      "low",
+      "medium",
+      "high"
+    ],
+    "readiness_decisions": [
+      "proceed",
+      "ask",
+      "stop"
+    ],
+    "safe_inference": {
+      "allowed_when": [
+        "The inferred claim is reversible during concept exploration.",
+        "Choosing differently would not change participant authority, safety, sensitive disclosure, or an irreversible commitment.",
+        "The assumption remains visible in the activity case and can be revised without treating it as user evidence."
+      ],
+      "must_remain_visible": true
+    },
+    "interrupt_when": [
+      "Two or more plausible interpretations would materially change the workflow, work object, completion state, or handoff.",
+      "The inferred claim changes who may recommend, approve, authorize, or commit an action.",
+      "The inferred claim changes what sensitive information a participant may view or disclose."
+    ],
+    "stop_when": [
+      "A safety, legal, clinical, regulatory, or compliance rule requires an authoritative source.",
+      "A sensitive-disclosure boundary cannot be established from supplied source context."
+    ],
+    "never_treat_as_user_evidence": [
+      "candidate-only claims",
+      "model confidence",
+      "model-proposed alternatives",
+      "conventional defaults"
+    ],
+    "compatibility_status_mapping": {
+      "proceed": "ready_for_review",
+      "ask": "needs_source_context",
+      "stop": "needs_source_context"
+    },
+    "readiness_semantics": {
+      "proceed_exploration": "The activity case may guide concept exploration with visible assumptions.",
+      "ask_exploration": "The activity case may guide a provisional first direction with the material ambiguity visible; resolve the one consequential question before treating the direction as implementation-ready.",
+      "stop_exploration": "Concept exploration stops until an authoritative source establishes the boundary.",
+      "commitment": "Activity-case readiness never authorizes product, policy, safety, release, or implementation commitments."
+    },
+    "source_authority_policy": {
+      "authoritative_source_requires_source_ref": true,
+      "participant_action_authority": {
+        "allowed_source_kinds": [
+          "brief",
+          "user_answer",
+          "authoritative_source"
+        ],
+        "disallowed_source_kinds": [
+          "workspace_evidence",
+          "provided_artifact"
+        ],
+        "requires_affirmative_relevant_source": true
+      },
+      "governing_boundaries": {
+        "categories": [
+          "safety",
+          "legal",
+          "clinical",
+          "regulatory",
+          "compliance",
+          "sensitive_disclosure",
+          "irreversible_action"
+        ],
+        "required_source_kind": "authoritative_source"
+      },
+      "integrity_receipts_confer_authority": false
+    },
+    "context_continuity": {
+      "required_when": "activity_case_packet_crosses_downstream_boundary",
+      "propagate_through": [
+        "activity_review",
+        "workflow_review",
+        "generation_handoff",
+        "frontend_generation_context",
+        "frontend_implementation_skill_context"
+      ],
+      "require_exact_raw_brief": true,
+      "require_exact_attributed_context": true,
+      "revalidate_at_each_boundary": true,
+      "integrity_receipt_role": "content_continuity_only"
+    }
+  },
   "workflow": {
     "id": "workflow.ai-ui-generation",
     "topology_policy": {

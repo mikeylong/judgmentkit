@@ -10,9 +10,9 @@ import { createOpenAIResponsesUiWorkflowProposer } from "judgmentkit/providers/o
 
 const REFUND_TRIAGE_BRIEF = `
   A support lead is reviewing refund requests during the daily triage workflow.
-  The activity is deciding whether a case should be approved, sent to policy review,
-  or returned to the agent for missing evidence. The outcome is a clear handoff
-  with the next action and the reason for the decision.
+  The activity is deciding whether to recommend support, send a case to policy
+  review, or return it to the agent for missing evidence. The outcome is a clear
+  handoff with the next action and the reason for the recommendation.
 `;
 
 const FORBIDDEN_ADAPTER_KEYS = new Set([
@@ -37,12 +37,12 @@ function refundWorkflowCandidate() {
       topology: "workspace",
       work_units: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
       primary_actions: [
-        "Approve refund",
+        "Recommend refund approval",
         "Send to policy review",
         "Return for evidence",
       ],
       decision_points: [
-        "Decide whether the case should be approved, sent to policy review, or returned for missing evidence.",
+        "Decide whether to recommend refund approval, policy review, or more evidence.",
       ],
       completion_state: "Clear handoff with next action and decision reason.",
     },
@@ -59,7 +59,7 @@ function refundWorkflowCandidate() {
         purpose: "Compare refund evidence and choose the next action.",
         sections: ["Evidence checklist", "Policy review context", "Handoff"],
         controls: [
-          "Approve refund",
+          "Recommend refund approval",
           "Send to policy review",
           "Return for evidence",
           "Send handoff",

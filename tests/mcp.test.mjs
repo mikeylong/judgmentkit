@@ -3,6 +3,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+import Ajv2020 from "ajv/dist/2020.js";
+
 import {
   formatPlanningCard,
   getMcpMetadata,
@@ -440,6 +442,41 @@ assert.equal(tools[0].inputSchema.required.includes("brief"), true);
 assert.equal(tools[0].inputSchema.properties.brief.minLength, 1);
 assert.equal(tools[1].inputSchema.required.includes("brief"), true);
 assert.equal(tools[1].inputSchema.properties.brief.minLength, 1);
+assert.equal(tools[1].inputSchema.properties.context_items.type, "array");
+assert.equal(tools[1].inputSchema.properties.context_items.maxItems, 12);
+assert.match(
+  tools[1].inputSchema.properties.context_items.items.properties.source_ref.description,
+  /required when kind is authoritative_source/i,
+);
+const validateAdvertisedContextItem = new Ajv2020({ allErrors: true }).compile(
+  tools[1].inputSchema.properties.context_items.items,
+);
+assert.equal(
+  validateAdvertisedContextItem({
+    id: "policy",
+    kind: "authoritative_source",
+    content: "Only physicians may authorize discharge.",
+  }),
+  false,
+  "The advertised JSON schema must reject authoritative context without source_ref.",
+);
+assert.equal(
+  validateAdvertisedContextItem({
+    id: "policy",
+    kind: "authoritative_source",
+    content: "Only physicians may authorize discharge.",
+    source_ref: "policy://clinical/discharge",
+  }),
+  true,
+);
+assert.equal(
+  validateAdvertisedContextItem({
+    id: "observation",
+    kind: "workspace_evidence",
+    content: "Nurses prepare discharge summaries.",
+  }),
+  true,
+);
 assert.equal(tools[2].inputSchema.required.includes("brief"), true);
 assert.equal(toolByName.recommend_surface_types.inputSchema.properties.activity_review.type, "object");
 assert.equal(toolByName.recommend_surface_types.inputSchema.properties.activityReview.type, "object");
@@ -450,8 +487,15 @@ assert.equal(
 assert.equal(tools[3].inputSchema.required.includes("brief"), true);
 assert.equal(tools[4].inputSchema.required.includes("brief"), true);
 assert.equal(tools[4].inputSchema.required.includes("candidate"), true);
+assert.equal(tools[4].inputSchema.properties.context_items.type, "array");
+assert.deepEqual(
+  tools[4].inputSchema.properties.context_items.items.properties.kind.enum,
+  ["user_answer", "workspace_evidence", "provided_artifact", "authoritative_source"],
+);
 assert.equal(tools[5].inputSchema.required.includes("brief"), true);
 assert.equal(tools[5].inputSchema.required.includes("candidate"), true);
+assert.equal(tools[5].inputSchema.properties.activity_review.type, "object");
+assert.equal(tools[5].inputSchema.properties.context_items.type, "array");
 assert.equal(tools[5].inputSchema.properties.profile_id.type, "string");
 assert.equal(tools[5].inputSchema.properties.surface_type.type, "string");
 assert.equal(
@@ -466,6 +510,16 @@ assert.equal(
   toolByName.review_cognitive_dimensions_candidate.inputSchema.properties.surface_type.type,
   "string",
 );
+for (const toolName of [
+  "recommend_surface_types",
+  "review_cognitive_dimensions_candidate",
+]) {
+  assert.match(
+    toolByName[toolName].inputSchema.properties.activity_review.description,
+    /returned by review_activity_model_candidate/i,
+    `${toolName} should steer clients to the reviewed inferred activity packet.`,
+  );
+}
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.approved_primitives.type, "array");
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.accessibility_policy.type, "object");
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.default_ai_native_design_system.type, "object");
@@ -586,9 +640,15 @@ assert.match(
 );
 assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includes("workflow_review"), true);
 assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includes("implementation_contract"), true);
+assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includes("brief"), true);
 assert.equal(toolByName.create_ui_generation_handoff.inputSchema.properties.cognitive_dimensions_review.type, "object");
+assert.equal(toolByName.create_ui_generation_handoff.inputSchema.properties.context_items.type, "array");
 assert.equal(toolByName.create_frontend_generation_context.inputSchema.required.includes("ui_generation_handoff"), true);
+assert.equal(toolByName.create_frontend_generation_context.inputSchema.required.includes("brief"), true);
+assert.equal(toolByName.create_frontend_generation_context.inputSchema.properties.context_items.type, "array");
 assert.equal(toolByName.create_frontend_implementation_skill_context.inputSchema.required.includes("frontend_generation_context"), true);
+assert.equal(toolByName.create_frontend_implementation_skill_context.inputSchema.required.includes("brief"), true);
+assert.equal(toolByName.create_frontend_implementation_skill_context.inputSchema.properties.context_items.type, "array");
 assert.equal(toolByName.create_slide_deck.inputSchema.required.includes("slides"), true);
 assert.equal(toolByName.create_slide_deck.inputSchema.properties.slides.maxItems, 24);
 assert.equal(toolByName.create_slide_deck.inputSchema.properties.output.properties.path.type, "string");
@@ -1274,6 +1334,26 @@ const refundWorkflowCandidate = {
   },
 };
 
+const refundRecommendationWorkflowCandidate = structuredClone(
+  refundWorkflowCandidate,
+);
+refundRecommendationWorkflowCandidate.workflow.primary_actions = [
+  "Recommend approval",
+  "Recommend policy review",
+  "Request evidence",
+];
+refundRecommendationWorkflowCandidate.workflow.decision_points = [
+  "Choose the recommended route for the refund request.",
+];
+refundRecommendationWorkflowCandidate.surface_set[0].controls = [
+  "Recommend approval",
+  "Recommend policy review",
+  "Request evidence",
+  "Send recommendation",
+];
+refundRecommendationWorkflowCandidate.surface_set[0].purpose =
+  "Review evidence, recommend the next route, and send a handoff.";
+
 function createUiImplementationContractFixture() {
   return {
     approved_primitives: ["queue", "detail panel", "decision controls", "handoff receipt"],
@@ -1528,6 +1608,99 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   assert.deepEqual(result.guardrails.candidate_primary_terms_detected, []);
 }
 
+const inferredShortContextItems = [
+  {
+    id: "workspace-refund-ritual",
+    kind: "workspace_evidence",
+    content:
+      "During triage, the support lead recommends the next route and records a rationale; finance retains final refund authority.",
+    source_ref: "docs/refund-operations.md",
+  },
+];
+let inferredShortActivityReview;
+{
+  const brief = "Create a refund triage workspace for support leads.";
+  const candidate = {
+    activity_model: {
+      activity: "Support leads triage refund requests.",
+      participants: ["support leads"],
+      objective: "Determine the most appropriate next route for each request.",
+      outcomes: ["Each request has a clear recommended route and rationale."],
+      domain_vocabulary: ["refund request", "evidence", "policy review"],
+    },
+    interaction_contract: {
+      primary_decision: "Choose the recommended route for the refund request.",
+      next_actions: ["Recommend approval", "Recommend policy review", "Request evidence"],
+      completion: "Leave each request with a recommended route and rationale.",
+      make_easy: ["Compare request evidence before recommending a route."],
+    },
+    disclosure_policy: {
+      terms_to_use: ["refund request", "evidence", "policy review"],
+      hidden_implementation_terms: [],
+      translation_candidates: [],
+      diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+    },
+  };
+
+  inferredShortActivityReview = await handleToolCall("review_activity_model_candidate", {
+    brief,
+    candidate,
+    context_items: inferredShortContextItems,
+  });
+
+  assert.equal("error" in inferredShortActivityReview, false);
+  assert.equal(inferredShortActivityReview.review_status, "ready_for_review");
+  assert.equal(inferredShortActivityReview.activity_case.mode, "inference_first");
+  assert.equal(inferredShortActivityReview.activity_case.readiness.decision, "proceed");
+  assert.ok(inferredShortActivityReview.activity_case.assumptions.length > 0);
+  assert.deepEqual(
+    inferredShortActivityReview.source.context_items.map((item) => ({
+      id: item.id,
+      kind: item.kind,
+      source_ref: item.source_ref,
+    })),
+    [
+      {
+        id: "workspace-refund-ritual",
+        kind: "workspace_evidence",
+        source_ref: "docs/refund-operations.md",
+      },
+    ],
+  );
+  assert.equal(
+    JSON.stringify(inferredShortActivityReview.source).includes("finance retains"),
+    false,
+  );
+
+  const card = formatPlanningCard(inferredShortActivityReview);
+  assert.ok(card.includes("## JudgmentKit Working Premise"));
+  assert.ok(card.includes("**Working premise**"));
+  assert.ok(card.includes("**Decisions inferred**"));
+  assert.equal(card.includes("**Status:**"), false);
+  assert.equal(card.includes("Diagnostics"), false);
+}
+
+{
+  const result = await handleToolCall("review_activity_model_candidate", {
+    brief: "Create a refund triage workspace for support leads.",
+    candidate: {
+      ...refundTriageCandidate,
+      interaction_contract: {
+        ...refundTriageCandidate.interaction_contract,
+        primary_decision: "Approve or deny each refund request.",
+      },
+    },
+  });
+
+  assert.equal("error" in result, false);
+  assert.equal(result.review_status, "needs_source_context");
+  assert.equal(result.activity_case.readiness.decision, "ask");
+  assert.ok(result.activity_case.readiness.next_question.includes("authority"));
+  const card = formatPlanningCard(result);
+  assert.ok(card.includes("**Next step:** Show a provisional first direction"));
+  assert.ok(card.includes("**One thing to resolve**"));
+}
+
 {
   const result = await handleToolCall("review_activity_model_candidate", {
     brief:
@@ -1553,9 +1726,10 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
 
 {
   const result = await handleToolCall("review_ui_workflow_candidate", {
-    brief:
-      "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
-    candidate: refundWorkflowCandidate,
+    brief: "Create a refund triage workspace for support leads.",
+    candidate: refundRecommendationWorkflowCandidate,
+    activity_review: inferredShortActivityReview,
+    context_items: inferredShortContextItems,
     profile_id: "operator-review-ui",
     surface_type: "workbench",
   });
@@ -1566,14 +1740,15 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   assert.equal(result.source.proposer, "external_candidate");
   assert.equal(result.guidance_profile.profile_id, "operator-review-ui");
   assert.equal(result.surface_type, "workbench");
+  assert.equal(result.activity_review, inferredShortActivityReview);
   assert.ok(result.candidate.workflow.surface_name.includes("Refund escalation"));
-  assert.ok(result.candidate.workflow.primary_actions.includes("Approve refund"));
+  assert.ok(result.candidate.workflow.primary_actions.includes("Recommend approval"));
+  assert.deepEqual(result.guardrails.authority_mismatches, []);
   assert.deepEqual(result.guardrails.candidate_primary_terms_detected, []);
   assert.deepEqual(result.guardrails.candidate_primary_meta_terms_detected, []);
 
   const cognitiveReview = await handleToolCall("review_cognitive_dimensions_candidate", {
-    brief:
-      "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    brief: "Create a refund triage workspace for support leads.",
     candidate: result,
     surface_type: "workbench",
   });
@@ -1893,20 +2068,49 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   assert.ok(stoppedReview.repair_instructions.groups.data_visibility.length > 0);
 
   const handoffResult = await handleToolCall("create_ui_generation_handoff", {
+    brief: "Create a refund triage workspace for support leads.",
     workflow_review: result,
     implementation_contract: implementationContract,
+    context_items: inferredShortContextItems,
   });
 
   assert.equal("error" in handoffResult, false);
   assert.equal(handoffResult.handoff_status, "ready_for_generation");
   assert.equal(handoffResult.guidance_profile.profile_id, "operator-review-ui");
   assert.equal(handoffResult.surface_type, "workbench");
-  assert.ok(handoffResult.workflow.primary_actions.includes("Approve refund"));
+  assert.deepEqual(
+    handoffResult.source.activity_context_items,
+    inferredShortActivityReview.source.context_items,
+  );
+  assert.ok(
+    handoffResult.workflow.primary_actions.includes("Recommend approval"),
+  );
   assert.equal("primary_surface" in handoffResult, false);
   assert.ok(handoffResult.surface_set[0].sections.includes("Evidence checklist"));
 
+  const downgradedHandoff = structuredClone(handoffResult);
+  delete downgradedHandoff.activity_case;
+  const downgradedFrontendContext = await handleToolCall(
+    "create_frontend_generation_context",
+    {
+      ui_generation_handoff: downgradedHandoff,
+      brief: "Create a refund triage workspace for support leads.",
+      context_items: inferredShortContextItems,
+    },
+  );
+  assert.equal(
+    downgradedFrontendContext.error.code,
+    "frontend_context_blocked",
+  );
+  assert.equal(
+    downgradedFrontendContext.error.details.field,
+    "ui_generation_handoff.activity_case",
+  );
+
   const frontendContext = await handleToolCall("create_frontend_generation_context", {
     ui_generation_handoff: handoffResult,
+    brief: "Create a refund triage workspace for support leads.",
+    context_items: inferredShortContextItems,
     frontend_context: {
       target_runtime: "React",
       ui_library: "Material UI",
@@ -1949,6 +2153,8 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   );
 
   const skillContext = await handleToolCall("create_frontend_implementation_skill_context", {
+    brief: "Create a refund triage workspace for support leads.",
+    context_items: inferredShortContextItems,
     frontend_generation_context: frontendContext,
     target_client: "codex",
     design_system_adapter: {
@@ -2113,6 +2319,8 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   const conflictingPatternSkillContext = await handleToolCall(
     "create_frontend_implementation_skill_context",
     {
+      brief: "Create a refund triage workspace for support leads.",
+      context_items: inferredShortContextItems,
       frontend_generation_context: frontendContext,
       target_client: "codex",
       design_system_adapter: {
@@ -2155,6 +2363,8 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   const conflictingCamelCasePatternSkillContext = await handleToolCall(
     "create_frontend_implementation_skill_context",
     {
+      brief: "Create a refund triage workspace for support leads.",
+      context_items: inferredShortContextItems,
       frontend_generation_context: frontendContext,
       target_client: "codex",
       design_system_adapter: {
@@ -2273,6 +2483,22 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
 
   assert.equal("error" in result, true);
   assert.equal(result.error.code, "invalid_input");
+}
+
+{
+  const result = await handleToolCall("create_activity_model_review", {
+    brief: "Create a clinical medication review workspace.",
+    context_items: [
+      {
+        id: "medication-policy",
+        kind: "authoritative_source",
+        content: "Only a physician may authorize medication administration.",
+      },
+    ],
+  });
+
+  assert.equal("error" in result, true);
+  assert.equal(result.error.code, "authoritative_source_ref_required");
 }
 
 {

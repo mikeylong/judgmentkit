@@ -1,0 +1,10 @@
+{
+  "name": "judgmentkit",
+  "version": "0.2.0",
+  "description": "Activity-first UI judgment and hosted MCP workflows for preserving design intent across design and code.",
+  "author": {
+    "name": "JudgmentKit"
+  },
+  "homepage": "https://judgmentkit.ai",
+  "repository": "https://github.com/mikeylong/judgmentkit"
+}

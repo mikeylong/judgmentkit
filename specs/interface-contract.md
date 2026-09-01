@@ -1,5 +1,28 @@
 # Interface Contract Template
 
+## Activity Case Evidence
+
+For each material claim, distinguish:
+
+- source-supported evidence
+- observed workspace evidence
+- model inference
+- conventional assumption
+
+List reversible assumptions explicitly. Name an unresolved ambiguity only when different answers would materially change the interaction, authority boundary, disclosure policy, safety, or cost of reversal.
+
+Readiness for exploration:
+
+- `proceed` with visible assumptions
+- `ask` one consequential question
+- `stop` for an authoritative source
+
+This readiness never authorizes product, policy, safety, release, or irreversible implementation commitments.
+
+An authoritative source must actually govern the protected boundary and must include a stable `source_ref`. A user answer, observed workspace behavior, or provided artifact does not become authoritative merely because an agent is confident in it.
+
+When a retained claim relies on non-brief context, carry the exact attributed `context_items` through activity review, workflow review, generation handoff, frontend generation context, and frontend implementation skill-context creation. A content-addressed receipt proves packet continuity but does not replace raw evidence or confer authority.
+
 ## User Intent
 
 The user is trying to:

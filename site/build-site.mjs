@@ -7916,8 +7916,8 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
             <p><strong>Reject:</strong> charts, widgets, or visual polish appear before the refund review work is named.</p>
             <h3>Vague brief</h3>
             <pre><code>Plan a dashboard for the system.</code></pre>
-            <p><strong>Good response:</strong> pause instead of inventing a dashboard. Ask only targeted questions about the activity, primary decision or next action, and outcome.</p>
-            <p><strong>Accept:</strong> the agent asks what work the dashboard supports, what decision it should make easier, and what the user should leave knowing or having done.</p>
+            <p><strong>Good response:</strong> infer and show the best provisional activity premise the prompt can support without inventing dashboard content. Ask at most one consequential question only when its answer would materially change the interaction and be costly to reverse.</p>
+            <p><strong>Accept:</strong> the agent states its provisional premise and first direction, then asks the single highest-value question only if the unsupported activity, decision, or completion fork would change that direction.</p>
             <p><strong>Reject:</strong> a full dashboard plan with metrics, cards, charts, and navigation invented from no source context.</p>
             <h3>Implementation-heavy brief</h3>
             <pre><code>Plan an admin UI from our JSON schema, database tables, tool call traces, prompt template, and API endpoints.</code></pre>
@@ -7928,7 +7928,7 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
           <section class="doc-section" id="mcp">
             <h2>MCP</h2>
             <p>JudgmentKit supports MCP through the hosted Streamable HTTP endpoint at <code>https://judgmentkit.ai/mcp</code>. The installer registers that endpoint as <code>judgmentkit</code> in Codex, Claude Code, or Cursor. A browser GET to <code>/mcp</code> returns endpoint metadata; MCP clients should connect to the same URL with Streamable HTTP.</p>
-            <p>MCP tool responses include <code>structuredContent</code> as the stable machine-readable contract and <code>content[0].text</code> as a concise Markdown planning card for Codex-style planning chat. Use the card to explain status, next step, blocking questions, and compact diagnostics; use structured content for implementation decisions and follow-up tool calls.</p>
+            <p>MCP tool responses include <code>structuredContent</code> as the stable machine-readable contract. Agents should translate it into ordinary domain language: a working premise, consequential decisions, the first direction, and at most one material question. Raw <code>content[0].text</code> is for explicit setup, audit, debugging, or integration work, not ordinary designer-facing conversation.</p>
           </section>
           <section class="doc-section" id="system-map" data-system-map-flow-section>
             <h2>System Map</h2>
@@ -7949,7 +7949,7 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
           </section>
           <section class="doc-section" id="activity-review">
             <h2>Activity Review</h2>
-            <p>Call <code>create_activity_model_review</code> before generating UI from a brief. Use the returned candidate only when the activity, participant, decision, outcome, and disclosure boundary are clear enough.</p>
+            <p>Call <code>create_activity_model_review</code> before generating UI from a brief. Treat its deterministic candidate as a baseline, let the host model infer the complete best-current activity case, then call <code>review_activity_model_candidate</code> before trusting that inferred case.</p>
           </section>
           <section class="doc-section" id="workflow-review">
             <h2>Workflow Review</h2>
@@ -7990,7 +7990,7 @@ primary_artifact_review_status: external_not_reviewed</code></pre>
           </section>
           <section class="doc-section" id="handoff">
             <h2>Handoff</h2>
-            <p>Call <code>create_ui_generation_handoff</code> only on a ready workflow review. If the gate blocks, resolve the targeted questions or leakage details first.</p>
+            <p>Call <code>create_ui_generation_handoff</code> only on a ready workflow review, resupplying the exact current <code>brief</code> and attributed <code>context_items</code> so protected risk and workflow authority are revalidated from raw source. If the gate blocks, resolve the material ambiguity or authoritative-source boundary first.</p>
           </section>
           <section class="doc-section" id="implementation-contract">
             <h2>Implementation Contract</h2>
@@ -7998,7 +7998,7 @@ primary_artifact_review_status: external_not_reviewed</code></pre>
           </section>
           <section class="doc-section" id="frontend-context">
             <h2>Frontend Context</h2>
-            <p>Call <code>create_frontend_generation_context</code> after the handoff gate when an agent needs frontend implementation guidance with selected surface type, project context, and verification expectations. Call <code>create_frontend_implementation_skill_context</code> when an MCP client needs compiled implementation skill guidance instead of repo-local skill access.</p>
+            <p>Call <code>create_frontend_generation_context</code> after the handoff gate when an agent needs frontend implementation guidance with selected surface type, project context, and verification expectations. Resupply the exact current <code>brief</code> and attributed <code>context_items</code>. Call <code>create_frontend_implementation_skill_context</code> with that same raw source and the ready frontend context when an MCP client needs compiled implementation guidance instead of repo-local skill access.</p>
           </section>
           <section class="doc-section" id="slide-decks">
             <h2>Slide Decks</h2>

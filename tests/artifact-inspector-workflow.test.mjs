@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,11 +9,12 @@ import {
   JudgmentKitInputError,
   buildUiWorkflowCandidateRequest,
   createActivityModelReview,
-  createFrontendGenerationContext,
-  createFrontendImplementationSkillContext,
-  createUiGenerationHandoff,
+  createFrontendGenerationContext as createFrontendGenerationContextRaw,
+  createFrontendImplementationSkillContext as createFrontendImplementationSkillContextRaw,
+  createUiGenerationHandoff as createUiGenerationHandoffRaw,
   createUiImplementationContract,
   recommendSurfaceTypes,
+  reviewActivityModelCandidate,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
 
@@ -41,6 +44,67 @@ const WORKBENCH_ACTIVITY = `
   compares route and customer evidence, decides whether to reassign, hold, or
   escalate each visit, and leaves a handoff receipt for the next owner.
 `;
+
+function createUiGenerationHandoff(workflowReview, options = {}) {
+  const activityBriefSha = workflowReview?.activity_review?.source?.brief_sha256;
+  const knownBrief = [ARTIFACT_ACTIVITY, WORKBENCH_ACTIVITY].find(
+    (candidate) =>
+      createHash("sha256").update(candidate.trim()).digest("hex") ===
+      activityBriefSha,
+  );
+  const brief =
+    options.brief ??
+    knownBrief ??
+    workflowReview?.source?.reviewed_activity_input ??
+    (workflowReview?.surface_type === "workbench"
+      ? WORKBENCH_ACTIVITY
+      : ARTIFACT_ACTIVITY);
+  return createUiGenerationHandoffRaw(workflowReview, {
+    ...options,
+    brief,
+  });
+}
+
+function createFrontendGenerationContext(options = {}) {
+  const handoff = options.ui_generation_handoff;
+  const knownBrief = [ARTIFACT_ACTIVITY, WORKBENCH_ACTIVITY].find(
+    (candidate) =>
+      createHash("sha256").update(candidate.trim()).digest("hex") ===
+      handoff?.source?.activity_brief_sha256,
+  );
+  const brief =
+    options.brief ??
+    knownBrief ??
+    handoff?.source?.reviewed_activity_input ??
+    (handoff?.surface_type === "workbench"
+      ? WORKBENCH_ACTIVITY
+      : ARTIFACT_ACTIVITY);
+  return createFrontendGenerationContextRaw({
+    ...options,
+    brief,
+  });
+}
+
+function createFrontendImplementationSkillContext(options = {}) {
+  const frontendContext = options.frontend_generation_context;
+  const knownBrief = [ARTIFACT_ACTIVITY, WORKBENCH_ACTIVITY].find(
+    (candidate) =>
+      createHash("sha256").update(candidate.trim()).digest("hex") ===
+      frontendContext?.source?.activity_brief_sha256,
+  );
+  const brief =
+    options.brief ??
+    knownBrief ??
+    frontendContext?.source?.reviewed_activity_input ??
+    (frontendContext?.surface_type === "workbench"
+      ? WORKBENCH_ACTIVITY
+      : ARTIFACT_ACTIVITY);
+  return createFrontendImplementationSkillContextRaw({
+    ...options,
+    brief,
+    context_items: options.context_items ?? [],
+  });
+}
 
 const activityReview = createActivityModelReview(ARTIFACT_ACTIVITY);
 const surfaceReview = recommendSurfaceTypes(ARTIFACT_ACTIVITY, {
@@ -303,6 +367,95 @@ function createAutomationWorkflowReview() {
 const validWorkflowReview = reviewCandidate(createCandidate());
 
 {
+  const moduleUrl = new URL("../src/index.mjs", import.meta.url).href;
+  const producer = spawnSync(
+    process.execPath,
+    [
+      "--input-type=module",
+      "-e",
+      `
+        import fs from "node:fs";
+        const {
+          createActivityModelReview,
+          recommendSurfaceTypes,
+          reviewUiWorkflowCandidate,
+        } = await import(${JSON.stringify(moduleUrl)});
+        const input = JSON.parse(fs.readFileSync(0, "utf8"));
+        const activityReview = createActivityModelReview(input.brief);
+        const surfaceReview = recommendSurfaceTypes(input.brief, {
+          activity_review: activityReview,
+        });
+        const workflowReview = reviewUiWorkflowCandidate(
+          input.brief,
+          input.candidate,
+          {
+            activity_review: activityReview,
+            profile_id: "artifact-inspector-ui",
+            surface_review: surfaceReview,
+          },
+        );
+        process.stdout.write(JSON.stringify(workflowReview));
+      `,
+    ],
+    {
+      cwd: root,
+      encoding: "utf8",
+      input: JSON.stringify({
+        brief: ARTIFACT_ACTIVITY,
+        candidate: createCandidate(),
+      }),
+    },
+  );
+  assert.equal(
+    producer.status,
+    0,
+    `Artifact Inspector review producer failed: ${producer.stderr}`,
+  );
+  const producedWorkflowReview = JSON.parse(producer.stdout);
+  assert.deepEqual(
+    producedWorkflowReview.source.artifact_inspector_review_integrity,
+    validWorkflowReview.source.artifact_inspector_review_integrity,
+    "Equivalent Artifact Inspector reviews must receive the same portable receipt across processes.",
+  );
+
+  const consumer = spawnSync(
+    process.execPath,
+    [
+      "--input-type=module",
+      "-e",
+      `
+        import fs from "node:fs";
+        const { createUiGenerationHandoff } = await import(${JSON.stringify(moduleUrl)});
+        const input = JSON.parse(fs.readFileSync(0, "utf8"));
+        const handoff = createUiGenerationHandoff(input.workflowReview, {
+          brief: input.brief,
+        });
+        process.stdout.write(JSON.stringify(handoff));
+      `,
+    ],
+    {
+      cwd: root,
+      encoding: "utf8",
+      input: JSON.stringify({
+        brief: ARTIFACT_ACTIVITY,
+        workflowReview: producedWorkflowReview,
+      }),
+    },
+  );
+  assert.equal(
+    consumer.status,
+    0,
+    `Fresh-process Artifact Inspector handoff failed: ${consumer.stderr}`,
+  );
+  const portableHandoff = JSON.parse(consumer.stdout);
+  assert.equal(portableHandoff.handoff_status, "ready_for_generation");
+  assert.equal(
+    portableHandoff.source.artifact_inspector_boundary_integrity.kind,
+    "artifact_inspector_ui_generation_handoff",
+  );
+}
+
+{
   const automationWorkflowReview = createAutomationWorkflowReview();
   assert.equal(automationWorkflowReview.review_status, "ready_for_review");
   assert.deepEqual(
@@ -330,8 +483,9 @@ const validWorkflowReview = reviewCandidate(createCandidate());
       assert.ok(
         error.details.failures.some(
           (failure) =>
+            failure.field === "source.reviewed_activity_input" ||
             failure.field ===
-            "source.artifact_inspector_review_integrity",
+              "source.artifact_inspector_review_integrity",
         ),
       );
       return true;
@@ -380,10 +534,14 @@ const validWorkflowReview = reviewCandidate(createCandidate());
   const automationFrontendContext = createFrontendGenerationContext({
     ui_generation_handoff: JSON.parse(JSON.stringify(automationHandoff)),
   });
-  assert.notEqual(
+  assert.notDeepEqual(
     coreHandoff.source.artifact_inspector_boundary_integrity,
     coreFrontendContext.source.artifact_inspector_boundary_integrity,
-    "The frontend boundary must issue a stage-specific seal instead of copying the handoff seal.",
+    "The frontend boundary must issue a stage-specific receipt instead of copying the handoff receipt.",
+  );
+  assert.equal(
+    coreFrontendContext.source.artifact_inspector_boundary_integrity.kind,
+    "artifact_inspector_frontend_generation_context",
   );
   assert.equal(
     createFrontendImplementationSkillContext({
@@ -393,7 +551,7 @@ const validWorkflowReview = reviewCandidate(createCandidate());
       target_client: "codex",
     }).skill_context_status,
     "ready",
-    "JSON round trips must preserve a legitimate frontend packet and its opaque seal.",
+    "JSON round trips must preserve a legitimate frontend packet and its portable receipt.",
   );
   assert.equal(
     createFrontendImplementationSkillContext({
@@ -565,8 +723,14 @@ const validWorkflowReview = reviewCandidate(createCandidate());
       () => createUiGenerationHandoff(tamperedReview),
       (error) => {
         assert.ok(error instanceof JudgmentKitInputError);
-        assert.equal(error.code, "handoff_blocked");
-        assert.equal(error.details.reason, "review_packet_no_longer_ready");
+        assert.ok(
+          ["handoff_blocked", "activity_review_revalidation_failed"].includes(
+            error.code,
+          ),
+        );
+        if (error.code === "handoff_blocked") {
+          assert.equal(error.details.reason, "review_packet_no_longer_ready");
+        }
         return true;
       },
       `${label} cannot be relabeled into a ready handoff.`,
@@ -591,15 +755,11 @@ const validWorkflowReview = reviewCandidate(createCandidate());
     () => createUiGenerationHandoff(erasedActivityReview),
     (error) => {
       assert.ok(error instanceof JudgmentKitInputError);
-      assert.equal(error.code, "handoff_blocked");
-      assert.equal(error.details.reason, "review_packet_no_longer_ready");
-      const failure = error.details.failures.find(
-        (entry) => entry.field === "activity_review.candidate",
+      assert.equal(error.code, "activity_review_revalidation_failed");
+      assert.equal(
+        error.details.field,
+        "activity_review.activity_case.claims.activity",
       );
-      assert.ok(failure);
-      assert.equal(failure.observed.activity, true);
-      assert.equal(failure.observed.primary_decision, true);
-      assert.equal(failure.observed.completion_or_outcome, true);
       return true;
     },
     "Erasing the nested reviewed activity must not produce a ready handoff.",
@@ -641,8 +801,9 @@ const validWorkflowReview = reviewCandidate(createCandidate());
       assert.ok(
         error.details.failures.some(
           (failure) =>
+            failure.field === "source.reviewed_activity_input" ||
             failure.field ===
-            "source.artifact_inspector_review_integrity",
+              "source.artifact_inspector_review_integrity",
         ),
       );
       return true;
@@ -695,8 +856,9 @@ const validWorkflowReview = reviewCandidate(createCandidate());
       assert.ok(
         error.details.failures.some(
           (failure) =>
+            failure.field === "source.reviewed_activity_input" ||
             failure.field ===
-            "source.artifact_inspector_review_integrity",
+              "source.artifact_inspector_review_integrity",
         ),
       );
       return true;
@@ -836,8 +998,16 @@ const validWorkflowReview = reviewCandidate(createCandidate());
   assert.equal(review.review_status, "ready_for_review");
   assert.equal(review.source.reviewed_activity_input, ARTIFACT_ACTIVITY.trim());
   assert.equal(
-    typeof review.source.artifact_inspector_review_integrity,
-    "string",
+    review.source.artifact_inspector_review_integrity.schema,
+    "judgmentkit.portable-integrity-receipt/v1",
+  );
+  assert.equal(
+    review.source.artifact_inspector_review_integrity.algorithm,
+    "sha256-canonical-json",
+  );
+  assert.equal(
+    review.source.artifact_inspector_review_integrity.kind,
+    "artifact_inspector_workflow_review",
   );
   assert.equal(artifactGuardrail.selected, true);
   assert.equal(artifactGuardrail.valid, true);
@@ -1023,14 +1193,14 @@ const validWorkflowReview = reviewCandidate(createCandidate());
   const conflictingActivity = `${ARTIFACT_ACTIVITY}
     The primary activity is freely creating and editing the artifact.
   `;
-  const strippedActivityReview = structuredClone(activityReview);
-  delete strippedActivityReview.review.evidence.artifact_inspector;
-  delete strippedActivityReview.guardrails.artifact_inspector;
+  const conflictingActivityReview = createActivityModelReview(
+    conflictingActivity,
+  );
   const review = reviewUiWorkflowCandidate(
     conflictingActivity,
     createCandidate(),
     {
-      activity_review: strippedActivityReview,
+      activity_review: conflictingActivityReview,
       profile_id: "artifact-inspector-ui",
     },
   );
@@ -2190,14 +2360,68 @@ const validWorkflowReview = reviewCandidate(createCandidate());
 {
   const consequentialAutomationActivity = `
     A policy reviewer inspects one rendered policy document that remains the
-    primary artifact. They select a specific passage and supporting evidence
-    attaches to that selected passage. They explicitly approve and publish the
-    decision, then a declared automation automatically resolves exact matches.
-    They preview the relation and verify the immutable local receipt
-    beside the passage.
+    primary artifact. They select a specific passage, and supporting evidence
+    attaches to that selected passage. Policy reviewers may publish supported
+    decisions for rendered policy documents. A declared automation then
+    automatically resolves exact matches. They preview the relation and verify
+    the immutable local receipt beside the passage.
   `;
-  const conditionalActivityReview = createActivityModelReview(
+  const consequentialAutomationContextItems = [
+    {
+      id: "policy-publication-authority",
+      kind: "authoritative_source",
+      source_ref: "policy://policy-review/publication/v1",
+      content:
+        "Policy reviewers may publish supported decisions for rendered policy documents.",
+    },
+  ];
+  const conditionalActivityReview = reviewActivityModelCandidate(
     consequentialAutomationActivity,
+    {
+      activity_model: {
+        activity:
+          "Policy reviewers publish supported decisions for rendered policy documents.",
+        participants: ["policy reviewers"],
+        objective:
+          "Policy reviewers publish supported decisions for rendered policy documents.",
+        outcomes: [
+          "The published decision and immutable receipt are verified beside the selected passage.",
+        ],
+        domain_vocabulary: [
+          "policy document",
+          "passage",
+          "supporting evidence",
+          "publication receipt",
+        ],
+      },
+      interaction_contract: {
+        primary_decision:
+          "Policy reviewers publish supported decisions for rendered policy documents.",
+        next_actions: [
+          "Select a passage",
+          "Preview the relation",
+          "Policy reviewers publish supported decisions for rendered policy documents.",
+          "Verify the immutable receipt",
+        ],
+        completion:
+          "The published decision and immutable receipt are verified beside the selected passage.",
+        make_easy: [
+          "Keep the passage, evidence, decision, and receipt together.",
+        ],
+      },
+      disclosure_policy: {
+        terms_to_use: [
+          "policy document",
+          "passage",
+          "supporting evidence",
+          "publication receipt",
+        ],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: consequentialAutomationContextItems },
   );
   const conditionalSurfaceReview = recommendSurfaceTypes(
     consequentialAutomationActivity,
@@ -2216,6 +2440,7 @@ const validWorkflowReview = reviewCandidate(createCandidate());
       activity_review: conditionalActivityReview,
       profile_id: "artifact-inspector-ui",
       surface_review: conditionalSurfaceReview,
+      context_items: consequentialAutomationContextItems,
     },
   );
   const coreOnlyImplementationContract = createUiImplementationContract({
@@ -2227,6 +2452,7 @@ const validWorkflowReview = reviewCandidate(createCandidate());
   );
   const handoff = createUiGenerationHandoff(review, {
     implementation_contract: coreOnlyImplementationContract,
+    context_items: consequentialAutomationContextItems,
   });
 
   assert.equal(review.review_status, "ready_for_review");

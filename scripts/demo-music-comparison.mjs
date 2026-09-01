@@ -325,14 +325,23 @@ function buildUiWorkflowCandidate() {
 }
 
 function buildHandoff(brief) {
-  const activityReview = createActivityModelReview(brief);
+  const contextItems = [];
+  const activityReview = createActivityModelReview(brief, {
+    context_items: contextItems,
+  });
   const surfaceReview = recommendSurfaceTypes(brief, { activity_review: activityReview });
   const workflowReview = reviewUiWorkflowCandidate(brief, buildUiWorkflowCandidate(), {
+    context_items: contextItems,
     surface_review: surfaceReview,
   });
-  const handoff = createUiGenerationHandoff(workflowReview);
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief,
+    context_items: contextItems,
+  });
   const frontendContext = createFrontendGenerationContext({
     ui_generation_handoff: handoff,
+    brief,
+    context_items: contextItems,
     surface_review: surfaceReview,
     surface_type: surfaceReview.recommended_surface_type,
     // Preserve this checked-in comparison as historical evidence.
@@ -355,6 +364,8 @@ function buildHandoff(brief) {
     },
   });
   const frontendSkillContext = createFrontendImplementationSkillContext({
+    brief,
+    context_items: contextItems,
     frontend_generation_context: frontendContext,
     target_client: "deterministic-eval-harness",
   });

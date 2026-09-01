@@ -3,6 +3,7 @@ import http from "node:http";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import Ajv from "ajv";
 
 import {
   getHostedMcpMetadata,
@@ -138,6 +139,41 @@ async function runMcpClient(endpoint, { verifyBrowserRuntime = false } = {}) {
       toolsResponse.tools.map((tool) => tool.name),
       EXPECTED_TOOL_NAMES,
     );
+    const createActivityTool = toolsResponse.tools.find(
+      (tool) => tool.name === "create_activity_model_review",
+    );
+    const validateCreateActivityInput = new Ajv({ strict: false }).compile(
+      createActivityTool.inputSchema,
+    );
+
+    assert.equal(
+      validateCreateActivityInput({
+        brief: "Create a clinical review workspace.",
+        context_items: [
+          {
+            id: "clinical-policy",
+            kind: "authoritative_source",
+            content: "Only physicians may authorize discharge.",
+          },
+        ],
+      }),
+      false,
+      "The HTTP-advertised schema must require source_ref for authoritative context.",
+    );
+    assert.equal(
+      validateCreateActivityInput({
+        brief: "Create a clinical review workspace.",
+        context_items: [
+          {
+            id: "clinical-policy",
+            kind: "authoritative_source",
+            content: "Only physicians may authorize discharge.",
+            source_ref: "policy://clinical/discharge",
+          },
+        ],
+      }),
+      true,
+    );
 
     const deckResponse = await withTimeout(
       client.callTool({
@@ -178,8 +214,11 @@ async function runMcpClient(endpoint, { verifyBrowserRuntime = false } = {}) {
     );
 
     assert.equal(reviewResponse.isError, undefined);
-    assert.ok(textContent(reviewResponse).includes("## JudgmentKit Activity Review"));
-    assert.ok(textContent(reviewResponse).includes("**Status:** Ready for concept planning"));
+    assert.ok(textContent(reviewResponse).includes("## JudgmentKit Working Premise"));
+    assert.ok(textContent(reviewResponse).includes("**Working premise**"));
+    assert.ok(textContent(reviewResponse).includes("**Next step:** Show a first direction now"));
+    assert.equal(textContent(reviewResponse).includes("**Status:**"), false);
+    assert.equal(textContent(reviewResponse).includes("Diagnostics"), false);
     assert.equal(textContent(reviewResponse).trim().startsWith("{"), false);
     assert.equal(reviewResponse.structuredContent.review_status, "ready_for_review");
     assert.equal(reviewResponse.structuredContent.source.mode, "deterministic");

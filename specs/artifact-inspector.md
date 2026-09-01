@@ -670,14 +670,16 @@ No new public MCP tool is required if these existing tools consume the versioned
 registry definition. A separate registry resource is acceptable, but the same
 definition must drive recommendation, handoff, generation, and review.
 
-Artifact Inspector review packets carry a private, process-scoped integrity
-seal over the complete decision-bearing review packet, including the reviewed
-activity, workflow, surface and profile selection, scoped authority, and
-active-state ceiling. Each serialized handoff and frontend boundary receives a
-stage-specific seal over its complete packet. Handoff, frontend, and skill
-boundaries must reject a missing, stale, modified, or cross-packet replayed
-seal; after a server restart, callers must rerun workflow review rather than
-reuse an old sealed packet.
+Artifact Inspector review packets carry a versioned, content-addressed
+integrity receipt over the complete decision-bearing review packet, including
+the reviewed activity, workflow, surface and profile selection, scoped
+authority, and active-state ceiling. Each serialized handoff and frontend
+boundary receives a stage-specific receipt over its complete packet. Handoff,
+frontend, and skill boundaries must reject a missing, stale, modified, or
+cross-stage replayed receipt. The receipts are deterministic across processes
+and cold starts so stateless clients may continue a valid packet after a server
+restart. They prove packet continuity only: they do not authenticate origin,
+confer authority, or replace raw-source and canonical-packet revalidation.
 
 ## Review Diagnostics
 

@@ -680,19 +680,27 @@ function buildSyntheticWorkflowCandidate(testCase) {
 }
 
 function buildGuidedGenerationContext(testCase, sourceBrief) {
-  const activityReview = createActivityModelReview(sourceBrief);
+  const contextItems = [];
+  const activityReview = createActivityModelReview(sourceBrief, {
+    context_items: contextItems,
+  });
   const workflowReview = reviewUiWorkflowCandidate(
     sourceBrief,
     buildSyntheticWorkflowCandidate(testCase),
     { activity_review: activityReview },
   );
-  const handoff = createUiGenerationHandoff(workflowReview);
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief: sourceBrief,
+    context_items: contextItems,
+  });
   const implementationContract = createUiImplementationContract({
     repo_name: "JudgmentKit live UI eval",
     target_stack: "standalone HTML/CSS",
   });
   const frontendContext = createFrontendGenerationContext({
     ui_generation_handoff: handoff,
+    brief: sourceBrief,
+    context_items: contextItems,
     frontend_context: {
       target_runtime: "standalone HTML/CSS",
       ui_library: "none",
@@ -711,6 +719,8 @@ function buildGuidedGenerationContext(testCase, sourceBrief) {
     },
   });
   const frontendSkillContext = createFrontendImplementationSkillContext({
+    brief: sourceBrief,
+    context_items: contextItems,
     frontend_generation_context: frontendContext,
     target_client: "live-ui-generation-eval",
   });

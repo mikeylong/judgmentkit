@@ -5,7 +5,20 @@
   "source": {
     "mode": "model_assisted",
     "proposer": "external_candidate",
-    "input_excerpt": "A clinic intake coordinator is reviewing administrative readiness for a new appointment request. The request says to build from the intake_packet data model, eligibility API status, document fields, JSON schema, prompt template, tool call r"
+    "input_excerpt": "A clinic intake coordinator is reviewing administrative readiness for a new appointment request. The request says to build from the intake_packet data model, eligibility API status, document fields, JSON schema, prompt template, tool call r",
+    "activity_brief_sha256": "24d1cd0668266b384cc5b710fc0366c71396d21718ea348a4f01c7d01eaa4aa8",
+    "activity_case_review_integrity": {
+      "schema": "judgmentkit.portable-integrity-receipt/v1",
+      "algorithm": "sha256-canonical-json",
+      "kind": "activity_case_review",
+      "digest": "06b15e97c3c44b60158b25abf8fa406984d8f15f73f4ccf9f8f97d0268a8e6a0"
+    },
+    "activity_case_handoff_integrity": {
+      "schema": "judgmentkit.portable-integrity-receipt/v1",
+      "algorithm": "sha256-canonical-json",
+      "kind": "activity_case_ui_generation_handoff",
+      "digest": "134977807337ad0960df9266801d99137d641581065cc05f9d08832130f7bc08"
+    }
   },
   "surface_type": "form_flow",
   "surface_guidance": {
@@ -60,6 +73,162 @@
       ]
     }
   },
+  "activity_case": {
+    "schema": "judgmentkit.activity-case/v1",
+    "mode": "deterministic",
+    "claims": [
+      {
+        "id": "activity",
+        "path": "activity_model.activity",
+        "value": "Deciding whether the packet is ready to schedule, should be returned for missing consent, or needs insurance verification escalation.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "participants",
+        "path": "activity_model.participants",
+        "value": [],
+        "origin": "model_inferred",
+        "source_refs": [],
+        "authoritative_source_refs": [],
+        "confidence": "medium",
+        "materiality": "low",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "objective",
+        "path": "activity_model.objective",
+        "value": "Whether the packet is ready to schedule, should be returned for missing consent, or needs insurance verification escalation.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "outcomes",
+        "path": "activity_model.outcomes",
+        "value": [
+          "An intake handoff with the next administrative action and reason."
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "domain_vocabulary",
+        "path": "activity_model.domain_vocabulary",
+        "value": [
+          "administrative readiness for a new appointment request",
+          "intake handoff",
+          "next administrative action",
+          "administrative handoff",
+          "use case"
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "low",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "primary_decision",
+        "path": "interaction_contract.primary_decision",
+        "value": "Whether the packet is ready to schedule, should be returned for missing consent, or needs insurance verification escalation.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "next_actions",
+        "path": "interaction_contract.next_actions",
+        "value": [
+          "The outcome is an intake handoff with the next administrative action and reason.",
+          "Use domain terms: intake packet, referral, insurance verification, signed consent, appointment slot, administrative handoff."
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "completion",
+        "path": "interaction_contract.completion",
+        "value": "An intake handoff with the next administrative action and reason.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      }
+    ],
+    "assumptions": [
+      {
+        "id": "assumption_participants",
+        "claim_id": "participants",
+        "path": "activity_model.participants",
+        "value": [],
+        "materiality": "low",
+        "reversibility": "easy",
+        "statement": "activity_model.participants is inferred for concept exploration and is not user-confirmed evidence."
+      }
+    ],
+    "unresolved_ambiguities": [],
+    "readiness": {
+      "decision": "proceed",
+      "exploration": "allowed_with_visible_assumptions",
+      "exploration_meaning": "The activity case may guide concept exploration with visible assumptions.",
+      "commitment": "not_authorized",
+      "commitment_meaning": "Activity-case readiness never authorizes product, policy, safety, release, or implementation commitments.",
+      "blocking_ambiguity_ids": [],
+      "next_question": null
+    }
+  },
   "activity_model": {
     "activity": "Deciding whether the packet is ready to schedule, should be returned for missing consent, or needs insurance verification escalation",
     "participants": [],
@@ -86,6 +255,116 @@
       "Confirm the activity model before screen structure",
       "Review the primary decision and outcome in domain language",
       "Adjust vocabulary before implementation detail reaches the product UI"
+    ]
+  },
+  "disclosure_policy": {
+    "terms_to_use": [
+      "administrative readiness for a new appointment request",
+      "intake handoff",
+      "next administrative action",
+      "administrative handoff",
+      "use case"
+    ],
+    "hidden_implementation_terms": [
+      {
+        "detected_term": "CRUD",
+        "count": 1
+      },
+      {
+        "detected_term": "data model",
+        "count": 1
+      },
+      {
+        "detected_term": "field",
+        "count": 1
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1
+      },
+      {
+        "detected_term": "prompt",
+        "count": 1
+      },
+      {
+        "detected_term": "prompt template",
+        "count": 1
+      },
+      {
+        "detected_term": "resource",
+        "count": 1
+      },
+      {
+        "detected_term": "resource id",
+        "count": 1
+      },
+      {
+        "detected_term": "schema",
+        "count": 1
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1
+      }
+    ],
+    "translation_candidates": [
+      {
+        "detected_term": "CRUD",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "data model",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "field",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "prompt",
+        "count": 1,
+        "prefer": "instruction"
+      },
+      {
+        "detected_term": "prompt template",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "resource",
+        "count": 1,
+        "prefer": "guidance"
+      },
+      {
+        "detected_term": "resource id",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "schema",
+        "count": 1,
+        "prefer": "contract"
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1,
+        "prefer": "system action"
+      }
+    ],
+    "diagnostic_contexts": [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration",
+      "explicit source inspection"
     ]
   },
   "workflow": {
@@ -2816,9 +3095,5 @@
       "focus, disabled, or error states are missing",
       "browser QA is skipped after UI generation"
     ]
-  },
-  "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
-  "activity_review_status": "ready_for_review",
-  "surface_review_status": "ready",
-  "workflow_review_status": "ready_for_review"
+  }
 }

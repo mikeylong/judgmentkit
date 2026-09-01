@@ -35,9 +35,9 @@ function sha256CanonicalValue(value) {
 }
 
 const REFUND_REVIEW_BRIEF = `
-  A support lead reviews refund requests, decides whether each case should be
-  approved, sent to policy review, or returned for missing evidence, and leaves
-  the support agent a clear handoff receipt.
+  A support lead reviews refund requests, decides whether to recommend support,
+  send a case to policy review, or return it for missing evidence, and leaves the
+  support agent a clear handoff receipt.
 `;
 
 function refundWorkflowCandidate() {
@@ -47,12 +47,12 @@ function refundWorkflowCandidate() {
       topology: "workspace",
       work_units: ["Review evidence", "Choose path", "Prepare handoff"],
       primary_actions: [
-        "Approve refund",
+        "Record support recommendation",
         "Send to policy review",
         "Return for evidence",
       ],
       decision_points: [
-        "Decide whether the case should be approved, sent to policy review, or returned for missing evidence.",
+        "Decide whether to recommend support, policy review, or more evidence.",
       ],
       completion_state: "Clear handoff with next action and decision reason.",
     },
@@ -67,7 +67,7 @@ function refundWorkflowCandidate() {
           "Handoff",
         ],
         controls: [
-          "Approve refund",
+          "Record support recommendation",
           "Send to policy review",
           "Return for evidence",
           "Send handoff",
@@ -964,6 +964,7 @@ const defaultPolicy = defaultContract.visual_composition_policy;
     refundWorkflowCandidate(),
   );
   const handoff = createUiGenerationHandoff(workflowReview, {
+    brief: REFUND_REVIEW_BRIEF,
     implementation_contract: defaultContract,
   });
   assert.deepEqual(
@@ -973,6 +974,7 @@ const defaultPolicy = defaultContract.visual_composition_policy;
 
   const frontendContext = createFrontendGenerationContext({
     ui_generation_handoff: handoff,
+    brief: REFUND_REVIEW_BRIEF,
   });
   assert.deepEqual(
     frontendContext.implementation_contract.visual_composition_policy,

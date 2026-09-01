@@ -79,6 +79,73 @@ const VISUAL_COMPOSITION_POLICY_INPUT_DESCRIPTION =
   "Optional implementation-adapter policy for declared visual-composition relationships, presentation ownership, calibrated measurements, and browser-runtime enforcement. When active, submit self-contained HTML plus an explicit visual_composition_manifest. Each design-system-owned field select must declare field_value_trailing_indicator_slot with exact value_selector, indicator_slot_selector, and indicator_selector parts; compact triggers instead declare centered_label_symmetric_rails with label_selector and indicator_selector. Geometry is enforced against that contract-declared variant; the runtime does not infer user intent, and unclassified custom selects require review. Field validation measures value start spacing, the reserved trailing slot, indicator size and centering, containment, and collision-free truncation. It never treats content padding as the caret's painted-edge inset. The hosted MCP renders that artifact in its isolated browser runtime, discovers governed controls, measures the DOM after fonts are ready, and independently binds the result to the policy, contract, candidate, and rendered document. Candidate-authored visual_composition_evidence is claim-only and cannot satisfy acceptance.";
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION =
   "Generated UI candidate as structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, optional visual_token_evidence metadata, component_contract_evidence, pattern_contract_evidence, required design_system_provenance for the active design-system source, and local_component_authority_evidence reviewed by checks.local_component_authority. When implementation_contract.visual_composition_policy applies, provide exact self-contained HTML in rendered_html, rendered_markup, markup, or HTML code, plus an explicit visual_composition_manifest for relationships that are not deterministically discoverable. Each custom select-like control must explicitly name its governed field or compact composition variant; unclassified controls require review rather than inheriting a compact default. The hosted MCP renders it at desktop and mobile sizes, blocks external requests and scripts, discovers icon-text and select-like controls, measures the DOM after fonts are ready, and attaches a server-trusted receipt. Candidate-authored visual_composition_evidence (or browser_qa.visual_composition) is claim-only and cannot pass. Detected controls cannot be hidden by omission or a false no-applicability claim. String-only snippets that cannot render are diagnostic and cannot pass. primitives_used may contain only implementation_contract.approved_primitives; place design-system component ids in component_contract_evidence.components[].id and pattern ids in pattern_contract_evidence.pattern_id. Candidates that fail the active design-system gate are failed candidates, not artifacts, and must be repaired and resubmitted.";
+const ACTIVITY_CONTEXT_ITEM_KINDS = [
+  "user_answer",
+  "workspace_evidence",
+  "provided_artifact",
+  "authoritative_source",
+];
+const ACTIVITY_CONTEXT_ITEM_JSON_SCHEMA = {
+  type: "object",
+  required: ["id", "kind", "content"],
+  properties: {
+    id: { type: "string", minLength: 1 },
+    kind: {
+      type: "string",
+      enum: ACTIVITY_CONTEXT_ITEM_KINDS,
+    },
+    content: { type: "string", minLength: 1, maxLength: 8000 },
+    source_ref: {
+      type: "string",
+      minLength: 1,
+      description: "Required when kind is authoritative_source.",
+    },
+  },
+  allOf: [
+    {
+      if: {
+        properties: { kind: { const: "authoritative_source" } },
+        required: ["kind"],
+      },
+      then: { required: ["source_ref"] },
+    },
+  ],
+  additionalProperties: false,
+};
+const ACTIVITY_CONTEXT_ITEM_ZOD_SCHEMA = z.union([
+  z
+    .object({
+      id: z.string().min(1),
+      kind: z.literal("user_answer"),
+      content: z.string().min(1).max(8000),
+      source_ref: z.string().min(1).optional(),
+    })
+    .strict(),
+  z
+    .object({
+      id: z.string().min(1),
+      kind: z.literal("workspace_evidence"),
+      content: z.string().min(1).max(8000),
+      source_ref: z.string().min(1).optional(),
+    })
+    .strict(),
+  z
+    .object({
+      id: z.string().min(1),
+      kind: z.literal("provided_artifact"),
+      content: z.string().min(1).max(8000),
+      source_ref: z.string().min(1).optional(),
+    })
+    .strict(),
+  z
+    .object({
+      id: z.string().min(1),
+      kind: z.literal("authoritative_source"),
+      content: z.string().min(1).max(8000),
+      source_ref: z.string().min(1),
+    })
+    .strict(),
+]);
 
 const ANALYZE_TOOL = {
   name: "analyze_implementation_brief",
@@ -113,6 +180,13 @@ const ACTIVITY_MODEL_REVIEW_TOOL = {
         description:
           "UI brief or implementation-heavy request to turn into a reviewable activity model candidate.",
       },
+      context_items: {
+        type: "array",
+        maxItems: 12,
+        description:
+          "Optional attributed context already available to the host, such as a user answer, workspace evidence, provided artifact, or explicitly authoritative source.",
+        items: ACTIVITY_CONTEXT_ITEM_JSON_SCHEMA,
+      },
     },
     additionalProperties: false,
   },
@@ -135,7 +209,7 @@ const RECOMMEND_SURFACE_TYPES_TOOL = {
       activity_review: {
         type: "object",
         description:
-          "Optional activity review packet returned by create_activity_model_review.",
+          "Optional reviewed activity packet returned by review_activity_model_candidate. The create_activity_model_review baseline remains accepted for compatibility.",
       },
       activityReview: {
         type: "object",
@@ -169,7 +243,7 @@ const RECOMMEND_UI_WORKFLOW_PROFILES_TOOL = {
 const REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL = {
   name: "review_activity_model_candidate",
   description:
-    "Review an externally proposed activity model candidate against the source brief and JudgmentKit guardrails.",
+    "Review an inferred or externally proposed activity case against the source brief, attributed context, provenance, and JudgmentKit guardrails.",
   inputSchema: {
     type: "object",
     required: ["brief", "candidate"],
@@ -182,7 +256,14 @@ const REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL = {
       candidate: {
         type: "object",
         description:
-          "Externally proposed activity model candidate with activity_model, interaction_contract, and optional disclosure_policy.",
+          "Proposed activity case with activity_model, interaction_contract, optional disclosure_policy, and optional claim provenance.",
+      },
+      context_items: {
+        type: "array",
+        maxItems: 12,
+        description:
+          "Optional attributed context already available to the host, such as a user answer, workspace evidence, provided artifact, or explicitly authoritative source.",
+        items: ACTIVITY_CONTEXT_ITEM_JSON_SCHEMA,
       },
     },
     additionalProperties: false,
@@ -206,6 +287,18 @@ const REVIEW_UI_WORKFLOW_CANDIDATE_TOOL = {
         type: "object",
         description:
           "Externally proposed UI workflow candidate with workflow, surface_set, handoff, and diagnostics. workflow.topology may be a legacy topology string or an artifact-centered topology object; workflow.topology_contract is also accepted for artifact-centered candidates.",
+      },
+      activity_review: {
+        type: "object",
+        description:
+          "Optional reviewed activity packet returned by review_activity_model_candidate. Pass it through so inference provenance and readiness are preserved downstream.",
+      },
+      context_items: {
+        type: "array",
+        maxItems: 12,
+        description:
+          "The same attributed context bound to activity_review. Resupply its raw contents whenever a retained claim relies on it; a receipt is continuity evidence, not a substitute for the source.",
+        items: ACTIVITY_CONTEXT_ITEM_JSON_SCHEMA,
       },
       profile_id: {
         type: "string",
@@ -248,7 +341,7 @@ const REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL = {
       activity_review: {
         type: "object",
         description:
-          "Optional activity review packet returned by create_activity_model_review.",
+          "Optional reviewed activity packet returned by review_activity_model_candidate. The create_activity_model_review baseline remains accepted for compatibility.",
       },
       surface_type: {
         type: "string",
@@ -271,8 +364,14 @@ const UI_GENERATION_HANDOFF_TOOL = {
     "Create a UI generation handoff from a ready UI workflow review packet and a UI implementation contract, blocking non-ready reviews.",
   inputSchema: {
     type: "object",
-    required: ["workflow_review", "implementation_contract"],
+    required: ["brief", "workflow_review", "implementation_contract"],
     properties: {
+      brief: {
+        type: "string",
+        minLength: 1,
+        description:
+          "The current source activity brief, resupplied so protected risk can be independently revalidated at handoff.",
+      },
       workflow_review: {
         type: "object",
         description:
@@ -287,6 +386,13 @@ const UI_GENERATION_HANDOFF_TOOL = {
         type: "object",
         description:
           "Optional Cognitive Dimensions review packet. When supplied, it must be ready_for_review or the handoff blocks.",
+      },
+      context_items: {
+        type: "array",
+        maxItems: 12,
+        description:
+          "The same attributed context bound to the workflow review's activity review. Resupply its raw contents whenever a retained claim relies on it.",
+        items: ACTIVITY_CONTEXT_ITEM_JSON_SCHEMA,
       },
     },
     additionalProperties: false,
@@ -444,15 +550,28 @@ const REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
 const FRONTEND_GENERATION_CONTEXT_TOOL = {
   name: "create_frontend_generation_context",
   description:
-    "Create adapter-layer frontend implementation context from a ready UI generation handoff and selected surface type.",
+    "Create adapter-layer frontend implementation context from a ready UI generation handoff, resupplying the current raw activity brief and exact attributed context so protected risk and workflow authority can be independently revalidated.",
   inputSchema: {
     type: "object",
-    required: ["ui_generation_handoff"],
+    required: ["ui_generation_handoff", "brief"],
     properties: {
       ui_generation_handoff: {
         type: "object",
         description:
           "Ready UI generation handoff returned by create_ui_generation_handoff.",
+      },
+      brief: {
+        type: "string",
+        minLength: 1,
+        description:
+          "The current source activity brief, resupplied so protected risk and workflow authority can be independently revalidated.",
+      },
+      context_items: {
+        type: "array",
+        maxItems: 12,
+        description:
+          "The exact attributed context bound to the handoff. Resupply raw contents whenever the activity review carried context.",
+        items: ACTIVITY_CONTEXT_ITEM_JSON_SCHEMA,
       },
       surface_review: {
         type: "object",
@@ -499,11 +618,24 @@ const FRONTEND_GENERATION_CONTEXT_TOOL = {
 const FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL = {
   name: "create_frontend_implementation_skill_context",
   description:
-    "Create gated frontend implementation skill context from a ready frontend generation context, optional design-system adapter, and verification expectations.",
+    "Create gated frontend implementation skill context from the current raw activity brief, its attributed context, and a ready frontend generation context. The raw source is revalidated before implementation guidance is emitted.",
   inputSchema: {
     type: "object",
-    required: ["frontend_generation_context"],
+    required: ["brief", "frontend_generation_context"],
     properties: {
+      brief: {
+        type: "string",
+        minLength: 1,
+        description:
+          "Exact current activity brief previously used to review the activity case and create the handoff.",
+      },
+      context_items: {
+        type: "array",
+        maxItems: 12,
+        description:
+          "Exact attributed context items previously supplied for activity review. Resupply the same id, kind, content, and source_ref values; use an empty array when no context items were supplied.",
+        items: ACTIVITY_CONTEXT_ITEM_JSON_SCHEMA,
+      },
       frontend_generation_context: {
         type: "object",
         description:
@@ -2771,25 +2903,60 @@ function competingSurfaceTypeList(routingConflict) {
 function formatActivityReviewCard(result) {
   const activity = result.candidate?.activity_model ?? {};
   const interaction = result.candidate?.interaction_contract ?? {};
-  const status = planningStatus(result);
-  const nextStep = result.review_status === "ready_for_review"
-    ? "Use this activity model to plan the UI concept; review any workflow candidate before implementation."
-    : "Resolve the targeted questions before UI concept work.";
+  const activityCase = isRecord(result.activity_case) ? result.activity_case : {};
+  const readiness = isRecord(activityCase.readiness) ? activityCase.readiness : {};
+  const readinessDecision = compactText(readiness.decision);
+  const nextStep = readinessDecision === "proceed"
+    ? "Show a first direction now and treat the listed assumptions as revisable."
+    : readinessDecision === "stop"
+      ? "Obtain the required authoritative source before concept work."
+      : readinessDecision === "ask"
+        ? "Show a provisional first direction with the ambiguity visible, then ask the single material question before treating it as implementation-ready."
+        : result.review_status === "ready_for_review"
+          ? "Use this activity model to plan the UI concept; review any workflow candidate before implementation."
+          : "Resolve the highest-value question before UI concept work.";
+  const claimLabels = {
+    activity: "Activity",
+    participants: "Participants",
+    objective: "Objective",
+    outcomes: "Outcomes",
+    domain_vocabulary: "Working vocabulary",
+    primary_decision: "Primary decision",
+    next_actions: "Next actions",
+    completion: "Completion",
+  };
+  const inferredDecisions = Array.isArray(activityCase.claims)
+    ? activityCase.claims
+        .filter((claim) =>
+          isRecord(claim) &&
+          ["model_inferred", "convention_assumed"].includes(claim.origin),
+        )
+        .map((claim) => {
+          const label = claimLabels[claim.id] ?? "Assumption";
+          const value = Array.isArray(claim.value)
+            ? toDisplayList(claim.value).join("; ")
+            : compactText(claim.value);
+
+          return value ? `- **${label}:** ${value}` : "";
+        })
+        .filter(Boolean)
+        .slice(0, 4)
+    : [];
+  const materialQuestion = compactText(readiness.next_question) ||
+    compactText(result.review?.targeted_questions?.[0]);
   const lines = [
-    "## JudgmentKit Activity Review",
-    `**Status:** ${status}`,
+    "## JudgmentKit Working Premise",
     `**Next step:** ${nextStep}`,
   ];
 
-  addSection(lines, "Plan from this", [
+  addSection(lines, "Working premise", [
     firstLine("Activity", activity.activity),
-    listLine("Participants", activity.participants),
+    listLine("Primary participants", activity.participants),
     firstLine("Primary decision", interaction.primary_decision),
     firstLine("Outcome", interaction.completion),
-    listLine("Terms to use", activity.domain_vocabulary),
   ]);
-  addSection(lines, "Targeted questions", bulletList(result.review?.targeted_questions));
-  addSection(lines, "Diagnostics", [`${diagnosticSummary(result)}`]);
+  addSection(lines, "Decisions inferred", inferredDecisions);
+  addSection(lines, "One thing to resolve", materialQuestion ? [`- ${materialQuestion}`] : []);
 
   return lines.join("\n");
 }
@@ -3717,6 +3884,8 @@ export async function handleToolCall(name, args = {}) {
 
     if (name === FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.name) {
       return createFrontendImplementationSkillContext({
+        brief: args.brief,
+        context_items: args.context_items,
         frontend_generation_context: args.frontend_generation_context,
         design_system_adapter: args.design_system_adapter,
         target_client: args.target_client,
@@ -3727,6 +3896,8 @@ export async function handleToolCall(name, args = {}) {
     if (name === FRONTEND_GENERATION_CONTEXT_TOOL.name) {
       return createFrontendGenerationContext({
         ui_generation_handoff: args.ui_generation_handoff,
+        brief: args.brief,
+        context_items: args.context_items,
         surface_review: args.surface_review,
         surface_type: args.surface_type,
         surface_profile: args.surface_profile,
@@ -3744,10 +3915,12 @@ export async function handleToolCall(name, args = {}) {
       }
 
       return createUiGenerationHandoff(args.workflow_review, {
+        brief: args.brief,
         implementation_contract:
           args.implementation_contract?.implementation_contract ??
           args.implementation_contract,
         cognitive_dimensions_review: args.cognitive_dimensions_review,
+        context_items: args.context_items,
       });
     }
 
@@ -3801,6 +3974,8 @@ export async function handleToolCall(name, args = {}) {
 
     if (name === REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name) {
       return reviewUiWorkflowCandidate(args.brief, args.candidate, {
+        activity_review: args.activity_review,
+        context_items: args.context_items,
         profile_id: args.profile_id,
         surface_review: args.surface_review,
         surface_type: args.surface_type,
@@ -3808,7 +3983,9 @@ export async function handleToolCall(name, args = {}) {
     }
 
     if (name === REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name) {
-      return reviewActivityModelCandidate(args.brief, args.candidate);
+      return reviewActivityModelCandidate(args.brief, args.candidate, {
+        context_items: args.context_items,
+      });
     }
 
     if (name === RECOMMEND_UI_WORKFLOW_PROFILES_TOOL.name) {
@@ -3823,7 +4000,9 @@ export async function handleToolCall(name, args = {}) {
     }
 
     if (name === ACTIVITY_MODEL_REVIEW_TOOL.name) {
-      return createActivityModelReview(args.brief);
+      return createActivityModelReview(args.brief, {
+        context_items: args.context_items,
+      });
     }
 
     return analyzeImplementationBrief(args.brief);
@@ -3874,6 +4053,10 @@ export function createJudgmentKitMcpServer() {
       description: ACTIVITY_MODEL_REVIEW_TOOL.description,
       inputSchema: {
         brief: z.string(),
+        context_items: z
+          .array(ACTIVITY_CONTEXT_ITEM_ZOD_SCHEMA)
+          .max(12)
+          .optional(),
       },
     },
     async (args) =>
@@ -3913,6 +4096,10 @@ export function createJudgmentKitMcpServer() {
       inputSchema: {
         brief: z.string(),
         candidate: z.record(z.any()),
+        context_items: z
+          .array(ACTIVITY_CONTEXT_ITEM_ZOD_SCHEMA)
+          .max(12)
+          .optional(),
       },
     },
     async (args) =>
@@ -3926,6 +4113,11 @@ export function createJudgmentKitMcpServer() {
       inputSchema: {
         brief: z.string(),
         candidate: z.record(z.any()),
+        activity_review: z.record(z.any()).optional(),
+        context_items: z
+          .array(ACTIVITY_CONTEXT_ITEM_ZOD_SCHEMA)
+          .max(12)
+          .optional(),
         profile_id: z.string().optional(),
         surface_review: z.record(z.any()).optional(),
         surface_type: z.string().optional(),
@@ -4015,9 +4207,14 @@ export function createJudgmentKitMcpServer() {
     {
       description: UI_GENERATION_HANDOFF_TOOL.description,
       inputSchema: {
+        brief: z.string().min(1),
         workflow_review: z.record(z.any()),
         implementation_contract: z.record(z.any()),
         cognitive_dimensions_review: z.record(z.any()).optional(),
+        context_items: z
+          .array(ACTIVITY_CONTEXT_ITEM_ZOD_SCHEMA)
+          .max(12)
+          .optional(),
       },
     },
     async (args) =>
@@ -4030,6 +4227,11 @@ export function createJudgmentKitMcpServer() {
       description: FRONTEND_GENERATION_CONTEXT_TOOL.description,
       inputSchema: {
         ui_generation_handoff: z.record(z.any()),
+        brief: z.string().min(1),
+        context_items: z
+          .array(ACTIVITY_CONTEXT_ITEM_ZOD_SCHEMA)
+          .max(12)
+          .optional(),
         surface_review: z.record(z.any()).optional(),
         surface_type: z.string().optional(),
         surface_profile: z
@@ -4054,6 +4256,11 @@ export function createJudgmentKitMcpServer() {
     {
       description: FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.description,
       inputSchema: {
+        brief: z.string().min(1),
+        context_items: z
+          .array(ACTIVITY_CONTEXT_ITEM_ZOD_SCHEMA)
+          .max(12)
+          .optional(),
         frontend_generation_context: z.record(z.any()),
         design_system_adapter: z.record(z.any()).optional(),
         target_client: z.string().optional(),

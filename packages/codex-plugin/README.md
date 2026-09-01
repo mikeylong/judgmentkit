@@ -9,7 +9,7 @@ This package is the versioned source for the JudgmentKit Codex plugin. It was bo
 - Do not commit Codex timestamp or cachebuster suffixes in this source package.
 - Cachebuster versions, if needed, belong only in local sync or install output outside this checked-in package.
 
-Current committed plugin version: `0.1.0`.
+Current committed plugin version: `0.2.0`.
 
 ## Package Contents
 

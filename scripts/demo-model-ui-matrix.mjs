@@ -360,7 +360,13 @@ function buildFrontendVerificationContext(output, options = {}) {
   };
 }
 
-function buildFrontendSkillContexts({ output, reviewedHandoff, rowSpecific = false }) {
+function buildFrontendSkillContexts({
+  output,
+  brief,
+  contextItems,
+  reviewedHandoff,
+  rowSpecific = false,
+}) {
   if (output.judgmentkit_mode !== "with_judgmentkit") {
     return {
       frontend_generation_context: null,
@@ -371,6 +377,8 @@ function buildFrontendSkillContexts({ output, reviewedHandoff, rowSpecific = fal
   const usesMaterialUi = output.design_system_mode === "material_ui";
   const frontendGenerationContext = createFrontendGenerationContext({
     ui_generation_handoff: reviewedHandoff,
+    brief,
+    context_items: contextItems,
     surface_type: reviewedHandoff.surface_type,
     // Captured model matrices are historical evidence, not profile promotion fixtures.
     surface_profile: "none",
@@ -378,6 +386,8 @@ function buildFrontendSkillContexts({ output, reviewedHandoff, rowSpecific = fal
     verification: buildFrontendVerificationContext(output, { rowSpecific }),
   });
   const frontendSkillContext = createFrontendImplementationSkillContext({
+    brief,
+    context_items: contextItems,
     frontend_generation_context: frontendGenerationContext,
     design_system_adapter: usesMaterialUi ? DESIGN_SYSTEM_ADAPTER : undefined,
     target_client: output.cli ?? output.generation_source,
@@ -611,12 +621,15 @@ function stripDefaultVisualAssetPolicyForLegacyCapture(contextPayload) {
 function buildContextPayload({
   output,
   brief,
+  contextItems,
   reviewedHandoff,
   rowSpecificFrontendContext = false,
 }) {
   const included = contextIncluded(output);
   const frontendContexts = buildFrontendSkillContexts({
     output,
+    brief,
+    contextItems,
     reviewedHandoff,
     rowSpecific: rowSpecificFrontendContext,
   });
@@ -655,8 +668,10 @@ function buildUiWorkflowCandidate() {
   };
 }
 
-function buildReviewedHandoff(brief) {
-  const activityReview = createActivityModelReview(brief);
+function buildReviewedHandoff(brief, contextItems) {
+  const activityReview = createActivityModelReview(brief, {
+    context_items: contextItems,
+  });
   const surfaceReview = recommendSurfaceTypes(brief, {
     activity_review: activityReview,
   });
@@ -664,15 +679,12 @@ function buildReviewedHandoff(brief) {
     activity_review: activityReview,
     surface_review: surfaceReview,
   });
-  const handoff = createUiGenerationHandoff(workflowReview);
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief,
+    context_items: contextItems,
+  });
 
-  return {
-    ...handoff,
-    source_brief_file: SOURCE_BRIEF_FILE,
-    activity_review_status: activityReview.review_status,
-    surface_review_status: surfaceReview.status,
-    workflow_review_status: workflowReview.review_status,
-  };
+  return handoff;
 }
 
 function rawBriefSurfaceData() {
@@ -3229,7 +3241,8 @@ async function generateUseCase(useCase) {
   setActiveUseCase(useCase);
   await ensureSourceBriefFile();
   const brief = await readSourceBrief();
-  const reviewedHandoff = buildReviewedHandoff(brief);
+  const contextItems = [];
+  const reviewedHandoff = buildReviewedHandoff(brief, contextItems);
   const outputs = buildOutputs();
 
   if (!CHECK_MODE) {
@@ -3240,7 +3253,12 @@ async function generateUseCase(useCase) {
 
   const artifacts = await Promise.all(
     outputs.map(async (output) => {
-      const contextPayload = buildContextPayload({ output, brief, reviewedHandoff });
+      const contextPayload = buildContextPayload({
+        output,
+        brief,
+        contextItems,
+        reviewedHandoff,
+      });
       const currentContextHash = hash(JSON.stringify(contextPayload, null, 2));
       let contextHash = currentContextHash;
       let effectiveContextPayload = contextPayload;
@@ -3250,6 +3268,7 @@ async function generateUseCase(useCase) {
         const rowSpecificContextPayload = buildContextPayload({
           output,
           brief,
+          contextItems,
           reviewedHandoff,
           rowSpecificFrontendContext: true,
         });

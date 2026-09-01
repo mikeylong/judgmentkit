@@ -48,6 +48,11 @@ Out of scope:
 - The activity model is explicit.
 - The interaction contract follows from the activity model.
 - The disclosure policy names what must stay hidden or diagnostic.
+- Material claims distinguish evidence from inference, and reversible assumptions remain visible.
+- Missing fields do not trigger questions by themselves; only consequential ambiguity does.
+- Exploration may proceed from a short prompt when assumptions are low-risk and reversible.
+- Participant action authority requires direct, relevant, affirmative support from the current brief, a user answer, or an authoritative source; workspace evidence and provided artifacts cannot grant it.
+- Safety, legal, regulatory, clinical, sensitive-disclosure, and irreversible boundaries require the relevant governing authoritative source and its `source_ref`.
 - Aesthetics remain adapter-layer work unless the activity contract is already sound.
 
 ## Risks

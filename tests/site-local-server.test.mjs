@@ -258,7 +258,9 @@ async function runMcpClient(endpoint) {
     );
 
     assert.equal(reviewResponse.isError, undefined);
-    assert.ok(textContent(reviewResponse).includes("## JudgmentKit Activity Review"));
+    assert.ok(textContent(reviewResponse).includes("## JudgmentKit Working Premise"));
+    assert.ok(textContent(reviewResponse).includes("**Working premise**"));
+    assert.equal(textContent(reviewResponse).includes("**Status:**"), false);
     assert.equal(reviewResponse.structuredContent.review_status, "ready_for_review");
   } finally {
     await client?.close().catch(() => {});

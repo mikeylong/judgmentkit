@@ -44,16 +44,21 @@ npm run mcp:smoke:hosted-surface -- --endpoint https://judgmentkit.ai/mcp --expe
 
 This is a surface-routing smoke, not a full product-workflow readiness check. The command prints `review_status` and `activity_review_ready` for each canary, but fails by default only when metadata, tool availability, or `recommended_surface_type` is wrong. Add `--require-ready-review` when the smoke should also fail on `needs_source_context`.
 
-## MCP Planning Cards
+## MCP Responses
 
 MCP tool responses include two surfaces:
 
 - `structuredContent` is the stable machine-readable contract for agents and integrations.
-- `content[0].text` is a concise Markdown planning card for Codex-style planning chat.
+- `content[0].text` is the raw Markdown representation for explicit setup, audit, debugging, or integration work.
 
-Use the planning card to explain the current status, next step, blocking questions, and compact diagnostics to the human collaborator. Use `structuredContent` for implementation decisions, data extraction, and follow-up MCP calls.
+Use `structuredContent` as the authority for implementation decisions, data extraction, and follow-up MCP calls. In ordinary designer-facing conversation, translate it into human-facing domain language:
 
-In planning mode, show the card-level takeaway, ask only the listed blocking questions when source context is missing, and keep raw guardrails or diagnostic terms out of product UI language.
+- **Working premise** — one sentence describing the activity and desired progress
+- **Decisions inferred** — only the decisions that shape the proposed design
+- **First direction** — the surface or workflow consequence
+- **One thing to resolve** — only when a consequential question is truly needed
+
+Do not dump targeted questions or expose `activity_model`, `review_status`, `ready_for_review`, schemas, resource ids, tool names, traces, or model configuration. Use raw `content[0].text` only for explicit setup, audit, debugging, or integration work, and keep raw guardrails or diagnostic terms out of product UI language.
 
 ## Planning Mode Examples
 
@@ -64,18 +69,18 @@ Use these examples to review whether an agent is using JudgmentKit well. A good 
 Human prompt:
 
 ```text
-Plan a UI for a support lead reviewing refund requests during daily triage. They decide whether each case is approved, sent to policy review, or returned for missing evidence. The outcome is a clear handoff with the next action and reason.
+Plan a UI for a support lead reviewing refund requests during daily triage. They decide whether to recommend support, send a case to policy review, or return it for missing evidence. The outcome is a clear handoff with the next action and reason.
 ```
 
 Good agent behavior:
 
 - Proceeds to concept planning because the activity, participant, decision, and outcome are clear.
 - Names the activity as refund triage or refund request review, not as a generic dashboard.
-- Keeps the plan centered on evidence review, decision options, and handoff.
+- Keeps the plan centered on evidence review, recommendation options, and handoff.
 
 Reviewer should accept:
 
-- A plan that makes approval, policy review, return for evidence, and handoff reasons easy to compare and complete.
+- A plan that makes the support recommendation, policy review, return for evidence, and handoff reasons easy to compare and complete.
 
 Reviewer should reject:
 
@@ -91,13 +96,13 @@ Plan a dashboard for the system.
 
 Good agent behavior:
 
-- Pauses instead of inventing a dashboard.
-- Asks targeted questions about the activity, primary decision or next action, and outcome.
-- Keeps the question count small.
+- Infers and shows the best provisional activity premise the prompt can support without inventing dashboard content.
+- Asks at most one consequential question only if the missing answer would materially change the direction and be costly to reverse.
+- Explains the design consequence and offers a recommended default or **Use your best judgment**.
 
 Reviewer should accept:
 
-- A response that asks what work the dashboard supports, what decision it should make easier, and what the user should leave knowing or having done.
+- A response that states its provisional premise and, if needed, asks the single highest-value question about the unsupported activity, decision, or completion fork.
 
 Reviewer should reject:
 
@@ -129,10 +134,14 @@ Reviewer should reject:
 
 Call `create_activity_model_review` with the source brief.
 
-Use the returned packet this way:
+Use that deterministic packet as a baseline, not as a questionnaire. Infer a complete best-current candidate from the brief and allowed local context, then call `review_activity_model_candidate`.
 
-- If `review_status` is `ready_for_review`, use `candidate.activity_model`, `candidate.interaction_contract`, and `candidate.disclosure_policy` as the working activity model.
-- If `review_status` is `needs_source_context`, ask only the questions in `review.targeted_questions` unless repo or product context can answer them.
+Use the reviewed packet this way:
+
+- If `review_status` is `ready_for_review`, use `candidate.activity_model`, `candidate.interaction_contract`, and `candidate.disclosure_policy` as the working activity model and keep reversible inferences visible as assumptions.
+- If richer readiness says `ask`, answer from available context first; otherwise ask only its single highest-value material question and explain what would change in the design.
+- If richer readiness says `stop`, obtain the required authoritative source before commitment and pass it as an attributed `authoritative_source` context item. Do not silently invent authority, approval, safety, privacy, or irreversible-effect rules, and do not relabel ordinary context as authoritative.
+- Treat portable integrity receipts as content-continuity evidence only. They do not authorize actions or replace raw evidence. Pass the exact current `brief` and attributed `context_items` through workflow review, handoff, frontend-context creation, and frontend implementation skill-context creation. Participant authority is revalidated from direct affirmative language in that raw source. Recommendation and negated language cannot grant it; workspace evidence and provided artifacts are not action credentials. Safety, legal, clinical, regulatory, compliance, sensitive-disclosure, and irreversible boundaries require the relevant governing `authoritative_source` and its `source_ref`.
 - Keep `guardrails` available for debugging, but do not turn guardrail terms into product UI language.
 
 CLI equivalent:
@@ -151,7 +160,7 @@ node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt
 
 Call `review_activity_model_candidate` with the original brief and the proposed candidate.
 
-Use this when another model or agent has already drafted an activity model. JudgmentKit does not treat that candidate as source of truth. The original brief still has to contain enough evidence.
+Use this when another model or agent has already drafted an activity model. JudgmentKit does not treat that candidate as source truth. Use the brief, attributed context, and claim provenance to distinguish explicit evidence from inference. Low-risk reversible gaps may remain visible assumptions; consequential unsupported claims still block or trigger one targeted question.
 
 CLI equivalent:
 
@@ -184,7 +193,7 @@ Surface type is activity-purpose guidance, not a visual theme. Use `frontend_pos
 
 When two surfaces are plausible, steer from the user's completion state before choosing components:
 
-- If the completion state is not explicit, ask what the user should leave knowing or having done before choosing a surface.
+- If the completion state is not explicit, infer a reversible best-current completion state. Ask what the user should leave knowing or having done only when competing completions would materially change the surface and be costly to reverse.
 - If a public offer has a short quote, demo, trial, or waitlist form, treat the form as a CTA unless the activity is completing a structured application or record.
 - If a monitor links to work orders, tickets, or cases, keep it a monitor when those objects are downstream drill-in for explaining status, exceptions, or whether follow-up is needed. The primary object is still operational health, not the item.
 - Switch to workbench when the user processes named items through finite actions: assigning, prioritizing, closing, editing, approving, routing, recording a decision, or leaving a handoff/receipt.
@@ -221,7 +230,31 @@ The recommendation only classifies the brief. It does not apply a profile automa
 
 ## Before Accepting A Model UI Workflow
 
-Call `review_ui_workflow_candidate` with the original brief and the proposed workflow candidate.
+Call `review_ui_workflow_candidate` with the original brief, the proposed workflow candidate, and the exact reviewed activity packet returned by `review_activity_model_candidate`. Do not omit, summarize, or reconstruct `activity_review`; it carries the reviewed claims, assumptions, provenance, readiness, and integrity evidence into the workflow gate. If non-brief context is relied on, also pass the exact same raw `context_items`, especially when a protected boundary depends on them.
+
+MCP call:
+
+```text
+review_ui_workflow_candidate({
+  brief,
+  candidate,
+  activity_review,
+  context_items,
+  profile_id,
+  surface_type
+})
+```
+
+Library equivalent:
+
+```js
+const workflowReview = reviewUiWorkflowCandidate(brief, workflowCandidate, {
+  activity_review: activityReview,
+  context_items: contextItems,
+  profile_id: optionalProfileId,
+  surface_type: optionalSurfaceType,
+});
+```
 
 Use this after activity review and before turning a model-proposed workflow into UI implementation. The candidate should name workflow topology, work units, coordinated surfaces, primary actions, decision points, completion or handoff, product terms, and diagnostics.
 
@@ -254,7 +287,7 @@ MCP handoff calls should pass this packet as `implementation_contract`.
 
 ## Before Generating UI From A Workflow
 
-Call `create_ui_generation_handoff` with the ready workflow review packet and implementation contract.
+Call `create_ui_generation_handoff` with the exact current brief, ready workflow review packet, implementation contract, and the same raw `context_items`.
 
 Use the returned handoff as the immediate input to UI generation. It contains the activity model, interaction contract, workflow, product surface responsibilities, handoff action, and disclosure reminders in one compact artifact.
 
@@ -263,12 +296,17 @@ If the tool returns `handoff_blocked`, do not generate UI. Resolve the returned 
 Library equivalent:
 
 ```js
-const workflowReview = reviewUiWorkflowCandidate(brief, workflowCandidate);
+const workflowReview = reviewUiWorkflowCandidate(brief, workflowCandidate, {
+  activity_review: activityReview,
+  context_items: contextItems,
+});
 const implementationContract = createUiImplementationContract({
   design_system_adapter: optionalCompleteExternalDesignSystemAdapter,
 });
 const handoff = createUiGenerationHandoff(workflowReview, {
+  brief,
   implementation_contract: implementationContract.implementation_contract,
+  context_items: contextItems,
 });
 ```
 
@@ -276,13 +314,15 @@ There is no CLI command for this gate. Use MCP or the library API.
 
 ## Before Frontend Implementation
 
-Call `create_frontend_generation_context` after `create_ui_generation_handoff` when an agent needs implementation guidance.
+Call `create_frontend_generation_context` after `create_ui_generation_handoff` when an agent needs implementation guidance. Resupply the exact current brief and attributed context so protected risk and workflow authority are independently revalidated from raw source.
 
 The frontend context requires a ready handoff. It may include the selected surface type, project runtime, UI library, approved component families, entrypoints, visual requirements, approved visual asset sources, verification commands, browser checks, and states to verify. It propagates `implementation_contract.design_system_source`; it does not change the active design-system authority.
 
 ```text
 create_frontend_generation_context({
   ui_generation_handoff,
+  brief,
+  context_items,
   surface_review,
   frontend_context,
   verification
@@ -296,6 +336,8 @@ Use the exact id when the implementation should lock the supported profile versi
 ```text
 create_frontend_generation_context({
   ui_generation_handoff,
+  brief,
+  context_items,
   surface_review,
   surface_profile: "judgmentkit.workbench.operational-v1",
   frontend_context,
@@ -309,16 +351,18 @@ The profile remains downstream presentation guidance. It does not classify the a
 
 The canonical profile is published at `/design-system/surface-presentation-profiles.json`. The durable specimen, boundary notes, reproducible preview states, scoped human direction approval, final-token technical recheck, and remaining per-consumer QA are recorded in `experiments/workbench-surface-variant/README.md`.
 
-Then call `create_frontend_implementation_skill_context` when the implementing agent needs a portable MCP skill packet instead of a repo-local Codex skill file.
+Then call `create_frontend_implementation_skill_context` when the implementing agent needs a portable MCP skill packet instead of a repo-local skill file. Resupply the exact current brief and same attributed context so this final compilation boundary independently revalidates protected risk and workflow authority.
 
 ```text
 create_frontend_implementation_skill_context({
+  brief,
+  context_items,
   frontend_generation_context,
   target_client
 })
 ```
 
-The skill context compiles the local frontend implementation workflow into structured instructions, approved primitives, approved component families, active design-system policy, visual asset policy, accessibility policy, verification checklist, and disclosure guardrails. It requires a ready frontend context and does not expose raw `SKILL.md` contents. The legacy `design_system_adapter` argument is a compatibility path only; prefer passing the adapter to `create_ui_implementation_contract`.
+The skill context compiles the local frontend implementation workflow into structured instructions, approved primitives, approved component families, active design-system policy, visual asset policy, accessibility policy, verification checklist, and disclosure guardrails. It requires a ready modern activity-case frontend context plus the original raw source, rejects root/derived guidance mismatches, and does not expose raw `SKILL.md` contents. The legacy `design_system_adapter` argument is a compatibility path only; prefer passing the adapter to `create_ui_implementation_contract`.
 
 The JudgmentKit default source includes semantic token roles, system font stacks for body, heading, label, numeric, and diagnostic text, and a committed Lucide icon catalog exposed through `list_icon_catalog`, `search_icon_catalog`, and `get_icon_svg`. Normal implementation context returns only the catalog summary, policy, count, source/version, and tool names; it does not embed the full catalog. These defaults do not load a font CDN, ship font files, use a runtime icon CDN, or mix with an external design system unless the external adapter explicitly names those assets.
 
@@ -362,15 +406,14 @@ npm run smoke:openai-ui-workflow
 
 ## When The Brief Is Vague
 
-Do not ask a broad discovery interview first. Start from the packet.
+Do not ask a broad discovery interview first. Start from the packet, then infer and review a best-current candidate.
 
-If the packet says `needs_source_context`, ask the smallest useful set of questions from `review.targeted_questions`. Keep the question count tight. The goal is to unlock activity, participants, decision, outcome, or disclosure boundary.
+If the reviewed activity case says `ask`, ask its one highest-value consequential question. Do not ask merely because a contract field is empty. If a bounded assumption is reversible and easy to inspect in the next concept, proceed and show the assumption instead.
 
 Useful next action:
 
 ```text
-JudgmentKit needs a little more source context before UI work. The blocking questions are:
-...
+I can make a first pass with the working premise above. One answer would materially change the interaction: ...
 ```
 
 ## When Implementation Terms Appear

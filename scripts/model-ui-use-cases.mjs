@@ -382,13 +382,13 @@ export const MODEL_UI_USE_CASES = [
           "Send a clear handoff",
         ],
         primary_actions: [
-          "Approve refund",
+          "Recommend refund approval",
           "Send to policy review",
           "Return for evidence",
           "Send handoff",
         ],
         decision_points: [
-          "Decide whether the refund can be approved, needs policy review, or must return to the support agent for missing evidence.",
+          "Decide whether to recommend refund approval, request policy review, or return to the support agent for missing evidence.",
         ],
         completion_state:
           "The next owner receives a handoff with the chosen path and the reason.",
@@ -407,7 +407,7 @@ export const MODEL_UI_USE_CASES = [
           ],
           controls: [
             "Select request",
-            "Approve refund",
+            "Recommend refund approval",
             "Send to policy review",
             "Return for evidence",
             "Choose next owner",
@@ -901,7 +901,7 @@ export const MODEL_UI_USE_CASES = [
       handoff: {
         next_owner: "Customer success manager",
         reason: "Champion changed and usage dropped, but procurement timing is missing.",
-        next_action: "Request the procurement date before committing the save plan.",
+        next_action: "Request the procurement date before choosing a save plan.",
       },
     },
     raw_surface: {

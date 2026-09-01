@@ -972,7 +972,13 @@ function buildFrontendVerificationContext(target) {
   };
 }
 
-function buildFrontendSkillContexts({ target, reviewedHandoff, designSystemAdapter }) {
+function buildFrontendSkillContexts({
+  target,
+  sourceBrief,
+  contextItems,
+  reviewedHandoff,
+  designSystemAdapter,
+}) {
   if (target.judgmentkit_mode !== "with_judgmentkit") {
     return {
       frontend_generation_context: null,
@@ -983,11 +989,15 @@ function buildFrontendSkillContexts({ target, reviewedHandoff, designSystemAdapt
   const usesMaterialUi = target.design_system_mode === "material_ui";
   const frontendGenerationContext = createFrontendGenerationContext({
     ui_generation_handoff: reviewedHandoff,
+    brief: sourceBrief,
+    context_items: contextItems,
     surface_type: reviewedHandoff.surface_type,
     frontend_context: buildFrontendProjectContext(target, designSystemAdapter),
     verification: buildFrontendVerificationContext(target),
   });
   const frontendSkillContext = createFrontendImplementationSkillContext({
+    brief: sourceBrief,
+    context_items: contextItems,
     frontend_generation_context: frontendGenerationContext,
     design_system_adapter: usesMaterialUi ? designSystemAdapter : undefined,
     target_client: target.cli ?? target.generation_source,
@@ -1075,10 +1085,18 @@ function compactFrontendSkillContext(frontendSkillContext) {
   };
 }
 
-function buildContextPayload({ target, sourceBrief, reviewedHandoff, designSystemAdapter }) {
+function buildContextPayload({
+  target,
+  sourceBrief,
+  contextItems,
+  reviewedHandoff,
+  designSystemAdapter,
+}) {
   const included = contextIncluded(target);
   const frontendContexts = buildFrontendSkillContexts({
     target,
+    sourceBrief,
+    contextItems,
     reviewedHandoff,
     designSystemAdapter,
   });
@@ -1738,11 +1756,13 @@ async function captureUseCase(useCase) {
     fs.readFile(HANDOFF_FILE, "utf8").then(JSON.parse),
     fs.readFile(DESIGN_SYSTEM_FILE, "utf8").then(JSON.parse),
   ]);
+  const contextItems = [];
 
   for (const target of buildTargets()) {
     const contextPayload = buildContextPayload({
       target,
       sourceBrief,
+      contextItems,
       reviewedHandoff,
       designSystemAdapter,
     });

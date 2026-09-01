@@ -43,6 +43,264 @@
         "type": "string"
       }
     },
+    "activity_case_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_mode",
+        "context_item_kinds",
+        "claim_origins",
+        "materiality_levels",
+        "readiness_decisions",
+        "safe_inference",
+        "interrupt_when",
+        "stop_when",
+        "never_treat_as_user_evidence",
+        "compatibility_status_mapping",
+        "readiness_semantics",
+        "source_authority_policy",
+        "context_continuity"
+      ],
+      "properties": {
+        "default_mode": {
+          "type": "string",
+          "const": "inference_first"
+        },
+        "context_item_kinds": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "user_answer",
+              "workspace_evidence",
+              "provided_artifact",
+              "authoritative_source"
+            ]
+          }
+        },
+        "claim_origins": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "source_supported",
+              "workspace_observed",
+              "model_inferred",
+              "convention_assumed"
+            ]
+          }
+        },
+        "materiality_levels": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["low", "medium", "high"]
+          }
+        },
+        "readiness_decisions": {
+          "type": "array",
+          "minItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": ["proceed", "ask", "stop"]
+          }
+        },
+        "safe_inference": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["allowed_when", "must_remain_visible"],
+          "properties": {
+            "allowed_when": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string" }
+            },
+            "must_remain_visible": {
+              "type": "boolean",
+              "const": true
+            }
+          }
+        },
+        "interrupt_when": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "stop_when": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "never_treat_as_user_evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "compatibility_status_mapping": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["proceed", "ask", "stop"],
+          "properties": {
+            "proceed": { "type": "string", "const": "ready_for_review" },
+            "ask": { "type": "string", "const": "needs_source_context" },
+            "stop": { "type": "string", "const": "needs_source_context" }
+          }
+        },
+        "readiness_semantics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "proceed_exploration",
+            "ask_exploration",
+            "stop_exploration",
+            "commitment"
+          ],
+          "properties": {
+            "proceed_exploration": { "type": "string" },
+            "ask_exploration": { "type": "string" },
+            "stop_exploration": { "type": "string" },
+            "commitment": { "type": "string" }
+          }
+        },
+        "source_authority_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "authoritative_source_requires_source_ref",
+            "participant_action_authority",
+            "governing_boundaries",
+            "integrity_receipts_confer_authority"
+          ],
+          "properties": {
+            "authoritative_source_requires_source_ref": {
+              "type": "boolean",
+              "const": true
+            },
+            "participant_action_authority": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "allowed_source_kinds",
+                "disallowed_source_kinds",
+                "requires_affirmative_relevant_source"
+              ],
+              "properties": {
+                "allowed_source_kinds": {
+                  "type": "array",
+                  "minItems": 3,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "enum": ["brief", "user_answer", "authoritative_source"]
+                  }
+                },
+                "disallowed_source_kinds": {
+                  "type": "array",
+                  "minItems": 2,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "enum": ["workspace_evidence", "provided_artifact"]
+                  }
+                },
+                "requires_affirmative_relevant_source": {
+                  "type": "boolean",
+                  "const": true
+                }
+              }
+            },
+            "governing_boundaries": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["categories", "required_source_kind"],
+              "properties": {
+                "categories": {
+                  "type": "array",
+                  "minItems": 7,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "safety",
+                      "legal",
+                      "clinical",
+                      "regulatory",
+                      "compliance",
+                      "sensitive_disclosure",
+                      "irreversible_action"
+                    ]
+                  }
+                },
+                "required_source_kind": {
+                  "type": "string",
+                  "const": "authoritative_source"
+                }
+              }
+            },
+            "integrity_receipts_confer_authority": {
+              "type": "boolean",
+              "const": false
+            }
+          }
+        },
+        "context_continuity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "required_when",
+            "propagate_through",
+            "require_exact_raw_brief",
+            "require_exact_attributed_context",
+            "revalidate_at_each_boundary",
+            "integrity_receipt_role"
+          ],
+          "properties": {
+            "required_when": {
+              "type": "string",
+              "const": "activity_case_packet_crosses_downstream_boundary"
+            },
+            "propagate_through": {
+              "type": "array",
+              "minItems": 5,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "enum": [
+                  "activity_review",
+                  "workflow_review",
+                  "generation_handoff",
+                  "frontend_generation_context",
+                  "frontend_implementation_skill_context"
+                ]
+              }
+            },
+            "require_exact_raw_brief": {
+              "type": "boolean",
+              "const": true
+            },
+            "require_exact_attributed_context": {
+              "type": "boolean",
+              "const": true
+            },
+            "revalidate_at_each_boundary": {
+              "type": "boolean",
+              "const": true
+            },
+            "integrity_receipt_role": {
+              "type": "string",
+              "const": "content_continuity_only"
+            }
+          }
+        }
+      }
+    },
     "workflow": {
       "type": "object",
       "additionalProperties": false,

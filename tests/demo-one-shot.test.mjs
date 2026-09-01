@@ -58,7 +58,7 @@ const workflowPhrases = [
   "selected case",
   "evidence checklist",
   "policy review",
-  "approve refund",
+  "recommend refund approval",
   "return for evidence",
   "next owner",
   "handoff reason",

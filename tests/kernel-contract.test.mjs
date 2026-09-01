@@ -7,6 +7,7 @@ import Ajv2020 from "ajv/dist/2020.js";
 
 import {
   JudgmentKitInputError,
+  createActivityModelReview,
   createUiImplementationContract,
 } from "../src/index.mjs";
 
@@ -39,6 +40,138 @@ function assertValidKernelContract(value, message) {
 assertValidKernelContract(
   contract,
   "Current AI UI generation activity contract must validate against the kernel schema",
+);
+
+assert.equal(contract.activity_case_policy.default_mode, "inference_first");
+assert.deepEqual(contract.activity_case_policy.context_item_kinds, [
+  "user_answer",
+  "workspace_evidence",
+  "provided_artifact",
+  "authoritative_source",
+]);
+assert.deepEqual(contract.activity_case_policy.readiness_decisions, [
+  "proceed",
+  "ask",
+  "stop",
+]);
+assert.deepEqual(contract.activity_case_policy.compatibility_status_mapping, {
+  proceed: "ready_for_review",
+  ask: "needs_source_context",
+  stop: "needs_source_context",
+});
+assert.equal(
+  contract.activity_case_policy.readiness_semantics.commitment.includes(
+    "never authorizes",
+  ),
+  true,
+  "Activity-case readiness must remain separate from commitment authority.",
+);
+assert.equal(
+  contract.activity_case_policy.source_authority_policy
+    .authoritative_source_requires_source_ref,
+  true,
+);
+assert.deepEqual(
+  contract.activity_case_policy.source_authority_policy
+    .participant_action_authority.allowed_source_kinds,
+  ["brief", "user_answer", "authoritative_source"],
+);
+assert.deepEqual(
+  contract.activity_case_policy.source_authority_policy
+    .participant_action_authority.disallowed_source_kinds,
+  ["workspace_evidence", "provided_artifact"],
+);
+assert.equal(
+  contract.activity_case_policy.source_authority_policy.governing_boundaries
+    .required_source_kind,
+  "authoritative_source",
+);
+assert.deepEqual(
+  contract.activity_case_policy.source_authority_policy.governing_boundaries
+    .categories,
+  [
+    "safety",
+    "legal",
+    "clinical",
+    "regulatory",
+    "compliance",
+    "sensitive_disclosure",
+    "irreversible_action",
+  ],
+);
+assert.equal(
+  contract.activity_case_policy.source_authority_policy
+    .integrity_receipts_confer_authority,
+  false,
+);
+assert.deepEqual(
+  contract.activity_case_policy.context_continuity.propagate_through,
+  [
+    "activity_review",
+    "workflow_review",
+    "generation_handoff",
+    "frontend_generation_context",
+    "frontend_implementation_skill_context",
+  ],
+);
+assert.match(
+  contract.activity_case_policy.readiness_semantics.ask_exploration,
+  /provisional first direction/i,
+);
+assert.equal(
+  contract.activity_case_policy.context_continuity.required_when,
+  "activity_case_packet_crosses_downstream_boundary",
+);
+assert.equal(
+  contract.activity_case_policy.context_continuity.require_exact_raw_brief,
+  true,
+);
+assert.equal(
+  contract.activity_case_policy.context_continuity
+    .require_exact_attributed_context,
+  true,
+);
+assert.equal(
+  contract.activity_case_policy.context_continuity.revalidate_at_each_boundary,
+  true,
+);
+assert.equal(
+  contract.activity_case_policy.context_continuity.integrity_receipt_role,
+  "content_continuity_only",
+);
+
+const legacyActivityCaseContract = structuredClone(contract);
+delete legacyActivityCaseContract.activity_case_policy;
+assertValidKernelContract(
+  legacyActivityCaseContract,
+  "Kernel schema must preserve compatibility for contracts without activity_case_policy",
+);
+const activityPolicyReceiptBrief =
+  "Support leads prioritize refund requests for follow-up and leave a clear next-action receipt.";
+assert.equal(
+  createActivityModelReview(activityPolicyReceiptBrief, { contract })?.source
+    ?.activity_case_review_integrity?.digest,
+  createActivityModelReview(activityPolicyReceiptBrief, {
+    contract: legacyActivityCaseContract,
+  })?.source?.activity_case_review_integrity?.digest,
+  "The legacy-contract fallback must bind the complete canonical activity-case policy.",
+);
+
+const malformedActivityCaseContract = structuredClone(contract);
+malformedActivityCaseContract.activity_case_policy.readiness_decisions = [
+  "proceed",
+  "ask",
+  "maybe",
+];
+assert.equal(
+  validateKernelContract(malformedActivityCaseContract),
+  false,
+  "Activity-case readiness must be limited to proceed, ask, or stop.",
+);
+assert.ok(
+  (validateKernelContract.errors ?? []).some((error) =>
+    error.instancePath.includes("/activity_case_policy/readiness_decisions")),
+  "Malformed activity-case readiness errors should point at readiness_decisions.",
 );
 
 const legacyImplementationContract = structuredClone(contract);
