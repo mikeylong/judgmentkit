@@ -9,14 +9,28 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const PROJECT_ROOT = path.resolve(__dirname, "..");
 export const DEFAULT_SOURCE_DIR = path.join(PROJECT_ROOT, "packages", "codex-plugin");
 export const DEFAULT_PACKAGE_JSON_PATH = path.join(DEFAULT_SOURCE_DIR, "package.json");
+export const DEFAULT_CANONICAL_SKILL_DIR = path.join(
+  PROJECT_ROOT,
+  "packages",
+  "agent-skill",
+  "judgmentkit-hosted-mcp",
+);
 export const CODEX_PLUGIN_MCP_URL = "https://judgmentkit.ai/mcp";
 export const STRICT_BASE_SEMVER_PATTERN = /^\d+\.\d+\.\d+$/;
+
+export const PORTABLE_SKILL_FILES = [
+  "SKILL.md",
+  "references/ui-handoff-and-acceptance.md",
+  "references/deck-creation.md",
+];
 
 export const REQUIRED_PLUGIN_FILES = [
   "package.json",
   ".codex-plugin/plugin.json",
   ".mcp.json",
   "skills/judgmentkit-hosted-mcp/SKILL.md",
+  "skills/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md",
+  "skills/judgmentkit-hosted-mcp/references/deck-creation.md",
   "skills/judgmentkit-hosted-mcp/agents/openai.yaml",
 ];
 
@@ -45,7 +59,7 @@ export const REQUIRED_DESIGN_SYSTEM_GATE_WORDING = [
 
 export const REQUIRED_SLIDE_DECK_WORKFLOW_WORDING = [
   "Use this skill for JudgmentKit slide deck requests",
-  "## Slide Deck Creation",
+  "# Deck Creation",
   "## Deck Workflow",
   "deck_creation_status",
   "mcp__judgmentkit.create_slide_deck",
@@ -54,11 +68,50 @@ export const REQUIRED_SLIDE_DECK_WORKFLOW_WORDING = [
   "explicit `template_id` values or strong selection metadata",
 ];
 
-export const REQUIRED_AGENT_DECK_DISCOVERY_WORDING = [
-  "slide deck creation",
-  "create a JudgmentKit slide deck",
-  "presentation, PowerPoint, or PPTX",
-  "deck creation tool is available",
+export const REQUIRED_ACTIVITY_CASE_UX_WORDING = [
+  "Default to **propose, show, then refine**",
+  "Represent non-brief evidence as attributed `context_items`",
+  "Call `create_activity_model_review({ brief, context_items })` first",
+  "baseline, not as the limit of model inference",
+  "Have the host model infer a complete best-current activity case",
+  "Call `review_activity_model_candidate({ brief, candidate, context_items })` with the same attributed context items",
+  "If `activity_case.readiness.decision` is `stop`, do not show a potentially misleading design direction",
+  "Otherwise, show the premise, decisions, and direction before asking a question",
+  "Ask at most one consequential question at a time",
+  "Do not begin with an intake checklist",
+  "The dimensions above are an internal inference and completeness model, not a questionnaire",
+  "**Proceed** is the default",
+  "**Quick** front-loads the working premise and first design direction",
+  "**Guided** still infers and reviews the complete best-current case first",
+  "These modes change pacing, not inference depth, model capability, evidence requirements, or acceptance gates",
+  "`structuredContent` is the authority",
+  "Use raw `content[0].text` only for explicit setup, audit, debugging, or integration work",
+];
+
+export const REQUIRED_UI_HANDOFF_WORDING = [
+  "`artifact_inspector`",
+  "Select `artifact_inspector` only when the rendered artifact is primary, semantic locus selection is required, and support is locus-relative",
+];
+
+export const REQUIRED_CONDITIONAL_REFERENCE_WORDING = [
+  "[references/ui-handoff-and-acceptance.md](references/ui-handoff-and-acceptance.md)",
+  "[references/deck-creation.md](references/deck-creation.md)",
+  "Read both references only when the request genuinely includes both routes",
+];
+
+export const FORBIDDEN_QUESTIONNAIRE_FIRST_WORDING = [
+  "Before suggesting screens, components, or styling, establish:",
+  "ask only the targeted blocking questions",
+  "Use `content[0].text` as the concise human-facing planning card",
+];
+
+export const REQUIRED_AGENT_ACTIVITY_DISCOVERY_WORDING = [
+  'display_name: "JudgmentKit UI Design"',
+  'short_description: "Inference-first UI design and acceptance gates"',
+  "infer and review a complete activity case",
+  "show the working premise first",
+  "one consequential question",
+  "JudgmentKit slide deck",
 ];
 
 const CODEX_SUFFIX_PATTERN = new RegExp(`\\+${"codex"}\\b`, "i");
@@ -190,6 +243,57 @@ async function readTextFiles(rootDir, files, failures) {
   return entries;
 }
 
+async function readPortableSkillFiles(rootDir, failures, { check, filePrefix }) {
+  const entries = new Map();
+
+  for (const relativePath of PORTABLE_SKILL_FILES) {
+    const filePath = path.join(rootDir, relativePath);
+    if (!(await pathExists(filePath))) {
+      failures.push({
+        check,
+        file: path.posix.join(filePrefix, relativePath),
+        message: `Missing required portable skill file: ${filePath}`,
+      });
+      continue;
+    }
+
+    try {
+      entries.set(relativePath, await fs.readFile(filePath, "utf8"));
+    } catch (error) {
+      failures.push({
+        check,
+        file: path.posix.join(filePrefix, relativePath),
+        message: `Could not read portable skill file ${filePath}: ${error.message}`,
+      });
+    }
+  }
+
+  return entries;
+}
+
+function collectPortableMirrorFailures(canonicalFiles, adapterFiles) {
+  const failures = [];
+
+  for (const relativePath of PORTABLE_SKILL_FILES) {
+    const canonicalText = canonicalFiles.get(relativePath);
+    const adapterText = adapterFiles.get(relativePath);
+
+    if (typeof canonicalText !== "string" || typeof adapterText !== "string") {
+      continue;
+    }
+
+    if (adapterText !== canonicalText) {
+      failures.push({
+        check: "canonical_skill_mirror",
+        file: path.posix.join("skills/judgmentkit-hosted-mcp", relativePath),
+        message: `Codex adapter must be byte-identical to canonical portable skill file ${relativePath}.`,
+      });
+    }
+  }
+
+  return failures;
+}
+
 function collectForbiddenTextFailures(textEntries) {
   const failures = [];
 
@@ -208,8 +312,10 @@ function collectForbiddenTextFailures(textEntries) {
   return failures;
 }
 
-function collectMissingWordingFailures(skillText) {
+function collectMissingWordingFailures({ skillText, uiReferenceText, deckReferenceText }) {
   const normalizedSkillText = normalizeText(skillText);
+  const normalizedUiReferenceText = normalizeText(uiReferenceText);
+  const normalizedDeckReferenceText = normalizeText(deckReferenceText);
   const failures = [];
 
   for (const phrase of REQUIRED_PRIVACY_WORDING) {
@@ -223,21 +329,61 @@ function collectMissingWordingFailures(skillText) {
   }
 
   for (const phrase of REQUIRED_DESIGN_SYSTEM_GATE_WORDING) {
-    if (!normalizedSkillText.includes(normalizeText(phrase))) {
+    if (!normalizedUiReferenceText.includes(normalizeText(phrase))) {
       failures.push({
         check: "design_system_gate_wording",
-        file: "skills/judgmentkit-hosted-mcp/SKILL.md",
-        message: `Missing required design-system gate wording from hosted MCP skill: ${phrase}`,
+        file: "skills/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md",
+        message: `Missing required design-system gate wording from UI handoff reference: ${phrase}`,
+      });
+    }
+  }
+
+  for (const phrase of REQUIRED_UI_HANDOFF_WORDING) {
+    if (!normalizedUiReferenceText.includes(normalizeText(phrase))) {
+      failures.push({
+        check: "ui_handoff_wording",
+        file: "skills/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md",
+        message: `Missing required UI handoff wording: ${phrase}`,
       });
     }
   }
 
   for (const phrase of REQUIRED_SLIDE_DECK_WORKFLOW_WORDING) {
-    if (!normalizedSkillText.includes(normalizeText(phrase))) {
+    if (!normalizedDeckReferenceText.includes(normalizeText(phrase))) {
       failures.push({
         check: "slide_deck_workflow_wording",
+        file: "skills/judgmentkit-hosted-mcp/references/deck-creation.md",
+        message: `Missing required slide-deck workflow wording from deck reference: ${phrase}`,
+      });
+    }
+  }
+
+  for (const phrase of REQUIRED_ACTIVITY_CASE_UX_WORDING) {
+    if (!normalizedSkillText.includes(normalizeText(phrase))) {
+      failures.push({
+        check: "activity_case_ux_wording",
         file: "skills/judgmentkit-hosted-mcp/SKILL.md",
-        message: `Missing required slide-deck workflow wording from hosted MCP skill: ${phrase}`,
+        message: `Missing required inference-first activity-case wording: ${phrase}`,
+      });
+    }
+  }
+
+  for (const phrase of REQUIRED_CONDITIONAL_REFERENCE_WORDING) {
+    if (!normalizedSkillText.includes(normalizeText(phrase))) {
+      failures.push({
+        check: "conditional_reference_routing",
+        file: "skills/judgmentkit-hosted-mcp/SKILL.md",
+        message: `Missing required conditional-reference routing wording: ${phrase}`,
+      });
+    }
+  }
+
+  for (const phrase of FORBIDDEN_QUESTIONNAIRE_FIRST_WORDING) {
+    if (normalizedSkillText.includes(normalizeText(phrase))) {
+      failures.push({
+        check: "questionnaire_first_wording",
+        file: "skills/judgmentkit-hosted-mcp/SKILL.md",
+        message: `Hosted MCP skill contains forbidden questionnaire-first wording: ${phrase}`,
       });
     }
   }
@@ -305,13 +451,38 @@ function collectManifestFailures(pluginJson) {
     });
   }
 
+  const activityDiscoveryFields = [
+    pluginJson?.description,
+    pluginJson?.interface?.shortDescription,
+    pluginJson?.interface?.longDescription,
+    ...(Array.isArray(pluginJson?.interface?.defaultPrompt) ? pluginJson.interface.defaultPrompt : []),
+  ];
+  const normalizedActivityDiscovery = normalizeText(activityDiscoveryFields.filter(Boolean).join(" "));
+  const requiredActivityDiscovery = [
+    "Activity-centered UI design",
+    "Inference-first UI design",
+    "working premise",
+    "without beginning with an intake questionnaire",
+    "ask only if a missing decision would materially change the design",
+  ];
+
+  for (const phrase of requiredActivityDiscovery) {
+    if (!normalizedActivityDiscovery.includes(normalizeText(phrase))) {
+      failures.push({
+        check: "manifest_activity_case_discovery",
+        file: ".codex-plugin/plugin.json",
+        message: `Plugin manifest must preserve inference-first discovery wording: ${phrase}`,
+      });
+    }
+  }
+
   return failures;
 }
 
 function collectAgentYamlFailures(agentYamlText, mcpUrl) {
   const normalizedAgentYaml = normalizeText(agentYamlText);
   const requiredSnippets = [
-    'display_name: "JudgmentKit Hosted MCP"',
+    'display_name: "JudgmentKit UI Design"',
     'type: "mcp"',
     'value: "judgmentkit"',
     'transport: "streamable_http"',
@@ -338,12 +509,12 @@ function collectAgentYamlFailures(agentYamlText, mcpUrl) {
     });
   }
 
-  for (const phrase of REQUIRED_AGENT_DECK_DISCOVERY_WORDING) {
+  for (const phrase of REQUIRED_AGENT_ACTIVITY_DISCOVERY_WORDING) {
     if (!normalizedAgentYaml.includes(normalizeText(phrase))) {
       failures.push({
-        check: "agent_deck_discovery",
+        check: "agent_activity_case_discovery",
         file: "skills/judgmentkit-hosted-mcp/agents/openai.yaml",
-        message: `OpenAI agent metadata must keep slide-deck discovery wording: ${phrase}`,
+        message: `OpenAI agent metadata must preserve inference-first discovery wording: ${phrase}`,
       });
     }
   }
@@ -360,10 +531,12 @@ function assertNoFailures(failures) {
 export async function verifyCodexPlugin({
   sourceDir = DEFAULT_SOURCE_DIR,
   packageJsonPath = DEFAULT_PACKAGE_JSON_PATH,
+  canonicalSkillDir = DEFAULT_CANONICAL_SKILL_DIR,
   mcpUrl = CODEX_PLUGIN_MCP_URL,
 } = {}) {
   const resolvedSourceDir = path.resolve(sourceDir);
   const resolvedPackageJsonPath = path.resolve(packageJsonPath);
+  const resolvedCanonicalSkillDir = path.resolve(canonicalSkillDir);
   const failures = [];
 
   let sourceStat = null;
@@ -471,11 +644,34 @@ export async function verifyCodexPlugin({
   const textEntries = await readTextFiles(resolvedSourceDir, sourceFiles, failures);
   failures.push(...collectForbiddenTextFailures(textEntries));
 
-  const skillEntry = textEntries.find((entry) => entry.relativePath === "skills/judgmentkit-hosted-mcp/SKILL.md");
+  const canonicalFiles = await readPortableSkillFiles(resolvedCanonicalSkillDir, failures, {
+    check: "canonical_skill_file",
+    filePrefix: "packages/agent-skill/judgmentkit-hosted-mcp",
+  });
+  const adapterFiles = await readPortableSkillFiles(
+    path.join(resolvedSourceDir, "skills", "judgmentkit-hosted-mcp"),
+    failures,
+    {
+      check: "required_file",
+      filePrefix: "skills/judgmentkit-hosted-mcp",
+    },
+  );
+  const canonicalTextEntries = [...canonicalFiles.entries()].map(([relativePath, text]) => ({
+    relativePath: path.posix.join("packages/agent-skill/judgmentkit-hosted-mcp", relativePath),
+    text,
+  }));
+
+  failures.push(...collectForbiddenTextFailures(canonicalTextEntries));
+  failures.push(...collectPortableMirrorFailures(canonicalFiles, adapterFiles));
+
   const agentYamlEntry = textEntries.find(
     (entry) => entry.relativePath === "skills/judgmentkit-hosted-mcp/agents/openai.yaml",
   );
-  failures.push(...collectMissingWordingFailures(skillEntry?.text ?? ""));
+  failures.push(...collectMissingWordingFailures({
+    skillText: adapterFiles.get("SKILL.md") ?? "",
+    uiReferenceText: adapterFiles.get("references/ui-handoff-and-acceptance.md") ?? "",
+    deckReferenceText: adapterFiles.get("references/deck-creation.md") ?? "",
+  }));
   failures.push(...collectAgentYamlFailures(agentYamlEntry?.text ?? "", mcpUrl));
 
   assertNoFailures(failures);
@@ -483,12 +679,14 @@ export async function verifyCodexPlugin({
   return {
     status: "passed",
     source_dir: resolvedSourceDir,
+    canonical_skill_dir: resolvedCanonicalSkillDir,
     package_json_path: resolvedPackageJsonPath,
     package_version: packageVersion,
     plugin_version: pluginVersion,
     mcp_url: actualMcpUrl,
     files_checked: textEntries.map((entry) => entry.relativePath),
     required_files: REQUIRED_PLUGIN_FILES,
+    portable_skill_files: PORTABLE_SKILL_FILES,
   };
 }
 
@@ -496,6 +694,7 @@ function parseArgs(argv) {
   const options = {
     sourceDir: DEFAULT_SOURCE_DIR,
     packageJsonPath: DEFAULT_PACKAGE_JSON_PATH,
+    canonicalSkillDir: DEFAULT_CANONICAL_SKILL_DIR,
     mcpUrl: CODEX_PLUGIN_MCP_URL,
     json: false,
     help: false,
@@ -508,6 +707,8 @@ function parseArgs(argv) {
       options.sourceDir = argv[++index];
     } else if (arg === "--package") {
       options.packageJsonPath = argv[++index];
+    } else if (arg === "--canonical-skill") {
+      options.canonicalSkillDir = argv[++index];
     } else if (arg === "--mcp-url") {
       options.mcpUrl = argv[++index];
     } else if (arg === "--json") {
@@ -526,9 +727,9 @@ function printUsage() {
   process.stderr.write(
     [
       "Usage:",
-      "  node scripts/verify-codex-plugin.mjs [--source <dir>] [--package <package.json>] [--mcp-url <url>] [--json]",
+      "  node scripts/verify-codex-plugin.mjs [--source <dir>] [--package <package.json>] [--canonical-skill <dir>] [--mcp-url <url>] [--json]",
       "",
-      `Defaults to ${path.relative(PROJECT_ROOT, DEFAULT_SOURCE_DIR)} with ${path.relative(PROJECT_ROOT, DEFAULT_PACKAGE_JSON_PATH)} and ${CODEX_PLUGIN_MCP_URL}.`,
+      `Defaults to ${path.relative(PROJECT_ROOT, DEFAULT_SOURCE_DIR)} with ${path.relative(PROJECT_ROOT, DEFAULT_CANONICAL_SKILL_DIR)}, ${path.relative(PROJECT_ROOT, DEFAULT_PACKAGE_JSON_PATH)}, and ${CODEX_PLUGIN_MCP_URL}.`,
       "",
     ].join("\n"),
   );

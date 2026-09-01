@@ -2,8 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   createHash,
-  createHmac,
-  randomBytes,
   timingSafeEqual,
 } from "node:crypto";
 import { createRequire } from "node:module";
@@ -85,7 +83,6 @@ const KERNEL_SCHEMA_PATH = path.resolve(
 );
 let validateVisualCompositionPolicySchema;
 const trustedVisualCompositionEvidence = new WeakMap();
-const artifactInspectorReviewIntegrityKey = randomBytes(32);
 const DEFAULT_WORKFLOW_ID = "workflow.ai-ui-generation";
 const OPERATOR_REVIEW_PROFILE_ID = "operator-review-ui";
 const LEGACY_SURFACE_TYPE_IDS = [
@@ -549,25 +546,185 @@ function canonicalIntegrityValue(value) {
 }
 
 function createArtifactInspectorIntegritySeal(kind, payload) {
-  return createHmac("sha256", artifactInspectorReviewIntegrityKey)
-    .update(kind)
-    .update("\0")
-    .update(JSON.stringify(canonicalIntegrityValue(payload)))
-    .digest("base64url");
+  return createPortableIntegrityReceipt(
+    `artifact_inspector_${kind}`,
+    payload,
+  );
 }
 
 function artifactInspectorIntegritySealMatches(kind, payload, suppliedSeal) {
-  if (typeof suppliedSeal !== "string" || suppliedSeal.length === 0) {
+  return portableIntegrityReceiptMatches(
+    `artifact_inspector_${kind}`,
+    payload,
+    suppliedSeal,
+  );
+}
+
+const PORTABLE_INTEGRITY_RECEIPT_SCHEMA =
+  "judgmentkit.portable-integrity-receipt/v1";
+
+function createPortableIntegrityReceipt(kind, payload) {
+  return {
+    schema: PORTABLE_INTEGRITY_RECEIPT_SCHEMA,
+    algorithm: "sha256-canonical-json",
+    kind,
+    digest: createHash("sha256")
+      .update(kind)
+      .update("\0")
+      .update(JSON.stringify(canonicalIntegrityValue(payload)))
+      .digest("hex"),
+  };
+}
+
+function portableIntegrityReceiptMatches(kind, payload, suppliedReceipt) {
+  if (
+    !isPlainObject(suppliedReceipt) ||
+    suppliedReceipt.schema !== PORTABLE_INTEGRITY_RECEIPT_SCHEMA ||
+    suppliedReceipt.algorithm !== "sha256-canonical-json" ||
+    suppliedReceipt.kind !== kind ||
+    typeof suppliedReceipt.digest !== "string"
+  ) {
     return false;
   }
 
   const expected = Buffer.from(
-    createArtifactInspectorIntegritySeal(kind, payload),
+    createPortableIntegrityReceipt(kind, payload).digest,
   );
-  const observed = Buffer.from(suppliedSeal);
+  const observed = Buffer.from(suppliedReceipt.digest);
   return (
     expected.length === observed.length &&
     timingSafeEqual(expected, observed)
+  );
+}
+
+function activityReviewIntegrityPayload(activityReview, contract) {
+  const source = isPlainObject(activityReview?.source)
+    ? { ...activityReview.source }
+    : activityReview?.source;
+  if (isPlainObject(source)) {
+    delete source.activity_case_review_integrity;
+  }
+
+  return {
+    activity_case_policy: activityCasePolicy(contract),
+    packet: {
+      ...activityReview,
+      source,
+    },
+  };
+}
+
+function activityReviewUsesIntegrity(activityReview) {
+  return activityReview?.activity_case?.schema === "judgmentkit.activity-case/v1";
+}
+
+function createActivityReviewIntegritySeal(activityReview, contract) {
+  return createPortableIntegrityReceipt(
+    "activity_case_review",
+    activityReviewIntegrityPayload(activityReview, contract),
+  );
+}
+
+function activityReviewIntegritySealMatches(activityReview, contract) {
+  return portableIntegrityReceiptMatches(
+    "activity_case_review",
+    activityReviewIntegrityPayload(activityReview, contract),
+    activityReview?.source?.activity_case_review_integrity,
+  );
+}
+
+function assertActivityReviewIntegrity(activityReview, contract) {
+  if (!activityReviewIntegritySealMatches(activityReview, contract)) {
+    throw new JudgmentKitInputError(
+      "The supplied activity review is missing a valid portable integrity receipt or no longer matches it.",
+      {
+        code: "activity_review_integrity_invalid",
+        details: {
+          field: "activity_review.source.activity_case_review_integrity",
+        },
+      },
+    );
+  }
+}
+
+function activityCasePropagationIntegrityPayload(
+  packet,
+  contract,
+  { stage, receipt_field: receiptField },
+) {
+  const source = isPlainObject(packet?.source)
+    ? { ...packet.source }
+    : packet?.source;
+  if (isPlainObject(source)) {
+    delete source[receiptField];
+    delete source.artifact_inspector_boundary_integrity;
+  }
+
+  return {
+    activity_case_policy: activityCasePolicy(contract),
+    stage,
+    packet: {
+      ...packet,
+      source,
+    },
+  };
+}
+
+function createUiGenerationHandoffIntegrityReceipt(handoff, contract) {
+  return createPortableIntegrityReceipt(
+    "activity_case_ui_generation_handoff",
+    activityCasePropagationIntegrityPayload(
+      handoff,
+      contract,
+      {
+        stage: "ui_generation_handoff",
+        receipt_field: "activity_case_handoff_integrity",
+      },
+    ),
+  );
+}
+
+function uiGenerationHandoffIntegrityReceiptMatches(handoff, contract) {
+  return portableIntegrityReceiptMatches(
+    "activity_case_ui_generation_handoff",
+    activityCasePropagationIntegrityPayload(
+      handoff,
+      contract,
+      {
+        stage: "ui_generation_handoff",
+        receipt_field: "activity_case_handoff_integrity",
+      },
+    ),
+    handoff?.source?.activity_case_handoff_integrity,
+  );
+}
+
+function createFrontendContextIntegrityReceipt(frontendContext, contract) {
+  return createPortableIntegrityReceipt(
+    "activity_case_frontend_generation_context",
+    activityCasePropagationIntegrityPayload(
+      frontendContext,
+      contract,
+      {
+        stage: "frontend_generation_context",
+        receipt_field: "activity_case_frontend_integrity",
+      },
+    ),
+  );
+}
+
+function frontendContextIntegrityReceiptMatches(frontendContext, contract) {
+  return portableIntegrityReceiptMatches(
+    "activity_case_frontend_generation_context",
+    activityCasePropagationIntegrityPayload(
+      frontendContext,
+      contract,
+      {
+        stage: "frontend_generation_context",
+        receipt_field: "activity_case_frontend_integrity",
+      },
+    ),
+    frontendContext?.source?.activity_case_frontend_integrity,
   );
 }
 
@@ -2892,7 +3049,13 @@ function isUsefulObservedTerm(term, implementationTermsDetected) {
   return (
     term.length > 2 &&
     !containsDetectedImplementationTerm(term, implementationTermsDetected) &&
-    !["admin screen", "ui", "system"].includes(term)
+    !["admin screen", "ui", "system"].includes(term) &&
+    !/\b(?:may|can|must|shall|will)\s+(?:approv(?:e|es)|deny|denies|authoriz(?:e|es)|commit(?:s)?|execute(?:s)?|finalize(?:s)?|publish(?:es)?|release(?:s)?|view|read|inspect|access|share|disclose)\b/i.test(
+      term,
+    ) &&
+    !/^\s*(?:approv(?:e|es)|deny|denies|authoriz(?:e|es)|commit(?:s)?|execute(?:s)?|finalize(?:s)?|publish(?:es)?|release(?:s)?|view|read|inspect|access|share|disclose)\b/i.test(
+      term,
+    )
   );
 }
 
@@ -3419,7 +3582,2324 @@ function hasMissingCandidateField(candidateMissingFields) {
   return Object.values(candidateMissingFields).some(Boolean);
 }
 
-function buildReviewConfidence(evidence, implementationTermsDetected, candidateGuardrails) {
+const ACTIVITY_CONTEXT_ITEM_KINDS = new Set([
+  "user_answer",
+  "workspace_evidence",
+  "provided_artifact",
+  "authoritative_source",
+]);
+const MAX_ACTIVITY_CONTEXT_ITEMS = 12;
+const MAX_ACTIVITY_CONTEXT_ITEM_CHARS = 8_000;
+const ACTIVITY_CASE_CLAIM_DEFINITIONS = [
+  {
+    id: "activity",
+    path: "activity_model.activity",
+    default_materiality: "medium",
+  },
+  {
+    id: "participants",
+    path: "activity_model.participants",
+    default_materiality: "low",
+  },
+  {
+    id: "objective",
+    path: "activity_model.objective",
+    default_materiality: "medium",
+  },
+  {
+    id: "outcomes",
+    path: "activity_model.outcomes",
+    default_materiality: "medium",
+  },
+  {
+    id: "domain_vocabulary",
+    path: "activity_model.domain_vocabulary",
+    default_materiality: "low",
+  },
+  {
+    id: "existing_tools_artifacts",
+    path: "activity_model.existing_tools_artifacts",
+    default_materiality: "low",
+    optional: true,
+  },
+  {
+    id: "rules_rituals",
+    path: "activity_model.rules_rituals",
+    default_materiality: "medium",
+    optional: true,
+  },
+  {
+    id: "division_of_labor",
+    path: "activity_model.division_of_labor",
+    default_materiality: "medium",
+    optional: true,
+  },
+  {
+    id: "primary_decision",
+    path: "interaction_contract.primary_decision",
+    default_materiality: "medium",
+  },
+  {
+    id: "next_actions",
+    path: "interaction_contract.next_actions",
+    default_materiality: "medium",
+  },
+  {
+    id: "completion",
+    path: "interaction_contract.completion",
+    default_materiality: "medium",
+  },
+  {
+    id: "user_is_trying_to",
+    path: "interaction_contract.user_is_trying_to",
+    default_materiality: "medium",
+    optional: true,
+  },
+  {
+    id: "user_thinks_about_work_as",
+    path: "interaction_contract.user_thinks_about_work_as",
+    default_materiality: "low",
+    optional: true,
+  },
+  {
+    id: "user_does_not_think_about_work_as",
+    path: "interaction_contract.user_does_not_think_about_work_as",
+    default_materiality: "low",
+    optional: true,
+  },
+  {
+    id: "primary_decisions",
+    path: "interaction_contract.primary_decisions",
+    default_materiality: "medium",
+    optional: true,
+  },
+  {
+    id: "make_harder",
+    path: "interaction_contract.make_harder",
+    default_materiality: "medium",
+    optional: true,
+  },
+  {
+    id: "state_changes",
+    path: "interaction_contract.state_changes",
+    default_materiality: "medium",
+    optional: true,
+  },
+  {
+    id: "leave_screen_knowing_or_done",
+    path: "interaction_contract.leave_screen_knowing_or_done",
+    default_materiality: "medium",
+    optional: true,
+  },
+];
+const ACTIVITY_CASE_DISCLOSURE_RISK_PATHS = [
+  "interaction_contract.make_easy",
+  "disclosure_policy.terms_to_use",
+  "disclosure_policy.hidden_implementation_terms",
+  "disclosure_policy.translation_candidates",
+  "disclosure_policy.diagnostic_contexts",
+];
+const ACTIVITY_CASE_DEFAULT_POLICY = {
+  default_mode: "inference_first",
+  context_item_kinds: [
+    "user_answer",
+    "workspace_evidence",
+    "provided_artifact",
+    "authoritative_source",
+  ],
+  claim_origins: [
+    "source_supported",
+    "workspace_observed",
+    "model_inferred",
+    "convention_assumed",
+  ],
+  materiality_levels: ["low", "medium", "high"],
+  readiness_decisions: ["proceed", "ask", "stop"],
+  safe_inference: {
+    allowed_when: [
+      "The inferred claim is reversible during concept exploration.",
+      "Choosing differently would not change participant authority, safety, sensitive disclosure, or an irreversible commitment.",
+      "The assumption remains visible in the activity case and can be revised without treating it as user evidence.",
+    ],
+    must_remain_visible: true,
+  },
+  interrupt_when: [
+    "Two or more plausible interpretations would materially change the workflow, work object, completion state, or handoff.",
+    "The inferred claim changes who may recommend, approve, authorize, or commit an action.",
+    "The inferred claim changes what sensitive information a participant may view or disclose.",
+  ],
+  stop_when: [
+    "A safety, legal, clinical, regulatory, or compliance rule requires an authoritative source.",
+    "A sensitive-disclosure boundary cannot be established from supplied source context.",
+  ],
+  never_treat_as_user_evidence: [
+    "candidate-only claims",
+    "model confidence",
+    "model-proposed alternatives",
+    "conventional defaults",
+  ],
+  compatibility_status_mapping: {
+    proceed: "ready_for_review",
+    ask: "needs_source_context",
+    stop: "needs_source_context",
+  },
+  readiness_semantics: {
+    proceed_exploration:
+      "The activity case may guide concept exploration with visible assumptions.",
+    ask_exploration:
+      "The activity case may guide a provisional first direction with the material ambiguity visible; resolve the one consequential question before treating the direction as implementation-ready.",
+    stop_exploration:
+      "Concept exploration stops until an authoritative source establishes the boundary.",
+    commitment:
+      "Activity-case readiness never authorizes product, policy, safety, release, or implementation commitments.",
+  },
+  source_authority_policy: {
+    authoritative_source_requires_source_ref: true,
+    participant_action_authority: {
+      allowed_source_kinds: ["brief", "user_answer", "authoritative_source"],
+      disallowed_source_kinds: ["workspace_evidence", "provided_artifact"],
+      requires_affirmative_relevant_source: true,
+    },
+    governing_boundaries: {
+      categories: [
+        "safety",
+        "legal",
+        "clinical",
+        "regulatory",
+        "compliance",
+        "sensitive_disclosure",
+        "irreversible_action",
+      ],
+      required_source_kind: "authoritative_source",
+    },
+    integrity_receipts_confer_authority: false,
+  },
+  context_continuity: {
+    required_when: "activity_case_packet_crosses_downstream_boundary",
+    propagate_through: [
+      "activity_review",
+      "workflow_review",
+      "generation_handoff",
+      "frontend_generation_context",
+      "frontend_implementation_skill_context",
+    ],
+    require_exact_raw_brief: true,
+    require_exact_attributed_context: true,
+    revalidate_at_each_boundary: true,
+    integrity_receipt_role: "content_continuity_only",
+  },
+};
+
+function normalizeActivityContextItems(value) {
+  if (value === undefined) {
+    return [];
+  }
+
+  if (!Array.isArray(value)) {
+    throw new JudgmentKitInputError("context_items must be an array when provided.");
+  }
+
+  if (value.length > MAX_ACTIVITY_CONTEXT_ITEMS) {
+    throw new JudgmentKitInputError(
+      `context_items supports at most ${MAX_ACTIVITY_CONTEXT_ITEMS} entries.`,
+    );
+  }
+
+  const seenIds = new Set(["brief"]);
+
+  return value.map((entry, index) => {
+    if (!isPlainObject(entry)) {
+      throw new JudgmentKitInputError(`context_items[${index}] must be an object.`);
+    }
+
+    const id = optionalString(entry.id);
+    const kind = optionalString(entry.kind);
+    const content = optionalRawString(entry.content);
+    const sourceRef = optionalString(entry.source_ref);
+
+    if (!id || seenIds.has(id)) {
+      throw new JudgmentKitInputError(
+        `context_items[${index}].id must be a unique non-empty string other than the reserved id brief.`,
+      );
+    }
+
+    if (!ACTIVITY_CONTEXT_ITEM_KINDS.has(kind)) {
+      throw new JudgmentKitInputError(
+        `context_items[${index}].kind must be user_answer, workspace_evidence, provided_artifact, or authoritative_source.`,
+      );
+    }
+
+    if (!content || content.length > MAX_ACTIVITY_CONTEXT_ITEM_CHARS) {
+      throw new JudgmentKitInputError(
+        `context_items[${index}].content must contain 1-${MAX_ACTIVITY_CONTEXT_ITEM_CHARS} characters.`,
+      );
+    }
+
+    if (kind === "authoritative_source" && !sourceRef) {
+      throw new JudgmentKitInputError(
+        `context_items[${index}].source_ref is required for authoritative_source evidence.`,
+        {
+          code: "authoritative_source_ref_required",
+          details: { field: `context_items[${index}].source_ref` },
+        },
+      );
+    }
+
+    seenIds.add(id);
+
+    return {
+      id,
+      kind,
+      content,
+      ...(sourceRef ? { source_ref: sourceRef } : {}),
+      sha256: createHash("sha256").update(content).digest("hex"),
+    };
+  });
+}
+
+function buildActivitySourceInput(input, contextItems) {
+  if (typeof input !== "string" || input.trim().length === 0) {
+    throw new JudgmentKitInputError(
+      "analyzeImplementationBrief requires non-empty text input.",
+    );
+  }
+
+  return [input.trim(), ...contextItems.map((entry) => entry.content)].join("\n\n");
+}
+
+function activityContextSourceMetadata(contextItems) {
+  return contextItems.map(({ id, kind, source_ref, sha256 }) => ({
+    id,
+    kind,
+    ...(source_ref ? { source_ref } : {}),
+    sha256,
+  }));
+}
+
+function assertActivityContextContinuity(activityReview, contextItems) {
+  const requiredNonBriefSourceRefs = unique(
+    (activityReview?.activity_case?.claims ?? []).flatMap((claim) =>
+      (claim.source_refs ?? []).filter((ref) => ref !== "brief"),
+    ),
+  );
+
+  if (contextItems.length === 0) {
+    if (requiredNonBriefSourceRefs.length > 0) {
+      throw new JudgmentKitInputError(
+        "Resupply the attributed context relied on by this activity review before downstream validation.",
+        {
+          code: "activity_review_context_required",
+          details: {
+            field: "context_items",
+            required_source_refs: requiredNonBriefSourceRefs,
+          },
+        },
+      );
+    }
+    return;
+  }
+
+  const byId = (entries) =>
+    [...entries].sort((left, right) => left.id.localeCompare(right.id));
+  const expected = byId(
+    Array.isArray(activityReview?.source?.context_items)
+      ? activityReview.source.context_items
+      : [],
+  );
+  const observed = byId(activityContextSourceMetadata(contextItems));
+
+  if (
+    JSON.stringify(canonicalIntegrityValue(observed)) !==
+    JSON.stringify(canonicalIntegrityValue(expected))
+  ) {
+    throw new JudgmentKitInputError(
+      "The supplied context_items do not match the attributed context bound to the activity review.",
+      {
+        code: "activity_review_context_invalid",
+        details: {
+          field: "activity_review.source.context_items",
+        },
+      },
+    );
+  }
+}
+
+function assertActivityBriefContinuity(activityReview, input) {
+  const brief = optionalRawString(input)?.trim();
+  const expected = optionalString(activityReview?.source?.brief_sha256);
+  const observed = brief
+    ? createHash("sha256").update(brief).digest("hex")
+    : "";
+
+  if (!expected || observed !== expected) {
+    throw new JudgmentKitInputError(
+      "The source brief does not match the brief bound to the activity review.",
+      {
+        code: "activity_review_source_invalid",
+        details: { field: "activity_review.source.brief_sha256" },
+      },
+    );
+  }
+}
+
+function activityCaseSourceEntries(input, contextItems) {
+  return [
+    { id: "brief", kind: "brief", text: input },
+    ...contextItems.map((entry) => ({
+      id: entry.id,
+      kind: entry.kind,
+      text: entry.content,
+    })),
+  ];
+}
+
+function activityCasePolicy(contract) {
+  return isPlainObject(contract.activity_case_policy)
+    ? contract.activity_case_policy
+    : ACTIVITY_CASE_DEFAULT_POLICY;
+}
+
+function valueAtCandidatePath(candidate, pathValue) {
+  return pathValue.split(".").reduce(
+    (value, key) =>
+      isPlainObject(value) && Object.hasOwn(value, key)
+        ? value[key]
+        : undefined,
+    candidate,
+  );
+}
+
+function normalizedClaimStrings(value) {
+  if (typeof value === "string") {
+    const text = optionalString(value);
+    return text ? [text] : [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => normalizedClaimStrings(entry));
+  }
+
+  if (isPlainObject(value)) {
+    return Object.values(value).flatMap((entry) => normalizedClaimStrings(entry));
+  }
+
+  return [];
+}
+
+function sourceTextSupportsClaimValue(sourceInput, value) {
+  const sourceText = normalizeText(sourceInput);
+  const values = normalizedClaimStrings(value)
+    .map((entry) => normalizeText(entry))
+    .filter((entry) => entry.length >= 4);
+
+  return values.length > 0 && values.every((entry) => {
+    let start = sourceText.indexOf(entry);
+    while (start >= 0) {
+      if (!isNegatedMatch(sourceText, start, start + entry.length)) {
+        return true;
+      }
+      start = sourceText.indexOf(entry, start + 1);
+    }
+    return false;
+  });
+}
+
+const ACTIVITY_CLAIM_STOP_WORDS = new Set([
+  "a",
+  "an",
+  "and",
+  "as",
+  "at",
+  "be",
+  "for",
+  "from",
+  "in",
+  "is",
+  "of",
+  "or",
+  "should",
+  "the",
+  "to",
+  "user",
+  "whether",
+  "with",
+]);
+
+function normalizeActivityClaimToken(token) {
+  return token
+    .replace(/ing$/, "")
+    .replace(/ed$/, "")
+    .replace(/s$/, "")
+    .replace(/^approve$/, "approv")
+    .replace(/^decide$/, "decid");
+}
+
+function activityClaimTokens(value) {
+  return normalizedClaimStrings(value)
+    .join(" ")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .split(/\s+/)
+    .map(normalizeActivityClaimToken)
+    .filter((token) => token.length >= 3 && !ACTIVITY_CLAIM_STOP_WORDS.has(token));
+}
+
+function affirmedActivityClaimTokens(value) {
+  const text = normalizeText(value);
+  const tokens = [];
+
+  for (const match of text.matchAll(/\b[a-z0-9]+\b/g)) {
+    if (isNegatedMatch(text, match.index, match.index + match[0].length)) {
+      continue;
+    }
+    const token = normalizeActivityClaimToken(match[0]);
+    if (token.length >= 3 && !ACTIVITY_CLAIM_STOP_WORDS.has(token)) {
+      tokens.push(token);
+    }
+  }
+
+  return tokens;
+}
+
+function sourceSemanticallySupportsClaim(sourceInput, value) {
+  if (sourceTextSupportsClaimValue(sourceInput, value)) {
+    return true;
+  }
+
+  const claimValues = normalizedClaimStrings(value);
+  if (claimValues.length === 0) {
+    return false;
+  }
+
+  const sourceTokens = new Set(affirmedActivityClaimTokens(sourceInput));
+  return claimValues.every((claimValue) => {
+    const claimTokens = unique(activityClaimTokens(claimValue));
+    const matched = claimTokens.filter((token) => sourceTokens.has(token)).length;
+    return matched >= 2 && matched / claimTokens.length >= 0.5;
+  });
+}
+
+const IRREVERSIBLE_ACTION_VERB_SOURCE = [
+  String.raw`delet(?:e|es|ed|ing)(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:records?|data|logs?|backups?|accounts?|contracts?|evidence)\b)`,
+  String.raw`(?:wip(?:e|es|ed|ing)|remov(?:e|es|ed|ing)|expung(?:e|es|ed|ing))(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:records?|data|logs?|backups?|evidence)\b)`,
+  String.raw`cancel(?:s|ed|ing)?(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:accounts?|subscriptions?|contracts?)\b)`,
+  String.raw`(?:terminat(?:e|es|ed|ing|ion)|fir(?:e|es|ed|ing)|dismiss(?:es|ed|ing)?)(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:employees?|employment|staff|workers?|accounts?|contracts?|service)\b)`,
+  String.raw`suspend(?:s|ed|ing)?(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:users?|accounts?|employees?|access)\b)`,
+  String.raw`(?:disabl(?:e|es|ed|ing)|revok(?:e|es|ed|ing))(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:users?|accounts?|employees?|access|credentials?|sessions?|tokens?)\b)`,
+  String.raw`transfer(?:s|red|ring)?(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:funds?|money|assets?|securities)\b)`,
+  String.raw`(?:credit(?:s|ed|ing)?|charg(?:e|es|ed|ing)|debit(?:s|ed|ing)?|wir(?:e|es|ed|ing)|remit(?:s|ted|ting)?|submit(?:s|ted|ting)?)(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:money|funds?|payments?|accounts?|cards?)\b)`,
+  String.raw`(?:issu(?:e|es|ed|ing)|pay(?:s|ing)?|paid|process(?:es|ed|ing)?|disburs(?:e|es|ed|ing))(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:refunds?|invoices?|payments?|payouts?|funds?|money)\b)`,
+  String.raw`(?:send(?:s|ing)?|sent)(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:refunds?|invoices?|payments?|payouts?)\b(?!\s+(?:decision|recommendation|request|result|status|notice|receipt|record|summary|report|review|rationale|reason)\b))`,
+  String.raw`refund(?:s|ed|ing)?(?=\s+(?:(?:the|a|an)\s+)?(?:customers?|users?|accounts?|payments?|orders?)\b)`,
+  String.raw`(?:submit(?:s|ted|ting)?|fil(?:e|es|ed|ing))(?=(?:\s+[a-z0-9'-]+){0,4}\s+tax\s+(?:returns?|filings?)\b)`,
+  String.raw`submit(?:s|ted|ting)?(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:legal|regulatory)\s+filings?\b)`,
+  String.raw`send(?:s|ing)?(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:wire|bank)\s+transfers?\b)`,
+  String.raw`sent(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:wire|bank)\s+transfers?\b)`,
+  String.raw`(?:book(?:s|ed|ing)?|buy(?:s|ing)?|bought|sell(?:s|ing)?|sold|place(?:s|d|ing)?)(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:(?:securities|stock|market)\s+)?(?:trades?|orders?|stocks?|securities)\b)`,
+  String.raw`deploy(?:s|ed|ing|ment)?(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:production|prod)\s+(?:builds?|releases?|deployments?)\b)`,
+  String.raw`promot(?:e|es|ed|ing)(?=\s+(?:(?:the|a)\s+)?(?:builds?|releases?|deployments?)(?:\s+[a-z0-9'-]+){0,4}\s+to\s+(?:production|prod)\b)`,
+  String.raw`eras(?:e|es|ed|ing)(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:audit\s+logs?|records?|data|evidence)\b)`,
+  String.raw`purg(?:e|es|ed|ing)(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:backups?|logs?|records?|data|evidence)\b)`,
+  String.raw`clos(?:e|es|ed|ing)(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:bank|customer|user)?\s*accounts?\b)`,
+  String.raw`deactivat(?:e|es|ed|ing|ion)(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:accounts?|users?|access)\b)`,
+  String.raw`(?:overwrit(?:e|es|ing)|overwrote|overwritten)(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:signed|executed)\s+contracts?\b)`,
+  String.raw`destroy(?:s|ed|ing)?(?=(?:\s+[a-z0-9'-]+){0,4}\s+(?:evidence|records?|data|backups?)\b)`,
+].join("|");
+const IRREVERSIBLE_ACTION_PATTERN = new RegExp(
+  String.raw`\b(?:${IRREVERSIBLE_ACTION_VERB_SOURCE})\b`,
+);
+
+const PROTECTED_CLAIM_ACTION_PATTERNS = [
+  /\b(?:clear|clears|cleared|clearing)\b/,
+  /\b(?:discharg(?:e|es|ed|ing))\b/,
+  /\b(?:dosage|dose|doses|dosing)\b/,
+  /\b(?:prescrib(?:e|es|ed|ing)|prescription)\b/,
+  /\b(?:administer|administers|administered|administering)\b/,
+  /\b(?:diagnos(?:e|es|ed|ing|is))\b/,
+  /\b(?:approv(?:e|es|ed|ing)|approval)\b/,
+  /\b(?:deny|denies|denied|denial)\b/,
+  /\b(?:authoriz(?:e|es|ed|ing|ation))\b/,
+  /\b(?:permit|permits|permitted|permitting)\b/,
+  /\b(?:prohibit|prohibits|prohibited|prohibiting)\b/,
+  /\b(?:disclos(?:e|es|ed|ing|ure)|view|views|viewed|viewing|access|accesses|accessed|accessing|open|opens|opened|opening|browse|browses|browsed|browsing|share|shares|shared|sharing|reveal|reveals|revealed|revealing)\b/,
+  /\b(?:see|sees|seen|seeing|read|reads|reading|inspect|inspects|inspected|inspecting)\b/,
+  /\b(?:visible|available|accessible|shown|displayed|presented|rendered|provided|received|exposed)\b/,
+  /\b(?:show|shows|showing|display|displays|displaying|present|presents|presenting|render|renders|rendering|provide|provides|providing|receive|receives|receiving|expose|exposes|exposing|appear|appears|appeared|appearing)\b/,
+  /\b(?:commit|commits|committed|committing|execute|executes|executed|executing|finalize|finalizes|finalized|publish|publishes|published|release|releases|released)\b/,
+  /\b(?:final(?=(?: [a-z0-9'-]+){0,3} decision\b)|final call)\b/,
+  IRREVERSIBLE_ACTION_PATTERN,
+];
+const SENSITIVE_INFORMATION_PATTERNS = [
+  /\b(?:personal data|personally identifiable (?:data|information)|pii|phi|protected health information)\b/,
+  /\b(?:medical|health|patient) (?:data|information|records?)\b/,
+  /\b(?:employee|employment|personnel|human resources|hr)\s+(?:salary|salaries|pay|payroll|compensation|benefits?|performance reviews?|disciplinary|background|personnel|employment)\s*(?:data|details?|information|records?)?\b/,
+  /\b(?:salary|payroll|compensation|benefits?)\s+(?:data|details?|information|records?)\b/,
+  /\b(?:employee|customer|student|user|patient)\s+(?:home|mailing|physical|residential|email)\s+addresses?\b/,
+  /\b(?:employee|customer|student|user|patient)\s+(?:phone|telephone|mobile)\s+(?:numbers?|details?|information)\b/,
+  /\b(?:email|e-mail|home|mailing|physical|residential|ip|internet protocol)\s+addresses?\b/,
+  /\b(?:phone|telephone|mobile)\s+(?:numbers?|details?|information)\b/,
+  /\b(?:full|legal)\s+names?\b/,
+  /\b(?:dates?\s+of\s+birth|birth\s+dates?)\b/,
+  /\b(?:genetic|genomic)\s+(?:data|details?|information|records?|results?)\b/,
+  /\b(?:sexual orientation(?:\s+data)?|gender identity(?:\s+data)?|religious beliefs?|union membership|political opinions?|racial or ethnic origin|race or ethnicity|disability status|immigration status)\b/,
+  /\b(?:precise location|geolocation|location history)\s+(?:data|details?|information|records?)?\b/,
+  /\b(?:financial transactions?|transaction history|credit scores?|credit reports?|tax returns?|tax records?|insurance claims?)\b/,
+  /\b(?:student\s+(?:education|educational|academic)\s+records?|(?:student|education|educational|academic)\s+(?:data|information|records?|transcripts?|grades?))\b/,
+  /\b(?:criminal history|criminal records?|background check|background investigation)\s*(?:data|details?|information|records?)?\b/,
+  /\b(?:employee|employment|personnel)?\s*(?:performance ratings?|performance reviews?|disciplinary records?|background screening results?)\b/,
+  /\b(?:patient|clinical|medical)?\s*(?:lab results?|laboratory results?|test results?|therapy notes?|psychotherapy notes?|mental health records?)\b/,
+  /\b(?:credit|debit|payment) card (?:data|details?|numbers?)\b/,
+  /\bcustomer payment (?:data|details?|information)\b/,
+  /\b(?:card security codes?|cvvs?|cvcs?)\b/,
+  /\b(?:bank|financial) account (?:data|details?|numbers?)\b/,
+  /\b(?:routing|social security|tax identification|government id|passport|drivers?'? licenses?) numbers?\b/,
+  /\b(?:ssns?|tax ids?|government ids?|drivers?'? licenses?(?: numbers?)?|passcodes?|pins?|pin codes?)\b/,
+  /\bpasswords?\b(?!\s+(?:reset|recovery|policy|requirements?|rules?|status|strength|expiration|age)\b)/,
+  /\b(?:credentials?|api keys?|access tokens?|oauth(?: 2(?:\.0)?)? tokens?|auth(?:entication)? tokens?|session tokens?|recovery codes?|security answers?|secret keys?|api secrets?|private keys?)\b(?!\s+(?:expir\w*|rotation|status|inventory|metadata|lifecycle|age)\b)/,
+  /\bbiometric (?:data|information|identifiers?)\b/,
+];
+const SENSITIVE_DISCLOSURE_ACTION_PATTERNS = [
+  /^(?:view|see|read|inspect|access|open|browse|share|reveal|disclose|show|display|present|render|provide|receive|expose)\b/,
+  /\b(?:may|can|could|should|will)\s+(?!(?:not|never)\b)(?:\w+[\s,]+){0,5}(?:view|see|read|inspect|access|share|reveal|disclose)\b/,
+  /\b(?:is|are|was|were|be)\s+(?:allowed|permitted|authorized|able)\s+to\s+(?:view|see|read|inspect|access|share|reveal|disclose)\b/,
+  /\b(?:may|can|could|should|will)\s+(?!(?:not|never)\b)be\s+(?:viewed|seen|read|inspected|accessed|shared|revealed|disclosed)\b/,
+  /\b(?:visible|available|accessible|shown|displayed|presented|rendered|provided|exposed|revealed|disclosed|shared)\s+to\b/,
+  /\b(?:has|have|gets?|granted)\s+(?:\w+\s+){0,3}(?:access|visibility)\b/,
+  /\b(?:users?|participants?|customers?|agents?|leads?|managers?|reviewers?|operators?|analysts?|designers?|engineers?|clinicians?|nurses?|physicians?|doctors?|staff|teams?|administrators?|admins?)\b(?:\s+(?!(?:do|does|did|not|never|cannot)\b)\w+){0,4}\s+(?:view|see|read|inspect|access|share|reveal|disclose)\b/,
+  /\b(?:[a-z][a-z-]*\s+){0,3}(?:[a-z][a-z-]*s|people|staff)\s+(?:view|see|read|inspect|access|open|browse|share|reveal|disclose|show|display|present|render|provide|receive|expose|appear)\b/,
+  /\b[a-z][a-z-]*(?:\s+[a-z][a-z-]*){0,3}\s+(?:views|sees|reads|inspects|accesses|opens|browses|shares|reveals|discloses|shows|displays|presents|renders|provides|receives|exposes|appears)\b/,
+  /\b(?:shown|displayed|presented|rendered|provided|received|exposed)\b/,
+];
+
+function patternHasNegatedMatch(text, pattern) {
+  const globalPattern = toGlobalPattern(pattern);
+  for (const match of text.matchAll(globalPattern)) {
+    if (isNegatedMatch(text, match.index, match.index + match[0].length)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function sourceAffirmsProtectedClaim(sourceInput, value) {
+  const sourceText = stripRecommendationAuthorityLanguage(sourceInput);
+  const claimText = normalizeText(normalizedClaimStrings(value).join(" "));
+  const applicablePatterns = PROTECTED_CLAIM_ACTION_PATTERNS.filter(
+    (pattern) => pattern.test(claimText),
+  );
+
+  if (applicablePatterns.length === 0) {
+    return false;
+  }
+
+  return applicablePatterns.every((pattern) =>
+    hasAffirmedPattern(sourceText, pattern));
+}
+
+function sourceMatchesProtectedClaimPolarity(sourceInput, value) {
+  const sourceText = stripRecommendationAuthorityLanguage(sourceInput);
+  const claimText = normalizeText(normalizedClaimStrings(value).join(" "));
+  const applicablePatterns = PROTECTED_CLAIM_ACTION_PATTERNS.filter(
+    (pattern) => pattern.test(claimText),
+  );
+
+  if (applicablePatterns.length === 0) return false;
+
+  return applicablePatterns.every((pattern) => {
+    const claimAffirms = hasAffirmedPattern(claimText, pattern);
+    const claimNegates = patternHasNegatedMatch(claimText, pattern);
+    if (claimAffirms && !hasAffirmedPattern(sourceText, pattern)) return false;
+    if (claimNegates && !patternHasNegatedMatch(sourceText, pattern)) return false;
+    return claimAffirms || claimNegates;
+  });
+}
+
+const PROTECTED_ACTOR_STOP_TOKENS = new Set([
+  "and",
+  "assess",
+  "activity",
+  "case",
+  "can",
+  "check",
+  "compare",
+  "could",
+  "decid",
+  "decision",
+  "draft",
+  "edit",
+  "dollar",
+  "dollars",
+  "euro",
+  "euros",
+  "each",
+  "item",
+  "may",
+  "must",
+  "objective",
+  "only",
+  "participant",
+  "prepare",
+  "reach",
+  "request",
+  "review",
+  "shall",
+  "should",
+  "user",
+  "their",
+  "will",
+  "whether",
+]);
+
+function firstAffirmedProtectedActionMatch(value) {
+  const text = normalizeText(value);
+  let earliest = null;
+
+  for (const pattern of PROTECTED_CLAIM_ACTION_PATTERNS) {
+    for (const match of text.matchAll(toGlobalPattern(pattern))) {
+      if (isNegatedMatch(text, match.index, match.index + match[0].length)) {
+        continue;
+      }
+      if (!earliest || match.index < earliest.index) {
+        earliest = {
+          index: match.index,
+          end: match.index + match[0].length,
+          text: match[0],
+        };
+      }
+    }
+  }
+
+  return earliest;
+}
+
+function protectedClaimActorTokens(value) {
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  const action = firstAffirmedProtectedActionMatch(text);
+  if (!action) return [];
+
+  const clauseStart = Math.max(
+    text.lastIndexOf(".", action.index),
+    text.lastIndexOf(";", action.index),
+  ) + 1;
+  const prefix = text.slice(clauseStart, action.index);
+  const passive = /\b(?:is|are|was|were|be|been|being)\s*$/.test(prefix) ||
+    /^(?:visible|available|accessible|shown|displayed|presented|rendered|provided|received|exposed)\b/.test(action.text);
+  const actorText = passive
+    ? text.slice(action.end).match(
+        /^[^,.;]{0,120}\b(?:by|to)\s+(?:the\s+)?([^,.;]+)/,
+      )?.[1] ?? ""
+    : prefix;
+
+  return unique(activityClaimTokens(actorText)).filter(
+    (token) => !PROTECTED_ACTOR_STOP_TOKENS.has(token),
+  );
+}
+
+function protectedClaimActorsCompatible(sourceInput, value) {
+  const claimActors = protectedClaimActorTokens(value);
+  if (claimActors.length === 0) return true;
+
+  const sourceActors = protectedClaimActorTokens(sourceInput);
+  return sourceActors.length === claimActors.length &&
+    claimActors.every((token) => sourceActors.includes(token));
+}
+
+function protectedClaimScopeTokens(value) {
+  const actorTokens = new Set(protectedClaimActorTokens(value));
+  const constraintTokens = new Set(
+    authorityConstraintTokens(value).map(normalizeActivityClaimToken),
+  );
+  return authorityScopeTokens(value, []).filter(
+    (token) => !actorTokens.has(token) && !constraintTokens.has(token),
+  );
+}
+
+function protectedClaimScopeCompatible(sourceInput, value) {
+  if (!authorityConstraintsAllow(sourceInput, value)) return false;
+
+  const sourceScope = protectedClaimScopeTokens(sourceInput);
+  const claimScope = protectedClaimScopeTokens(value);
+  return claimScope.length > 0 &&
+    claimScope.every((token) => sourceScope.includes(token));
+}
+
+const PROTECTED_CONTEXT_RELEVANCE_STOP_TOKENS = new Set([
+  "access",
+  "administer",
+  "agent",
+  "analyst",
+  "approv",
+  "authoriz",
+  "browse",
+  "case",
+  "clear",
+  "commit",
+  "decid",
+  "decision",
+  "diagnose",
+  "disclos",
+  "display",
+  "dollar",
+  "euro",
+  "expose",
+  "inspect",
+  "manager",
+  "may",
+  "must",
+  "nurse",
+  "open",
+  "operator",
+  "other",
+  "outside",
+  "own",
+  "physician",
+  "pound",
+  "provide",
+  "read",
+  "receive",
+  "request",
+  "reveal",
+  "reviewer",
+  "see",
+  "share",
+  "show",
+  "specialist",
+  "staff",
+  "team",
+  "unassigned",
+  "user",
+  "view",
+  "visible",
+]);
+const PROTECTED_CONTEXT_GENERIC_DOMAIN_TOKENS = new Set([
+  "assigned",
+  "case",
+  "decision",
+  "item",
+  "outcome",
+  "record",
+  "request",
+]);
+
+function normalizedProtectedContextDomainToken(token) {
+  if (["clinical", "health", "healthcare", "medical", "phi"].includes(token)) {
+    return "medical";
+  }
+  return token;
+}
+
+function protectedContextRelevanceTokens(value) {
+  const actorTokens = new Set(protectedClaimActorTokens(value));
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  const tokens = unique(activityClaimTokens(value)).filter(
+    (token) =>
+      !/^\d/.test(token) &&
+      !actorTokens.has(token) &&
+      !PROTECTED_CONTEXT_RELEVANCE_STOP_TOKENS.has(token),
+  ).map(normalizedProtectedContextDomainToken);
+  if (
+    /\b(?:phi|protected health information|(?:medical|health|patient) (?:data|information|records?))\b/.test(
+      text,
+    )
+  ) {
+    tokens.push("medical_record");
+  }
+  return unique(tokens);
+}
+
+function protectedCandidateContextValue(candidate) {
+  return {
+    activity: candidate?.activity_model?.activity,
+    participants: candidate?.activity_model?.participants,
+    objective: candidate?.activity_model?.objective,
+    outcomes: candidate?.activity_model?.outcomes,
+    domain_vocabulary: candidate?.activity_model?.domain_vocabulary,
+    primary_decision: candidate?.interaction_contract?.primary_decision,
+    primary_decisions: candidate?.interaction_contract?.primary_decisions,
+    next_actions: candidate?.interaction_contract?.next_actions,
+    make_easy: candidate?.interaction_contract?.make_easy,
+    make_harder: candidate?.interaction_contract?.make_harder,
+    completion: candidate?.interaction_contract?.completion,
+  };
+}
+
+function protectedSourceIsRelevant(
+  entry,
+  candidate,
+  sourceBrief = "",
+  claimValue = undefined,
+) {
+  const sourceTokens = protectedContextRelevanceTokens(entry.text);
+  const candidateTokens = new Set(
+    [
+      ...protectedContextRelevanceTokens(protectedCandidateContextValue(candidate)),
+      ...protectedContextRelevanceTokens(sourceBrief),
+      ...protectedContextRelevanceTokens(claimValue),
+    ],
+  );
+  const overlappingDomainTokens = unique(sourceTokens.filter((token) =>
+    candidateTokens.has(token)));
+  const distinctiveDomainOverlap = overlappingDomainTokens.filter((token) =>
+    !PROTECTED_CONTEXT_GENERIC_DOMAIN_TOKENS.has(token));
+
+  const sourceActors = new Set(protectedClaimActorTokens(entry.text));
+  const candidateActors = new Set(
+    [
+      ...activityClaimTokens(candidate?.activity_model?.participants),
+      ...activityClaimTokens(sourceBrief),
+    ],
+  );
+  const actorOverlap = [...sourceActors].filter((token) =>
+    candidateActors.has(token));
+  const actorMatch = actorOverlap.length > 0;
+  const specializedDomainBridge =
+    actorMatch &&
+    candidateTokens.has("record") &&
+    sourceTokens.includes("medical_record");
+
+  return specializedDomainBridge ||
+    (distinctiveDomainOverlap.length > 0 &&
+      (overlappingDomainTokens.length >= 2 || actorMatch));
+}
+
+const AUTHORITATIVE_GOVERNING_RISK_CATEGORIES = new Set([
+  "authoritative_safety_rule",
+  "sensitive_disclosure_boundary",
+  "authoritative_irreversible_action",
+]);
+
+function protectedSourceRiskCategory(value) {
+  const ordinaryCategory = activityClaimRiskCategory({ value });
+  if (ordinaryCategory) return ordinaryCategory;
+
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  const referencesSensitiveInformation =
+    SENSITIVE_INFORMATION_PATTERNS.some((pattern) => pattern.test(text)) ||
+    /\b(?:sensitive|private|confidential)\b/.test(text);
+  const referencesDisclosureAction =
+    /\b(?:view|see|read|inspect|access|open|browse|share|reveal|disclose|show|display|present|render|provide|receive|expose|visible|available|accessible)\b/.test(
+      text,
+    );
+  if (referencesSensitiveInformation && referencesDisclosureAction) {
+    return "sensitive_disclosure_boundary";
+  }
+
+  const referencesIrreversibleAction =
+    /\b(?:commit|commits|committed|committing|execute|executes|executed|executing|finalize|finalizes|finalized|finalizing|publish|publishes|published|publishing|release(?:s|d|ing)|issue|issues|issued|issuing|pay|pays|paid|paying)\b/.test(
+      text,
+    ) || IRREVERSIBLE_ACTION_PATTERN.test(text);
+  if (
+    referencesIrreversibleAction &&
+    PROTECTED_CLAIM_ACTION_PATTERNS.some((pattern) =>
+      patternHasNegatedMatch(text, pattern))
+  ) {
+    return "authoritative_irreversible_action";
+  }
+
+  const referencesParticipantAction =
+    /\b(?:approv(?:e|es|ed|ing)|accept(?:s|ed|ing)?|deny|denies|denied|reject(?:s|ed|ing)?|authoriz(?:e|es|ed|ing)|permit(?:s|ted|ting)?|sign[\s-]?off|grant(?:s|ed|ing)?|commit(?:s|ted|ting)?|execute(?:s|d|ing)?|finalize(?:s|d|ing)?|publish(?:es|ed|ing)?|release(?:s|d|ing)?)\b/.test(
+      text,
+    );
+  if (
+    referencesParticipantAction &&
+    PROTECTED_CLAIM_ACTION_PATTERNS.some((pattern) =>
+      patternHasNegatedMatch(text, pattern))
+  ) {
+    return "participant_authority";
+  }
+
+  return null;
+}
+
+function resolveUnambiguousParticipantPronouns(value, candidate) {
+  const sentences = optionalString(value)
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+  if (sentences.length < 2) return optionalString(value);
+
+  const participants = normalizedClaimStrings(
+    candidate?.activity_model?.participants,
+  ).map((label) => ({ label, normalized: normalizeText(label) }));
+  for (let index = 1; index < sentences.length; index += 1) {
+    if (!/^they\b/i.test(sentences[index])) continue;
+    const previous = normalizeText(sentences[index - 1]);
+    const antecedents = participants.filter((participant) =>
+      previous.includes(participant.normalized));
+    if (antecedents.length === 1) {
+      sentences[index] = sentences[index].replace(
+        /^they\b/i,
+        antecedents[0].label,
+      );
+    }
+  }
+  return sentences.join(" ");
+}
+
+function sourceStatesAffirmativeParticipantGrant(value) {
+  const text = normalizeText(value);
+  return hasAffirmedPattern(
+    text,
+    /\b(?:may|can|must|shall|will)\s+(?!(?:not|never)\b)(?:[a-z0-9'-]+\s+){0,8}(?:approv(?:e|es)|accept(?:s)?|deny|denies|reject(?:s)?|grant(?:s)?|authoriz(?:e|es)|permit(?:s)?|sign[\s-]?off|commit(?:s)?|execute(?:s)?|finalize(?:s)?|publish(?:es)?|release(?:s)?|issue(?:s)?|pay(?:s)?)\b/,
+  ) || hasAffirmedPattern(
+    text,
+    /\b(?:is|are)\s+(?:allowed|authorized|permitted)\s+to\s+(?:approv(?:e)|accept|deny|reject|grant|authoriz(?:e)|permit|sign[\s-]?off|commit|execute|finalize|publish|release|issue|pay)\b/,
+  ) || hasAffirmedPattern(
+    text,
+    /\b(?:may|can|must|shall|will)\s+be\s+(?:approved|accepted|denied|rejected|granted|authorized|permitted|committed|executed|finalized|published|released|issued|paid)\b[^.;]{0,120}\bby\s+(?:the\s+)?[a-z][a-z-]*(?:\s+[a-z][a-z-]*){0,3}\b/,
+  );
+}
+
+function sourceStatesRestrictiveParticipantBoundary(value) {
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  return PROTECTED_CLAIM_ACTION_PATTERNS.some((pattern) =>
+    patternHasNegatedMatch(text, pattern));
+}
+
+function contextualProtectedRiskEvidence(
+  sourceEntries,
+  claim,
+  candidate,
+  sourceBrief = "",
+) {
+  if (
+    claim.path === "interaction_contract.make_harder" ||
+    claim.path === "interaction_contract.user_does_not_think_about_work_as" ||
+    claim.path === "activity_model.domain_vocabulary" ||
+    claim.path === "activity_model.existing_tools_artifacts" ||
+    (
+      claim.path === "disclosure_policy.terms_to_use" &&
+      !isRoleQualifiedAuthorityNoun(claim.value, candidate)
+    )
+  ) {
+    return null;
+  }
+
+  const value = claim.value;
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  if (
+    /\b(?:decision|outcome)\s+(?:(?:is|was|will be)\s+)?(?:recorded|documented|shown|displayed|available)\b/.test(text) &&
+    !/\b(?:may|can|must|shall|should|authorized|permitted|prohibited)\b/.test(text)
+  ) {
+    return null;
+  }
+  if (
+    /\b(?:report|release|publication|deployment|payment|action|decision|outcome)\s+(?:is|was|has been|will be)\s+(?:published|released|executed|committed|finalized|issued|paid)\b/.test(
+      text,
+    ) ||
+    /\b(?:published|released|executed|committed|finalized|issued|paid)\s+(?:report|release|publication|deployment|payment|action|decision|outcome)\b[^.;]{0,100}\b(?:is|are|was|were|has been|have been|verified|recorded|available|complete|completed)\b/.test(
+      text,
+    )
+  ) {
+    return null;
+  }
+  const evidence = [];
+  for (const sourceEntry of sourceEntries) {
+    const entry = {
+      ...sourceEntry,
+      text: resolveUnambiguousParticipantPronouns(
+        sourceEntry.text,
+        candidate,
+      ),
+    };
+    const candidateRisk = activityClaimRiskCategory(claim);
+    let sourceRisk = protectedSourceRiskCategory(entry.text);
+    if (
+      candidateRisk === "participant_authority" &&
+      sourceStatesAffirmativeParticipantGrant(entry.text)
+    ) {
+      sourceRisk = "participant_authority";
+    } else if (
+      candidateRisk === "authoritative_irreversible_action" &&
+      /\b(?:commit|commits|committed|execute|executes|executed|finalize|finalizes|finalized|publish|publishes|published|release|releases|released|issue|issues|issued|pay|pays|paid)\b/.test(
+        normalizeText(entry.text),
+      )
+    ) {
+      sourceRisk = "authoritative_irreversible_action";
+    }
+    if (
+      (sourceRisk === "participant_authority" &&
+        !["brief", "user_answer", "authoritative_source"].includes(entry.kind)) ||
+      !protectedSourceIsRelevant(entry, candidate, sourceBrief, value)
+    ) {
+      continue;
+    }
+    const sourceAffirmsCandidateAction =
+      sourceAffirmsProtectedClaim(entry.text, value) ||
+      (
+        sourceRisk === "sensitive_disclosure_boundary" &&
+        hasAffirmedAny(entry.text, SENSITIVE_DISCLOSURE_ACTION_PATTERNS) &&
+        (
+          hasAffirmedAny(text, SENSITIVE_DISCLOSURE_ACTION_PATTERNS) ||
+          hasAffirmedPattern(
+            text,
+            /\b(?:open|opens|opened|opening|browse|browses|browsed|browsing)\b/,
+          )
+        )
+      );
+    const sourceSharesCandidateAction = PROTECTED_CLAIM_ACTION_PATTERNS.some(
+      (pattern) => pattern.test(text) && pattern.test(normalizeText(entry.text)),
+    );
+    if (!sourceAffirmsCandidateAction && !sourceSharesCandidateAction) continue;
+    const participantGrantAvailable =
+      sourceRisk === "participant_authority" &&
+      protectedClaimActorTokens(entry.text).length > 0 &&
+      sourceStatesAffirmativeParticipantGrant(entry.text);
+    const multipleParticipants = normalizedClaimStrings(
+      candidate?.activity_model?.participants,
+    ).length > 1;
+    const actorlessParticipantBoundary =
+      sourceRisk === "participant_authority" &&
+      multipleParticipants &&
+      protectedClaimActorTokens(value).length === 0;
+    const boundaryCompatible =
+      (
+        protectedClaimBoundaryCompatibleForCandidate(
+          entry.text,
+          value,
+          candidate,
+        ) ||
+        (
+          sourceRisk === "sensitive_disclosure_boundary" &&
+          protectedSensitiveViewBoundaryCompatibleForCandidate(
+            entry.text,
+            value,
+            candidate,
+          )
+        ) ||
+        (
+          claim.path === "disclosure_policy.terms_to_use" &&
+          sourceRisk === "participant_authority" &&
+          protectedRoleQualifiedAuthorityNounCompatible(
+            entry.text,
+            value,
+            candidate,
+          )
+        )
+      ) &&
+      !actorlessParticipantBoundary;
+    if (
+      sourceRisk === "participant_authority" &&
+      participantGrantAvailable &&
+      activityClaimRiskCategory(claim) === "participant_authority"
+    ) {
+      evidence.push({
+        risk_category: sourceRisk,
+        context_boundary_expected: !boundaryCompatible,
+        context_participant_grant_available:
+          participantGrantAvailable && boundaryCompatible,
+      });
+      continue;
+    }
+    if (
+      sourceRisk === "participant_authority" &&
+      sourceStatesRestrictiveParticipantBoundary(entry.text) &&
+      activityClaimRiskCategory(claim) === "participant_authority"
+    ) {
+      evidence.push({
+        risk_category: sourceRisk,
+        context_boundary_expected: true,
+        context_participant_grant_available: false,
+      });
+      continue;
+    }
+    if (
+      sourceRisk === "sensitive_disclosure_boundary" &&
+      (
+        hasAffirmedAny(text, SENSITIVE_DISCLOSURE_ACTION_PATTERNS) ||
+        hasAffirmedPattern(
+          text,
+          /\b(?:open|opens|opened|opening|browse|browses|browsed|browsing)\b/,
+        )
+      )
+    ) {
+      evidence.push({
+        risk_category: sourceRisk,
+        context_boundary_expected: !boundaryCompatible,
+        context_authoritative_source_available:
+          entry.kind === "authoritative_source",
+      });
+      continue;
+    }
+    if (
+      sourceRisk === "authoritative_safety_rule" &&
+      hasAffirmedPattern(
+        text,
+        /\b(?:clear|clears|cleared|clearing|discharg(?:e|es|ed|ing)|dose|doses|dosed|dosing|dosage|prescrib(?:e|es|ed|ing)|administer|administers|administered|administering|diagnos(?:e|es|ed|ing|is))\b/,
+      )
+    ) {
+      evidence.push({
+        risk_category: sourceRisk,
+        context_boundary_expected: !boundaryCompatible,
+        context_authoritative_source_available:
+          entry.kind === "authoritative_source",
+      });
+      continue;
+    }
+    if (sourceRisk === "authoritative_irreversible_action") {
+      evidence.push({
+        risk_category: sourceRisk,
+        context_boundary_expected: !boundaryCompatible,
+        context_authoritative_source_available:
+          entry.kind === "authoritative_source",
+      });
+    }
+  }
+  if (evidence.length === 0) return null;
+
+  const selectedRisk = evidence.find((entry) =>
+    AUTHORITATIVE_GOVERNING_RISK_CATEGORIES.has(entry.risk_category))
+    ?.risk_category ?? evidence[0].risk_category;
+  const matchingEvidence = evidence.filter((entry) =>
+    entry.risk_category === selectedRisk);
+  return {
+    risk_category: selectedRisk,
+    context_boundary_expected:
+      !matchingEvidence.some((entry) => !entry.context_boundary_expected),
+    ...(AUTHORITATIVE_GOVERNING_RISK_CATEGORIES.has(selectedRisk)
+      ? {
+          context_authoritative_source_available: matchingEvidence.some(
+            (entry) => entry.context_authoritative_source_available === true,
+          ),
+        }
+      : {
+          context_participant_grant_available: matchingEvidence.some(
+            (entry) => entry.context_participant_grant_available === true,
+          ),
+        }),
+  };
+}
+
+function protectedClaimBoundaryCompatible(sourceInput, value) {
+  const sourceClauses = normalizeText(sourceInput)
+    .split(/(?:[.;!?]+|\b(?:but|however|whereas|while)\b)/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  const protectedValues = normalizedClaimStrings(value)
+    .map(normalizeText)
+    .filter((entry) =>
+      PROTECTED_CLAIM_ACTION_PATTERNS.some((pattern) => pattern.test(entry)));
+  if (protectedValues.length === 0) return false;
+
+  return protectedValues.every((claimText) => {
+    const claimActors = protectedClaimActorTokens(claimText);
+    const candidateSourceClauses = claimText.includes(",")
+      ? sourceClauses
+      : sourceClauses.flatMap((clause) =>
+          clause.split(/,(?!\d)/).map((entry) => entry.trim()).filter(Boolean));
+    return candidateSourceClauses.some((clause) => {
+      const sourceActors = protectedClaimActorTokens(clause);
+      const actorsCompatible =
+        sourceActors.length === claimActors.length &&
+        claimActors.every((token) => sourceActors.includes(token));
+      const exactClauseMatch =
+        clause.replace(/[,:;.!?]+$/g, "").trim() ===
+        claimText.replace(/[,:;.!?]+$/g, "").trim();
+      return actorsCompatible &&
+        sourceMatchesProtectedClaimPolarity(clause, claimText) &&
+        (
+          exactClauseMatch ||
+          protectedClaimScopeCompatible(clause, claimText)
+        );
+    });
+  });
+}
+
+function protectedClaimBoundaryCompatibleForCandidate(
+  sourceInput,
+  value,
+  candidate,
+) {
+  if (protectedClaimBoundaryCompatible(sourceInput, value)) return true;
+
+  const participants = normalizedClaimStrings(
+    candidate?.activity_model?.participants,
+  );
+  const actorTokens = protectedClaimActorTokens(value);
+  const valueText = normalizeText(normalizedClaimStrings(value).join(" "));
+  let resolvedValue = "";
+  if (actorTokens.length === 0 && participants.length === 1) {
+    resolvedValue = `${participants[0]} ${valueText}`;
+  } else if (actorTokens.length > 0) {
+    const matchingParticipants = participants.filter((participant) => {
+      const participantTokens = activityClaimTokens(participant);
+      return actorTokens.every((token) => participantTokens.includes(token));
+    });
+    const action = firstAffirmedProtectedActionMatch(valueText);
+    if (matchingParticipants.length === 1 && action) {
+      resolvedValue = `${matchingParticipants[0]} ${valueText.slice(action.index)}`;
+    }
+  }
+  if (!resolvedValue) return false;
+
+  return protectedClaimBoundaryCompatible(
+    sourceInput,
+    resolvedValue,
+  );
+}
+
+function isRoleQualifiedAuthorityNoun(value, candidate) {
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  const action = firstAffirmedProtectedActionMatch(text);
+  if (
+    !action ||
+    !/^(?:approval|denial|authorization|permission|prohibition|commitment|execution|publication|release|prescription)$/.test(
+      action.text,
+    )
+  ) {
+    return false;
+  }
+  const actorTokens = activityClaimTokens(text.slice(0, action.index));
+  if (actorTokens.length === 0) return false;
+  return normalizedClaimStrings(candidate?.activity_model?.participants).some(
+    (participant) => {
+      const participantTokens = activityClaimTokens(participant);
+      return actorTokens.every((token) => participantTokens.includes(token));
+    },
+  );
+}
+
+function protectedRoleQualifiedAuthorityNounCompatible(
+  sourceInput,
+  value,
+  candidate,
+) {
+  if (!isRoleQualifiedAuthorityNoun(value, candidate)) return false;
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  const action = firstAffirmedProtectedActionMatch(text);
+  const actorTokens = activityClaimTokens(text.slice(0, action.index));
+  const matchingParticipants = normalizedClaimStrings(
+    candidate?.activity_model?.participants,
+  ).filter((participant) => {
+    const participantTokens = activityClaimTokens(participant);
+    return actorTokens.every((token) => participantTokens.includes(token));
+  });
+  if (matchingParticipants.length !== 1) return false;
+
+  const participantTokens = activityClaimTokens(matchingParticipants[0]);
+  const sourceActors = protectedClaimActorTokens(sourceInput);
+  return (
+    sourceActors.length === participantTokens.length &&
+    participantTokens.every((token) => sourceActors.includes(token)) &&
+    sourceMatchesProtectedClaimPolarity(
+      sourceInput,
+      `${matchingParticipants[0]} ${action.text}`,
+    )
+  );
+}
+
+const SENSITIVE_VIEW_ACTION_PATTERN =
+  /\b(?:view|views|viewed|viewing|see|sees|seen|seeing|read|reads|reading|inspect|inspects|inspected|inspecting|access|accesses|accessed|accessing|open|opens|opened|opening|browse|browses|browsed|browsing)\b/;
+const SENSITIVE_ACTIVE_DISCLOSURE_PATTERN =
+  /\b(?:share|shares|shared|sharing|reveal|reveals|revealed|revealing|disclose|discloses|disclosed|disclosing|show|shows|showing|display|displays|displaying|present|presents|presenting|render|renders|rendering|provide|provides|providing|expose|exposes|exposing)\b/;
+
+function protectedSensitiveViewBoundaryCompatibleForCandidate(
+  sourceInput,
+  value,
+  candidate,
+) {
+  const sourceText = stripRecommendationAuthorityLanguage(sourceInput);
+  const valueText = stripRecommendationAuthorityLanguage(value);
+  const sourceIsViewOnly =
+    (
+      hasAffirmedPattern(sourceText, SENSITIVE_VIEW_ACTION_PATTERN) ||
+      isPassiveSensitiveAvailabilityToViewer(sourceText)
+    ) &&
+    !hasAffirmedPattern(sourceText, SENSITIVE_ACTIVE_DISCLOSURE_PATTERN);
+  const valueIsViewOnly =
+    (
+      hasAffirmedPattern(valueText, SENSITIVE_VIEW_ACTION_PATTERN) ||
+      isPassiveSensitiveAvailabilityToViewer(valueText)
+    ) &&
+    !hasAffirmedPattern(valueText, SENSITIVE_ACTIVE_DISCLOSURE_PATTERN);
+  if (!sourceIsViewOnly || !valueIsViewOnly) return false;
+
+  const participants = normalizedClaimStrings(
+    candidate?.activity_model?.participants,
+  );
+  const valueWithActor =
+    protectedClaimActorTokens(value).length === 0 && participants.length === 1
+      ? `${participants[0]} ${normalizedClaimStrings(value).join(" ")}`
+      : normalizedClaimStrings(value).join(" ");
+  return (
+    protectedClaimActorsCompatible(sourceInput, valueWithActor) &&
+    protectedClaimScopeCompatible(sourceInput, valueWithActor)
+  );
+}
+
+function validatedClaimSourceRefs(
+  sourceEntries,
+  value,
+  { exact = false, risk_claim: riskClaim = null } = {},
+) {
+  const supports = exact
+    ? sourceTextSupportsClaimValue
+    : sourceSemanticallySupportsClaim;
+  const riskCategory = riskClaim
+    ? activityClaimRiskCategory(riskClaim)
+    : null;
+
+  return sourceEntries
+    .filter((entry) => {
+      const boundaryCompatible = !riskCategory ||
+        protectedClaimBoundaryCompatible(entry.text, value);
+      return (
+        supports(entry.text, value) ||
+        (Boolean(riskCategory) && boundaryCompatible)
+      ) &&
+        (
+          !riskCategory ||
+          activityClaimRiskCategory({ value: entry.text }) === riskCategory
+        ) &&
+        boundaryCompatible;
+    })
+    .map((entry) => entry.id);
+}
+
+function claimOriginForSourceRefs(sourceRefs, sourceEntries) {
+  if (sourceRefs.length === 0) {
+    return "model_inferred";
+  }
+
+  const supportingEntries = sourceEntries.filter((entry) =>
+    sourceRefs.includes(entry.id));
+  return supportingEntries.every((entry) =>
+    ["workspace_evidence", "provided_artifact"].includes(entry.kind))
+    ? "workspace_observed"
+    : "source_supported";
+}
+
+function inferredClaimOrigin(suppliedClaim) {
+  return suppliedClaim?.declared_origin === "convention_assumed"
+    ? "convention_assumed"
+    : "model_inferred";
+}
+
+function normalizeClaimLevel(value, allowed, fallback) {
+  const normalized = optionalString(value).toLowerCase();
+  return allowed.includes(normalized) ? normalized : fallback;
+}
+
+function normalizeSuppliedActivityClaims(candidate) {
+  if (candidate.claims === undefined) {
+    return [];
+  }
+
+  if (!Array.isArray(candidate.claims)) {
+    throw new JudgmentKitInputError("Activity model candidate claims must be an array.");
+  }
+
+  return candidate.claims.map((claim, index) => {
+    if (!isPlainObject(claim)) {
+      throw new JudgmentKitInputError(`Activity model candidate claims[${index}] must be an object.`);
+    }
+
+    const pathValue = optionalString(claim.path);
+    if (!pathValue) {
+      throw new JudgmentKitInputError(
+        `Activity model candidate claims[${index}] requires a non-empty path.`,
+      );
+    }
+
+    return {
+      id: optionalString(claim.id) || `candidate_claim_${index + 1}`,
+      path: pathValue,
+      value: claim.value,
+      declared_origin: optionalString(claim.origin),
+      confidence: normalizeClaimLevel(
+        claim.confidence,
+        ["low", "medium", "high"],
+        "medium",
+      ),
+      materiality: normalizeClaimLevel(
+        claim.materiality,
+        ["low", "medium", "high"],
+        "medium",
+      ),
+      alternatives: toStringArray(claim.alternatives),
+      impact_if_wrong: optionalString(claim.impact_if_wrong),
+      reversibility: normalizeClaimLevel(
+        claim.reversibility,
+        ["easy", "costly", "unsafe"],
+        "easy",
+      ),
+    };
+  });
+}
+
+function activityClaimRiskCategory(claim) {
+  if ([
+    "participant_authority",
+    "authoritative_safety_rule",
+    "sensitive_disclosure_boundary",
+    "authoritative_irreversible_action",
+  ].includes(claim?.risk_category)) {
+    return claim.risk_category;
+  }
+
+  if (
+    claim.path === "interaction_contract.make_harder" ||
+    claim.path === "interaction_contract.user_does_not_think_about_work_as" ||
+    claim.path === "activity_model.domain_vocabulary" ||
+    claim.path === "activity_model.existing_tools_artifacts" ||
+    claim.path === "disclosure_policy.terms_to_use"
+  ) {
+    return null;
+  }
+
+  const claimValueText = normalizeText(
+    [
+      ...normalizedClaimStrings(claim.value),
+      claim.impact_if_wrong,
+      ...(claim.alternatives ?? []),
+    ].filter(Boolean).join(" "),
+  );
+  const text = normalizeText(
+    [
+      claim.id,
+      claim.path,
+      claimValueText,
+    ].filter(Boolean).join(" "),
+  );
+  const authorityText = text
+    .replace(
+      /\b(?:recommend(?:ed|ing|ation)?|suggest(?:ed|ing|ion)?|propos(?:e|ed|ing|al)|advis(?:e|ed|ing)|advice)\s+(?:an?\s+)?approval\b/g,
+      "",
+    )
+    .replace(
+      /\bapproval\s+(?:recommend(?:ed|ing|ation)?|suggest(?:ed|ing|ion)?|propos(?:e|ed|ing|al)|advis(?:e|ed|ing)|advice)\b/g,
+      "",
+    );
+  const descriptiveRecordedDecision =
+    /\b(?:decision|outcome)\s+(?:(?:is|was|will be)\s+)?(?:recorded|documented|shown|displayed|available)\b/.test(claimValueText) &&
+    !/\b(?:may|can|must|shall|should|authorized|permitted|prohibited)\b/.test(claimValueText);
+  if (descriptiveRecordedDecision) {
+    return null;
+  }
+  const passiveDecisionOption =
+    /\b(?:whether|decide|decides|deciding|choose|chooses|choosing|determine|determines|determining)\b[^.;]{0,160}\b(?:should|could|may|can|will)\s+be\s+(?:approved|accepted|denied|rejected|authorized|permitted|committed|executed|finalized|published|released)\b/.test(
+      claimValueText,
+    );
+  const passiveIrreversibleStatus =
+    /\b(?:report|refund|request|release|publication|deployment|payment|action|decision|outcome)\s+(?:is|was|has been|will be|has a|have a)\s+(?:published|released|executed|committed|finalized|issued|paid)\b/.test(
+      claimValueText,
+    ) ||
+    /\b(?:report|refund|request|release|publication|deployment|payment|action|decision|outcome)\s+(?:is|was|has been|will be|has a|have a)\s+(?:committed|published|released|executed|finalized|issued|paid)\s+(?:report|refund|request|release|publication|deployment|payment|action|decision|outcome)\b/.test(
+      claimValueText,
+    ) ||
+    /\b(?:published|released|executed|committed|finalized|issued|paid)\s+(?:report|release|publication|deployment|payment|action|decision|outcome)\b[^.;]{0,100}\b(?:is|are|was|were|has been|have been|verified|recorded|available|complete|completed)\b/.test(
+      claimValueText,
+    );
+  const nonExecutingProtectedArtifactReference =
+    /\b(?:prepare|draft|edit|review|read|inspect|compare|show|display|record|receive|open|browse|summarize|check)\s+(?:an?\s+|the\s+)?(?:release notes?|published reports?|published documents?|published content|prescription labels?|prescription history|discharge summar(?:y|ies)|discharge instructions?|discharge records?|dosage instructions?|contraindication lists?)\b/.test(
+      claimValueText,
+    );
+  const explicitIrreversibleAction = hasAffirmedPattern(
+    claimValueText,
+    /\b(?:may|can|must|shall|will|to)\s+(?:commit|execute|finalize|publish|release|issue|pay)\b|^(?:(?:[a-z][a-z-]*\s+){0,4})?(?:commit|commits|execute|executes|finalize|finalizes|publish|publishes|release|releases|issue|issues|pay|pays)\b/,
+  ) || hasAffirmedPattern(claimValueText, IRREVERSIBLE_ACTION_PATTERN);
+  if (passiveIrreversibleStatus && !explicitIrreversibleAction) {
+    return null;
+  }
+  const directSafetyRule =
+    /\b(?:safety|unsafe|hazard|emergency)\b/.test(claimValueText) &&
+    /\b(?:rule|require(?:ment|d)?|decision|must|shall|authoriz(?:e|es|ed|ing|ation)|permit|permits|permitted|prohibit|prohibits|prohibited|clear|clears|cleared|approv(?:e|es|ed|ing|al)|eligible|eligibility)\b/.test(claimValueText);
+  const highRiskAction =
+    !nonExecutingProtectedArtifactReference &&
+    (
+      /\b(?:discharge|dosage|dose|prescrib(?:e|es|ed|ing)|prescription|contraindication)\b/.test(claimValueText) ||
+      (/\badminister(?:s|ed|ing)?\b/.test(claimValueText) &&
+        /\b(?:clinical|drug|medical|medication|medicine|patient|treatment|vaccine)\b/.test(claimValueText))
+    );
+  const qualifiedSafe =
+    /\bsafe\b/.test(claimValueText) &&
+    /\b(?:patient|clinical|medical|medication|discharge|dosage|dose|prescrib(?:e|es|ed|ing)|prescription|hazard|emergency)\b/.test(claimValueText);
+  const clinicalDomain =
+    /\b(?:clinical|medical|patient|clinician|medication)\b/.test(claimValueText);
+  const clinicalDecision =
+    /\b(?:rule|require(?:ment|d)?|decision|discharge|diagnos(?:e|is)|treat(?:ment)?|prescrib(?:e|ing)|clear|approv(?:e|al)|authoriz(?:e|ation)|eligib(?:le|ility)|consent|permit|prohibit)\b/.test(claimValueText);
+  const legalOrRegulatoryDomain =
+    /\b(?:legal|law|laws|lawyer|lawyers|attorney|attorneys|counsel|court|courts|judge|judges|judicial|statut(?:e|es|ory)|regulat(?:e|es|ed|ing|ion|ions|or|ors|ory)|compliance|license|licenses|licensing|settlement|settlements)\b/.test(claimValueText);
+  const governingLegalOrRegulatoryAction =
+    /\b(?:governing|applicable|binding)\s+(?:legal\s+|regulatory\s+)?(?:rule|requirement|decision)\b/.test(claimValueText) ||
+    /\b(?:legal|regulatory|compliance)\s+(?:rule|requirement|authorization)\b/.test(claimValueText) ||
+    /\b(?:requires?|mandates?|must|shall|approv(?:e|es|ed|ing|al)|accept(?:s|ed|ing)?|den(?:y|ies|ied|ying|ial)|reject(?:s|ed|ing|ion)?|authoriz(?:e|es|ed|ing|ation)|eligib(?:le|ility)|consent|permits?|permitted|prohibit(?:s|ed|ing)?|waiv(?:e|es|ed|ing|er)|sign[\s-]?off|compli(?:ant|ance|es|ed|ing)|violat(?:e|es|ed|ing|ion)|lawful|unlawful|enforc(?:e|es|ed|ing|ement))\b/.test(claimValueText) ||
+    /\b(?:make|issue|render|enter|finalize|commit)\s+(?:a|an|the)?\s*(?:final|binding|legal|regulatory)?\s*decision\b/.test(claimValueText) ||
+    /\b(?:decide|determine|conclude|rule)\s+(?:whether|that)\b[^.]{0,120}\b(?:lawful|unlawful|compliant|required|permitted|prohibited|authorized|eligible)\b/.test(claimValueText);
+  const directSensitiveData = hasAffirmedAny(
+    claimValueText,
+    SENSITIVE_INFORMATION_PATTERNS,
+  );
+  const sensitiveDescriptor =
+    /\b(?:sensitive|private|confidential)\b/.test(claimValueText);
+  const disclosureBoundary =
+    hasAffirmedAny(claimValueText, SENSITIVE_DISCLOSURE_ACTION_PATTERNS) ||
+    hasAffirmedPattern(
+      claimValueText,
+      /\b(?:disclos(?:e|es|ed|ing|ure)|visibility boundary|access to|shar(?:e|es|ed|ing)|reveal(?:s|ed|ing)?)\b/,
+    );
+
+  if (
+    directSafetyRule ||
+    highRiskAction ||
+    qualifiedSafe ||
+    (clinicalDomain && clinicalDecision) ||
+    (legalOrRegulatoryDomain && governingLegalOrRegulatoryAction)
+  ) {
+    return "authoritative_safety_rule";
+  }
+
+  if ((directSensitiveData || sensitiveDescriptor) && disclosureBoundary) {
+    return "sensitive_disclosure_boundary";
+  }
+
+  const irreversibleActionBearingPath =
+    !claim.path ||
+    (
+      optionalString(claim.path).startsWith("interaction_contract.") &&
+      ![
+        "interaction_contract.completion",
+        "interaction_contract.make_harder",
+        "interaction_contract.user_does_not_think_about_work_as",
+      ].includes(claim.path)
+    );
+  const irreversibleStatusDescription =
+    /\b(?:report|release|publication|deployment|payment|action|decision|outcome)\s+(?:is|was|has been|will be)\s+(?:published|released|executed|committed|finalized|issued|paid)\b/.test(
+      claimValueText,
+    ) ||
+    /\b(?:published|released|executed|committed|finalized|issued|paid)\s+(?:report|release|publication|deployment|payment|action|decision|outcome)\s+(?:is|was|has been|will be|exists|is recorded|is complete)\b/.test(
+      claimValueText,
+    ) || passiveIrreversibleStatus;
+  const irreversibleAction =
+    irreversibleActionBearingPath &&
+    !irreversibleStatusDescription &&
+    !nonExecutingProtectedArtifactReference &&
+    (
+      hasAffirmedPattern(
+        authorityText,
+        /\b(?:commit|commits|committed|committing|execute|executes|executed|executing|finalize|finalizes|finalized|finalizing|publish|publishes|published|release|releases|released|issue|issues|issued|issuing|pay|pays|paid|paying)\b/,
+      ) ||
+      hasAffirmedPattern(authorityText, IRREVERSIBLE_ACTION_PATTERN)
+    ) &&
+    !/^release risk$/.test(claimValueText) &&
+    !/\b(?:review|inspect|compare|assess|track|monitor|show|display|record|receive)\b[^.;]{0,80}\b(?:release|publication|execution|commitment)\b(?:\s+(?:risk|status|history|record|receipt))?\b/.test(
+      claimValueText,
+    );
+  if (irreversibleAction) {
+    return "authoritative_irreversible_action";
+  }
+
+  if (
+    !passiveDecisionOption &&
+    hasAffirmedPattern(
+      authorityText,
+      /\b(?:authority|permission|authoriz(?:e|es|ed|ing|ation)|approv(?:e|es|ed|ing)|accept(?:s|ed|ing)?|reject(?:s|ed|ing)?|grant(?:s|ed|ing)?|sign[\s-]?off|approval rights?|final approval|commit(?:s|ted|ting)?|final decision|execute the action)\b/,
+    ) ||
+    (hasAffirmedPattern(
+      authorityText,
+      /\b(?:issue|issues|issued|issuing|pay|pays|paid|paying)\b/,
+    ) &&
+      /\b(?:refund|payment|payout|credit)\b/.test(authorityText))
+  ) {
+    return "participant_authority";
+  }
+
+  return null;
+}
+
+function unresolvedAmbiguityForClaim(claim) {
+  const riskCategory = activityClaimRiskCategory(claim);
+  const authoritativeSourceRefs = Array.isArray(claim.authoritative_source_refs)
+    ? claim.authoritative_source_refs
+    : [];
+  if (
+    AUTHORITATIVE_GOVERNING_RISK_CATEGORIES.has(riskCategory) &&
+    (
+      authoritativeSourceRefs.length > 0 ||
+      claim.context_authoritative_source_available === true
+    ) &&
+    claim.context_boundary_expected !== true
+  ) {
+    return null;
+  }
+  if (
+    !AUTHORITATIVE_GOVERNING_RISK_CATEGORIES.has(riskCategory) &&
+    (
+      claim.origin === "source_supported" ||
+      claim.context_participant_grant_available === true
+    ) &&
+    claim.context_boundary_expected !== true &&
+    claim.context_participant_grant_available !== false
+  ) {
+    return null;
+  }
+  if (claim.origin === "workspace_observed" && !riskCategory) {
+    return null;
+  }
+  if (riskCategory === "authoritative_safety_rule") {
+    const authoritativeSourceAvailable =
+      authoritativeSourceRefs.length > 0 ||
+      claim.context_authoritative_source_available === true;
+    return {
+      id: `ambiguity_${claim.id}`,
+      claim_id: claim.id,
+      category: riskCategory,
+      materiality: "high",
+      resolution: authoritativeSourceAvailable && claim.context_boundary_expected
+        ? "candidate_revision"
+        : "authoritative_source",
+      alternatives: claim.alternatives,
+      question: authoritativeSourceAvailable && claim.context_boundary_expected
+        ? "Revise the candidate to retain the actor, object, and limits from the supplied authoritative source."
+        : "What authoritative safety, legal, clinical, regulatory, or compliance source governs this decision?",
+    };
+  }
+
+  if (riskCategory === "sensitive_disclosure_boundary") {
+    const authoritativeSourceAvailable =
+      authoritativeSourceRefs.length > 0 ||
+      claim.context_authoritative_source_available === true;
+    return {
+      id: `ambiguity_${claim.id}`,
+      claim_id: claim.id,
+      category: riskCategory,
+      materiality: "high",
+      resolution: authoritativeSourceAvailable && claim.context_boundary_expected
+        ? "candidate_revision"
+        : "authoritative_source",
+      alternatives: claim.alternatives,
+      question: authoritativeSourceAvailable && claim.context_boundary_expected
+        ? "Revise the candidate to retain the authorized participant, sensitive information, and scope limits from the supplied source."
+        : "What authoritative source defines which sensitive information this participant may view or disclose?",
+    };
+  }
+
+  if (riskCategory === "authoritative_irreversible_action") {
+    const authoritativeSourceAvailable =
+      authoritativeSourceRefs.length > 0 ||
+      claim.context_authoritative_source_available === true;
+    return {
+      id: `ambiguity_${claim.id}`,
+      claim_id: claim.id,
+      category: riskCategory,
+      materiality: "high",
+      resolution: authoritativeSourceAvailable && claim.context_boundary_expected
+        ? "candidate_revision"
+        : "authoritative_source",
+      alternatives: claim.alternatives,
+      question: authoritativeSourceAvailable && claim.context_boundary_expected
+        ? "Revise the candidate to retain the authorized participant, irreversible action, object, and scope limits from the supplied authoritative source."
+        : "What authoritative source governs who may commit, execute, publish, or release this action?",
+    };
+  }
+
+  if (riskCategory === "participant_authority") {
+    return {
+      id: `ambiguity_${claim.id}`,
+      claim_id: claim.id,
+      category: riskCategory,
+      materiality: "high",
+      resolution: claim.context_boundary_expected
+        ? "candidate_revision"
+        : "clarification",
+      alternatives: claim.alternatives,
+      question: claim.context_boundary_expected
+        ? "Revise the candidate to retain the authorized participant, action object, and scope limits from the supplied source."
+        : "What authority does the participant actually have: recommend, approve, authorize, or commit the action?",
+    };
+  }
+
+  if (
+    claim.reversibility === "unsafe" ||
+    (claim.materiality === "high" &&
+      (claim.alternatives.length > 1 || claim.impact_if_wrong))
+  ) {
+    return {
+      id: `ambiguity_${claim.id}`,
+      claim_id: claim.id,
+      category: "material_alternatives",
+      materiality: "high",
+      resolution: claim.reversibility === "unsafe"
+        ? "authoritative_source"
+        : "clarification",
+      alternatives: claim.alternatives,
+      question: claim.alternatives.length > 1
+        ? `Which interpretation is correct for ${claim.path}: ${claim.alternatives.join(" or ")}?`
+        : `What source resolves the material uncertainty in ${claim.path}?`,
+    };
+  }
+
+  return null;
+}
+
+function buildDerivedDisclosureRiskClaims(
+  normalizedCandidate,
+  sourceEntries,
+  originalInput,
+) {
+  return ACTIVITY_CASE_DISCLOSURE_RISK_PATHS.flatMap((pathValue) => {
+    const fieldValue = valueAtCandidatePath(normalizedCandidate, pathValue);
+    const entries = Array.isArray(fieldValue) ? fieldValue : [fieldValue];
+    const riskyValues = entries.filter((entry) => {
+      const text = normalizeText(normalizedClaimStrings(entry).join(" "));
+      const vocabularyNounOnly =
+        /^(?:approval|authorization|denial|diagnosis|discharge|prescription)$/.test(text);
+      const roleQualifiedAuthorityNoun =
+        pathValue === "disclosure_policy.terms_to_use" &&
+        isRoleQualifiedAuthorityNoun(entry, normalizedCandidate);
+      const termsToUseAction = pathValue !== "disclosure_policy.terms_to_use" ||
+        roleQualifiedAuthorityNoun ||
+        (!vocabularyNounOnly && (
+          hasAffirmedAny(text, SENSITIVE_DISCLOSURE_ACTION_PATTERNS) ||
+          sourceStatesAffirmativeParticipantGrant(text) ||
+          /^(?:approv(?:e|es)|deny|denies|authoriz(?:e|es)|commit(?:s)?|clear|clears|discharg(?:e|es)|prescrib(?:e|es)|administer(?:s)?|diagnos(?:e|es)|view|views|read|reads|inspect|inspects|access|accesses|open|opens|browse|browses|share|shares|reveal|reveals|disclose|discloses)\b/.test(text) ||
+          /^(?:[a-z][a-z-]*\s+){0,3}(?:managers?|leads?|nurses?|agents?|operators?|analysts?|specialists?|investigators?|auditors?|clinicians?|doctors?|administrators?|admins?|employees?|staff|teams?|users?)\s+(?:approv(?:e|es)|deny|denies|authoriz(?:e|es)|commit(?:s)?|clear|clears|discharg(?:e|es)|prescrib(?:e|es)|administer(?:s)?|diagnos(?:e|es)|view|views|read|reads|inspect|inspects|access|accesses|open|opens|browse|browses|share|shares|reveal|reveals|disclose|discloses)\b/.test(text)
+        ));
+      return termsToUseAction && (
+        roleQualifiedAuthorityNoun
+          ? "participant_authority"
+          : activityClaimRiskCategory({
+              id: pathValue.replaceAll(".", "_"),
+              path: pathValue === "disclosure_policy.terms_to_use"
+                ? "disclosure_policy.product_vocabulary_action"
+                : pathValue,
+              value: entry,
+              alternatives: [],
+              impact_if_wrong: "",
+            })
+      );
+    });
+
+    if (riskyValues.length === 0) {
+      return [];
+    }
+
+    const value = riskyValues.length === 1 ? riskyValues[0] : riskyValues;
+    const claimEvidence = {
+      id: pathValue.replaceAll(".", "_"),
+      path: pathValue,
+      value,
+      alternatives: [],
+      impact_if_wrong:
+        "An unverified disclosure rule could expose the wrong information or action boundary.",
+    };
+    const roleQualifiedAuthorityRisk =
+      pathValue === "disclosure_policy.terms_to_use" &&
+      normalizedClaimStrings(value).some((entry) =>
+        isRoleQualifiedAuthorityNoun(entry, normalizedCandidate));
+    const riskCategory = roleQualifiedAuthorityRisk
+      ? "participant_authority"
+      : activityClaimRiskCategory({
+          ...claimEvidence,
+          path: pathValue === "disclosure_policy.terms_to_use"
+            ? "disclosure_policy.product_vocabulary_action"
+            : pathValue,
+          impact_if_wrong: "",
+        });
+    claimEvidence.risk_category = riskCategory;
+    const contextualRiskEvidence = contextualProtectedRiskEvidence(
+      sourceEntries,
+      claimEvidence,
+      normalizedCandidate,
+      originalInput,
+    );
+    if (contextualRiskEvidence) {
+      Object.assign(claimEvidence, contextualRiskEvidence);
+    }
+    const refs = validatedClaimSourceRefs(sourceEntries, value, {
+      risk_claim: claimEvidence,
+    });
+    const origin = refs.length > 0
+      ? claimOriginForSourceRefs(refs, sourceEntries)
+      : "model_inferred";
+    const authoritativeSourceRefs = refs.filter((ref) =>
+      sourceEntries.some((entry) =>
+        entry.id === ref && entry.kind === "authoritative_source"));
+    return [{
+      ...claimEvidence,
+      origin,
+      source_refs: refs,
+      authoritative_source_refs: authoritativeSourceRefs,
+      confidence: refs.length > 0 ? "high" : "medium",
+      materiality: "high",
+      reversibility:
+        riskCategory === "participant_authority" ? "costly" : "unsafe",
+    }];
+  });
+}
+
+function buildActivityCaseClaims({
+  candidate,
+  normalizedCandidate,
+  originalInput,
+  contextItems,
+}) {
+  const sourceEntries = activityCaseSourceEntries(originalInput, contextItems);
+  const suppliedClaims = normalizeSuppliedActivityClaims(candidate);
+  const suppliedByPath = new Map(suppliedClaims.map((claim) => [claim.path, claim]));
+  const claims = ACTIVITY_CASE_CLAIM_DEFINITIONS.flatMap((definition) => {
+    const supplied = suppliedByPath.get(definition.path);
+    const value = valueAtCandidatePath(normalizedCandidate, definition.path);
+    if (definition.optional && value === undefined) {
+      return [];
+    }
+    const claimEvidence = {
+      id: definition.id,
+      path: definition.path,
+      value,
+      alternatives: supplied?.alternatives ?? [],
+      impact_if_wrong: supplied?.impact_if_wrong ?? "",
+    };
+    const contextualRiskEvidence = contextualProtectedRiskEvidence(
+      sourceEntries,
+      claimEvidence,
+      normalizedCandidate,
+      originalInput,
+    );
+    if (contextualRiskEvidence) {
+      Object.assign(claimEvidence, contextualRiskEvidence);
+    }
+    const actorlessMultiParticipantAuthority =
+      activityClaimRiskCategory(claimEvidence) === "participant_authority" &&
+      normalizedClaimStrings(normalizedCandidate.activity_model?.participants)
+        .length > 1 &&
+      protectedClaimActorTokens(value).length === 0;
+    const refs = actorlessMultiParticipantAuthority
+      ? []
+      : validatedClaimSourceRefs(sourceEntries, value, {
+      risk_claim: claimEvidence,
+    });
+    const origin = refs.length > 0
+      ? claimOriginForSourceRefs(refs, sourceEntries)
+      : inferredClaimOrigin(supplied);
+    const authoritativeSourceRefs = refs.filter((ref) =>
+      sourceEntries.some((entry) =>
+        entry.id === ref && entry.kind === "authoritative_source"));
+
+    return [{
+      id: definition.id,
+      path: definition.path,
+      value,
+      origin,
+      source_refs: refs,
+      authoritative_source_refs: authoritativeSourceRefs,
+      confidence: ["source_supported", "workspace_observed"].includes(origin)
+        ? "high"
+        : supplied?.confidence ?? "medium",
+      materiality: supplied?.materiality ?? definition.default_materiality,
+      alternatives: supplied?.alternatives ?? [],
+      impact_if_wrong: supplied?.impact_if_wrong ?? "",
+      reversibility: supplied?.reversibility ?? "easy",
+      ...(contextualRiskEvidence ?? {}),
+      ...(actorlessMultiParticipantAuthority
+        ? {
+            risk_category: "participant_authority",
+            context_boundary_expected: true,
+            context_participant_grant_available: false,
+          }
+        : {}),
+    }];
+  });
+  claims.push(...buildDerivedDisclosureRiskClaims(
+    normalizedCandidate,
+    sourceEntries,
+    originalInput,
+  ));
+  const knownPaths = new Set(claims.map((claim) => claim.path));
+
+  for (const supplied of suppliedClaims) {
+    if (knownPaths.has(supplied.path)) continue;
+
+    const candidateValue = valueAtCandidatePath(candidate, supplied.path);
+    const value = candidateValue === undefined ? supplied.value : candidateValue;
+    const contextualRiskEvidence = contextualProtectedRiskEvidence(
+      sourceEntries,
+      { ...supplied, value },
+      normalizedCandidate,
+      originalInput,
+    );
+    const suppliedEvidence = {
+      ...supplied,
+      value,
+      ...(contextualRiskEvidence ?? {}),
+    };
+    const actorlessMultiParticipantAuthority =
+      activityClaimRiskCategory(suppliedEvidence) === "participant_authority" &&
+      normalizedClaimStrings(normalizedCandidate.activity_model?.participants)
+        .length > 1 &&
+      protectedClaimActorTokens(value).length === 0;
+    const refs = actorlessMultiParticipantAuthority
+      ? []
+      : validatedClaimSourceRefs(sourceEntries, value, {
+      exact: true,
+      risk_claim: suppliedEvidence,
+    });
+    const origin = refs.length > 0
+      ? claimOriginForSourceRefs(refs, sourceEntries)
+      : inferredClaimOrigin(supplied);
+    const authoritativeSourceRefs = refs.filter((ref) =>
+      sourceEntries.some((entry) =>
+        entry.id === ref && entry.kind === "authoritative_source"));
+    claims.push({
+      id: supplied.id,
+      path: supplied.path,
+      value,
+      origin,
+      source_refs: refs,
+      authoritative_source_refs: authoritativeSourceRefs,
+      confidence: ["source_supported", "workspace_observed"].includes(origin)
+        ? "high"
+        : supplied.confidence,
+      materiality: supplied.materiality,
+      alternatives: supplied.alternatives,
+      impact_if_wrong: supplied.impact_if_wrong,
+      reversibility: supplied.reversibility,
+      ...(contextualRiskEvidence ?? {}),
+      ...(actorlessMultiParticipantAuthority
+        ? {
+            risk_category: "participant_authority",
+            context_boundary_expected: true,
+            context_participant_grant_available: false,
+          }
+        : {}),
+    });
+  }
+
+  for (const sourceEntry of sourceEntries) {
+    const entry = {
+      ...sourceEntry,
+      text: resolveUnambiguousParticipantPronouns(
+        sourceEntry.text,
+        normalizedCandidate,
+      ),
+    };
+    if (!protectedSourceIsRelevant(entry, normalizedCandidate, originalInput)) {
+      continue;
+    }
+    const riskCategory = protectedSourceRiskCategory(entry.text);
+    if (![
+      "participant_authority",
+      "authoritative_safety_rule",
+      "sensitive_disclosure_boundary",
+      "authoritative_irreversible_action",
+    ].includes(riskCategory)) {
+      continue;
+    }
+    const id = `context_${entry.id}_protected_boundary`;
+    if (claims.some((claim) => claim.id === id)) continue;
+    const candidateValues = normalizedClaimStrings(
+      protectedCandidateContextValue(normalizedCandidate),
+    );
+    const retainedBoundaryValues = candidateValues.filter((candidateValue) =>
+      protectedClaimBoundaryCompatibleForCandidate(
+        entry.text,
+        candidateValue,
+        normalizedCandidate,
+      ));
+    const retainsBoundary = retainedBoundaryValues.length > 0;
+    const governingAuthoritativeSourceAvailable =
+      entry.kind === "authoritative_source" ||
+      retainedBoundaryValues.some((candidateValue) =>
+        sourceEntries.some((rawSourceEntry) => {
+          const sourceEntry = {
+            ...rawSourceEntry,
+            text: resolveUnambiguousParticipantPronouns(
+              rawSourceEntry.text,
+              normalizedCandidate,
+            ),
+          };
+          return sourceEntry.kind === "authoritative_source" &&
+            protectedSourceRiskCategory(sourceEntry.text) === riskCategory &&
+            protectedSourceIsRelevant(
+              sourceEntry,
+              normalizedCandidate,
+              originalInput,
+              candidateValue,
+            ) &&
+            protectedClaimBoundaryCompatibleForCandidate(
+              sourceEntry.text,
+              candidateValue,
+              normalizedCandidate,
+            );
+        }));
+    const participantGrantAvailable =
+      riskCategory === "participant_authority" &&
+      ["brief", "user_answer", "authoritative_source"].includes(entry.kind) &&
+      protectedClaimActorTokens(entry.text).length > 0 &&
+      sourceStatesAffirmativeParticipantGrant(entry.text);
+    if (
+      riskCategory === "participant_authority" &&
+      !participantGrantAvailable &&
+      !sourceStatesRestrictiveParticipantBoundary(entry.text)
+    ) {
+      continue;
+    }
+    claims.push({
+      id,
+      path: `context_items.${entry.id}.protected_boundary`,
+      value: {
+        category: riskCategory,
+        source_ref: entry.id,
+      },
+      risk_category: riskCategory,
+      origin: claimOriginForSourceRefs([entry.id], sourceEntries),
+      source_refs: [entry.id],
+      authoritative_source_refs:
+        entry.kind === "authoritative_source" ? [entry.id] : [],
+      context_boundary_expected: !retainsBoundary,
+      ...(AUTHORITATIVE_GOVERNING_RISK_CATEGORIES.has(riskCategory)
+        ? {
+            context_authoritative_source_available:
+              governingAuthoritativeSourceAvailable,
+          }
+        : {
+            context_participant_grant_available:
+              participantGrantAvailable && retainsBoundary,
+          }),
+      confidence: "high",
+      materiality: "high",
+      alternatives: [],
+      impact_if_wrong:
+        "A protected source boundary could be lost through downstream euphemism or omission.",
+      reversibility: "unsafe",
+    });
+  }
+
+  return claims;
+}
+
+function missingCandidateAmbiguities(candidateGuardrails) {
+  const missing = candidateGuardrails.candidate_missing_fields;
+  const entries = [];
+
+  if (missing.activity) {
+    entries.push({
+      id: "ambiguity_missing_activity",
+      claim_id: "activity",
+      category: "missing_candidate_field",
+      materiality: "high",
+      resolution: "clarification",
+      alternatives: [],
+      question: "What activity should the model candidate name in domain language?",
+    });
+  }
+  if (missing.primary_decision) {
+    entries.push({
+      id: "ambiguity_missing_primary_decision",
+      claim_id: "primary_decision",
+      category: "missing_candidate_field",
+      materiality: "high",
+      resolution: "clarification",
+      alternatives: [],
+      question: "What primary decision should the model candidate help the user review?",
+    });
+  }
+  if (missing.completion_or_outcome) {
+    entries.push({
+      id: "ambiguity_missing_completion",
+      claim_id: "completion",
+      category: "missing_candidate_field",
+      materiality: "high",
+      resolution: "clarification",
+      alternatives: [],
+      question: "What outcome or completion state should the model candidate make clear?",
+    });
+  }
+  if (missing.participants_or_domain_vocabulary) {
+    entries.push({
+      id: "ambiguity_missing_participant_context",
+      claim_id: "participants",
+      category: "missing_candidate_field",
+      materiality: "high",
+      resolution: "clarification",
+      alternatives: [],
+      question: "Which participants or domain vocabulary should the model candidate include?",
+    });
+  }
+  if (candidateGuardrails.candidate_primary_terms_detected.length > 0) {
+    entries.push({
+      id: "ambiguity_implementation_language",
+      claim_id: "disclosure_boundary",
+      category: "implementation_language",
+      materiality: "high",
+      resolution: "clarification",
+      alternatives: [],
+      question: "Which implementation terms in the model candidate should move to disclosure or be translated into domain language?",
+    });
+  }
+
+  return entries;
+}
+
+function activityCaseReadiness(decision, unresolvedAmbiguities, policy) {
+  const semantics = {
+    ...ACTIVITY_CASE_DEFAULT_POLICY.readiness_semantics,
+    ...(isPlainObject(policy.readiness_semantics)
+      ? policy.readiness_semantics
+      : {}),
+  };
+  const exploration = decision === "proceed"
+    ? "allowed_with_visible_assumptions"
+    : decision === "ask"
+      ? "paused_for_material_clarification"
+      : "blocked_for_authoritative_source";
+  const explorationMeaning = decision === "proceed"
+    ? semantics.proceed_exploration
+    : decision === "ask"
+      ? semantics.ask_exploration
+      : semantics.stop_exploration;
+
+  return {
+    decision,
+    exploration,
+    exploration_meaning: explorationMeaning,
+    commitment: "not_authorized",
+    commitment_meaning: semantics.commitment,
+    blocking_ambiguity_ids: unresolvedAmbiguities.map((entry) => entry.id),
+    next_question: unresolvedAmbiguities[0]?.question ?? null,
+  };
+}
+
+function orderActivityCaseAmbiguities(entries) {
+  const priority = (entry) => {
+    if (entry.resolution === "authoritative_source") return 0;
+    if (entry.resolution === "candidate_revision") return 1;
+    if (entry.category === "participant_authority") return 2;
+    if (entry.category === "material_alternatives") return 3;
+    if (entry.category === "missing_source_grounding") return 5;
+    return 4;
+  };
+
+  return entries
+    .map((entry, index) => ({ entry, index }))
+    .sort((left, right) =>
+      priority(left.entry) - priority(right.entry) || left.index - right.index)
+    .map(({ entry }) => entry);
+}
+
+function hasActivitySourceGrounding(originalInput, contextItems, normalizedCandidate) {
+  const sourceEntries = activityCaseSourceEntries(originalInput, contextItems);
+  const activity = valueAtCandidatePath(normalizedCandidate, "activity_model.activity");
+  const participants = normalizedClaimStrings(
+    valueAtCandidatePath(normalizedCandidate, "activity_model.participants"),
+  );
+  const domainVocabulary = normalizedClaimStrings(
+    valueAtCandidatePath(normalizedCandidate, "activity_model.domain_vocabulary"),
+  );
+  const activitySupported = sourceEntries.some((entry) =>
+    sourceSemanticallySupportsClaim(entry.text, activity));
+  const participantSupported = participants.some((participant) =>
+    sourceEntries.some((entry) =>
+      sourceSemanticallySupportsClaim(entry.text, participant)));
+  const sourceTokens = new Set(
+    sourceEntries.flatMap((entry) => activityClaimTokens(entry.text)),
+  );
+  const supportedDomainTokens = unique(
+    domainVocabulary.flatMap((term) => activityClaimTokens(term)),
+  ).filter((token) => sourceTokens.has(token));
+
+  return (
+    activitySupported &&
+    (participantSupported || supportedDomainTokens.length > 0)
+  ) || (
+    participantSupported && supportedDomainTokens.length > 0
+  ) || supportedDomainTokens.length >= 2;
+}
+
+function buildInferenceAwareActivityCase({
+  analyzerPacket,
+  candidate,
+  normalizedCandidate,
+  candidateGuardrails,
+  source,
+  contract,
+  originalInput,
+  contextItems,
+}) {
+  const policy = activityCasePolicy(contract);
+  const claims = buildActivityCaseClaims({
+    candidate,
+    normalizedCandidate,
+    originalInput,
+    contextItems,
+  });
+  const assumptions = claims
+    .filter((claim) => ["model_inferred", "convention_assumed"].includes(claim.origin))
+    .map((claim) => ({
+      id: `assumption_${claim.id}`,
+      claim_id: claim.id,
+      path: claim.path,
+      value: claim.value,
+      materiality: claim.materiality,
+      reversibility: claim.reversibility,
+      statement: `${claim.path} is inferred for concept exploration and is not user-confirmed evidence.`,
+    }));
+  const inferredAmbiguities = claims
+    .map(unresolvedAmbiguityForClaim)
+    .filter(Boolean);
+  const missingSourceGrounding =
+    source.mode === "model_assisted" &&
+    !hasActivitySourceGrounding(originalInput, contextItems, normalizedCandidate)
+      ? [
+          {
+            id: "ambiguity_missing_source_grounding",
+            claim_id: "activity",
+            category: "missing_source_grounding",
+            materiality: "high",
+            resolution: "clarification",
+            alternatives: [],
+            question:
+              "What activity, participant, or domain situation should ground this product surface?",
+          },
+        ]
+      : [];
+  const unresolvedAmbiguities = orderActivityCaseAmbiguities([
+    ...missingCandidateAmbiguities(candidateGuardrails),
+    ...missingSourceGrounding,
+    ...inferredAmbiguities,
+  ]);
+  const evidence = analyzerPacket.activity_model.evidence;
+  const deterministicReady =
+    evidence.activity &&
+    evidence.domain_vocabulary &&
+    evidence.decision &&
+    evidence.outcome &&
+    !hasMissingCandidateField(candidateGuardrails.candidate_missing_fields) &&
+    candidateGuardrails.candidate_primary_terms_detected.length === 0;
+  const decision = unresolvedAmbiguities.some(
+    (entry) => entry.resolution === "authoritative_source",
+  )
+    ? "stop"
+    : unresolvedAmbiguities.length > 0
+      ? "ask"
+      : source.mode === "deterministic" && !deterministicReady
+        ? "ask"
+        : "proceed";
+
+  return {
+    schema: "judgmentkit.activity-case/v1",
+    mode: source.mode === "model_assisted" ? "inference_first" : "deterministic",
+    claims,
+    assumptions,
+    unresolved_ambiguities: unresolvedAmbiguities,
+    readiness: activityCaseReadiness(decision, unresolvedAmbiguities, policy),
+  };
+}
+
+function buildReviewConfidence(
+  evidence,
+  implementationTermsDetected,
+  candidateGuardrails,
+  activityCase = null,
+) {
+  if (activityCase?.readiness?.decision === "stop" || activityCase?.readiness?.decision === "ask") {
+    return "low";
+  }
+
+  if ((activityCase?.assumptions ?? []).length > 0) {
+    return "medium";
+  }
+
   const presentEvidenceCount = [
     evidence.activity,
     evidence.domain_vocabulary,
@@ -3488,11 +5968,20 @@ function assertCandidateShape(candidate) {
   }
 }
 
-function buildCandidatePrimaryTermsDetected(candidate, contract) {
+function buildCandidatePrimaryTermsDetected(
+  candidate,
+  contract,
+  { setup_diagnostic_context: setupDiagnosticContext = false } = {},
+) {
+  if (setupDiagnosticContext) {
+    return [];
+  }
+
   return detectImplementationTerms(
     JSON.stringify({
       activity_model: candidate.activity_model,
       interaction_contract: candidate.interaction_contract,
+      terms_to_use: candidate.disclosure_policy?.terms_to_use,
     }),
     contract,
   );
@@ -3528,6 +6017,22 @@ function sanitizePrimaryList(values, implementationTermsDetected) {
   return safeCandidateList(toStringArray(values), implementationTermsDetected);
 }
 
+function sanitizeDivisionOfLabor(values, implementationTermsDetected) {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return values
+    .filter((entry) => isPlainObject(entry))
+    .map((entry) => ({
+      participant:
+        sanitizePrimaryList([entry.participant], implementationTermsDetected)[0] ?? "",
+      responsibility:
+        sanitizePrimaryList([entry.responsibility], implementationTermsDetected)[0] ?? "",
+    }))
+    .filter((entry) => entry.participant && entry.responsibility);
+}
+
 function normalizeActivityModelCandidate(candidate, analyzerPacket, candidatePrimaryTermsDetected) {
   const activityModel = candidate.activity_model;
   const interactionContract = candidate.interaction_contract;
@@ -3548,6 +6053,16 @@ function normalizeActivityModelCandidate(candidate, analyzerPacket, candidatePri
     interactionContract.make_easy,
     candidatePrimaryTermsDetected,
   );
+  const primaryDecision = sanitizePrimaryString(
+    interactionContract.primary_decision,
+    candidatePrimaryTermsDetected,
+    analyzerPacket.ui_brief.primary_decision,
+  );
+  const completion = sanitizePrimaryString(
+    interactionContract.completion,
+    candidatePrimaryTermsDetected,
+    analyzerPacket.ui_brief.outcome,
+  );
 
   return {
     activity_model: {
@@ -3567,19 +6082,35 @@ function normalizeActivityModelCandidate(candidate, analyzerPacket, candidatePri
           ? outcomes.map((outcome) => ensureSentence(sentenceCase(outcome)))
           : [],
       domain_vocabulary: domainVocabulary,
+      ...(Array.isArray(activityModel.existing_tools_artifacts)
+        ? {
+            existing_tools_artifacts: sanitizePrimaryList(
+              activityModel.existing_tools_artifacts,
+              candidatePrimaryTermsDetected,
+            ),
+          }
+        : {}),
+      ...(Array.isArray(activityModel.rules_rituals)
+        ? {
+            rules_rituals: sanitizePrimaryList(
+              activityModel.rules_rituals,
+              candidatePrimaryTermsDetected,
+            ),
+          }
+        : {}),
+      ...(Array.isArray(activityModel.division_of_labor)
+        ? {
+            division_of_labor: sanitizeDivisionOfLabor(
+              activityModel.division_of_labor,
+              candidatePrimaryTermsDetected,
+            ),
+          }
+        : {}),
     },
     interaction_contract: {
-      primary_decision: sanitizePrimaryString(
-        interactionContract.primary_decision,
-        candidatePrimaryTermsDetected,
-        analyzerPacket.ui_brief.primary_decision,
-      ),
+      primary_decision: primaryDecision,
       next_actions: nextActions,
-      completion: sanitizePrimaryString(
-        interactionContract.completion,
-        candidatePrimaryTermsDetected,
-        analyzerPacket.ui_brief.outcome,
-      ),
+      completion,
       make_easy:
         makeEasy.length > 0
           ? makeEasy
@@ -3588,6 +6119,65 @@ function normalizeActivityModelCandidate(candidate, analyzerPacket, candidatePri
               "Review the primary decision and outcome in domain language.",
               "Adjust vocabulary before implementation detail reaches the product UI.",
             ],
+      ...(typeof interactionContract.user_is_trying_to === "string"
+        ? {
+            user_is_trying_to: sanitizePrimaryString(
+              interactionContract.user_is_trying_to,
+              candidatePrimaryTermsDetected,
+              primaryDecision,
+            ),
+          }
+        : {}),
+      ...(typeof interactionContract.user_thinks_about_work_as === "string"
+        ? {
+            user_thinks_about_work_as: sanitizePrimaryString(
+              interactionContract.user_thinks_about_work_as,
+              candidatePrimaryTermsDetected,
+              analyzerPacket.interaction_contract.user_thinks_about_work_as,
+            ),
+          }
+        : {}),
+      ...(typeof interactionContract.user_does_not_think_about_work_as === "string"
+        ? {
+            user_does_not_think_about_work_as: sanitizePrimaryString(
+              interactionContract.user_does_not_think_about_work_as,
+              candidatePrimaryTermsDetected,
+              analyzerPacket.interaction_contract.user_does_not_think_about_work_as,
+            ),
+          }
+        : {}),
+      ...(Array.isArray(interactionContract.primary_decisions)
+        ? {
+            primary_decisions: sanitizePrimaryList(
+              interactionContract.primary_decisions,
+              candidatePrimaryTermsDetected,
+            ).map((entry) => ensureSentence(sentenceCase(entry))),
+          }
+        : {}),
+      ...(Array.isArray(interactionContract.make_harder)
+        ? {
+            make_harder: sanitizePrimaryList(
+              interactionContract.make_harder,
+              candidatePrimaryTermsDetected,
+            ),
+          }
+        : {}),
+      ...(Array.isArray(interactionContract.state_changes)
+        ? {
+            state_changes: sanitizePrimaryList(
+              interactionContract.state_changes,
+              candidatePrimaryTermsDetected,
+            ),
+          }
+        : {}),
+      ...(Array.isArray(interactionContract.leave_screen_knowing_or_done)
+        ? {
+            leave_screen_knowing_or_done: sanitizePrimaryList(
+              interactionContract.leave_screen_knowing_or_done,
+              candidatePrimaryTermsDetected,
+            ),
+          }
+        : {}),
     },
     disclosure_policy: {
       terms_to_use: domainVocabulary,
@@ -3607,13 +6197,27 @@ function normalizeActivityModelCandidate(candidate, analyzerPacket, candidatePri
   };
 }
 
-function buildCandidateGuardrails(candidate, analyzerPacket, contract) {
-  const candidatePrimaryTermsDetected = buildCandidatePrimaryTermsDetected(candidate, contract);
+function buildCandidateGuardrails(
+  candidate,
+  analyzerPacket,
+  contract,
+  { source_input: sourceInput = "", surface_type: surfaceType = "" } = {},
+) {
+  const setupDiagnosticContext = isSetupDiagnosticContext(
+    sourceInput,
+    surfaceType,
+  );
+  const candidatePrimaryTermsDetected = buildCandidatePrimaryTermsDetected(
+    candidate,
+    contract,
+    { setup_diagnostic_context: setupDiagnosticContext },
+  );
   const candidateMissingFields = buildCandidateMissingFields(candidate);
 
   return {
     candidate_primary_terms_detected: candidatePrimaryTermsDetected,
     candidate_missing_fields: candidateMissingFields,
+    setup_diagnostic_context: setupDiagnosticContext,
   };
 }
 
@@ -3646,35 +6250,79 @@ function buildCandidateQuestions(candidateGuardrails) {
   return questions;
 }
 
-function buildActivityModelReviewPacket(analyzerPacket, candidate, source, contract) {
+function buildActivityModelReviewPacket(
+  analyzerPacket,
+  candidate,
+  source,
+  contract,
+  activityCaseOptions = {},
+) {
   const evidence = analyzerPacket.activity_model.evidence;
   const sourceMissingEvidence = buildMissingEvidence(evidence);
-  const candidateGuardrails = buildCandidateGuardrails(candidate, analyzerPacket, contract);
+  const candidateGuardrails = buildCandidateGuardrails(
+    candidate,
+    analyzerPacket,
+    contract,
+    {
+      source_input:
+        activityCaseOptions.original_input ?? analyzerPacket.source_input ?? "",
+    },
+  );
   const normalizedCandidate = normalizeActivityModelCandidate(
     candidate,
     analyzerPacket,
     candidateGuardrails.candidate_primary_terms_detected,
   );
-  const hasRequiredEvidence =
-    evidence.activity && evidence.domain_vocabulary && evidence.decision && evidence.outcome;
-  const candidateReady =
-    !hasMissingCandidateField(candidateGuardrails.candidate_missing_fields) &&
-    candidateGuardrails.candidate_primary_terms_detected.length === 0;
   const sourceQuestions = selectTargetedQuestions(analyzerPacket.review_questions);
   const candidateQuestions = buildCandidateQuestions(candidateGuardrails);
   const artifactInspectorEvidence = analyzerPacket.artifact_inspector_evidence;
+  const activityCase = buildInferenceAwareActivityCase({
+    analyzerPacket,
+    candidate,
+    normalizedCandidate,
+    candidateGuardrails,
+    source,
+    contract,
+    originalInput: activityCaseOptions.original_input ?? analyzerPacket.source_input ?? "",
+    contextItems: activityCaseOptions.context_items ?? [],
+  });
+  const readinessDecision = activityCase.readiness.decision;
+  const statusMapping = {
+    ...ACTIVITY_CASE_DEFAULT_POLICY.compatibility_status_mapping,
+    ...(isPlainObject(activityCasePolicy(contract).compatibility_status_mapping)
+      ? activityCasePolicy(contract).compatibility_status_mapping
+      : {}),
+  };
+  const modelAssistedQuestions = readinessDecision === "proceed"
+    ? []
+    : [activityCase.readiness.next_question].filter(Boolean);
+  const targetedQuestions = source.mode === "model_assisted"
+    ? modelAssistedQuestions
+    : selectTargetedQuestionsFromCandidates([
+        activityCase.readiness.next_question,
+        ...sourceQuestions,
+        ...candidateQuestions,
+      ].filter(Boolean));
   const packet = {
     version: analyzerPacket.version,
     contract_id: analyzerPacket.contract_id,
-    review_status: hasRequiredEvidence && candidateReady
-      ? "ready_for_review"
-      : "needs_source_context",
+    review_status: statusMapping[readinessDecision] ?? "needs_source_context",
     collaboration_mode: "propose_then_review",
     source: {
       ...source,
-      input_excerpt: evidence.input_excerpt,
+      ...(typeof activityCaseOptions.original_input === "string"
+        ? {
+            brief_sha256: createHash("sha256")
+              .update(activityCaseOptions.original_input.trim())
+              .digest("hex"),
+          }
+        : {}),
+      input_excerpt: typeof activityCaseOptions.original_input === "string"
+        ? activityCaseOptions.original_input.trim().slice(0, 240)
+        : evidence.input_excerpt,
     },
     candidate: normalizedCandidate,
+    activity_case: activityCase,
     review: {
       evidence: {
         activity: evidence.activity,
@@ -3686,16 +6334,19 @@ function buildActivityModelReviewPacket(analyzerPacket, candidate, source, contr
           ? { artifact_inspector: artifactInspectorEvidence }
           : {}),
       },
-      assumptions: buildReviewAssumptions(analyzerPacket, source),
+      assumptions: [
+        ...buildReviewAssumptions(analyzerPacket, source),
+        ...(source.mode === "model_assisted"
+          ? activityCase.assumptions.map((entry) => entry.statement)
+          : []),
+      ],
       confidence: buildReviewConfidence(
         evidence,
         analyzerPacket.implementation_terms_detected,
         candidateGuardrails,
+        activityCase,
       ),
-      targeted_questions: selectTargetedQuestionsFromCandidates([
-        ...sourceQuestions,
-        ...candidateQuestions,
-      ]),
+      targeted_questions: targetedQuestions,
     },
     guardrails: {
       analyzer_status: analyzerPacket.status,
@@ -3704,15 +6355,22 @@ function buildActivityModelReviewPacket(analyzerPacket, candidate, source, contr
       candidate_primary_terms_detected:
         candidateGuardrails.candidate_primary_terms_detected,
       candidate_missing_fields: candidateGuardrails.candidate_missing_fields,
+      setup_diagnostic_context: candidateGuardrails.setup_diagnostic_context,
       implementation_terms_detected: analyzerPacket.implementation_terms_detected,
       disclosure_translation_candidates:
         analyzerPacket.disclosure_policy.translation_candidates,
       original_review_questions: analyzerPacket.review_questions,
+      activity_case_readiness: activityCase.readiness,
+      unresolved_activity_case_ambiguities:
+        activityCase.unresolved_ambiguities,
       ...(artifactInspectorEvidence?.should_include
         ? { artifact_inspector: artifactInspectorEvidence }
         : {}),
     },
   };
+
+  packet.source.activity_case_review_integrity =
+    createActivityReviewIntegritySeal(packet, contract);
 
   assertNoStyleFields(packet);
 
@@ -3792,8 +6450,17 @@ export function analyzeImplementationBrief(input, options = {}) {
 }
 
 export function createActivityModelReview(input, options = {}) {
-  const analyzerPacket = analyzeImplementationBrief(input, options);
-  const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const {
+    context_items: rawContextItems,
+    contextItems: rawContextItemsAlias,
+    ...analysisOptions
+  } = options;
+  const contextItems = normalizeActivityContextItems(
+    rawContextItems ?? rawContextItemsAlias,
+  );
+  const sourceInput = buildActivitySourceInput(input, contextItems);
+  const analyzerPacket = analyzeImplementationBrief(sourceInput, analysisOptions);
+  const contract = analysisOptions.contract ?? loadActivityContract(analysisOptions.contractPath);
 
   return buildActivityModelReviewPacket(
     analyzerPacket,
@@ -3802,24 +6469,46 @@ export function createActivityModelReview(input, options = {}) {
       interaction_contract: buildCandidateInteractionContract(analyzerPacket),
       disclosure_policy: buildCandidateDisclosurePolicy(analyzerPacket),
     },
-    { mode: "deterministic" },
+    {
+      mode: "deterministic",
+      ...(contextItems.length > 0
+        ? { context_items: activityContextSourceMetadata(contextItems) }
+        : {}),
+    },
     contract,
+    { original_input: input, context_items: contextItems },
   );
 }
 
 export function reviewActivityModelCandidate(input, candidate, options = {}) {
-  const { proposer = "external_candidate", ...analysisOptions } = options;
+  const {
+    proposer = "external_candidate",
+    context_items: rawContextItems,
+    contextItems: rawContextItemsAlias,
+    ...analysisOptions
+  } = options;
 
   assertCandidateShape(candidate);
 
-  const analyzerPacket = analyzeImplementationBrief(input, analysisOptions);
+  const contextItems = normalizeActivityContextItems(
+    rawContextItems ?? rawContextItemsAlias,
+  );
+  const sourceInput = buildActivitySourceInput(input, contextItems);
+  const analyzerPacket = analyzeImplementationBrief(sourceInput, analysisOptions);
   const contract = analysisOptions.contract ?? loadActivityContract(analysisOptions.contractPath);
 
   return buildActivityModelReviewPacket(
     analyzerPacket,
     candidate,
-    { mode: "model_assisted", proposer },
+    {
+      mode: "model_assisted",
+      proposer,
+      ...(contextItems.length > 0
+        ? { context_items: activityContextSourceMetadata(contextItems) }
+        : {}),
+    },
     contract,
+    { original_input: input, context_items: contextItems },
   );
 }
 
@@ -3830,13 +6519,36 @@ function buildCandidateShapeGuide() {
       participants: ["Domain participants named in the brief or deterministic review."],
       objective: "One sentence describing the decision or work objective.",
       outcomes: ["Observable outcomes or handoff states for the activity."],
+      existing_tools_artifacts: [
+        "Tools, documents, boards, prototypes, or other artifacts already used in the activity.",
+      ],
+      rules_rituals: [
+        "Rules, cadences, review practices, and recurring rituals that shape the activity.",
+      ],
+      division_of_labor: [
+        {
+          participant: "A participant named in the activity model.",
+          responsibility: "That participant's responsibility in the activity.",
+        },
+      ],
       domain_vocabulary: ["Terms the user would naturally use for the work."],
     },
     interaction_contract: {
       primary_decision: "The main decision or next action the surface should support.",
       next_actions: ["Concrete next actions the user can review or take."],
       completion: "What the user should leave knowing or having done.",
+      user_is_trying_to: "The progress the user is trying to make through this interaction.",
+      user_thinks_about_work_as: "How participants naturally frame the work in domain language.",
+      user_does_not_think_about_work_as: "A misleading implementation or interface framing to avoid.",
+      primary_decisions: [
+        "All consequential decisions in the activity, with the main decision first.",
+      ],
       make_easy: ["Responsibilities the interaction should make easy."],
+      make_harder: ["Errors, overreach, or undesirable shortcuts the interaction should resist."],
+      state_changes: ["Meaningful domain state transitions the interaction must make clear."],
+      leave_screen_knowing_or_done: [
+        "What the user should know, possess, or have completed when leaving the surface.",
+      ],
     },
     disclosure_policy: {
       terms_to_use: ["Domain terms suitable for the primary user-facing surface."],
@@ -3848,6 +6560,20 @@ function buildCandidateShapeGuide() {
       ],
       diagnostic_contexts: ["Contexts where diagnostic terms may be revealed."],
     },
+    claims: [
+      {
+        id: "Stable claim id.",
+        path: "Path to the candidate field, such as interaction_contract.primary_decision.",
+        value: "The proposed value or concise claim.",
+        origin: "model_inferred or convention_assumed when source context does not establish the claim.",
+        source_refs: ["Brief or context ids offered as evidence hints; the kernel validates each referenced source independently."],
+        confidence: "low, medium, or high.",
+        materiality: "low, medium, or high based on the impact if wrong.",
+        alternatives: ["Materially plausible alternatives, when any."],
+        impact_if_wrong: "Concise user or workflow consequence; no chain-of-thought.",
+        reversibility: "easy, costly, or unsafe.",
+      },
+    ],
   };
 }
 
@@ -3869,7 +6595,12 @@ function buildDeterministicReviewContext(deterministicReview) {
   };
 }
 
-export function buildActivityModelCandidateRequest({ brief, deterministic_review: deterministicReview } = {}) {
+export function buildActivityModelCandidateRequest({
+  brief,
+  deterministic_review: deterministicReview,
+  context_items: rawContextItems,
+  contextItems: rawContextItemsAlias,
+} = {}) {
   if (typeof brief !== "string" || brief.trim().length === 0) {
     throw new JudgmentKitInputError(
       "buildActivityModelCandidateRequest requires non-empty brief text.",
@@ -3882,6 +6613,10 @@ export function buildActivityModelCandidateRequest({ brief, deterministic_review
     );
   }
 
+  const contextItems = normalizeActivityContextItems(
+    rawContextItems ?? rawContextItemsAlias,
+  );
+
   return {
     messages: [
       {
@@ -3889,9 +6624,13 @@ export function buildActivityModelCandidateRequest({ brief, deterministic_review
         content: [
           "You propose a reviewable JudgmentKit activity model candidate.",
           "Return only JSON whose root object matches the candidate shape.",
-          "Ground every primary field in the source brief and deterministic review evidence.",
-          "Keep implementation terms out of candidate.activity_model and candidate.interaction_contract.",
-          "Implementation terms may appear only in candidate.disclosure_policy when they are diagnostic.",
+          "Use the source brief, supplied context, and deterministic review evidence first; infer reasonable reversible gaps when that enables concept exploration.",
+          "Label candidate-only inferences in claims and name materially plausible alternatives and impact if wrong.",
+          "Never present candidate-only claims, model confidence, or conventional defaults as user evidence.",
+          "Do not infer participant authority, safety or regulatory rules, irreversible commitments, or sensitive-disclosure boundaries.",
+          "Provide only concise evidence basis and consequences; do not provide hidden chain-of-thought.",
+          "Keep implementation terms out of candidate.activity_model and candidate.interaction_contract unless setup, debugging, auditing, or integration machinery is itself the explicit user activity.",
+          "Outside those explicit machinery activities, implementation terms may appear only in candidate.disclosure_policy when they are diagnostic.",
           "Do not propose UI layout, styling, components, tokens, visual direction, provider configuration, or network behavior.",
         ].join(" "),
       },
@@ -3900,6 +6639,17 @@ export function buildActivityModelCandidateRequest({ brief, deterministic_review
         content: JSON.stringify(
           {
             brief: brief.trim(),
+            ...(contextItems.length > 0
+              ? {
+                  context_items: contextItems.map(({ id, kind, content, source_ref, sha256 }) => ({
+                    id,
+                    kind,
+                    content,
+                    ...(source_ref ? { source_ref } : {}),
+                    sha256,
+                  })),
+                }
+              : {}),
             deterministic_review: buildDeterministicReviewContext(deterministicReview),
             candidate_shape: buildCandidateShapeGuide(),
           },
@@ -3951,10 +6701,12 @@ export function createActivityModelProposer({ callModel } = {}) {
   return async function proposeActivityModelCandidate({
     brief,
     deterministic_review: deterministicReview,
+    context_items: contextItems,
   } = {}) {
     const request = buildActivityModelCandidateRequest({
       brief,
       deterministic_review: deterministicReview,
+      context_items: contextItems,
     });
     const candidate = parseCandidateResponse(await callModel(request));
 
@@ -3965,7 +6717,12 @@ export function createActivityModelProposer({ callModel } = {}) {
 }
 
 export async function createModelAssistedActivityModelReview(input, options = {}) {
-  const { propose, ...analysisOptions } = options;
+  const {
+    propose,
+    context_items: rawContextItems,
+    contextItems: rawContextItemsAlias,
+    ...analysisOptions
+  } = options;
 
   if (typeof propose !== "function") {
     throw new JudgmentKitInputError(
@@ -3973,15 +6730,23 @@ export async function createModelAssistedActivityModelReview(input, options = {}
     );
   }
 
-  const deterministicReview = createActivityModelReview(input, analysisOptions);
+  const contextItems = normalizeActivityContextItems(
+    rawContextItems ?? rawContextItemsAlias,
+  );
+  const deterministicReview = createActivityModelReview(input, {
+    ...analysisOptions,
+    context_items: contextItems,
+  });
   const candidate = await propose({
     brief: input,
     deterministic_review: deterministicReview,
+    context_items: contextItems,
   });
 
   return reviewActivityModelCandidate(input, candidate, {
     ...analysisOptions,
     proposer: "injected",
+    context_items: contextItems,
   });
 }
 
@@ -4096,7 +6861,15 @@ function buildCandidatePrimaryMetaTermsDetected(candidate) {
     .sort((left, right) => left.term.localeCompare(right.term));
 }
 
-function buildUiWorkflowPrimaryTermsDetected(candidate, contract) {
+function buildUiWorkflowPrimaryTermsDetected(
+  candidate,
+  contract,
+  { setup_diagnostic_context: setupDiagnosticContext = false } = {},
+) {
+  if (setupDiagnosticContext) {
+    return [];
+  }
+
   return detectImplementationTerms(
     JSON.stringify(uiWorkflowPrimaryFields(candidate)),
     contract,
@@ -5805,6 +8578,1249 @@ function buildArtifactInspectorWorkflowDiagnostics(
   };
 }
 
+const WORKFLOW_AUTHORITY_VERB_PATTERNS = [
+  ["approve", /\b(?:approv(?:e|es|ed|ing)|approval|accept|accepts|accepted|accepting|grant|grants|granted|granting)\b/, "participant"],
+  ["deny", /\b(?:deny|denies|denied|denial|reject|rejects|rejected|rejecting|prohibit|prohibits|prohibited|prohibiting)\b/, "participant"],
+  ["authorize", /\b(?:authoriz(?:e|es|ed|ing|ation)|permit|permits|permitted|permitting|sign[\s-]?off)\b/, "participant"],
+  ["commit", /\b(?:commit|commits|committed|committing|commitment)\b/, "participant"],
+  ["execute", /\b(?:execute|executes|executed|executing|execution)\b/, "participant"],
+  ["execute", IRREVERSIBLE_ACTION_PATTERN, "irreversible"],
+  ["execute", /\b(?:issue|issues|issued|issuing|pay|pays|paid|paying)\b/, "financial"],
+  ["finalize", /\b(?:finalize|finalizes|finalized|finalizing|final approval|final(?=(?: [a-z0-9'-]+){0,3} decision\b)|final call)\b/, "participant"],
+  ["publish", /\b(?:publish|publishes|published|publishing|publication)\b/, "participant"],
+  ["release", /\b(?:release|releases|released|releasing)\b/, "participant"],
+  ["prescribe", /\b(?:prescrib(?:e|es|ed|ing)|prescription)\b/, "safety"],
+  ["discharge", /\b(?:discharg(?:e|es|ed|ing)|clear|clears|cleared|clearing)\b/, "safety"],
+  ["administer", /\b(?:administer|administers|administered|administering)\b/, "safety"],
+  ["dose", /\b(?:dose|doses|dosed|dosing|dosage)\b/, "safety"],
+  ["diagnose", /\b(?:diagnos(?:e|es|ed|ing|is))\b/, "safety"],
+  ["view_sensitive", /\b(?:view|views|viewed|viewing|see|sees|seen|seeing|read|reads|reading|inspect|inspects|inspected|inspecting|access|accesses|accessed|accessing|open|opens|opened|opening|browse|browses|browsed|browsing)\b/, "sensitive"],
+  ["view_sensitive", /\b(?:visible|available|accessible|shown|displayed|presented|rendered|provided|received|exposed)\b/, "sensitive"],
+  ["disclose_sensitive", /\b(?:share|shares|shared|sharing|reveal|reveals|revealed|revealing|disclose|discloses|disclosed|disclosing|show|shows|shown|showing|display|displays|displayed|displaying|present|presents|presented|presenting|render|renders|rendered|rendering|provide|provides|provided|providing|receive|receives|received|receiving|expose|exposes|exposed|exposing|appear|appears|appeared|appearing|visible|available|accessible)\b/, "sensitive"],
+];
+
+function stripRecommendationAuthorityLanguage(value) {
+  return normalizeText(normalizedClaimStrings(value).join(" "))
+    .replace(
+      /\b(?:submit|route|escalate|flag|queue|prepare)\s+(?:(?:the|a|an)\s+)?(?:refund|request|case|recommendation|review|evidence|packet|application|item)\b(?:\s+[a-z0-9'-]+){0,8}\s+for\s+(?:the\s+)?(?:[a-z][a-z-]*\s+){0,4}approval\b/g,
+      "",
+    )
+    .replace(
+      /\b(?:request|seek)\s+(?:(?:the|a|an)\s+)?(?:[a-z][a-z-]*\s+){0,4}approval\b/g,
+      "",
+    )
+    .replace(
+      /\b(?:recommend(?:s|ed|ing|ation)?|suggest(?:s|ed|ing|ion)?|propos(?:e|es|ed|ing|al)|advis(?:e|es|ed|ing)|advice)\b(?:\s+[a-z0-9'-]+){0,12}\s+(?:approv(?:e|es|ed|ing|al)|den(?:y|ies|ied|ying|ial)|authoriz(?:e|es|ed|ing|ation)|commit(?:s|ted|ting|ment)?|execut(?:e|es|ed|ing|ion)|finaliz(?:e|es|ed|ing|ation)|publish(?:es|ed|ing)?|publication|releas(?:e|es|ed|ing)|prescrib(?:e|es|ed|ing)|prescription)\b/g,
+      "",
+    )
+    .replace(
+      /\b(?:approv(?:e|es|ed|ing|al)|den(?:y|ies|ied|ying|ial)|authoriz(?:e|es|ed|ing|ation)|commit(?:s|ted|ting|ment)?|execut(?:e|es|ed|ing|ion)|finaliz(?:e|es|ed|ing|ation)|publish(?:es|ed|ing)?|publication|releas(?:e|es|ed|ing)|prescrib(?:e|es|ed|ing)|prescription)\b(?:\s+[a-z0-9'-]+){0,8}\s+(?:recommend(?:s|ed|ing|ation)?|suggest(?:s|ed|ing|ion)?|propos(?:e|es|ed|ing|al)|advis(?:e|es|ed|ing)|advice)\b/g,
+      "",
+    )
+    .replace(
+      /\b(?:recommend(?:s|ed|ing|ation)?|suggest(?:s|ed|ing|ion)?|propos(?:e|es|ed|ing|al)|advis(?:e|es|ed|ing)|advice)\b(?:\s+[a-z0-9'-]+){0,12}\s+(?:discharg(?:e|es|ed|ing)|administer(?:s|ed|ing)?|diagnos(?:e|es|ed|ing|is)|view|see|read|inspect|access|share|reveal|disclose|show|display|present|render|provide|receive|expose)\b/g,
+      "",
+    )
+    .replace(
+      /\b(?:recommend(?:s|ed|ing|ation)?|suggest(?:s|ed|ing|ion)?|propos(?:e|es|ed|ing|al)|advis(?:e|es|ed|ing)|advice)\b(?:\s+[a-z0-9'-]+){0,12}\s+(?:accept|reject|grant|permit|prohibit|sign[\s-]?off|issue|pay|clear|dose|open|browse)\b/g,
+      "",
+    )
+    .replace(
+      /\b(?:ask(?:s|ed|ing)?|request(?:s|ed|ing)?|nominat(?:e|es|ed|ing|ion))\b(?:\s+[a-z0-9'-]+){0,12}\s+(?:that|to)\b(?:\s+[a-z0-9'-]+){0,8}\s+(?:approv(?:e|es|ed|ing|al)|accept|reject|den(?:y|ies|ied|ying|ial)|grant|authoriz(?:e|es|ed|ing|ation)|permit|prohibit|commit(?:s|ted|ting|ment)?|execut(?:e|es|ed|ing|ion)|issue|pay|finaliz(?:e|es|ed|ing|ation)|publish(?:es|ed|ing)?|publication|releas(?:e|es|ed|ing)|prescrib(?:e|es|ed|ing)|prescription|discharg(?:e|es|ed|ing)|administer(?:s|ed|ing)?|diagnos(?:e|es|ed|ing|is)|view|see|read|inspect|access|share|reveal|disclose|show|display|present|render|provide|receive|expose|clear|dose|open|browse)\b/g,
+      "",
+    )
+    .replace(
+      new RegExp(
+        String.raw`\b(?:recommend(?:s|ed|ing|ation)?|suggest(?:s|ed|ing|ion)?|propos(?:e|es|ed|ing|al)|advis(?:e|es|ed|ing)|advice)\b(?:\s+[a-z0-9'-]+){0,12}\s+(?:${IRREVERSIBLE_ACTION_VERB_SOURCE})\b`,
+        "g",
+      ),
+      "",
+    )
+    .replace(
+      new RegExp(
+        String.raw`\b(?:ask(?:s|ed|ing)?|request(?:s|ed|ing)?|nominat(?:e|es|ed|ing|ion))\b(?:\s+[a-z0-9'-]+){0,12}\s+(?:that|to)\b(?:\s+[a-z0-9'-]+){0,8}\s+(?:${IRREVERSIBLE_ACTION_VERB_SOURCE})\b`,
+        "g",
+      ),
+      "",
+    );
+}
+
+function isReadOnlyAuthorityReference(value, id) {
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  const readOnlyContext =
+    /\b(?:review|view|inspect|show|display|compare|read|browse|track|see)\b/.test(text) &&
+    /\b(?:status|history|logs?|notes?|dates?|receipt|record|decision|result)\b/.test(text);
+  const nounReferenceContext =
+    /\b(?:send|receive|show|display|record|review|view|inspect|read|browse|track|see|share|notify)\b/.test(text) &&
+    /\b(?:approval|denial|authorization|commitment|execution|publication|release|prescription|decision|result|notice|notification)\b/.test(text);
+  const authorityStateReference =
+    /\b(?:approval|denial|authorization|commitment|execution|publication|release|prescription)\b/.test(text) &&
+    /\b(?:exists?|existence|present|available|required|received|pending|status|history|logs?|notes?|dates?|receipt|record|decision|result)\b/.test(text);
+  const releaseRiskReference =
+    /^release risk$/.test(text) ||
+    /\b(?:check|review|assess|compare|track|monitor)\s+(?:the\s+)?release risk\b/.test(text) ||
+    /\brelease risk\s+(?:has|is|was|remains)\b/.test(text) ||
+    /\b(?:review|inspect|compare)\b[^.;]{0,80},\s*release risk(?:\s*,|\s+and|\s*$)/.test(text);
+  const descriptivePublicationReference = id === "publish" &&
+    (
+      /\bpublication\s+(?:criteria|history|record|receipt|status|surface)\b/.test(text) ||
+      /\bpublication\s+(?:is|was|has been|remains)\s+(?:complete|completed|pending|available|recorded)\b/.test(text) ||
+      /\b(?:primary|secondary|review|report)\s+publishing\s+surface\b/.test(text) ||
+      /\bpublished\s+(?:report|record|result|status|version)\b/.test(text)
+    );
+  if (
+    !readOnlyContext &&
+    !nounReferenceContext &&
+    !authorityStateReference &&
+    !releaseRiskReference &&
+    !descriptivePublicationReference
+  ) {
+    return false;
+  }
+  if (descriptivePublicationReference) {
+    return true;
+  }
+
+  const activeForms = {
+    approve: /\b(?:approve|approves|approved|approving|accept|accepts|accepted|accepting|grant|grants|granted|granting)\b/,
+    commit: /\b(?:commit|commits|committed|committing)\b/,
+    execute: /\b(?:execute|executes|executed|executing|issue|issues|issued|issuing|pay|pays|paid|paying)\b/,
+    publish: /\b(?:publish|publishes|published|publishing)\b/,
+    prescribe: /\b(?:prescribe|prescribes|prescribed|prescribing)\b/,
+    release: /\b(?:releases|released|releasing)\b/,
+  };
+  if (id === "execute" && IRREVERSIBLE_ACTION_PATTERN.test(text)) {
+    return false;
+  }
+  return activeForms[id] ? !activeForms[id].test(text) : false;
+}
+
+function authorityVerbIds(value) {
+  const text = stripRecommendationAuthorityLanguage(value);
+  const riskCategory = activityClaimRiskCategory({ value: text });
+  return WORKFLOW_AUTHORITY_VERB_PATTERNS
+    .filter(([id, pattern, boundary]) =>
+      hasAffirmedPattern(text, pattern) &&
+      !isReadOnlyAuthorityReference(text, id) &&
+      (boundary === "participant" ||
+        (boundary === "safety" && riskCategory === "authoritative_safety_rule") ||
+        (boundary === "sensitive" && riskCategory === "sensitive_disclosure_boundary") ||
+        (boundary === "irreversible" && riskCategory === "authoritative_irreversible_action") ||
+        (boundary === "financial" && /\b(?:refund|payment|payout|credit)\b/.test(text))))
+    .map(([id]) => id)
+    .filter((id, index, ids) => ids.indexOf(id) === index);
+}
+
+function affirmedAuthorityVerbIds(value) {
+  const text = stripRecommendationAuthorityLanguage(value);
+  const riskCategory = activityClaimRiskCategory({ value: text });
+  return WORKFLOW_AUTHORITY_VERB_PATTERNS
+    .filter(([id, pattern, boundary]) =>
+      hasAffirmedPattern(text, pattern) &&
+      !isReadOnlyAuthorityReference(text, id) &&
+      (boundary === "participant" ||
+        (boundary === "safety" && riskCategory === "authoritative_safety_rule") ||
+        (boundary === "sensitive" && riskCategory === "sensitive_disclosure_boundary") ||
+        (boundary === "irreversible" && riskCategory === "authoritative_irreversible_action") ||
+        (boundary === "financial" && /\b(?:refund|payment|payout|credit)\b/.test(text))))
+    .map(([id]) => id)
+    .filter((id, index, ids) => ids.indexOf(id) === index);
+}
+
+function affirmedAuthorityActionMatches(value) {
+  const text = stripRecommendationAuthorityLanguage(value);
+  const riskCategory = activityClaimRiskCategory({ value: text });
+  const matches = [];
+
+  for (const [id, pattern, boundary] of WORKFLOW_AUTHORITY_VERB_PATTERNS) {
+    const boundaryApplies = boundary === "participant" ||
+      (boundary === "safety" && riskCategory === "authoritative_safety_rule") ||
+      (boundary === "sensitive" && riskCategory === "sensitive_disclosure_boundary") ||
+      (boundary === "irreversible" && riskCategory === "authoritative_irreversible_action") ||
+      (boundary === "financial" && /\b(?:refund|payment|payout|credit)\b/.test(text));
+    if (!boundaryApplies || isReadOnlyAuthorityReference(text, id)) continue;
+
+    for (const match of text.matchAll(toGlobalPattern(pattern))) {
+      if (match.index > 0 && text[match.index - 1] === "-") {
+        continue;
+      }
+      if (isNegatedMatch(text, match.index, match.index + match[0].length)) {
+        continue;
+      }
+      matches.push({
+        id,
+        index: match.index,
+        end: match.index + match[0].length,
+        text: match[0],
+      });
+    }
+  }
+
+  return matches
+    .sort((left, right) => left.index - right.index || right.end - left.end)
+    .filter((match, index, sorted) =>
+      index === 0 ||
+      !sorted.slice(0, index).some((prior) =>
+        prior.id === match.id &&
+        prior.index <= match.index &&
+        prior.end >= match.end));
+}
+
+const AUTHORITY_ROLE_PHRASE_PATTERN =
+  /\b((?:[a-z][a-z-]*\s+){0,2}(?:managers?|leads?|nurses?|receptionists?|cashiers?|controllers?|reviewers?|physicians?|agents?|operators?|analysts?|specialists?|investigators?|auditors?|clinicians?|doctors?|administrators?|admins?|employees?|staff|teams?|users?))\b/g;
+
+function unrecognizedAuthorityRoleKeys(value, participants) {
+  const text = normalizeText(value);
+  if (!text || participantMentions(text, participants).length > 0) return [];
+  return unique(
+    [...text.matchAll(AUTHORITY_ROLE_PHRASE_PATTERN)]
+      .map((match) => unique(activityClaimTokens(match[1])).join(" "))
+      .filter(Boolean)
+      .map((key) => `unrecognized:${key}`),
+  );
+}
+
+function authorityActionTuples(
+  value,
+  participants,
+  { allowActorless = false } = {},
+) {
+  return normalizedClaimStrings(value).flatMap((claimValue) =>
+    authorityClauses(claimValue).flatMap((clause) => {
+    const actions = affirmedAuthorityActionMatches(clause);
+    if (actions.length === 0) return [];
+    const mentions = participantMentions(clause, participants);
+    const tupleActors = [];
+    const rawScopes = actions.map((action, index) => {
+      const next = actions[index + 1];
+      const prefix = clause.slice(0, action.index);
+      const tail = clause
+        .slice(action.end, next?.index ?? clause.length)
+        .replace(/(?:,?\s*\b(?:and|or|then)\b\s*)+$/g, " ")
+        .trim();
+      const passive = /\b(?:is|are|was|were|be|been|being)\s*$/.test(prefix) ||
+        /^(?:visible|available|accessible|shown|displayed|presented|rendered|provided|received|exposed)\b/.test(action.text);
+      return {
+        passive,
+        value: passive
+          ? `${prefix.replace(/\b(?:is|are|was|were|be|been|being)\s*$/, "")} ${tail.replace(/\b(?:by|to)\s+(?:the\s+)?[^,.;]+$/, "")}`.trim()
+          : tail,
+      };
+    });
+
+    const scopeFor = (index) => {
+      const ownScope = rawScopes[index]?.value ?? "";
+      if (authorityScopeTokens(ownScope, participants).length > 0) {
+        return ownScope;
+      }
+      for (let nextIndex = index + 1; nextIndex < rawScopes.length; nextIndex += 1) {
+        const between = clause.slice(actions[nextIndex - 1].end, actions[nextIndex].index);
+        if (!/^\s*(?:,|and|or|then|may|can|must|shall|will|to)*\s*$/.test(between)) {
+          break;
+        }
+        const sharedScope = rawScopes[nextIndex]?.value ?? "";
+        if (authorityScopeTokens(sharedScope, participants).length > 0) {
+          return sharedScope;
+        }
+      }
+      return ownScope;
+    };
+
+    return actions.flatMap((action, index) => {
+      const previous = actions[index - 1];
+      const next = actions[index + 1];
+      const localPrefixStart = previous?.end ?? 0;
+      const localPrefix = clause.slice(localPrefixStart, action.index);
+      const localMentions = mentions.filter((mention) =>
+        mention.start >= localPrefixStart &&
+        mention.end <= action.index &&
+        !/\b(?:by|to)\s+(?:the\s+)?$/.test(
+          clause.slice(localPrefixStart, mention.start),
+        ) &&
+        /^\s*(?:,|and|or|then|may|can|must|shall|will|is|are|was|were|be|been|being|allowed|authorized|permitted|to)*\s*$/.test(
+          clause.slice(mention.end, action.index),
+        ));
+      const afterMentions = mentions.filter((mention) => {
+        if (mention.start < action.end || mention.end > (next?.index ?? clause.length)) {
+          return false;
+        }
+        const bridge = clause.slice(action.end, mention.start);
+        return /^\s+(?:by|to)\s+(?:the\s+)?$/.test(bridge);
+      });
+      const unrecognizedActors = afterMentions.length === 0 &&
+          localMentions.length === 0
+        ? unique([
+            ...unrecognizedAuthorityRoleKeys(localPrefix, participants),
+            ...unrecognizedAuthorityRoleKeys(
+              clause.slice(action.end, next?.index ?? clause.length)
+                .match(/\b(?:by|to)\s+(?:the\s+)?([^,.;]+)/)?.[1] ?? "",
+              participants,
+            ),
+          ])
+        : [];
+      const actors = unique(
+        (afterMentions.length > 0
+          ? afterMentions
+          : localMentions.length > 0
+            ? localMentions
+            : unrecognizedActors.length > 0
+              ? unrecognizedActors
+            : index > 0
+              ? tupleActors[index - 1] ?? []
+              : [])
+          .map((mention) => typeof mention === "string" ? mention : mention.key),
+      );
+      tupleActors[index] = actors;
+      if (actors.length === 0 && !allowActorless) return [];
+
+      const scopeText = scopeFor(index);
+      return [{
+        verb: action.id,
+        actors,
+        scope_tokens: authorityScopeTokens(scopeText, participants),
+        constraint_tokens: authorityConstraintTokens(scopeText),
+        constraint_text: scopeText,
+        action_text: `${action.text} ${scopeText}`.trim(),
+      }];
+    });
+    }));
+}
+
+function passiveAuthorityGrantTuples(value, participants) {
+  return normalizedClaimStrings(value).flatMap((claimValue) =>
+    authorityClauses(claimValue).flatMap((clause) => {
+      const match = clause.match(
+        /^(.*?)\b(?:may|can|must|shall|will)\s+(?!not\b)be\s+(.+?)\s+by\s+(?:the\s+)?(.+)$/,
+      );
+      if (!match) return [];
+
+      const scopeText = match[1].trim();
+      const actionText = match[2].trim();
+      const actorText = match[3].trim();
+      const actors = unique(
+        participantMentions(actorText, participants).map(
+          (mention) => mention.key,
+        ),
+      );
+      if (actors.length === 0) return [];
+
+      const scopeTokens = authorityScopeTokens(scopeText, participants);
+      if (scopeTokens.length === 0) return [];
+
+      return affirmedAuthorityActionMatches(actionText).map((action) => ({
+        verb: action.id,
+        actors,
+        scope_tokens: scopeTokens,
+        constraint_tokens: authorityConstraintTokens(scopeText),
+        constraint_text: scopeText,
+        action_text: `${action.text} ${scopeText}`.trim(),
+      }));
+    }),
+  );
+}
+
+function authorityClauses(value) {
+  return normalizeText(value)
+    .split(/(?:[.;!?]+|\b(?:but|however|whereas|while)\b)/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function activityParticipantDescriptors(activityReview) {
+  return normalizedClaimStrings(
+    activityReview?.candidate?.activity_model?.participants,
+  ).map((label) => ({
+    label,
+    key: unique(activityClaimTokens(label)).join(" "),
+    tokens: new Set(activityClaimTokens(label)),
+  })).filter((entry) => entry.key.length > 0);
+}
+
+function activityObjectScopeTokens(activityReview, participants) {
+  let text = normalizeText(
+    activityReview?.candidate?.activity_model?.activity,
+  );
+  for (const participant of participants) {
+    text = text.replaceAll(normalizeText(participant.label), " ");
+  }
+  const objectText = text.match(
+    /\b(?:review|reviews|triage|triages|handle|handles|process|processes|evaluate|evaluates|inspect|inspects|manage|manages|decide|decides)\b\s+(.+?)(?=\b(?:during|using|within|with|for|to|as)\b|$)/,
+  )?.[1] ?? "";
+  return authorityScopeTokens(objectText, participants);
+}
+
+function participantKeysMentioned(value, participants) {
+  const tokens = new Set(activityClaimTokens(value));
+  return participants
+    .filter((participant) =>
+      [...participant.tokens].every((token) => tokens.has(token)))
+    .map((participant) => participant.key);
+}
+
+function participantMentions(value, participants) {
+  const text = normalizeText(value);
+  const words = [...text.matchAll(/\b[a-z0-9]+\b/g)].map((match) => ({
+    token: normalizeActivityClaimToken(match[0]),
+    start: match.index,
+    end: match.index + match[0].length,
+  }));
+  const mentions = [];
+
+  for (const participant of participants) {
+    const tokens = [...participant.tokens];
+    for (let index = 0; index <= words.length - tokens.length; index += 1) {
+      if (tokens.every((token, offset) => words[index + offset].token === token)) {
+        mentions.push({
+          key: participant.key,
+          start: words[index].start,
+          end: words[index + tokens.length - 1].end,
+        });
+      }
+    }
+  }
+
+  return mentions;
+}
+
+function firstAuthorityActionMatch(value, verbs) {
+  const text = stripRecommendationAuthorityLanguage(value);
+  let earliest = null;
+  for (const [id, pattern] of WORKFLOW_AUTHORITY_VERB_PATTERNS) {
+    if (!verbs.includes(id)) continue;
+    for (const match of text.matchAll(toGlobalPattern(pattern))) {
+      if (isNegatedMatch(text, match.index, match.index + match[0].length)) {
+        continue;
+      }
+      if (!earliest || match.index < earliest.index) {
+        earliest = {
+          index: match.index,
+          end: match.index + match[0].length,
+          text: match[0],
+        };
+      }
+    }
+  }
+  if (verbs.includes("finalize")) {
+    for (const match of text.matchAll(toGlobalPattern(
+      /\b(?:decide|decides|choose|chooses|set|sets|make|makes|greenlight|greenlights|okay|okays|confirm|confirms|validate|validates|complete|completes|give|gives)\b/,
+    ))) {
+      if (isNegatedMatch(text, match.index, match.index + match[0].length)) {
+        continue;
+      }
+      if (!earliest || match.index < earliest.index) {
+        earliest = {
+          index: match.index,
+          end: match.index + match[0].length,
+          text: match[0],
+        };
+      }
+    }
+  }
+  return earliest;
+}
+
+function authorityActorKeys(
+  value,
+  participants,
+  verbs,
+  { fallbackToPrimary = true } = {},
+) {
+  const text = stripRecommendationAuthorityLanguage(value);
+  const action = firstAuthorityActionMatch(text, verbs);
+  if (!action) return [];
+
+  const mentions = participantMentions(text, participants);
+  const before = mentions.filter((mention) => mention.end <= action.index);
+  if (before.length > 0) return unique(before.map((mention) => mention.key));
+
+  const prefix = text.slice(0, action.index);
+  const passive = /\b(?:is|are|was|were|be|been|being)\s*$/.test(prefix) ||
+    /^(?:visible|available|accessible|shown|displayed|presented|rendered|provided|received|exposed)\b/.test(action.text);
+  if (passive) {
+    const after = mentions.filter((mention) => {
+      if (mention.start < action.end) return false;
+      const bridge = text.slice(action.end, mention.start);
+      return /^\s+by\s+(?:the\s+)?$/.test(bridge) ||
+        (verbs.some((verb) => verb.endsWith("_sensitive")) &&
+          /^\s+to\s+(?:the\s+)?$/.test(bridge));
+    });
+    if (after.length > 0) return unique(after.map((mention) => mention.key));
+  }
+
+  const explicitSubjectTokens = activityClaimTokens(prefix).filter(
+    (token) => !PROTECTED_ACTOR_STOP_TOKENS.has(token),
+  );
+  const decisionScaffolding =
+    /\b(?:activity|workflow)\s+(?:is\s+)?(?:deciding|choosing|determining)\b/.test(prefix) ||
+    /^\s*(?:decide|choose|determine)\b/.test(prefix);
+  const actionScaffolding =
+    /^\s*(?:review|inspect|compare|prepare|draft|edit|check|assess|evaluate|select|choose|decide)(?:\s+(?:and|then))?\s*$/.test(
+      prefix,
+    );
+  if (
+    !passive &&
+    !decisionScaffolding &&
+    !actionScaffolding &&
+    explicitSubjectTokens.length > 0
+  ) {
+    return [`unrecognized:${unique(explicitSubjectTokens).join(" ")}`];
+  }
+
+  return fallbackToPrimary && participants.length === 1 && participants[0]?.key
+    ? [participants[0].key]
+    : [];
+}
+
+const AUTHORITY_GENERIC_SCOPE_TOKENS = new Set([
+  "and",
+  "are",
+  "assess",
+  "be",
+  "been",
+  "being",
+  "can",
+  "case",
+  "check",
+  "compare",
+  "could",
+  "decid",
+  "draft",
+  "edit",
+  "evaluate",
+  "item",
+  "inspect",
+  "is",
+  "may",
+  "must",
+  "request",
+  "record",
+  "review",
+  "action",
+  "decision",
+  "dollar",
+  "dollars",
+  "euro",
+  "euros",
+  "outcome",
+  "pound",
+  "pounds",
+  "selected",
+  "current",
+  "clear",
+  "choose",
+  "complete",
+  "confirm",
+  "reason",
+  "give",
+  "greenlight",
+  "ahead",
+  "make",
+  "okay",
+  "set",
+  "shall",
+  "should",
+  "then",
+  "whether",
+  "was",
+  "were",
+  "next",
+  "final",
+  "send",
+  "return",
+  "validate",
+  "will",
+]);
+const AUTHORITY_NUMERIC_COMPARATOR_SCOPE_TOKENS = new Set([
+  "above",
+  "at",
+  "below",
+  "less",
+  "max",
+  "maximum",
+  "min",
+  "minimum",
+  "more",
+  "no",
+  "than",
+  "under",
+  "up",
+]);
+
+function authorityScopeTokens(value, participants) {
+  let text = stripRecommendationAuthorityLanguage(value);
+  for (const [, pattern] of WORKFLOW_AUTHORITY_VERB_PATTERNS) {
+    text = text.replace(toGlobalPattern(pattern), " ");
+  }
+  const participantTokens = new Set(
+    participants.flatMap((participant) => [...participant.tokens]),
+  );
+  return unique(activityClaimTokens(text)).filter(
+    (token) =>
+      !/^\d+$/.test(token) &&
+      !participantTokens.has(token) &&
+      !AUTHORITY_GENERIC_SCOPE_TOKENS.has(token),
+  );
+}
+
+function authorityConstraintTokens(value) {
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  const numberTokens = [...text.matchAll(/\b\d[\d,]*(?:\.\d+)?\b/g)]
+    .map((match) => match[0].replaceAll(",", ""));
+  const qualifierTokens = [...text.matchAll(/\b(?:all|every|any|unlimited|global|assigned|unassigned|own|outside|other)\b/g)]
+    .map((match) => match[0]);
+  return unique([...numberTokens, ...qualifierTokens]);
+}
+
+const AUTHORITY_RESTRICTIVE_QUALIFIERS = new Set([
+  "assigned",
+  "own",
+  "unassigned",
+  "outside",
+  "other",
+]);
+const AUTHORITY_EXPANSIVE_QUALIFIERS = new Set([
+  "all",
+  "every",
+  "any",
+  "unlimited",
+  "global",
+  "outside",
+  "other",
+  "unassigned",
+]);
+
+function authorityRestrictionTokens(value) {
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  const phrases = [
+    ...text.matchAll(/\bfor\s+[^,.;!?]{1,120}?\bonly\b/g),
+    ...text.matchAll(/\b(?:except(?:\s+for)?|excluding|unless|during|within|when|while|where|before|after|until|if|provided(?:\s+that)?|subject\s+to|contingent\s+on|with|following|once|so\s+long\s+as|as\s+long\s+as|on\s+condition\s+that|conditioned\s+on|dependent\s+on|assuming)\s+[^,.;!?]{1,120}/g),
+    ...text.matchAll(/\bin\s+[^,.;!?]{1,120}/g),
+    ...text.matchAll(/\b(?:limited|restricted)\s+to\s+[^,.;!?]{1,120}/g),
+  ].map((match) => match[0]);
+  const qualifierTokens = activityClaimTokens(text).filter((token) =>
+    AUTHORITY_RESTRICTIVE_QUALIFIERS.has(token));
+  return unique([
+    ...qualifierTokens,
+    ...phrases.flatMap((phrase) => activityClaimTokens(phrase)),
+  ]);
+}
+
+function numericAuthorityConstraintKey(text, match) {
+  const before = text.slice(Math.max(0, match.index - 2), match.index);
+  const after = text.slice(match.index + match[0].length).trimStart();
+  const currency = after.match(
+    /^(?:us\s+)?(?:dollars?|usd|euros?|eur|pounds?|gbp)\b/,
+  );
+  if (currency || /[$€£]\s*$/.test(before)) {
+    const unit = currency?.[0]
+      ?.replace(/^us\s+/, "")
+      .replace(/s$/, "") ??
+      (before.trim().endsWith("€")
+        ? "euro"
+        : before.trim().endsWith("£")
+          ? "pound"
+          : "dollar");
+    return `currency:${unit}`;
+  }
+
+  const phrase = after.match(
+    /^([a-z][a-z-]*(?:\s+[a-z][a-z-]*){0,4})/,
+  )?.[1] ?? "";
+  const unitTokens = activityClaimTokens(
+    phrase.split(/\b(?:of|per|for|at|with|and|or)\b/)[0],
+  ).filter((token) =>
+    !["all", "any", "each", "every", "maximum", "minimum"].includes(token));
+  return unitTokens.length > 0
+    ? `count:${unitTokens.slice(0, 3).join(" ")}`
+    : "";
+}
+
+function numericAuthorityConstraints(value) {
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  return [...text.matchAll(/\b\d[\d,]*(?:\.\d+)?\b/g)]
+    .map((match) => {
+      const number = Number(match[0].replaceAll(",", ""));
+      if (!Number.isFinite(number)) return null;
+      const prefix = text.slice(Math.max(0, match.index - 48), match.index);
+      const comparator = /\b(?:under|below|less than)\s*$/.test(prefix)
+        ? "lt"
+        : /\b(?:up to|at most|no more than|maximum(?: of)?|max(?:imum)?(?: of)?)\s*$/.test(prefix)
+          ? "lte"
+          : /\b(?:over|above|more than)\s*$/.test(prefix)
+            ? "gt"
+            : /\b(?:at least|no less than|minimum(?: of)?|min(?:imum)?(?: of)?)\s*$/.test(prefix)
+              ? "gte"
+              : "eq";
+      return {
+        value: number,
+        comparator,
+        key: numericAuthorityConstraintKey(text, match),
+      };
+    })
+    .filter(Boolean);
+}
+
+function numericConstraintAllows(grant, requested) {
+  if (requested.comparator !== "eq") {
+    const upperGrant = ["lt", "lte"].includes(grant.comparator);
+    const upperRequest = ["lt", "lte"].includes(requested.comparator);
+    const lowerGrant = ["gt", "gte"].includes(grant.comparator);
+    const lowerRequest = ["gt", "gte"].includes(requested.comparator);
+    if (upperGrant && upperRequest) {
+      if (requested.value < grant.value) return true;
+      if (requested.value > grant.value) return false;
+      return grant.comparator === "lte" || requested.comparator === "lt";
+    }
+    if (lowerGrant && lowerRequest) {
+      if (requested.value > grant.value) return true;
+      if (requested.value < grant.value) return false;
+      return grant.comparator === "gte" || requested.comparator === "gt";
+    }
+    return false;
+  }
+  if (grant.comparator === "lt") return requested.value < grant.value;
+  if (grant.comparator === "lte") return requested.value <= grant.value;
+  if (grant.comparator === "gt") return requested.value > grant.value;
+  if (grant.comparator === "gte") return requested.value >= grant.value;
+  return requested.value === grant.value;
+}
+
+function authorityConstraintsAllow(grantText, requestedText) {
+  const grantConstraints = new Set(authorityConstraintTokens(grantText));
+  const requestedConstraints = authorityConstraintTokens(requestedText);
+  const grantNumbers = numericAuthorityConstraints(grantText);
+  const requestedNumbers = numericAuthorityConstraints(requestedText);
+  const requestedQualifiers = requestedConstraints.filter((token) =>
+    AUTHORITY_EXPANSIVE_QUALIFIERS.has(token));
+  const grantRestrictions = authorityRestrictionTokens(grantText);
+  const requestedRestrictions = authorityRestrictionTokens(requestedText);
+
+  if (requestedQualifiers.some((token) => !grantConstraints.has(token))) {
+    return false;
+  }
+  if (grantRestrictions.some((token) => !requestedRestrictions.includes(token))) {
+    return false;
+  }
+  const addedRestrictions = requestedRestrictions.filter(
+    (token) => !grantRestrictions.includes(token),
+  );
+  if (
+    addedRestrictions.length > 0 &&
+    addedRestrictions.some((token) =>
+      ["all", "and", "any", "every", "global", "or", "other", "outside", "unlimited"].includes(token))
+  ) {
+    return false;
+  }
+  if (grantNumbers.length === 0) {
+    return requestedNumbers.length === 0;
+  }
+  if (requestedNumbers.length === 0) return false;
+
+  const matchedGrantIndexes = new Set();
+  for (const requested of requestedNumbers) {
+    let matches = grantNumbers
+      .map((grant, index) => ({ grant, index }))
+      .filter(({ grant }) =>
+        requested.key && grant.key
+          ? requested.key === grant.key
+          : false);
+    if (matches.length === 0 && grantNumbers.length === 1) {
+      matches = [{ grant: grantNumbers[0], index: 0 }];
+    }
+    if (
+      matches.length === 0 ||
+      matches.some(({ grant }) => !numericConstraintAllows(grant, requested))
+    ) {
+      return false;
+    }
+    for (const { index } of matches) matchedGrantIndexes.add(index);
+  }
+
+  return matchedGrantIndexes.size === grantNumbers.length;
+}
+
+function activityAuthorityGrants(activityReview, sourceInput, contextItems = []) {
+  if (
+    !activityReviewUsesIntegrity(activityReview) ||
+    typeof sourceInput !== "string" ||
+    sourceInput.trim().length === 0 ||
+    activityReview.source?.brief_sha256 !==
+      createHash("sha256").update(sourceInput.trim()).digest("hex")
+  ) {
+    return [];
+  }
+
+  const participants = activityParticipantDescriptors(activityReview);
+  const sourceEntries = activityCaseSourceEntries(sourceInput, contextItems)
+    .map((entry) => ({
+      ...entry,
+      text: resolveUnambiguousParticipantPronouns(
+        entry.text,
+        activityReview.candidate,
+      ),
+    }));
+  const activityObjectTokens = activityObjectScopeTokens(
+    activityReview,
+    participants,
+  );
+
+  const irreversibleVerbs = new Set([
+    "commit",
+    "execute",
+    "finalize",
+    "publish",
+    "release",
+  ]);
+  const safetyVerbs = new Set([
+    "prescribe",
+    "discharge",
+    "administer",
+    "dose",
+    "diagnose",
+  ]);
+  const sensitiveVerbs = new Set([
+    "view_sensitive",
+    "disclose_sensitive",
+  ]);
+
+  return sourceEntries.flatMap((entry) => {
+    if (
+      !protectedSourceIsRelevant(
+        entry,
+        activityReview.candidate,
+        sourceInput,
+      )
+    ) {
+      return [];
+    }
+
+    const sourceRiskCategory = protectedSourceRiskCategory(entry.text);
+    const sourceTuples = [
+      ...passiveAuthorityGrantTuples(entry.text, participants),
+      ...authorityActionTuples(
+        entry.text,
+        participants,
+        { allowActorless: true },
+      ),
+    ].filter((tuple, index, tuples) =>
+      tuples.findIndex((candidate) =>
+        candidate.verb === tuple.verb &&
+        JSON.stringify(candidate.actors) === JSON.stringify(tuple.actors) &&
+        JSON.stringify(candidate.scope_tokens) ===
+          JSON.stringify(tuple.scope_tokens) &&
+        candidate.constraint_text === tuple.constraint_text) === index);
+    return sourceTuples.flatMap((sourceTuple) => {
+      const riskCategory = AUTHORITATIVE_GOVERNING_RISK_CATEGORIES.has(
+        sourceRiskCategory,
+      )
+        ? sourceRiskCategory
+        : irreversibleVerbs.has(sourceTuple.verb)
+          ? "authoritative_irreversible_action"
+          : safetyVerbs.has(sourceTuple.verb)
+            ? "authoritative_safety_rule"
+            : sensitiveVerbs.has(sourceTuple.verb)
+              ? "sensitive_disclosure_boundary"
+              : "participant_authority";
+      const sourceKindAllowed = AUTHORITATIVE_GOVERNING_RISK_CATEGORIES.has(
+        riskCategory,
+      )
+        ? entry.kind === "authoritative_source"
+        : ["brief", "user_answer", "authoritative_source"].includes(
+            entry.kind,
+          );
+      if (!sourceKindAllowed) return [];
+      if (
+        riskCategory === "participant_authority" &&
+        !sourceStatesAffirmativeParticipantGrant(entry.text)
+      ) {
+        return [];
+      }
+      if (
+        sourceTuple.actors.some((actor) =>
+          actor.startsWith("unrecognized:"),
+        )
+      ) {
+        return [];
+      }
+      const actors = sourceTuple.actors.length > 0
+        ? sourceTuple.actors
+        : participants.length === 1 && participants[0]?.key
+          ? [participants[0].key]
+          : [];
+      if (actors.length === 0 || sourceTuple.scope_tokens.length === 0) {
+        return [];
+      }
+      const scopeTokens = /\b(?:case|item|request|record|decision|outcome)\b/.test(
+        sourceTuple.action_text,
+      )
+        ? unique([...sourceTuple.scope_tokens, ...activityObjectTokens])
+        : sourceTuple.scope_tokens;
+      return [{
+        verbs: [sourceTuple.verb],
+        actors,
+        scope_tokens: scopeTokens,
+        source_scope_tokens: sourceTuple.scope_tokens.filter((token) =>
+          !AUTHORITY_NUMERIC_COMPARATOR_SCOPE_TOKENS.has(token) &&
+          !(
+            sourceTuple.constraint_tokens.includes("assigned") &&
+            ["care", "team", "their"].includes(token)
+          )),
+        constraint_tokens: sourceTuple.constraint_tokens,
+        constraint_text: sourceTuple.constraint_text,
+        source_ref: entry.id,
+        risk_category: riskCategory,
+      }];
+    });
+  });
+}
+
+function supportedActivityAuthorityVerbIds(activityReview) {
+  return unique(
+    (activityReview?.activity_case?.claims ?? [])
+      .filter((claim) =>
+        activityClaimRiskCategory(claim) &&
+        Array.isArray(claim.source_refs) &&
+        claim.source_refs.length > 0)
+      .flatMap((claim) => affirmedAuthorityVerbIds(claim.value)),
+  );
+}
+
+function isProtectedDecisionEuphemism(value) {
+  const text = stripRecommendationAuthorityLanguage(value);
+  if (
+    /\b(?:recommend(?:s|ed|ing|ation)?|suggest(?:s|ed|ing|ion)?|propos(?:e|es|ed|ing|al)|advis(?:e|es|ed|ing)|advice)\b/.test(text) ||
+    /\b(?:need(?:s|ed)? (?:attention|follow-up|review)|priorit(?:y|ize|izes|ized|izing)|route|routing|triage)\b/.test(text)
+  ) {
+    return false;
+  }
+
+  return (
+    /\b(?:decide|decides)\b(?:\s+[a-z0-9'-]+){0,4}\s+(?:refund|payment|payout|credit|request|case|outcome|decision|approval|denial|authorization|release|publication|prescription|discharge)\b/.test(text) ||
+    /\b(?:choose|chooses)\b(?:\s+[a-z0-9'-]+){0,4}\s+(?:refund|payment|payout|credit|outcome|decision|approval|denial|authorization|release|publication|prescription|discharge)\b/.test(text) ||
+    /\b(?:set|sets)\b(?:\s+the)?\s+(?:final\s+)?(?:outcome|decision|disposition)\b/.test(text) ||
+    /\b(?:make|makes)\b(?:\s+the)?\s+final\s+call\b/.test(text) ||
+    /\b(?:greenlight|greenlights)\b(?:\s+the)?\s+(?:refund|payment|payout|credit|request|case|release|publication|prescription|discharge)\b/.test(text) ||
+    /\b(?:give|gives)(?:\s+the)?\s+(?:go-ahead|go ahead|approval)\b/.test(text) ||
+    /\b(?:okay|okays)\b(?:\s+the)?\s+(?:refund|payment|payout|credit|request|case|release|publication|prescription|discharge)\b/.test(text) ||
+    /\b(?:confirm|confirms|validate|validates|complete|completes)\b(?:\s+the)?\s+(?:final\s+)?(?:refund|payment|payout|credit|approval|denial|authorization|decision|release|publication|prescription|discharge)\b/.test(text) ||
+    /\b(?:determin(?:e|es|ed|ing)|adjudicat(?:e|es|ed|ing|ion)|resolv(?:e|es|ed|ing|ution)|settl(?:e|es|ed|ing|ement)|render(?:s|ed|ing)?|disposition(?:s|ed|ing)?)\b(?:\s+[a-z0-9'-]+){0,5}\s+(?:refund|payment|payout|credit|request|case|outcome|decision|determination|disposition|approval|denial|authorization|release|publication|prescription|discharge)\b/.test(text) ||
+    /\brul(?:e|es|ed|ing)\s+on\b(?:\s+[a-z0-9'-]+){0,5}\s+(?:refund|payment|payout|credit|request|case|outcome|decision|determination|disposition|approval|denial|authorization|release|publication|prescription|discharge)\b/.test(text) ||
+    /\b(?:make|makes|made|reach|reaches|reached|enter|enters|entered|issue|issues|issued)\b(?:\s+[a-z0-9'-]+){0,5}\s+(?:determination|disposition|verdict|ruling)\b/.test(text)
+  );
+}
+
+function isPassiveSensitiveAvailabilityToViewer(value) {
+  const text = normalizeText(normalizedClaimStrings(value).join(" "));
+  return /\b(?:visible|available|accessible|shown|displayed|presented|rendered|provided|received|exposed)\s+(?:to|by)\s+(?:the\s+)?[a-z][a-z-]*(?:\s+[a-z][a-z-]*){0,4}\b/.test(
+    text,
+  );
+}
+
+function workflowAuthorityVerbIds(value, activityReview) {
+  const verbs = authorityVerbIds(value);
+  if (/^refund$/.test(stripRecommendationAuthorityLanguage(value))) {
+    verbs.push("execute");
+  }
+  const protectedCategories = new Set(
+    (activityReview?.activity_case?.claims ?? [])
+      .map((claim) => activityClaimRiskCategory(claim))
+      .filter(Boolean),
+  );
+  for (const [id, pattern, boundary] of WORKFLOW_AUTHORITY_VERB_PATTERNS) {
+    if (
+      ((boundary === "sensitive" &&
+        protectedCategories.has("sensitive_disclosure_boundary")) ||
+        (boundary === "safety" &&
+          protectedCategories.has("authoritative_safety_rule")) ||
+        (boundary === "irreversible" &&
+          protectedCategories.has("authoritative_irreversible_action"))) &&
+      hasAffirmedPattern(stripRecommendationAuthorityLanguage(value), pattern)
+    ) {
+      verbs.push(id);
+    }
+  }
+  const supportedVerbs = supportedActivityAuthorityVerbIds(activityReview);
+  if (
+    isPassiveSensitiveAvailabilityToViewer(value) &&
+    supportedVerbs.includes("view_sensitive")
+  ) {
+    for (let index = verbs.length - 1; index >= 0; index -= 1) {
+      if (verbs[index] === "disclose_sensitive") verbs.splice(index, 1);
+    }
+    verbs.push("view_sensitive");
+  }
+  if (verbs.length === 0 && isProtectedDecisionEuphemism(value)) {
+    verbs.push(...(supportedVerbs.length > 0 ? supportedVerbs : ["finalize"]));
+  }
+  return unique(verbs);
+}
+
+function descriptiveWorkflowAuthorityVerbIds(
+  value,
+  activityReview,
+  participants,
+) {
+  const verbs = workflowAuthorityVerbIds(value, activityReview);
+  if (verbs.length === 0) return [];
+
+  const text = stripRecommendationAuthorityLanguage(value);
+  const participantMentioned = participantMentions(text, participants).length > 0;
+  const unrecognizedRoleMentioned =
+    unrecognizedAuthorityRoleKeys(text, participants).length > 0;
+  const activeMatches = affirmedAuthorityActionMatches(text);
+
+  return verbs.filter((verb) =>
+    activeMatches.some((action) => {
+      if (action.id !== verb) return false;
+      if (
+        /(?:ment|tion)$/.test(action.text) ||
+        ["committed", "authorized", "published", "released"].includes(
+          action.text,
+        )
+      ) {
+        return false;
+      }
+      const prefix = text.slice(0, action.index).trim();
+      return (
+        prefix.length === 0 ||
+        /\b(?:may|can|must|shall|will|to)\s*$/.test(prefix) ||
+        /\b(?:may|can|must|shall|will)\s+be\s*$/.test(prefix) ||
+        /^\s*(?:review|inspect|compare|prepare|draft|edit|check|assess|evaluate|select|choose|decide)(?:\s+(?:and|then))?\s*$/.test(
+          prefix,
+        ) ||
+        participantMentioned ||
+        unrecognizedRoleMentioned
+      );
+    }),
+  );
+}
+
+function workflowAuthorityEntries(candidate, activityReview) {
+  const entries = [];
+  const participants = activityParticipantDescriptors(activityReview);
+  const actorContextFor = (value) => {
+    const text = optionalString(value);
+    if (!text) return "";
+    if (participantMentions(text, participants).length > 0) return text;
+    return /\b(?:managers?|leads?|nurses?|receptionists?|agents?|operators?|analysts?|specialists?|investigators?|auditors?|clinicians?|doctors?|administrators?|admins?|employees?|staff|teams?|users?)\b/i.test(text) ||
+      /\b[a-z][a-z-]*(?:\s+[a-z][a-z-]*){0,2}s\s+(?:review|reviews|triage|triages|decide|decides|approve|approves|deny|denies|authorize|authorizes|inspect|inspects|manage|manages|handle|handles|process|processes)\b/i.test(text)
+      ? text
+      : "";
+  };
+  const push = (
+    field,
+    values,
+    { actorContext = "", descriptive = false } = {},
+  ) => {
+    for (const value of normalizedClaimStrings(values)) {
+      const segments = normalizeText(value)
+        .split(/(?:;+|,(?!\d))/)
+        .map((entry) => entry.trim())
+        .filter(Boolean);
+      const protectedSegments = segments
+        .map((segment) => ({
+          value: segment,
+          authority_verbs: descriptive
+            ? descriptiveWorkflowAuthorityVerbIds(
+                segment,
+                activityReview,
+                participants,
+              )
+            : workflowAuthorityVerbIds(segment, activityReview),
+        }))
+        .filter((entry) => entry.authority_verbs.length > 0);
+      const entriesForValue = protectedSegments.length > 0
+        ? protectedSegments
+        : [{
+            value,
+            authority_verbs: descriptive
+              ? descriptiveWorkflowAuthorityVerbIds(
+                  value,
+                  activityReview,
+                  participants,
+                )
+              : workflowAuthorityVerbIds(value, activityReview),
+          }];
+      for (const entry of entriesForValue) {
+        if (entry.authority_verbs.length > 0) {
+          entries.push({ field, actor_context: actorContext, ...entry });
+        }
+      }
+    }
+  };
+
+  const workflowNameActorContext = actorContextFor(
+    candidate?.workflow?.surface_name,
+  );
+  if (workflowNameActorContext) {
+    push("workflow.surface_name", candidate?.workflow?.surface_name, {
+      actorContext: workflowNameActorContext,
+    });
+  }
+  push("workflow.primary_actions", candidate?.workflow?.primary_actions, {
+    actorContext: actorContextFor(candidate?.workflow?.surface_name),
+  });
+  push("workflow.work_units", candidate?.workflow?.work_units, {
+    descriptive: true,
+  });
+  push("workflow.decision_points", candidate?.workflow?.decision_points);
+  push("workflow.completion_state", candidate?.workflow?.completion_state, {
+    descriptive: true,
+  });
+  push("handoff.reason", candidate?.handoff?.reason, {
+    descriptive: true,
+  });
+  push("handoff.next_action", candidate?.handoff?.next_action);
+  for (const [index, surface] of toSurfaceSetArray(candidate?.surface_set).entries()) {
+    const actorContext = actorContextFor([surface?.name, surface?.purpose]
+      .filter(Boolean)
+      .join(" "));
+    const surfaceNameActorContext = actorContextFor(surface?.name);
+    if (surfaceNameActorContext) {
+      push(`surface_set[${index}].name`, surface?.name, {
+        actorContext: surfaceNameActorContext,
+      });
+    }
+    push(`surface_set[${index}].controls`, surface?.controls, { actorContext });
+    push(`surface_set[${index}].purpose`, surface?.purpose, {
+      actorContext,
+      descriptive: true,
+    });
+    push(`surface_set[${index}].sections`, surface?.sections, {
+      actorContext,
+      descriptive: true,
+    });
+    push(
+      `surface_set[${index}].relationship_to_workflow`,
+      surface?.relationship_to_workflow,
+      { actorContext, descriptive: true },
+    );
+  }
+
+  return entries;
+}
+
+function workflowActorContextKeys(value, participants) {
+  const text = normalizeText(value);
+  if (!text) return [];
+  const mentions = participantMentions(text, participants);
+  if (mentions.length > 0) return unique(mentions.map((mention) => mention.key));
+
+  return unrecognizedAuthorityRoleKeys(text, participants);
+}
+
+function buildUiWorkflowAuthorityMismatches(
+  candidate,
+  activityReview,
+  sourceInput,
+  contextItems = [],
+) {
+  if (!activityReviewUsesIntegrity(activityReview)) {
+    return [];
+  }
+
+  const participants = activityParticipantDescriptors(activityReview);
+  const grants = activityAuthorityGrants(
+    activityReview,
+    sourceInput,
+    contextItems,
+  );
+
+  const entries = workflowAuthorityEntries(candidate, activityReview)
+    .map((entry) => {
+      let requiredActors = authorityActorKeys(
+        entry.value,
+        participants,
+        entry.authority_verbs,
+        { fallbackToPrimary: false },
+      );
+      if (requiredActors.length === 0) {
+        requiredActors = workflowActorContextKeys(
+          entry.actor_context,
+          participants,
+        );
+      }
+      if (requiredActors.length === 0 && participants.length === 1) {
+        const possibleActors = unique(
+          grants
+            .filter((grant) =>
+              entry.authority_verbs.some((verb) => grant.verbs.includes(verb)))
+            .flatMap((grant) => grant.actors),
+        );
+        if (possibleActors.length === 1) requiredActors = possibleActors;
+      }
+      const requiredScopeTokens = authorityScopeTokens(entry.value, participants);
+      const requiredConstraintTokens = authorityConstraintTokens(entry.value);
+      return {
+        ...entry,
+        required_actors: requiredActors,
+        required_scope_tokens: requiredScopeTokens,
+        required_constraint_tokens: requiredConstraintTokens,
+      };
+    });
+
+  const grantSupports = (
+    entry,
+    verb,
+    { allowEmptyScope = false } = {},
+  ) => grants.some((grant) => {
+    if (!grant.verbs.includes(verb)) return false;
+    if (
+      entry.required_actors.length === 0 ||
+      !entry.required_actors.every((actor) => grant.actors.includes(actor))
+    ) {
+      return false;
+    }
+    if (!authorityConstraintsAllow(grant.constraint_text, entry.value)) {
+      return false;
+    }
+    if (entry.required_scope_tokens.length === 0) {
+      return allowEmptyScope && grant.scope_tokens.length === 0;
+    }
+    return entry.required_scope_tokens.every((token) =>
+      grant.scope_tokens.includes(token)) &&
+      grant.source_scope_tokens.every((token) =>
+        entry.required_scope_tokens.includes(token));
+  });
+
+  const sameRequiredActors = (left, right) =>
+    left.required_actors.length === right.required_actors.length &&
+    left.required_actors.every((actor) => right.required_actors.includes(actor));
+  const summaryFields = new Set([
+    "workflow.decision_points",
+    "workflow.completion_state",
+  ]);
+
+  return entries
+    .map((entry) => {
+      const unsupportedAuthorityVerbs = entry.authority_verbs.filter((verb) => {
+        if (grantSupports(entry, verb)) return false;
+
+        const mayUseScopedSibling =
+          entry.required_scope_tokens.length === 0 &&
+          summaryFields.has(entry.field) &&
+          grants.some((grant) =>
+            grant.verbs.includes(verb) &&
+            entry.required_actors.every((actor) => grant.actors.includes(actor)) &&
+            authorityConstraintsAllow(grant.constraint_text, entry.value));
+        if (!mayUseScopedSibling) return true;
+
+        return !entries.some((sibling) =>
+          sibling !== entry &&
+          sibling.required_scope_tokens.length > 0 &&
+          sibling.authority_verbs.includes(verb) &&
+          sameRequiredActors(entry, sibling) &&
+          grantSupports(sibling, verb));
+      });
+
+      return {
+        ...entry,
+        unsupported_authority_verbs: unsupportedAuthorityVerbs,
+      };
+    })
+    .filter((entry) => entry.unsupported_authority_verbs.length > 0);
+}
+
 function buildUiWorkflowCandidateGuardrails(
   candidate,
   contract,
@@ -5812,7 +9828,12 @@ function buildUiWorkflowCandidateGuardrails(
   surfaceGuidance,
   guidanceProfile,
   sourceInput,
+  contextItems = [],
 ) {
+  const setupDiagnosticContext = isSetupDiagnosticContext(
+    sourceInput,
+    optionalString(surfaceGuidance?.recommended_surface_type),
+  );
   const artifactInspector = buildArtifactInspectorWorkflowDiagnostics(
     candidate,
     contract,
@@ -5826,10 +9847,18 @@ function buildUiWorkflowCandidateGuardrails(
     candidate_primary_terms_detected: buildUiWorkflowPrimaryTermsDetected(
       candidate,
       contract,
+      { setup_diagnostic_context: setupDiagnosticContext },
     ),
     candidate_primary_meta_terms_detected:
       buildCandidatePrimaryMetaTermsDetected(candidate),
     candidate_missing_fields: buildUiWorkflowCandidateMissingFields(candidate),
+    authority_mismatches: buildUiWorkflowAuthorityMismatches(
+      candidate,
+      activityReview,
+      sourceInput,
+      contextItems,
+    ),
+    setup_diagnostic_context: setupDiagnosticContext,
     stepper_eligibility: buildStepperEligibility(
       activityReview,
       candidate,
@@ -6021,6 +10050,17 @@ function buildUiWorkflowQuestions(activityReview, candidateGuardrails) {
     );
   }
 
+  if (candidateGuardrails.authority_mismatches.length > 0) {
+    const verbs = unique(
+      candidateGuardrails.authority_mismatches.flatMap(
+        (entry) => entry.unsupported_authority_verbs,
+      ),
+    );
+    questions.push(
+      `What source establishes that this participant may ${verbs.join(", ")} rather than only recommend the action?`,
+    );
+  }
+
   if (candidateGuardrails.stepper_eligibility?.blocked) {
     questions.push(
       "What source evidence makes this a staged wizard or stepper instead of a workspace, dashboard, report, conversation, or multi-surface workflow?",
@@ -6080,7 +10120,8 @@ function buildUiWorkflowConfidence(activityReview, candidateGuardrails) {
     candidateGuardrails.stepper_eligibility?.blocked ||
     candidateGuardrails.artifact_inspector?.valid === false ||
     candidateGuardrails.candidate_primary_terms_detected.length > 0 ||
-    candidateGuardrails.candidate_primary_meta_terms_detected.length > 0
+    candidateGuardrails.candidate_primary_meta_terms_detected.length > 0 ||
+    candidateGuardrails.authority_mismatches.length > 0
   ) {
     return "low";
   }
@@ -6100,16 +10141,19 @@ function buildUiWorkflowReviewPacket(
   guidanceProfile = null,
   surfaceReview = null,
   sourceInput = "",
+  contextItems = [],
+  revalidatedActivityReview = activityReview,
 ) {
   const sourceReady = activityReview.review_status === "ready_for_review";
   const surfaceGuidance = summarizeSurfaceReview(surfaceReview);
   const candidateGuardrails = buildUiWorkflowCandidateGuardrails(
     candidate,
     contract,
-    activityReview,
+    revalidatedActivityReview,
     surfaceGuidance,
     guidanceProfile,
     sourceInput,
+    contextItems,
   );
   const validatedArtifactInspector =
     candidateGuardrails.artifact_inspector?.valid === true
@@ -6131,7 +10175,8 @@ function buildUiWorkflowReviewPacket(
     candidateGuardrails.artifact_inspector?.valid !== false &&
     resolvedSurfaceGuidance?.status !== "review_required" &&
     candidateGuardrails.candidate_primary_terms_detected.length === 0 &&
-    candidateGuardrails.candidate_primary_meta_terms_detected.length === 0;
+    candidateGuardrails.candidate_primary_meta_terms_detected.length === 0 &&
+    candidateGuardrails.authority_mismatches.length === 0;
   const normalizedCandidate = normalizeUiWorkflowCandidate(
     candidate,
     activityReview,
@@ -6157,9 +10202,7 @@ function buildUiWorkflowReviewPacket(
     source: {
       ...source,
       input_excerpt: activityReview.source?.input_excerpt,
-      ...(candidateGuardrails.artifact_inspector &&
-      typeof sourceInput === "string" &&
-      sourceInput.trim().length > 0
+      ...(typeof sourceInput === "string" && sourceInput.trim().length > 0
         ? { reviewed_activity_input: sourceInput.trim() }
         : {}),
     },
@@ -6191,6 +10234,7 @@ function buildUiWorkflowReviewPacket(
           candidateGuardrails.candidate_primary_terms_detected,
         candidate_primary_meta_terms_detected:
           candidateGuardrails.candidate_primary_meta_terms_detected,
+        authority_mismatches: candidateGuardrails.authority_mismatches,
         ...(candidateGuardrails.artifact_inspector
           ? { artifact_inspector: candidateGuardrails.artifact_inspector }
           : {}),
@@ -6212,6 +10256,8 @@ function buildUiWorkflowReviewPacket(
         candidateGuardrails.candidate_primary_terms_detected,
       candidate_primary_meta_terms_detected:
         candidateGuardrails.candidate_primary_meta_terms_detected,
+      authority_mismatches: candidateGuardrails.authority_mismatches,
+      setup_diagnostic_context: candidateGuardrails.setup_diagnostic_context,
       stepper_eligibility: candidateGuardrails.stepper_eligibility,
       ...(candidateGuardrails.artifact_inspector
         ? { artifact_inspector: candidateGuardrails.artifact_inspector }
@@ -6328,6 +10374,13 @@ function buildUiWorkflowReviewContext(activityReview) {
   return {
     review_status: activityReview.review_status,
     contract_id: activityReview.contract_id,
+    ...(isPlainObject(activityReview.activity_case)
+      ? {
+          activity_case: cloneWorkflowStructuredValue(
+            activityReview.activity_case,
+          ),
+        }
+      : {}),
     candidate_activity_model: activityReview.candidate?.activity_model,
     candidate_interaction_contract: activityReview.candidate?.interaction_contract,
     candidate_disclosure_policy: activityReview.candidate?.disclosure_policy,
@@ -6413,12 +10466,13 @@ export function buildUiWorkflowCandidateRequest({
           "You propose a reviewable JudgmentKit UI workflow candidate.",
           "Return only JSON whose root object matches the UI workflow candidate shape.",
           "Ground topology, work units, coordinated surfaces, actions, decisions, handoff, and user-facing terms in the source brief and activity review.",
+          "Do not turn a recommendation, review, or routing activity into approve, deny, authorize, commit, execute, publish, release, or prescribe actions unless the reviewed activity case contains source-supported authority for that action.",
           artifactInspectorRequested
             ? "Use the artifact_centered topology object, stable structured work-unit ids, one artifact boundary, a semantic target model, explicit recovery transitions, artifact-local completion, and only the conditional state groups the activity needs."
             : "",
           "Do not use staged_flow or numbered wizard/stepper framing unless the source has strong staged-flow intent such as explicit wizard wording, ordered setup/onboarding, form validation sequence, or strict dependency order.",
-          "Keep implementation terms and JudgmentKit review-packet terms out of workflow, surface_set, and handoff.",
-          "Implementation terms may appear only in diagnostics when they are diagnostic.",
+          "Keep implementation terms and JudgmentKit review-packet terms out of workflow, surface_set, and handoff unless setup, debugging, auditing, or integration machinery is itself the explicit user activity.",
+          "Outside those explicit machinery activities, implementation terms may appear only in diagnostics when they are diagnostic.",
           guidanceProfile
             ? "Apply the selected guidance_profile as activity guidance; do not copy guardrail ids or internal mechanics into product UI copy."
             : "",
@@ -6499,6 +10553,706 @@ export function createUiWorkflowProposer({
   };
 }
 
+function activityReviewProtectedProjection(activityReview) {
+  const protectedClaims = (activityReview?.activity_case?.claims ?? [])
+    .map((claim) => ({ claim, category: activityClaimRiskCategory(claim) }))
+    .filter(({ category }) => Boolean(category));
+  const categories = unique(protectedClaims.map(({ category }) => category))
+    .sort()
+    .map((category) => {
+      const claims = protectedClaims
+        .filter((entry) => entry.category === category)
+        .map(({ claim }) => claim);
+      return {
+        category,
+        context_boundary_expected: claims.some(
+          (claim) => claim.context_boundary_expected === true,
+        ),
+        authoritative_source_available: claims.some((claim) =>
+          (Array.isArray(claim.authoritative_source_refs) &&
+            claim.authoritative_source_refs.length > 0) ||
+          claim.context_authoritative_source_available === true),
+        participant_grant_available: claims.some((claim) =>
+          claim.context_participant_grant_available === true ||
+          (
+            claim.origin === "source_supported" &&
+            Array.isArray(claim.source_refs) &&
+            claim.source_refs.length > 0
+          )),
+      };
+    });
+  const unresolved = (activityReview?.activity_case?.unresolved_ambiguities ?? [])
+    .filter((entry) =>
+      categories.some((category) => category.category === entry.category))
+    .map((entry) => ({
+      category: entry.category,
+      resolution: entry.resolution,
+    }))
+    .sort((left, right) =>
+      left.category.localeCompare(right.category) ||
+      left.resolution.localeCompare(right.resolution));
+
+  return {
+    review_status: activityReview?.review_status ?? null,
+    readiness_decision:
+      activityReview?.activity_case?.readiness?.decision ?? null,
+    categories,
+    unresolved,
+  };
+}
+
+function canonicalActivityClaimValue(value) {
+  if (typeof value === "string") {
+    return normalizeText(cleanClause(value));
+  }
+  if (Array.isArray(value)) {
+    return value.map((entry) => canonicalActivityClaimValue(entry));
+  }
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .filter((key) => value[key] !== undefined)
+        .map((key) => [key, canonicalActivityClaimValue(value[key])]),
+    );
+  }
+  return value === undefined ? null : value;
+}
+
+function assertActivityCaseClaimsMatchCandidate(
+  activityCase,
+  candidate,
+  { code, field_prefix: fieldPrefix },
+) {
+  const claims = Array.isArray(activityCase?.claims)
+    ? activityCase.claims
+    : [];
+
+  for (const definition of ACTIVITY_CASE_CLAIM_DEFINITIONS) {
+    const rootValue = valueAtCandidatePath(candidate, definition.path);
+    const retainedClaims = claims.filter(
+      (claim) =>
+        claim?.id === definition.id || claim?.path === definition.path,
+    );
+    const retainedClaim = retainedClaims[0];
+    const shouldBeAbsent = definition.optional && rootValue === undefined;
+    const matches = shouldBeAbsent
+      ? retainedClaims.length === 0
+      : retainedClaims.length === 1 &&
+        retainedClaim?.id === definition.id &&
+        retainedClaim?.path === definition.path &&
+        canonicalIntegrityValuesMatch(
+          canonicalActivityClaimValue(retainedClaim.value),
+          canonicalActivityClaimValue(rootValue),
+        );
+
+    if (!matches) {
+      throw new JudgmentKitInputError(
+        "The retained activity-case claim does not match its root activity or interaction field.",
+        {
+          code,
+          details: {
+            field: `${fieldPrefix}.claims.${definition.id}`,
+            root_field: definition.path,
+            retained_count: retainedClaims.length,
+            retained: retainedClaims.map((claim) => ({
+              id: claim?.id,
+              path: claim?.path,
+              value: claim?.value,
+            })),
+            root: rootValue,
+          },
+        },
+      );
+    }
+  }
+
+  for (const pathValue of ACTIVITY_CASE_DISCLOSURE_RISK_PATHS) {
+    const rootValues = normalizedClaimStrings(
+      valueAtCandidatePath(candidate, pathValue),
+    ).map(normalizeText);
+    const retainedRiskClaims = claims.filter(
+      (claim) => claim?.path === pathValue,
+    );
+    const retainedValues = retainedRiskClaims.flatMap((claim) =>
+      normalizedClaimStrings(claim.value).map(normalizeText));
+    const missingValue = retainedValues.find(
+      (value) => !rootValues.includes(value),
+    );
+
+    if (missingValue) {
+      throw new JudgmentKitInputError(
+        "A retained disclosure-boundary claim no longer exists in the root activity candidate.",
+        {
+          code,
+          details: {
+            field: `${fieldPrefix}.claims`,
+            root_field: pathValue,
+            retained_value: missingValue,
+          },
+        },
+      );
+    }
+  }
+}
+
+function kernelDerivedActivityCaseClaim(claim) {
+  const id = optionalString(claim?.id);
+  const pathValue = optionalString(claim?.path);
+  const contextPrefix = "context_items.";
+  const contextSuffix = ".protected_boundary";
+  if (
+    pathValue.startsWith(contextPrefix) &&
+    pathValue.endsWith(contextSuffix)
+  ) {
+    const contextId = pathValue.slice(
+      contextPrefix.length,
+      -contextSuffix.length,
+    );
+    if (id === `context_${contextId}_protected_boundary`) {
+      return true;
+    }
+  }
+
+  return ACTIVITY_CASE_DISCLOSURE_RISK_PATHS.includes(pathValue) &&
+    id === pathValue.replaceAll(".", "_") &&
+    Boolean(activityClaimRiskCategory(claim));
+}
+
+function activityCaseClaimsAsCandidateClaims(activityCase) {
+  return (Array.isArray(activityCase?.claims) ? activityCase.claims : [])
+    .filter((claim) =>
+      isPlainObject(claim) && !kernelDerivedActivityCaseClaim(claim))
+    .map((claim) => ({
+      id: claim.id,
+      path: claim.path,
+      value: claim.value,
+      origin: claim.origin,
+      confidence: claim.confidence,
+      materiality: claim.materiality,
+      alternatives: claim.alternatives,
+      impact_if_wrong: claim.impact_if_wrong,
+      reversibility: claim.reversibility,
+    }));
+}
+
+function activityCaseClaimGroundingProjection(activityCase) {
+  return (Array.isArray(activityCase?.claims) ? activityCase.claims : [])
+    .filter((claim) => isPlainObject(claim))
+    .map((claim) => ({
+      id: optionalString(claim.id),
+      path: optionalString(claim.path),
+      value: canonicalActivityClaimValue(claim.value),
+      origin: optionalString(claim.origin),
+      source_refs: toStringArray(claim.source_refs).sort(),
+      authoritative_source_refs: toStringArray(
+        claim.authoritative_source_refs,
+      ).sort(),
+      confidence: optionalString(claim.confidence),
+      risk_category: optionalString(claim.risk_category),
+      context_boundary_expected:
+        claim.context_boundary_expected === true,
+      context_participant_grant_available:
+        claim.context_participant_grant_available === true,
+      context_authoritative_source_available:
+        claim.context_authoritative_source_available === true,
+    }))
+    .sort((left, right) =>
+      left.id.localeCompare(right.id) || left.path.localeCompare(right.path));
+}
+
+function assertActivityCaseGroundingMatchesRecomputed(
+  retainedActivityCase,
+  recomputedActivityCase,
+  { code, field },
+) {
+  const retained = activityCaseClaimGroundingProjection(retainedActivityCase);
+  const recomputed = activityCaseClaimGroundingProjection(
+    recomputedActivityCase,
+  );
+  if (!canonicalIntegrityValuesMatch(retained, recomputed)) {
+    throw new JudgmentKitInputError(
+      "The retained activity-case claim grounding does not match the current brief and attributed context.",
+      {
+        code,
+        details: { field, retained, recomputed },
+      },
+    );
+  }
+}
+
+function revalidateActivityReviewAgainstRawSource(
+  activityReview,
+  sourceInput,
+  contextItems,
+  contract,
+) {
+  if (!activityReviewUsesIntegrity(activityReview)) return activityReview;
+
+  assertActivityCaseClaimsMatchCandidate(
+    activityReview.activity_case,
+    activityReview.candidate,
+    {
+      code: "activity_review_revalidation_failed",
+      field_prefix: "activity_review.activity_case",
+    },
+  );
+
+  const recomputed = reviewActivityModelCandidate(
+    sourceInput,
+    {
+      ...activityReview.candidate,
+      claims: activityCaseClaimsAsCandidateClaims(activityReview.activity_case),
+    },
+    {
+      proposer: "downstream_revalidation",
+      contract,
+      context_items: contextItems,
+    },
+  );
+  const retainedProjection = activityReviewProtectedProjection(activityReview);
+  const recomputedProjection = activityReviewProtectedProjection(recomputed);
+  if (
+    JSON.stringify(canonicalIntegrityValue(retainedProjection)) !==
+    JSON.stringify(canonicalIntegrityValue(recomputedProjection))
+  ) {
+    throw new JudgmentKitInputError(
+      "The supplied activity review no longer matches the protected-risk projection derived from the current brief and attributed context.",
+      {
+        code: "activity_review_revalidation_failed",
+        details: {
+          field: "activity_review.activity_case",
+          retained: retainedProjection,
+          recomputed: recomputedProjection,
+        },
+      },
+    );
+  }
+  assertActivityCaseGroundingMatchesRecomputed(
+    activityReview.activity_case,
+    recomputed.activity_case,
+    {
+      code: "activity_review_revalidation_failed",
+      field: "activity_review.activity_case.claims",
+    },
+  );
+
+  return recomputed;
+}
+
+function revalidateUiGenerationHandoffAgainstRawSource(
+  uiGenerationHandoff,
+  sourceInput,
+  rawContextItems,
+  contract,
+) {
+  const brief = optionalRawString(sourceInput)?.trim() ?? "";
+  if (brief.length === 0) {
+    throw new JudgmentKitInputError(
+      "createFrontendGenerationContext requires the current activity brief so protected risk can be revalidated from raw source.",
+      {
+        code: "activity_review_source_required",
+        details: { field: "brief" },
+      },
+    );
+  }
+
+  const expectedBriefSha = optionalString(
+    uiGenerationHandoff?.source?.activity_brief_sha256,
+  );
+  const observedBriefSha = createHash("sha256").update(brief).digest("hex");
+  if (!expectedBriefSha || expectedBriefSha !== observedBriefSha) {
+    throw new JudgmentKitInputError(
+      "The source brief does not match the brief bound to the UI generation handoff.",
+      {
+        code: "activity_review_source_invalid",
+        details: {
+          field: "ui_generation_handoff.source.activity_brief_sha256",
+        },
+      },
+    );
+  }
+
+  const contextItems = normalizeActivityContextItems(rawContextItems);
+  const byId = (entries) =>
+    [...entries].sort((left, right) => left.id.localeCompare(right.id));
+  const expectedContext = byId(
+    Array.isArray(uiGenerationHandoff?.source?.activity_context_items)
+      ? uiGenerationHandoff.source.activity_context_items
+      : [],
+  );
+  const observedContext = byId(activityContextSourceMetadata(contextItems));
+  if (
+    JSON.stringify(canonicalIntegrityValue(observedContext)) !==
+    JSON.stringify(canonicalIntegrityValue(expectedContext))
+  ) {
+    throw new JudgmentKitInputError(
+      "The supplied context_items do not match the attributed context bound to the UI generation handoff.",
+      {
+        code: "activity_review_context_invalid",
+        details: {
+          field: "ui_generation_handoff.source.activity_context_items",
+        },
+      },
+    );
+  }
+
+  const activityCandidate = {
+    activity_model: uiGenerationHandoff.activity_model,
+    interaction_contract: uiGenerationHandoff.interaction_contract,
+    disclosure_policy: uiGenerationHandoff.disclosure_policy,
+  };
+  assertActivityCaseClaimsMatchCandidate(
+    uiGenerationHandoff.activity_case,
+    activityCandidate,
+    {
+      code: "activity_review_revalidation_failed",
+      field_prefix: "ui_generation_handoff.activity_case",
+    },
+  );
+  const recomputedActivityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      ...activityCandidate,
+      claims: activityCaseClaimsAsCandidateClaims(
+        uiGenerationHandoff.activity_case,
+      ),
+    },
+    { contract, context_items: contextItems, proposer: "frontend_revalidation" },
+  );
+  const retainedProjection = activityReviewProtectedProjection({
+    review_status: "ready_for_review",
+    activity_case: uiGenerationHandoff.activity_case,
+  });
+  const recomputedProjection = activityReviewProtectedProjection(
+    recomputedActivityReview,
+  );
+  if (
+    JSON.stringify(canonicalIntegrityValue(retainedProjection)) !==
+      JSON.stringify(canonicalIntegrityValue(recomputedProjection)) ||
+    recomputedActivityReview.review_status !== "ready_for_review"
+  ) {
+    throw new JudgmentKitInputError(
+      "The UI generation handoff no longer matches the protected-risk projection derived from the current brief and attributed context.",
+      {
+        code: "activity_review_revalidation_failed",
+        details: {
+          field: "ui_generation_handoff.activity_case",
+          retained: retainedProjection,
+          recomputed: recomputedProjection,
+        },
+      },
+    );
+  }
+  assertActivityCaseGroundingMatchesRecomputed(
+    uiGenerationHandoff.activity_case,
+    recomputedActivityReview.activity_case,
+    {
+      code: "activity_review_revalidation_failed",
+      field: "ui_generation_handoff.activity_case.claims",
+    },
+  );
+
+  const workflowCandidate = {
+    workflow: uiGenerationHandoff.workflow,
+    surface_set: uiGenerationHandoff.surface_set,
+    product_terms: uiGenerationHandoff.product_terms,
+    handoff: uiGenerationHandoff.handoff,
+    diagnostics: {
+      implementation_terms: [],
+      reveal_contexts:
+        uiGenerationHandoff.disclosure_reminders?.diagnostic_contexts ?? [],
+    },
+  };
+  const recomputedWorkflowReview = reviewUiWorkflowCandidate(
+    brief,
+    workflowCandidate,
+    {
+      contract,
+      activity_review: recomputedActivityReview,
+      context_items: contextItems,
+      profile_id: uiGenerationHandoff.guidance_profile?.profile_id,
+      surface_type: uiGenerationHandoff.surface_type,
+      proposer: "frontend_revalidation",
+    },
+  );
+  if (recomputedWorkflowReview.review_status !== "ready_for_review") {
+    throw new JudgmentKitInputError(
+      "The UI generation handoff no longer passes workflow authority review against the current brief and attributed context.",
+      {
+        code: "frontend_context_blocked",
+        details: {
+          reason: "workflow_revalidation_failed",
+          review_status: recomputedWorkflowReview.review_status,
+          authority_mismatches:
+            recomputedWorkflowReview.guardrails?.authority_mismatches ?? [],
+        },
+      },
+    );
+  }
+
+  return {
+    context_items: contextItems,
+    activity_review: recomputedActivityReview,
+    workflow_review: recomputedWorkflowReview,
+  };
+}
+
+function canonicalIntegrityValuesMatch(left, right) {
+  return (
+    JSON.stringify(canonicalIntegrityValue(left)) ===
+    JSON.stringify(canonicalIntegrityValue(right))
+  );
+}
+
+function assertFrontendGenerationContextDerivedConsistency(
+  frontendGenerationContext,
+  contract,
+) {
+  const implementationGuidance = isPlainObject(
+    frontendGenerationContext.implementation_guidance,
+  )
+    ? frontendGenerationContext.implementation_guidance
+    : {};
+  const implementationContract = isPlainObject(
+    frontendGenerationContext.implementation_contract,
+  )
+    ? frontendGenerationContext.implementation_contract
+    : {};
+  const surfaceGuidance = isPlainObject(
+    frontendGenerationContext.surface_guidance,
+  )
+    ? frontendGenerationContext.surface_guidance
+    : {};
+  const disclosureReminders = isPlainObject(
+    frontendGenerationContext.disclosure_reminders,
+  )
+    ? frontendGenerationContext.disclosure_reminders
+    : {};
+  const guardrails = isPlainObject(frontendGenerationContext.guardrails)
+    ? frontendGenerationContext.guardrails
+    : {};
+  const surfaceSet = toSurfaceSetArray(frontendGenerationContext.surface_set);
+  const surfaceAggregate = aggregateSurfaceSet(surfaceSet);
+  const designSystemContract = normalizeDefaultAiNativeDesignSystem(
+    implementationContract.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
+  const designSystemSource =
+    implementationContract.design_system_source ?? DEFAULT_DESIGN_SYSTEM_SOURCE;
+  const localComponentAuthority = normalizeLocalComponentAuthority(
+    implementationContract.local_component_authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
+  const expectedEvidenceFieldMapping = reviewEvidenceFieldMapping(
+    implementationContract,
+    designSystemContract,
+    { selectedSurfaceType: frontendGenerationContext.surface_type },
+  );
+  const comparisons = [
+    [
+      "surface_guidance.recommended_surface_type",
+      surfaceGuidance.recommended_surface_type,
+      frontendGenerationContext.surface_type,
+    ],
+    [
+      "implementation_guidance.surface_type",
+      implementationGuidance.surface_type,
+      frontendGenerationContext.surface_type,
+    ],
+    [
+      "implementation_guidance.interaction_implications",
+      implementationGuidance.interaction_implications,
+      surfaceGuidance.interaction_implications,
+    ],
+    [
+      "implementation_guidance.disclosure_implications",
+      implementationGuidance.disclosure_implications,
+      surfaceGuidance.disclosure_implications,
+    ],
+    [
+      "implementation_guidance.frontend_posture",
+      implementationGuidance.frontend_posture,
+      surfaceGuidance.frontend_posture,
+    ],
+    [
+      "implementation_guidance.required_surfaces",
+      toSurfaceSetArray(implementationGuidance.required_surfaces),
+      surfaceSet,
+    ],
+    [
+      "implementation_guidance.required_sections",
+      toStringArray(implementationGuidance.required_sections),
+      surfaceAggregate.sections,
+    ],
+    [
+      "implementation_guidance.required_controls",
+      toStringArray(implementationGuidance.required_controls),
+      surfaceAggregate.controls,
+    ],
+    [
+      "implementation_guidance.implementation_contract",
+      implementationGuidance.implementation_contract,
+      implementationContract,
+    ],
+    [
+      "implementation_guidance.design_system_source",
+      implementationGuidance.design_system_source,
+      designSystemSource,
+    ],
+    [
+      "guardrails.design_system_source",
+      guardrails.design_system_source,
+      designSystemSource,
+    ],
+    [
+      "guardrails.approved_primitives",
+      toStringArray(guardrails.approved_primitives),
+      toStringArray(implementationContract.approved_primitives),
+    ],
+    [
+      "guardrails.terms_to_keep_out_of_product_ui",
+      toStringArray(guardrails.terms_to_keep_out_of_product_ui),
+      toStringArray(disclosureReminders.terms_to_keep_out_of_product_ui),
+    ],
+    [
+      "guardrails.diagnostic_contexts",
+      toStringArray(guardrails.diagnostic_contexts),
+      toStringArray(disclosureReminders.diagnostic_contexts),
+    ],
+    [
+      "implementation_guidance.local_component_authority",
+      implementationGuidance.local_component_authority,
+      localComponentAuthority,
+    ],
+    [
+      "implementation_guidance.visual_asset_policy",
+      implementationGuidance.visual_asset_policy,
+      implementationContract.visual_asset_policy ?? DEFAULT_VISUAL_ASSET_POLICY,
+    ],
+    [
+      "implementation_guidance.accessibility_policy",
+      implementationGuidance.accessibility_policy,
+      implementationContract.accessibility_policy ??
+        DEFAULT_ACCESSIBILITY_POLICY,
+    ],
+    [
+      "implementation_guidance.component_contracts",
+      implementationGuidance.component_contracts,
+      designSystemContract.component_contracts,
+    ],
+    [
+      "implementation_guidance.pattern_contracts",
+      implementationGuidance.pattern_contracts,
+      designSystemContract.pattern_contracts,
+    ],
+    [
+      "implementation_guidance.evidence_field_mapping",
+      implementationGuidance.evidence_field_mapping,
+      expectedEvidenceFieldMapping,
+    ],
+  ];
+
+  if (implementationContract.visual_composition_policy !== undefined) {
+    comparisons.push([
+      "implementation_guidance.visual_composition_policy",
+      implementationGuidance.visual_composition_policy,
+      implementationContract.visual_composition_policy,
+    ]);
+  }
+  if (frontendGenerationContext.guidance_profile?.profile_id) {
+    comparisons.push([
+      "implementation_guidance.guidance_profile_id",
+      implementationGuidance.guidance_profile_id,
+      frontendGenerationContext.guidance_profile.profile_id,
+    ]);
+  }
+
+  const mismatch = comparisons.find(
+    ([, observed, expected]) =>
+      !canonicalIntegrityValuesMatch(observed, expected),
+  );
+  if (mismatch) {
+    const [field, observed, expected] = mismatch;
+    throw new JudgmentKitInputError(
+      "Frontend implementation skill context requires internally consistent root and derived guidance.",
+      {
+        code: "frontend_skill_context_blocked",
+        details: { field, observed, expected },
+      },
+    );
+  }
+}
+
+function frontendGenerationContextAsRevalidationHandoff(
+  frontendGenerationContext,
+) {
+  return {
+    version: frontendGenerationContext.version,
+    contract_id: frontendGenerationContext.contract_id,
+    handoff_status: frontendGenerationContext.source?.handoff_status,
+    source: {
+      activity_brief_sha256:
+        frontendGenerationContext.source?.activity_brief_sha256,
+      activity_context_items:
+        frontendGenerationContext.source?.activity_context_items,
+    },
+    guidance_profile: frontendGenerationContext.guidance_profile,
+    surface_type: frontendGenerationContext.surface_type,
+    surface_guidance: frontendGenerationContext.surface_guidance,
+    activity_case: frontendGenerationContext.activity_case,
+    activity_model: frontendGenerationContext.activity_model,
+    interaction_contract: frontendGenerationContext.interaction_contract,
+    disclosure_policy: frontendGenerationContext.disclosure_policy,
+    workflow: frontendGenerationContext.workflow,
+    surface_set: frontendGenerationContext.surface_set,
+    product_terms: frontendGenerationContext.product_terms,
+    handoff: frontendGenerationContext.handoff,
+    implementation_contract: frontendGenerationContext.implementation_contract,
+    disclosure_reminders: frontendGenerationContext.disclosure_reminders,
+  };
+}
+
+function revalidateFrontendGenerationContextAgainstRawSource(
+  frontendGenerationContext,
+  sourceInput,
+  contextItems,
+  contract,
+) {
+  try {
+    return revalidateUiGenerationHandoffAgainstRawSource(
+      frontendGenerationContextAsRevalidationHandoff(
+        frontendGenerationContext,
+      ),
+      sourceInput,
+      contextItems,
+      contract,
+    );
+  } catch (error) {
+    if (!(error instanceof JudgmentKitInputError)) throw error;
+    const sourceField = optionalString(error.details?.field);
+    throw new JudgmentKitInputError(
+      "Frontend implementation skill context could not revalidate protected risk and workflow authority from the supplied raw source.",
+      {
+        code: "frontend_skill_context_blocked",
+        details: {
+          reason: "raw_source_revalidation_failed",
+          cause_code: error.code,
+          ...(sourceField
+            ? {
+                field: sourceField.replace(
+                  /^ui_generation_handoff/,
+                  "frontend_generation_context",
+                ),
+              }
+            : {}),
+          cause_details: isPlainObject(error.details) ? error.details : {},
+        },
+      },
+    );
+  }
+}
+
 export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
   const {
     proposer = "external_candidate",
@@ -6506,14 +11260,31 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
     profile_id: profileId,
     surface_review: providedSurfaceReview,
     surface_type: providedSurfaceType,
+    context_items: rawContextItems,
+    contextItems: rawContextItemsAlias,
     ...analysisOptions
   } = options;
 
   const contract = analysisOptions.contract ?? loadActivityContract(analysisOptions.contractPath);
   assertUiWorkflowCandidateShape(candidate, contract);
 
+  const contextItems = normalizeActivityContextItems(
+    rawContextItems ?? rawContextItemsAlias,
+  );
   const activityReview =
-    providedActivityReview ?? createActivityModelReview(input, analysisOptions);
+    providedActivityReview ?? createActivityModelReview(input, {
+      ...analysisOptions,
+      context_items: rawContextItems ?? rawContextItemsAlias,
+    });
+  assertActivityReviewIntegrity(activityReview, contract);
+  assertActivityBriefContinuity(activityReview, input);
+  assertActivityContextContinuity(activityReview, contextItems);
+  const revalidatedActivityReview = revalidateActivityReviewAgainstRawSource(
+    activityReview,
+    input,
+    contextItems,
+    contract,
+  );
   const guidanceProfile = resolveUiWorkflowGuidanceProfile(contract, profileId);
   const resolvedSurfaceType = providedSurfaceType
     ? resolveSurfaceType(contract, providedSurfaceType).surface_type
@@ -6537,6 +11308,8 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
     guidanceProfile,
     surfaceReview,
     input,
+    contextItems,
+    revalidatedActivityReview,
   );
 }
 
@@ -7507,6 +12280,8 @@ function artifactInspectorBoundaryIntegrityPayload(packet) {
     : packet?.source;
   if (isPlainObject(source)) {
     delete source.artifact_inspector_boundary_integrity;
+    delete source.activity_case_handoff_integrity;
+    delete source.activity_case_frontend_integrity;
   }
 
   return {
@@ -7515,9 +12290,33 @@ function artifactInspectorBoundaryIntegrityPayload(packet) {
   };
 }
 
-function assertUiWorkflowReviewStillReady(workflowReview, contract) {
+function assertUiWorkflowReviewStillReady(
+  workflowReview,
+  contract,
+  contextItems = [],
+  sourceInput = "",
+) {
   const activityReview = workflowReview.activity_review;
+  const revalidatedActivityReview = revalidateActivityReviewAgainstRawSource(
+    activityReview,
+    sourceInput,
+    contextItems,
+    contract,
+  );
   const activityEvidence = activityReview?.review?.evidence ?? {};
+  const activityCase = isPlainObject(activityReview?.activity_case)
+    ? activityReview.activity_case
+    : null;
+  const activityCaseReadiness = isPlainObject(activityCase?.readiness)
+    ? activityCase.readiness
+    : null;
+  const inferenceAwareProceed =
+    activityCase?.schema === "judgmentkit.activity-case/v1" &&
+    activityCaseReadiness?.decision === "proceed" &&
+    Array.isArray(activityCase?.unresolved_ambiguities) &&
+    activityCase.unresolved_ambiguities.length === 0 &&
+    Array.isArray(activityCaseReadiness?.blocking_ambiguity_ids) &&
+    activityCaseReadiness.blocking_ambiguity_ids.length === 0;
   const retainedActivityCandidateMissingFields =
     activityReview?.guardrails?.candidate_missing_fields ?? {};
   const recomputedActivityCandidateMissingFields =
@@ -7530,6 +12329,10 @@ function assertUiWorkflowReviewStillReady(workflowReview, contract) {
   const recomputedActivityPrimaryTerms = buildCandidatePrimaryTermsDetected(
     activityReview?.candidate ?? {},
     contract,
+    {
+      setup_diagnostic_context:
+        activityReview?.guardrails?.setup_diagnostic_context === true,
+    },
   );
   const retainedSourceMissingEvidence =
     workflowReview.guardrails?.source_missing_evidence ?? {};
@@ -7545,14 +12348,52 @@ function assertUiWorkflowReviewStillReady(workflowReview, contract) {
   const recomputedPrimaryTerms = buildUiWorkflowPrimaryTermsDetected(
     workflowReview.candidate,
     contract,
+    {
+      setup_diagnostic_context:
+        workflowReview.guardrails?.setup_diagnostic_context === true,
+    },
   );
   const recomputedPrimaryMetaTerms = buildCandidatePrimaryMetaTermsDetected(
     workflowReview.candidate,
+  );
+  const retainedAuthorityMismatches = Array.isArray(
+    workflowReview.guardrails?.authority_mismatches,
+  )
+    ? workflowReview.guardrails.authority_mismatches
+    : [];
+  const retainedReviewedActivityInput =
+    typeof workflowReview.source?.reviewed_activity_input === "string"
+      ? workflowReview.source.reviewed_activity_input
+      : "";
+  const reviewedActivityInput = optionalRawString(sourceInput)?.trim() ?? "";
+  const reviewedActivityInputMatches =
+    reviewedActivityInput.length > 0 &&
+    retainedReviewedActivityInput === reviewedActivityInput &&
+    activityReview?.source?.brief_sha256 ===
+      createHash("sha256")
+        .update(reviewedActivityInput.trim())
+        .digest("hex");
+  const recomputedAuthorityMismatches = buildUiWorkflowAuthorityMismatches(
+    workflowReview.candidate,
+    revalidatedActivityReview,
+    reviewedActivityInput,
+    contextItems,
   );
   const failures = [];
   const requireReady = (condition, field, observed) => {
     if (!condition) failures.push({ field, observed });
   };
+
+  requireReady(
+    activityReviewIntegritySealMatches(activityReview, contract),
+    "activity_review.source.activity_case_review_integrity",
+    "invalid_or_stale",
+  );
+  requireReady(
+    reviewedActivityInputMatches,
+    "source.reviewed_activity_input",
+    reviewedActivityInputMatches ? "matched" : "missing_or_mismatched",
+  );
 
   requireReady(
     activityReview?.review_status === "ready_for_review",
@@ -7569,23 +12410,25 @@ function assertUiWorkflowReviewStillReady(workflowReview, contract) {
     "review.evidence.activity_review_ready",
     workflowReview.review?.evidence?.activity_review_ready ?? null,
   );
-  for (const field of ["activity", "domain_vocabulary", "decision", "outcome"]) {
+  if (!inferenceAwareProceed) {
+    for (const field of ["activity", "domain_vocabulary", "decision", "outcome"]) {
+      requireReady(
+        activityEvidence[field] === true,
+        `activity_review.review.evidence.${field}`,
+        activityEvidence[field] ?? null,
+      );
+    }
     requireReady(
-      activityEvidence[field] === true,
-      `activity_review.review.evidence.${field}`,
-      activityEvidence[field] ?? null,
+      !objectHasTruthyReviewFlag(retainedSourceMissingEvidence),
+      "guardrails.source_missing_evidence",
+      retainedSourceMissingEvidence,
+    );
+    requireReady(
+      !objectHasTruthyReviewFlag(activitySourceMissingEvidence),
+      "activity_review.guardrails.source_missing_evidence",
+      activitySourceMissingEvidence,
     );
   }
-  requireReady(
-    !objectHasTruthyReviewFlag(retainedSourceMissingEvidence),
-    "guardrails.source_missing_evidence",
-    retainedSourceMissingEvidence,
-  );
-  requireReady(
-    !objectHasTruthyReviewFlag(activitySourceMissingEvidence),
-    "activity_review.guardrails.source_missing_evidence",
-    activitySourceMissingEvidence,
-  );
   requireReady(
     !objectHasTruthyReviewFlag(retainedActivityCandidateMissingFields) &&
       !objectHasTruthyReviewFlag(recomputedActivityCandidateMissingFields),
@@ -7621,6 +12464,12 @@ function assertUiWorkflowReviewStillReady(workflowReview, contract) {
     "guardrails.candidate_primary_meta_terms_detected",
     recomputedPrimaryMetaTerms,
   );
+  requireReady(
+    retainedAuthorityMismatches.length === 0 &&
+      recomputedAuthorityMismatches.length === 0,
+    "guardrails.authority_mismatches",
+    recomputedAuthorityMismatches,
+  );
 
   const artifactInspectorSelected = isArtifactInspectorWorkflowSelected(
     workflowReview.candidate,
@@ -7645,9 +12494,6 @@ function assertUiWorkflowReviewStillReady(workflowReview, contract) {
     );
     reviewedActiveStateGroups = ARTIFACT_INSPECTOR_STATE_GROUP_IDS.filter(
       (groupId) => guardrailStateGroups.includes(groupId),
-    );
-    const reviewedActivityInput = optionalRawString(
-      workflowReview.source?.reviewed_activity_input,
     );
     const revalidatedArtifactGuardrail = reviewedActivityInput
       ? buildArtifactInspectorWorkflowDiagnostics(
@@ -7769,6 +12615,8 @@ function buildUiGenerationHandoffBlockDetails(workflowReview) {
       workflowReview.guardrails?.candidate_primary_terms_detected ?? [],
     review_packet_leakage_terms:
       workflowReview.guardrails?.candidate_primary_meta_terms_detected ?? [],
+    authority_mismatches:
+      workflowReview.guardrails?.authority_mismatches ?? [],
     activity_review_status: workflowReview.guardrails?.activity_review_status,
   };
 }
@@ -18262,8 +23110,39 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
   const activityCandidate = workflowReview.activity_review.candidate;
   const workflowCandidate = workflowReview.candidate;
   const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const sourceInput = optionalRawString(
+    options.brief ?? options.activity_input ?? options.activityInput,
+  )?.trim() ?? "";
+  if (
+    activityReviewUsesIntegrity(workflowReview.activity_review) &&
+    sourceInput.length === 0
+  ) {
+    throw new JudgmentKitInputError(
+      "createUiGenerationHandoff requires the current activity brief so protected risk can be revalidated from raw source.",
+      {
+        code: "activity_review_source_required",
+        details: { field: "brief" },
+      },
+    );
+  }
+  const contextItems = normalizeActivityContextItems(
+    options.context_items ?? options.contextItems,
+  );
+  assertActivityBriefContinuity(
+    workflowReview.activity_review,
+    sourceInput,
+  );
+  assertActivityContextContinuity(
+    workflowReview.activity_review,
+    contextItems,
+  );
   const reviewedArtifactInspectorStateGroups =
-    assertUiWorkflowReviewStillReady(workflowReview, contract);
+    assertUiWorkflowReviewStillReady(
+      workflowReview,
+      contract,
+      contextItems,
+      sourceInput,
+    );
   const identifiers = getArtifactInspectorIdentifiers(contract);
   const workflowSelectsArtifactInspector = isArtifactTopologyCandidate(
     workflowCandidate,
@@ -18396,7 +23275,7 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
     )
   ) {
     throw new JudgmentKitInputError(
-      "UI generation handoff requires an intact workflow review from the current trusted review process.",
+      "UI generation handoff requires an intact portable Artifact Inspector workflow review.",
       {
         code: "handoff_blocked",
         details: {
@@ -18445,6 +23324,27 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
       mode: workflowReview.source?.mode,
       proposer: workflowReview.source?.proposer,
       input_excerpt: workflowReview.source?.input_excerpt,
+      ...(workflowReview.activity_review?.source?.brief_sha256
+        ? {
+            activity_brief_sha256:
+              workflowReview.activity_review.source.brief_sha256,
+          }
+        : {}),
+      ...(workflowReview.activity_review?.source
+        ?.activity_case_review_integrity
+        ? {
+            activity_case_review_integrity:
+              workflowReview.activity_review.source
+                .activity_case_review_integrity,
+          }
+        : {}),
+      ...(Array.isArray(workflowReview.activity_review?.source?.context_items)
+        ? {
+            activity_context_items: cloneWorkflowStructuredValue(
+              workflowReview.activity_review.source.context_items,
+            ),
+          }
+        : {}),
       ...(workflowSelectsArtifactInspector
         ? {
             reviewed_activity_input: optionalRawString(
@@ -18461,6 +23361,13 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
     ...(handoffSurfaceGuidance
       ? { surface_guidance: handoffSurfaceGuidance }
       : {}),
+    ...(isPlainObject(workflowReview.activity_review?.activity_case)
+      ? {
+          activity_case: cloneWorkflowStructuredValue(
+            workflowReview.activity_review.activity_case,
+          ),
+        }
+      : {}),
     activity_model: {
       activity: optionalString(activityCandidate.activity_model?.activity),
       participants: toStringArray(activityCandidate.activity_model?.participants),
@@ -18469,6 +23376,27 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
       domain_vocabulary: toStringArray(
         activityCandidate.activity_model?.domain_vocabulary,
       ),
+      ...(Array.isArray(activityCandidate.activity_model?.existing_tools_artifacts)
+        ? {
+            existing_tools_artifacts: toStringArray(
+              activityCandidate.activity_model.existing_tools_artifacts,
+            ),
+          }
+        : {}),
+      ...(Array.isArray(activityCandidate.activity_model?.rules_rituals)
+        ? {
+            rules_rituals: toStringArray(
+              activityCandidate.activity_model.rules_rituals,
+            ),
+          }
+        : {}),
+      ...(Array.isArray(activityCandidate.activity_model?.division_of_labor)
+        ? {
+            division_of_labor: cloneWorkflowStructuredValue(
+              activityCandidate.activity_model.division_of_labor,
+            ),
+          }
+        : {}),
     },
     interaction_contract: {
       primary_decision: optionalString(
@@ -18477,7 +23405,59 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
       next_actions: toStringArray(activityCandidate.interaction_contract?.next_actions),
       completion: optionalString(activityCandidate.interaction_contract?.completion),
       make_easy: toStringArray(activityCandidate.interaction_contract?.make_easy),
+      ...(typeof activityCandidate.interaction_contract?.user_is_trying_to === "string"
+        ? {
+            user_is_trying_to: optionalString(
+              activityCandidate.interaction_contract.user_is_trying_to,
+            ),
+          }
+        : {}),
+      ...(typeof activityCandidate.interaction_contract?.user_thinks_about_work_as === "string"
+        ? {
+            user_thinks_about_work_as: optionalString(
+              activityCandidate.interaction_contract.user_thinks_about_work_as,
+            ),
+          }
+        : {}),
+      ...(typeof activityCandidate.interaction_contract?.user_does_not_think_about_work_as === "string"
+        ? {
+            user_does_not_think_about_work_as: optionalString(
+              activityCandidate.interaction_contract.user_does_not_think_about_work_as,
+            ),
+          }
+        : {}),
+      ...(Array.isArray(activityCandidate.interaction_contract?.primary_decisions)
+        ? {
+            primary_decisions: toStringArray(
+              activityCandidate.interaction_contract.primary_decisions,
+            ),
+          }
+        : {}),
+      ...(Array.isArray(activityCandidate.interaction_contract?.make_harder)
+        ? {
+            make_harder: toStringArray(
+              activityCandidate.interaction_contract.make_harder,
+            ),
+          }
+        : {}),
+      ...(Array.isArray(activityCandidate.interaction_contract?.state_changes)
+        ? {
+            state_changes: toStringArray(
+              activityCandidate.interaction_contract.state_changes,
+            ),
+          }
+        : {}),
+      ...(Array.isArray(activityCandidate.interaction_contract?.leave_screen_knowing_or_done)
+        ? {
+            leave_screen_knowing_or_done: toStringArray(
+              activityCandidate.interaction_contract.leave_screen_knowing_or_done,
+            ),
+          }
+        : {}),
     },
+    disclosure_policy: cloneWorkflowStructuredValue(
+      activityCandidate.disclosure_policy ?? {},
+    ),
     workflow: {
       surface_name: optionalString(workflowCandidate.workflow.surface_name),
       topology: optionalString(workflowCandidate.workflow.topology),
@@ -18642,6 +23622,11 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
         "ui_generation_handoff",
         artifactInspectorBoundaryIntegrityPayload(handoff),
       );
+  }
+
+  if (handoff.activity_case?.schema === "judgmentkit.activity-case/v1") {
+    handoff.source.activity_case_handoff_integrity =
+      createUiGenerationHandoffIntegrityReceipt(handoff, contract);
   }
 
   assertNoStyleFields(handoff);
@@ -19208,6 +24193,10 @@ export function getIconSvg({ id } = {}) {
 
 export function createFrontendGenerationContext({
   ui_generation_handoff: uiGenerationHandoff,
+  brief,
+  activity_input: activityInput,
+  context_items: activityContextItems,
+  contextItems: activityContextItemsAlias,
   surface_review: surfaceReview,
   surface_type: surfaceType,
   surface_profile: surfaceProfile,
@@ -19466,7 +24455,7 @@ export function createFrontendGenerationContext({
     )
   ) {
     throw new JudgmentKitInputError(
-      "Artifact Inspector frontend context requires an intact handoff from the current trusted review process.",
+      "Artifact Inspector frontend context requires an intact portable handoff receipt.",
       {
         code: "frontend_context_blocked",
         details: {
@@ -19475,6 +24464,58 @@ export function createFrontendGenerationContext({
             "JK_ARTIFACT_INSPECTOR_STATE_GROUP_CONTRACT_INVALID",
         },
       },
+    );
+  }
+  const activityCaseSource = isPlainObject(uiGenerationHandoff.source)
+    ? uiGenerationHandoff.source
+    : {};
+  const hasModernActivityCaseBoundary =
+    Object.prototype.hasOwnProperty.call(uiGenerationHandoff, "activity_case") ||
+    [
+      "activity_case_handoff_integrity",
+      "activity_brief_sha256",
+      "activity_case_review_integrity",
+      "activity_context_items",
+    ].some((field) =>
+      Object.prototype.hasOwnProperty.call(activityCaseSource, field));
+  if (
+    hasModernActivityCaseBoundary &&
+    uiGenerationHandoff.activity_case?.schema !==
+      "judgmentkit.activity-case/v1"
+  ) {
+    throw new JudgmentKitInputError(
+      "Frontend generation context cannot downgrade a modern activity-case handoff to the legacy path.",
+      {
+        code: "frontend_context_blocked",
+        details: {
+          field: "ui_generation_handoff.activity_case",
+        },
+      },
+    );
+  }
+  if (
+    hasModernActivityCaseBoundary &&
+    !uiGenerationHandoffIntegrityReceiptMatches(
+      uiGenerationHandoff,
+      resolvedContract,
+    )
+  ) {
+    throw new JudgmentKitInputError(
+      "Frontend generation context requires an intact activity-case handoff receipt.",
+      {
+        code: "frontend_context_blocked",
+        details: {
+          field: "ui_generation_handoff.source.activity_case_handoff_integrity",
+        },
+      },
+    );
+  }
+  if (hasModernActivityCaseBoundary) {
+    revalidateUiGenerationHandoffAgainstRawSource(
+      uiGenerationHandoff,
+      brief ?? activityInput,
+      activityContextItems ?? activityContextItemsAlias,
+      resolvedContract,
     );
   }
   const normalizedFrontendContext = normalizeFrontendContext(frontendContext);
@@ -19644,6 +24685,18 @@ export function createFrontendGenerationContext({
       surface_type_source: surfaceTypeSource,
       surface_profile_request: normalizedSurfaceProfileRequest,
       supported_surface_profiles: supportedProfileIds,
+      ...(uiGenerationHandoff.activity_case?.schema ===
+      "judgmentkit.activity-case/v1"
+        ? {
+            activity_case_handoff_integrity:
+              uiGenerationHandoff.source?.activity_case_handoff_integrity,
+            activity_brief_sha256:
+              uiGenerationHandoff.source?.activity_brief_sha256,
+            activity_context_items: cloneWorkflowStructuredValue(
+              uiGenerationHandoff.source?.activity_context_items ?? [],
+            ),
+          }
+        : {}),
       ...(artifactInspectorSelected
         ? {
             reviewed_activity_input: reviewedActivityInput,
@@ -19656,11 +24709,28 @@ export function createFrontendGenerationContext({
     },
     surface_type: surfaceGuidance.recommended_surface_type,
     surface_guidance: surfaceGuidance,
+    ...(uiGenerationHandoff.guidance_profile
+      ? {
+          guidance_profile: cloneWorkflowStructuredValue(
+            uiGenerationHandoff.guidance_profile,
+          ),
+        }
+      : {}),
     ...(selectedSurfaceProfile
       ? { selected_surface_profile: selectedSurfaceProfile }
       : {}),
+    ...(isPlainObject(uiGenerationHandoff.activity_case)
+      ? {
+          activity_case: cloneWorkflowStructuredValue(
+            uiGenerationHandoff.activity_case,
+          ),
+        }
+      : {}),
     activity_model: uiGenerationHandoff.activity_model,
     interaction_contract: uiGenerationHandoff.interaction_contract,
+    disclosure_policy: cloneWorkflowStructuredValue(
+      uiGenerationHandoff.disclosure_policy ?? {},
+    ),
     workflow: uiGenerationHandoff.workflow,
     surface_set: requiredSurfaces,
     product_terms: toStringArray(uiGenerationHandoff.product_terms),
@@ -19686,6 +24756,12 @@ export function createFrontendGenerationContext({
     },
     implementation_guidance: {
       surface_type: surfaceGuidance.recommended_surface_type,
+      ...(uiGenerationHandoff.guidance_profile?.profile_id
+        ? {
+            guidance_profile_id:
+              uiGenerationHandoff.guidance_profile.profile_id,
+          }
+        : {}),
       interaction_implications: surfaceGuidance.interaction_implications,
       disclosure_implications: surfaceGuidance.disclosure_implications,
       frontend_posture: surfaceGuidance.frontend_posture,
@@ -19800,6 +24876,12 @@ export function createFrontendGenerationContext({
         "frontend_generation_context",
         artifactInspectorBoundaryIntegrityPayload(packet),
       );
+  }
+
+
+  if (packet.activity_case?.schema === "judgmentkit.activity-case/v1") {
+    packet.source.activity_case_frontend_integrity =
+      createFrontendContextIntegrityReceipt(packet, resolvedContract);
   }
 
   return packet;
@@ -20099,9 +25181,15 @@ function buildFrontendImplementationInstructionMarkdown({
 
 export function createFrontendImplementationSkillContext({
   frontend_generation_context: frontendGenerationContext,
+  brief,
+  activity_input: activityInput,
+  context_items: activityContextItems,
+  contextItems: activityContextItemsAlias,
   design_system_adapter: designSystemAdapter,
   target_client: targetClient,
   instruction_format: instructionFormat,
+  contract,
+  contractPath,
 } = {}) {
   if (!isPlainObject(frontendGenerationContext)) {
     throw new JudgmentKitInputError(
@@ -20125,6 +25213,19 @@ export function createFrontendImplementationSkillContext({
     );
   }
 
+  const resolvedContract = contract ?? loadActivityContract(contractPath);
+  if (
+    frontendGenerationContext.activity_case?.schema !==
+    "judgmentkit.activity-case/v1"
+  ) {
+    throw new JudgmentKitInputError(
+      "Frontend implementation skill context cannot downgrade a ready frontend packet to the legacy path.",
+      {
+        code: "frontend_skill_context_blocked",
+        details: { field: "frontend_generation_context.activity_case" },
+      },
+    );
+  }
   const normalizedDesignSystemAdapter = normalizeDesignSystemAdapter(designSystemAdapter);
   const normalizedTargetClient = optionalString(targetClient);
   const normalizedInstructionFormat = normalizeInstructionFormat(instructionFormat);
@@ -20427,7 +25528,7 @@ export function createFrontendImplementationSkillContext({
     )
   ) {
     throw new JudgmentKitInputError(
-      "Artifact Inspector frontend skill context requires an intact serialized boundary from the current trusted review process.",
+      "Artifact Inspector frontend skill context requires an intact portable serialized-boundary receipt.",
       {
         code: "invalid_artifact_inspector_authority_contract",
         details: {
@@ -20438,6 +25539,33 @@ export function createFrontendImplementationSkillContext({
       },
     );
   }
+  if (
+    !frontendContextIntegrityReceiptMatches(
+      frontendGenerationContext,
+      resolvedContract,
+    )
+  ) {
+    throw new JudgmentKitInputError(
+      "Frontend implementation skill context requires an intact activity-case frontend receipt.",
+      {
+        code: "frontend_skill_context_blocked",
+        details: {
+          field:
+            "frontend_generation_context.source.activity_case_frontend_integrity",
+        },
+      },
+    );
+  }
+  revalidateFrontendGenerationContextAgainstRawSource(
+    frontendGenerationContext,
+    brief ?? activityInput,
+    activityContextItems ?? activityContextItemsAlias,
+    resolvedContract,
+  );
+  assertFrontendGenerationContextDerivedConsistency(
+    frontendGenerationContext,
+    resolvedContract,
+  );
 
   const selectedSurfaceProfileCandidate =
     frontendGenerationContext.selected_surface_profile ??
@@ -20669,6 +25797,14 @@ export function createFrontendImplementationSkillContext({
       surface_type: frontendGenerationContext.surface_type,
       target_client: normalizedTargetClient,
       instruction_format: normalizedInstructionFormat,
+      ...(frontendGenerationContext.activity_case?.schema ===
+      "judgmentkit.activity-case/v1"
+        ? {
+            activity_case_frontend_integrity:
+              frontendGenerationContext.source
+                ?.activity_case_frontend_integrity,
+          }
+        : {}),
     },
     instruction_markdown: buildFrontendImplementationInstructionMarkdown({
       frontendGenerationContext,
@@ -20757,6 +25893,22 @@ export function createFrontendImplementationSkillContext({
         skillSurfaceImplications.disclosure_implications,
       frontend_posture: skillSurfaceImplications.frontend_posture,
     },
+    ...(isPlainObject(frontendGenerationContext.activity_case)
+      ? {
+          activity_case: cloneWorkflowStructuredValue(
+            frontendGenerationContext.activity_case,
+          ),
+        }
+      : {}),
+    activity_model: cloneWorkflowStructuredValue(
+      frontendGenerationContext.activity_model ?? {},
+    ),
+    interaction_contract: cloneWorkflowStructuredValue(
+      frontendGenerationContext.interaction_contract ?? {},
+    ),
+    disclosure_policy: cloneWorkflowStructuredValue(
+      frontendGenerationContext.disclosure_policy ?? {},
+    ),
     approved_primitives: toStringArray(implementationContract.approved_primitives),
     approved_component_families: toStringArray(
       frontendContext.approved_component_families,

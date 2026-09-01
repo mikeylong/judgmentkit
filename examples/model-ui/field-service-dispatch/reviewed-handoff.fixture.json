@@ -5,7 +5,20 @@
   "source": {
     "mode": "model_assisted",
     "proposer": "external_candidate",
-    "input_excerpt": "A field operations manager is reviewing same-day repair visits before dispatch. The request says to build from the repair_visit data model, route matrix, parts inventory API status, technician calendar fields, JSON schema, prompt template, "
+    "input_excerpt": "A field operations manager is reviewing same-day repair visits before dispatch. The request says to build from the repair_visit data model, route matrix, parts inventory API status, technician calendar fields, JSON schema, prompt template, ",
+    "activity_brief_sha256": "b3f2fac461cfda01bf27d977861fa0e368e9b0eadc95da0fb8626d05e6d8b33e",
+    "activity_case_review_integrity": {
+      "schema": "judgmentkit.portable-integrity-receipt/v1",
+      "algorithm": "sha256-canonical-json",
+      "kind": "activity_case_review",
+      "digest": "952ab0550a9fb0cc951e9ea9068d56bdf67728576a0f03c992d901a109a5049f"
+    },
+    "activity_case_handoff_integrity": {
+      "schema": "judgmentkit.portable-integrity-receipt/v1",
+      "algorithm": "sha256-canonical-json",
+      "kind": "activity_case_ui_generation_handoff",
+      "digest": "2399e4ad7342da8f3c6c8a1323e04759c5bfe7c4a99db36f74c115de8c862898"
+    }
   },
   "surface_type": "workbench",
   "surface_guidance": {
@@ -62,6 +75,163 @@
       ]
     }
   },
+  "activity_case": {
+    "schema": "judgmentkit.activity-case/v1",
+    "mode": "deterministic",
+    "claims": [
+      {
+        "id": "activity",
+        "path": "activity_model.activity",
+        "value": "Deciding whether the visit should be assigned to the nearest qualified technician, rescheduled for parts, or escalated for SLA risk.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "participants",
+        "path": "activity_model.participants",
+        "value": [],
+        "origin": "model_inferred",
+        "source_refs": [],
+        "authoritative_source_refs": [],
+        "confidence": "medium",
+        "materiality": "low",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "objective",
+        "path": "activity_model.objective",
+        "value": "Whether the visit should be assigned to the nearest qualified technician, rescheduled for parts, or escalated for SLA risk.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "outcomes",
+        "path": "activity_model.outcomes",
+        "value": [
+          "A dispatch handoff with the technician, next action, timing constraint, and reason."
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "domain_vocabulary",
+        "path": "activity_model.domain_vocabulary",
+        "value": [
+          "same-day repair visits before dispatch",
+          "day repair visits",
+          "nearest qualified technician",
+          "dispatch handoff",
+          "technician",
+          "next action"
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "low",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "primary_decision",
+        "path": "interaction_contract.primary_decision",
+        "value": "Whether the visit should be assigned to the nearest qualified technician, rescheduled for parts, or escalated for SLA risk.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "next_actions",
+        "path": "interaction_contract.next_actions",
+        "value": [
+          "The outcome is a dispatch handoff with the technician, next action, timing constraint, and reason.",
+          "Use domain terms: repair visit, technician, parts readiness, site access, SLA risk, dispatch handoff."
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "completion",
+        "path": "interaction_contract.completion",
+        "value": "A dispatch handoff with the technician, next action, timing constraint, and reason.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      }
+    ],
+    "assumptions": [
+      {
+        "id": "assumption_participants",
+        "claim_id": "participants",
+        "path": "activity_model.participants",
+        "value": [],
+        "materiality": "low",
+        "reversibility": "easy",
+        "statement": "activity_model.participants is inferred for concept exploration and is not user-confirmed evidence."
+      }
+    ],
+    "unresolved_ambiguities": [],
+    "readiness": {
+      "decision": "proceed",
+      "exploration": "allowed_with_visible_assumptions",
+      "exploration_meaning": "The activity case may guide concept exploration with visible assumptions.",
+      "commitment": "not_authorized",
+      "commitment_meaning": "Activity-case readiness never authorizes product, policy, safety, release, or implementation commitments.",
+      "blocking_ambiguity_ids": [],
+      "next_question": null
+    }
+  },
   "activity_model": {
     "activity": "Deciding whether the visit should be assigned to the nearest qualified technician, rescheduled for parts, or escalated for SLA risk",
     "participants": [],
@@ -89,6 +259,126 @@
       "Confirm the activity model before screen structure",
       "Review the primary decision and outcome in domain language",
       "Adjust vocabulary before implementation detail reaches the product UI"
+    ]
+  },
+  "disclosure_policy": {
+    "terms_to_use": [
+      "same-day repair visits before dispatch",
+      "day repair visits",
+      "nearest qualified technician",
+      "dispatch handoff",
+      "technician",
+      "next action"
+    ],
+    "hidden_implementation_terms": [
+      {
+        "detected_term": "CRUD",
+        "count": 1
+      },
+      {
+        "detected_term": "data model",
+        "count": 1
+      },
+      {
+        "detected_term": "field",
+        "count": 2
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1
+      },
+      {
+        "detected_term": "prompt",
+        "count": 2
+      },
+      {
+        "detected_term": "prompt template",
+        "count": 1
+      },
+      {
+        "detected_term": "resource",
+        "count": 2
+      },
+      {
+        "detected_term": "resource id",
+        "count": 2
+      },
+      {
+        "detected_term": "schema",
+        "count": 1
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1
+      },
+      {
+        "detected_term": "trace",
+        "count": 1
+      }
+    ],
+    "translation_candidates": [
+      {
+        "detected_term": "CRUD",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "data model",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "field",
+        "count": 2,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "prompt",
+        "count": 2,
+        "prefer": "instruction"
+      },
+      {
+        "detected_term": "prompt template",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "resource",
+        "count": 2,
+        "prefer": "guidance"
+      },
+      {
+        "detected_term": "resource id",
+        "count": 2,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "schema",
+        "count": 1,
+        "prefer": "contract"
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1,
+        "prefer": "system action"
+      },
+      {
+        "detected_term": "trace",
+        "count": 1,
+        "prefer": "domain language"
+      }
+    ],
+    "diagnostic_contexts": [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration",
+      "explicit source inspection"
     ]
   },
   "workflow": {
@@ -2827,9 +3117,5 @@
       "focus, disabled, or error states are missing",
       "browser QA is skipped after UI generation"
     ]
-  },
-  "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
-  "activity_review_status": "ready_for_review",
-  "surface_review_status": "ready",
-  "workflow_review_status": "ready_for_review"
+  }
 }

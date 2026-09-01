@@ -659,9 +659,9 @@ const AI_PRODUCED_WORK_APPROVAL_DIAGNOSTIC_CONTEXT_BRIEF = `
 
 const REFUND_TRIAGE_BRIEF = `
   A support lead is reviewing refund requests during the daily triage workflow.
-  The activity is deciding whether a case should be approved, sent to policy review,
-  or returned to the agent for missing evidence. The outcome is a clear handoff
-  with the next action and the reason for the decision.
+  The activity is deciding whether to recommend support, send a case to policy
+  review, or return it to the agent for missing evidence. The outcome is a clear
+  handoff with the next action and the reason for the recommendation.
 `;
 
 const REFUND_IMPLEMENTATION_HEAVY_TRIAGE_BRIEF = `
@@ -681,9 +681,9 @@ function refundWorkflowCandidate() {
       surface_name: "Refund escalation queue",
       topology: "workspace",
       work_units: ["Review evidence", "Choose path", "Prepare handoff"],
-      primary_actions: ["Approve refund", "Send to policy review", "Return for evidence"],
+      primary_actions: ["Record support recommendation", "Send to policy review", "Return for evidence"],
       decision_points: [
-        "Decide whether the case should be approved, sent to policy review, or returned for missing evidence.",
+        "Decide whether to recommend support, policy review, or more evidence.",
       ],
       completion_state: "Clear handoff with next action and decision reason.",
     },
@@ -692,7 +692,7 @@ function refundWorkflowCandidate() {
         name: "Refund escalation workspace",
         purpose: "Review evidence, choose the refund path, and send a handoff.",
         sections: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
-        controls: ["Approve refund", "Send to policy review", "Return for evidence", "Send handoff"],
+        controls: ["Record support recommendation", "Send to policy review", "Return for evidence", "Send handoff"],
         relationship_to_workflow: "Keeps evidence, decision controls, and handoff receipt together.",
       },
     ],
@@ -714,9 +714,9 @@ function refundMultiSurfaceCandidate() {
       surface_name: "Refund triage workspace",
       topology: "multi_surface",
       work_units: ["Case queue", "Evidence comparison", "Decision handoff"],
-      primary_actions: ["Approve refund", "Send to policy review", "Return for evidence"],
+      primary_actions: ["Record support recommendation", "Send to policy review", "Return for evidence"],
       decision_points: [
-        "Decide whether the case should be approved, sent to policy review, or returned for missing evidence.",
+        "Decide whether to recommend support, policy review, or more evidence.",
       ],
       completion_state: "Clear handoff with next action and decision reason.",
     },
@@ -732,7 +732,7 @@ function refundMultiSurfaceCandidate() {
         name: "Evidence workspace",
         purpose: "Compare evidence, choose an action, and send the handoff.",
         sections: ["Evidence checklist", "Policy review context", "Handoff"],
-        controls: ["Approve refund", "Send to policy review", "Return for evidence", "Send handoff"],
+        controls: ["Record support recommendation", "Send to policy review", "Return for evidence", "Send handoff"],
         relationship_to_workflow: "Keeps decision controls adjacent to case evidence.",
       },
     ],
@@ -1954,7 +1954,8 @@ function assertSurfaceRecommendation({
   const operatorReview = recommendSurfaceTypes(OPERATOR_REVIEW_BRIEF);
 
   assert.equal(operatorReview.recommended_surface_type, "operator_review");
-  assert.equal(operatorReview.confidence, "high");
+  assert.equal(operatorReview.status, "needs_source_context");
+  assert.equal(operatorReview.confidence, "low");
   assert.equal(operatorReview.disclosure_implications.reveal_implementation_terms, false);
   assert.ok(operatorReview.evidence.implementation_terms_detected.some((entry) => entry.term === "tool call"));
 
@@ -2115,9 +2116,12 @@ function assertSurfaceRecommendation({
     refundWorkflowCandidate(),
     { surface_review: surfaceReview },
   );
-  const handoff = createUiGenerationHandoff(workflowReview);
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief: REFUND_TRIAGE_BRIEF,
+  });
   const frontendContext = createFrontendGenerationContext({
     ui_generation_handoff: handoff,
+    brief: REFUND_TRIAGE_BRIEF,
     surface_review: surfaceReview,
     frontend_context: {
       target_runtime: "React",
@@ -2210,6 +2214,7 @@ function assertSurfaceRecommendation({
   assert.throws(
     () =>
       createFrontendImplementationSkillContext({
+        brief: REFUND_TRIAGE_BRIEF,
         frontend_generation_context: rawExternalFrontendContext,
       }),
     (error) =>
@@ -2219,6 +2224,7 @@ function assertSurfaceRecommendation({
   );
 
   const skillContext = createFrontendImplementationSkillContext({
+    brief: REFUND_TRIAGE_BRIEF,
     frontend_generation_context: frontendContext,
     target_client: "codex",
     design_system_adapter: {
@@ -2347,7 +2353,9 @@ function assertSurfaceRecommendation({
     refundMultiSurfaceCandidate(),
     { surface_review: surfaceReview },
   );
-  const handoff = createUiGenerationHandoff(workflowReview);
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief: REFUND_TRIAGE_BRIEF,
+  });
 
   assert.equal(workflowReview.review_status, "ready_for_review");
   assert.equal(workflowReview.candidate.workflow.topology, "multi_surface");

@@ -390,7 +390,11 @@ const activeContractAxisCommitments = [
         file: "evals/cases.json",
         id: "diagnostic-integration-audit",
         assert(testCase) {
-          assert.ok(testCase.tags.includes("implementation-terms-allowed-in-disclosure"));
+          assert.ok(
+            testCase.tags.includes(
+              "implementation-terms-allowed-in-setup-activity",
+            ),
+          );
           assertHasAll(
             testCase.expect.review.guardrail_terms_includes,
             ["JSON schema", "prompt template"],

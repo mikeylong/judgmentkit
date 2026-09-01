@@ -3,12 +3,26 @@ import assert from "node:assert/strict";
 import {
   createUiGenerationHandoff,
   createUiImplementationContract,
+  reviewActivityModelCandidate,
   reviewCognitiveDimensionsCandidate,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
 
 const REFUND_BRIEF =
-  "A support lead reviews high-value refund requests and must decide whether to approve, send to policy review, or return for missing evidence. Policy evidence and the reason for the decision must stay visible before approval. The outcome is a handoff receipt with the decision, reason, and next action.";
+  "Support leads may approve high-value refund requests when policy evidence and the reason for the decision stay visible. A support lead reviews each request and decides whether to approve, send to policy review, or return for missing evidence. The outcome is a handoff receipt with the decision, reason, and next action.";
+
+const REFUND_CONTEXT_ITEMS = [
+  {
+    id: "high-value-refund-approval-policy",
+    kind: "authoritative_source",
+    source_ref: "policy://refunds/high-value-approval/v1",
+    content:
+      "Support leads may approve high-value refund requests when policy evidence and the reason for the decision stay visible.",
+  },
+];
+
+const AUTHORIZED_REFUND_ACTION =
+  "Support leads may approve high-value refund requests when policy evidence and the reason for the decision stay visible.";
 
 const detachedRefundCandidate = {
   workflow: {
@@ -44,8 +58,8 @@ const readyRefundCandidate = {
     surface_name: "Refund evidence workspace",
     topology: "workspace",
     work_units: ["Review selected case", "Check policy evidence", "Choose path", "Send handoff"],
-    primary_actions: ["Approve refund with reason", "Send to policy review", "Return for missing evidence"],
-    decision_points: ["Choose refund outcome from evidence, policy risk, and missing evidence status"],
+    primary_actions: [AUTHORIZED_REFUND_ACTION, "Send to policy review", "Return for missing evidence"],
+    decision_points: ["Assess evidence, policy risk, and missing evidence status"],
     completion_state: "Handoff receipt records next action and decision reason.",
   },
   surface_set: [
@@ -53,7 +67,7 @@ const readyRefundCandidate = {
       name: "Selected refund case",
       purpose: "Keep selected case, policy evidence, risk, decision controls, and handoff receipt together.",
       sections: ["Selected case summary", "Policy evidence", "Risk and completeness", "Decision controls", "Handoff receipt"],
-      controls: ["Approve refund with reason", "Send to policy review", "Return for missing evidence"],
+      controls: [AUTHORIZED_REFUND_ACTION, "Send to policy review", "Return for missing evidence"],
       relationship_to_workflow: "Keeps evidence, decision controls, and handoff receipt in the same workspace.",
     },
   ],
@@ -67,6 +81,49 @@ const readyRefundCandidate = {
     reveal_contexts: ["setup", "debugging", "auditing", "integration"],
   },
 };
+
+const readyRefundActivityReview = reviewActivityModelCandidate(
+  REFUND_BRIEF,
+  {
+    activity_model: {
+      activity: AUTHORIZED_REFUND_ACTION,
+      participants: ["support leads"],
+      objective: AUTHORIZED_REFUND_ACTION,
+      outcomes: [
+        "A handoff receipt records the decision, reason, and next action.",
+      ],
+      domain_vocabulary: [
+        "high-value refund request",
+        "policy evidence",
+        "decision reason",
+        "handoff receipt",
+      ],
+    },
+    interaction_contract: {
+      primary_decision: AUTHORIZED_REFUND_ACTION,
+      next_actions: [
+        AUTHORIZED_REFUND_ACTION,
+        "Send the request to policy review",
+        "Return for missing evidence",
+      ],
+      completion:
+        "A handoff receipt records the decision, reason, and next action.",
+      make_easy: ["Keep policy evidence and the decision reason visible."],
+    },
+    disclosure_policy: {
+      terms_to_use: [
+        "high-value refund request",
+        "policy evidence",
+        "decision reason",
+        "handoff receipt",
+      ],
+      hidden_implementation_terms: [],
+      translation_candidates: [],
+      diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+    },
+  },
+  { context_items: REFUND_CONTEXT_ITEMS },
+);
 
 {
   const review = reviewCognitiveDimensionsCandidate(
@@ -140,6 +197,8 @@ const readyRefundCandidate = {
 {
   const workflowReview = reviewUiWorkflowCandidate(REFUND_BRIEF, readyRefundCandidate, {
     surface_type: "workbench",
+    activity_review: readyRefundActivityReview,
+    context_items: REFUND_CONTEXT_ITEMS,
   });
   const implementationContract = createUiImplementationContract({
     approved_primitives: ["queue", "detail panel", "decision controls", "handoff receipt"],
@@ -160,6 +219,8 @@ const readyRefundCandidate = {
   assert.throws(
     () =>
       createUiGenerationHandoff(workflowReview, {
+        brief: REFUND_BRIEF,
+        context_items: REFUND_CONTEXT_ITEMS,
         implementation_contract: implementationContract.implementation_contract,
         cognitive_dimensions_review: failedCognitiveReview,
       }),
@@ -167,6 +228,8 @@ const readyRefundCandidate = {
   );
 
   const handoff = createUiGenerationHandoff(workflowReview, {
+    brief: REFUND_BRIEF,
+    context_items: REFUND_CONTEXT_ITEMS,
     implementation_contract: implementationContract.implementation_contract,
     cognitive_dimensions_review: readyCognitiveReview,
   });

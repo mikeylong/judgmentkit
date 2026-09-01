@@ -5,7 +5,20 @@
   "source": {
     "mode": "model_assisted",
     "proposer": "external_candidate",
-    "input_excerpt": "A customer success manager is reviewing at-risk B2B renewals before the weekly account meeting. The request says to build from the account_health data model, CRM fields, usage event JSON schema, prompt output, tool call results, resource id"
+    "input_excerpt": "A customer success manager is reviewing at-risk B2B renewals before the weekly account meeting. The request says to build from the account_health data model, CRM fields, usage event JSON schema, prompt output, tool call results, resource id",
+    "activity_brief_sha256": "7ae8ec1e10781b36de3798fc0b8017e7719004b314050c732ae13aea8bd7be84",
+    "activity_case_review_integrity": {
+      "schema": "judgmentkit.portable-integrity-receipt/v1",
+      "algorithm": "sha256-canonical-json",
+      "kind": "activity_case_review",
+      "digest": "f67cdd09c91d8151f967e23b58077e59844d54eb367dcc0db7255b568e08b8bf"
+    },
+    "activity_case_handoff_integrity": {
+      "schema": "judgmentkit.portable-integrity-receipt/v1",
+      "algorithm": "sha256-canonical-json",
+      "kind": "activity_case_ui_generation_handoff",
+      "digest": "83fad5903ed2517aea05577cc8c69482697d573690bad06b3a6929b56882e420"
+    }
   },
   "surface_type": "workbench",
   "surface_guidance": {
@@ -63,6 +76,155 @@
       ]
     }
   },
+  "activity_case": {
+    "schema": "judgmentkit.activity-case/v1",
+    "mode": "deterministic",
+    "claims": [
+      {
+        "id": "activity",
+        "path": "activity_model.activity",
+        "value": "Customer success manager reviews renewal handoff.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "participants",
+        "path": "activity_model.participants",
+        "value": [
+          "customer success manager"
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "low",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "objective",
+        "path": "activity_model.objective",
+        "value": "Whether to start a save plan, escalate to an executive sponsor, or wait for stronger usage evidence.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "outcomes",
+        "path": "activity_model.outcomes",
+        "value": [
+          "A renewal handoff with the next owner, action, risk reason, and evidence gap."
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "domain_vocabulary",
+        "path": "activity_model.domain_vocabulary",
+        "value": [
+          "customer success manager",
+          "at-risk b2b renewals before the weekly account meeting",
+          "wait for stronger usage evidence",
+          "renewal handoff",
+          "evidence"
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "low",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "primary_decision",
+        "path": "interaction_contract.primary_decision",
+        "value": "Whether to start a save plan, escalate to an executive sponsor, or wait for stronger usage evidence.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "next_actions",
+        "path": "interaction_contract.next_actions",
+        "value": [
+          "The outcome is a renewal handoff with the next owner, action, risk reason, and evidence gap."
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "completion",
+        "path": "interaction_contract.completion",
+        "value": "A renewal handoff with the next owner, action, risk reason, and evidence gap.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      }
+    ],
+    "assumptions": [],
+    "unresolved_ambiguities": [],
+    "readiness": {
+      "decision": "proceed",
+      "exploration": "allowed_with_visible_assumptions",
+      "exploration_meaning": "The activity case may guide concept exploration with visible assumptions.",
+      "commitment": "not_authorized",
+      "commitment_meaning": "Activity-case readiness never authorizes product, policy, safety, release, or implementation commitments.",
+      "blocking_ambiguity_ids": [],
+      "next_question": null
+    }
+  },
   "activity_model": {
     "activity": "Customer success manager reviews renewal handoff",
     "participants": [
@@ -90,6 +252,125 @@
       "Confirm the activity model before screen structure",
       "Review the primary decision and outcome in domain language",
       "Adjust vocabulary before implementation detail reaches the product UI"
+    ]
+  },
+  "disclosure_policy": {
+    "terms_to_use": [
+      "customer success manager",
+      "at-risk b2b renewals before the weekly account meeting",
+      "wait for stronger usage evidence",
+      "renewal handoff",
+      "evidence"
+    ],
+    "hidden_implementation_terms": [
+      {
+        "detected_term": "API endpoint",
+        "count": 1
+      },
+      {
+        "detected_term": "CRUD",
+        "count": 1
+      },
+      {
+        "detected_term": "data model",
+        "count": 1
+      },
+      {
+        "detected_term": "field",
+        "count": 1
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1
+      },
+      {
+        "detected_term": "prompt",
+        "count": 2
+      },
+      {
+        "detected_term": "resource",
+        "count": 2
+      },
+      {
+        "detected_term": "resource id",
+        "count": 2
+      },
+      {
+        "detected_term": "schema",
+        "count": 2
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1
+      },
+      {
+        "detected_term": "trace",
+        "count": 1
+      }
+    ],
+    "translation_candidates": [
+      {
+        "detected_term": "API endpoint",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "CRUD",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "data model",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "field",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "prompt",
+        "count": 2,
+        "prefer": "instruction"
+      },
+      {
+        "detected_term": "resource",
+        "count": 2,
+        "prefer": "guidance"
+      },
+      {
+        "detected_term": "resource id",
+        "count": 2,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "schema",
+        "count": 2,
+        "prefer": "contract"
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1,
+        "prefer": "system action"
+      },
+      {
+        "detected_term": "trace",
+        "count": 1,
+        "prefer": "domain language"
+      }
+    ],
+    "diagnostic_contexts": [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration",
+      "explicit source inspection"
     ]
   },
   "workflow": {
@@ -158,7 +439,7 @@
   "handoff": {
     "next_owner": "Customer success manager",
     "reason": "Champion changed and usage dropped, but procurement timing is missing",
-    "next_action": "Request the procurement date before committing the save plan"
+    "next_action": "Request the procurement date before choosing a save plan"
   },
   "disclosure_reminders": {
     "diagnostic_terms": [
@@ -2827,9 +3108,5 @@
       "focus, disabled, or error states are missing",
       "browser QA is skipped after UI generation"
     ]
-  },
-  "source_brief_file": "examples/model-ui/b2b-renewal-risk/source-brief.txt",
-  "activity_review_status": "ready_for_review",
-  "surface_review_status": "ready",
-  "workflow_review_status": "ready_for_review"
+  }
 }

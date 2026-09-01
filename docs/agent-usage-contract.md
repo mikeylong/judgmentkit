@@ -4,24 +4,29 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 
 ## Default Order
 
-1. Read the user's brief and any local source context that is already available.
-2. Call `create_activity_model_review`.
-3. Use the review packet to decide whether to proceed, ask targeted questions, or review a model-proposed activity candidate.
-4. Call `recommend_surface_types` to classify the activity purpose before workflow or frontend implementation guidance.
-5. If a model or agent proposes a UI workflow, call `review_ui_workflow_candidate` before treating it as acceptable.
-6. Call `review_cognitive_dimensions_candidate` when a workflow or implementation candidate needs Cognitive Dimensions review for mapping, visibility, hidden dependencies, premature commitment, progressive evaluation, change cost, mental operations, or disclosure.
-7. Call `create_ui_implementation_contract`. Use the default JudgmentKit design-system source, or pass a complete `design_system_adapter` when an external design system should own tokens, typography, icons, and renderer components.
-8. Call `create_ui_generation_handoff` on the reviewed workflow with the implementation contract before generating UI. Pass the Cognitive Dimensions review when it should block handoff until ready.
-9. Call `create_frontend_generation_context` when frontend implementation guidance needs a selected surface type, project frontend context, and verification expectations.
-10. Call `create_frontend_implementation_skill_context` when the implementing agent needs a compiled frontend skill packet that is portable across MCP clients.
-11. Generate or critique UI from the frontend context and skill context only after the activity, decision, outcome, disclosure boundary, workflow candidate, surface type, and implementation contract are clear enough.
-12. Call `review_ui_implementation_candidate` on generated code or evidence before accepting the result.
+1. Read the user's brief and any local source context that is already available. Keep non-brief evidence as attributed `context_items`; an `authoritative_source` requires a `source_ref`.
+2. Call `create_activity_model_review({ brief, context_items })`.
+3. Use the brief, available context, and deterministic packet to infer a complete best-current activity candidate. Distinguish sourced claims from model inference; do not wait for the user to author every field.
+4. Call `review_activity_model_candidate({ brief, candidate, context_items })` on that inferred candidate before trusting it.
+5. If the reviewed case can proceed, continue with its visible reversible assumptions. If one consequential ambiguity remains, ask the returned material question. Stop only when an authoritative source is required.
+6. Call `recommend_surface_types` with the reviewed activity packet to classify the activity purpose before workflow or frontend implementation guidance.
+7. If a model or agent proposes a UI workflow, call `review_ui_workflow_candidate` with the exact current brief, reviewed activity packet, and the same attributed raw `context_items` before treating it as acceptable.
+8. Call `review_cognitive_dimensions_candidate` when a workflow or implementation candidate needs Cognitive Dimensions review for mapping, visibility, hidden dependencies, premature commitment, progressive evaluation, change cost, mental operations, or disclosure.
+9. Call `create_ui_implementation_contract`. Use the default JudgmentKit design-system source, or pass a complete `design_system_adapter` when an external design system should own tokens, typography, icons, and renderer components.
+10. Call `create_ui_generation_handoff` on the reviewed workflow with the exact current brief, implementation contract, and the same attributed raw `context_items` before generating UI. Pass the Cognitive Dimensions review when it should block handoff until ready.
+11. Call `create_frontend_generation_context` with the exact current brief and the same attributed raw `context_items` when frontend implementation guidance needs a selected surface type, project frontend context, and verification expectations.
+12. Call `create_frontend_implementation_skill_context` with the exact current brief, the same attributed raw `context_items`, and the ready frontend generation context when the implementing agent needs a compiled frontend skill packet that is portable across MCP clients.
+13. Generate or critique UI from the frontend context and skill context only after the activity, decision, outcome, disclosure boundary, workflow candidate, surface type, and implementation contract are clear enough.
+14. Call `review_ui_implementation_candidate` on generated code or evidence before accepting the result.
 
 ## Rules For Agents
 
 - Do not ask broad discovery questions before using JudgmentKit when a brief is available.
-- Treat `ready_for_review` as permission to proceed with UI concept work, not final product approval.
-- Treat `needs_source_context` as a prompt to gather source context or ask the packet's targeted questions.
+- Ask about consequential forks, not empty fields. Infer low-risk, reversible gaps and expose them as assumptions.
+- Treat `ready_for_review` as permission to proceed with UI concept work, including when bounded reversible assumptions remain. It is not final product approval.
+- Treat `needs_source_context` as a prompt to resolve the packet's highest-value material ambiguity or obtain an authoritative source, not as permission to launch a field-by-field interview.
+- Never infer authority, approval policy, safety rules, sensitive disclosure, or irreversible external effects as established fact. Mark context as `authoritative_source` only when it actually governs that protected boundary.
+- Never treat an activity-case digest, claim origin, or source-reference label as an action credential. Participant action authority must survive workflow review against direct affirmative language in the current brief or an exact, relevant, affirmative `user_answer` or `authoritative_source` resupplied as raw context. Recommendation and negated language cannot grant it; workspace evidence and provided artifacts are not action credentials. Safety, legal, clinical, regulatory, compliance, sensitive-disclosure, and irreversible boundaries require the relevant governing `authoritative_source` and its `source_ref`.
 - Treat surface type as activity-purpose guidance, not visual styling.
 - Select `artifact_inspector` only when the rendered artifact is primary, semantic locus selection is required, and support is locus-relative. If those mandatory signals conflict with a queue, creation, conversation, linear-reading, monitoring, or configuration activity, stop at `review_required`; do not break the tie from layout vocabulary.
 - Treat the implementation contract as the authority for allowed primitives, control semantics, states, static checks, browser QA, visual asset handling, and accessibility evidence.
@@ -31,6 +36,7 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 - Treat `visual_token_adapter` as the token/font/icon evidence envelope for the active design-system source. Asset guidance cannot replace activity fit, primitive coverage, state coverage, accessibility evidence, static checks, or browser QA.
 - Keep implementation terms out of product UI unless the activity is setup, debugging, auditing, integration, or explicit source inspection.
 - When a model proposes an activity model, call `review_activity_model_candidate` before trusting it.
+- Pass the reviewed activity packet into downstream surface, workflow, and handoff work so model inference is not discarded and reconstructed from the brief. Preserve the activity model, interaction contract, disclosure policy, and activity-case evidence together through frontend and implementation contexts. Resupply the exact current brief and attributed raw `context_items` at workflow review, UI generation handoff, frontend-context creation, and frontend implementation skill-context creation; the integrity receipts prove continuity but do not replace or authorize the raw source.
 - When a model proposes a UI workflow, call `review_ui_workflow_candidate` before implementing it.
 - Use Cognitive Dimensions findings as review diagnostics and repair guidance; do not copy Cognitive Dimensions terminology into product UI unless the product surface is design review, setup, debugging, auditing, or integration.
 - Do not generate UI directly from a raw workflow review packet when `create_ui_generation_handoff` is available.
@@ -65,10 +71,10 @@ Before handing off UI work, confirm:
 
 ## Status Interpretation
 
-`ready_for_review` means the packet is usable for the next design or implementation pass.
+`ready_for_review` means the packet is usable for the next design or implementation pass. The richer activity-case readiness explains whether assumptions are acceptable for exploration or still require confirmation before commitment.
 
 `ready_for_generation` means a reviewed workflow has passed the handoff gate and can be used as the immediate input to UI generation.
 
-`needs_source_context` means the agent should pause product UI generation and resolve the smallest set of missing facts.
+`needs_source_context` means the agent should resolve a consequential ambiguity or authoritative-source blocker. A provisional design direction may still be shown when the packet marks exploration as safe.
 
 The packet is not a product approval. It is a guardrail for the next agent step.

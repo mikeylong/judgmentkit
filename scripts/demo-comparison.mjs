@@ -122,13 +122,13 @@ function buildUiWorkflowCandidate() {
         "Prepare handoff",
       ],
       primary_actions: [
-        "Approve refund",
+        "Recommend refund approval",
         "Send to policy review",
         "Return for evidence",
         "Send handoff",
       ],
       decision_points: [
-        "Choose whether the refund can be approved, needs policy review, or needs more evidence.",
+        "Choose whether to recommend refund approval, request policy review, or request more evidence.",
       ],
       completion_state:
         "A clear handoff with the next action and reason is sent to the right owner.",
@@ -147,7 +147,7 @@ function buildUiWorkflowCandidate() {
         ],
         controls: [
           "Assign next case",
-          "Approve refund",
+          "Recommend refund approval",
           "Send to policy review",
           "Return for evidence",
           "Next owner",
@@ -172,11 +172,21 @@ function buildUiWorkflowCandidate() {
 }
 
 function buildHandoff(brief) {
-  const activityReview = createActivityModelReview(brief);
-  const workflowReview = reviewUiWorkflowCandidate(brief, buildUiWorkflowCandidate());
-  const handoff = createUiGenerationHandoff(workflowReview);
+  const contextItems = [];
+  const activityReview = createActivityModelReview(brief, {
+    context_items: contextItems,
+  });
+  const workflowReview = reviewUiWorkflowCandidate(brief, buildUiWorkflowCandidate(), {
+    context_items: contextItems,
+  });
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief,
+    context_items: contextItems,
+  });
   const frontendContext = createFrontendGenerationContext({
     ui_generation_handoff: handoff,
+    brief,
+    context_items: contextItems,
     // Preserve this checked-in comparison as historical evidence.
     surface_profile: "none",
     frontend_context: {
@@ -197,6 +207,8 @@ function buildHandoff(brief) {
     },
   });
   const frontendSkillContext = createFrontendImplementationSkillContext({
+    brief,
+    context_items: contextItems,
     frontend_generation_context: frontendContext,
     target_client: "deterministic-eval-harness",
   });

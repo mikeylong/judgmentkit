@@ -68,13 +68,13 @@ function buildAcceptedUiWorkflowCandidate() {
         "Send handoff",
       ],
       primary_actions: [
-        "Approve refund",
+        "Recommend refund approval",
         "Send to policy review",
         "Return for evidence",
         "Send handoff",
       ],
       decision_points: [
-        "Choose whether the refund can be approved, needs policy review, or needs more evidence.",
+        "Choose whether to recommend refund approval, request policy review, or request more evidence.",
       ],
       completion_state:
         "A clear handoff with the next action and reason is sent to the right owner.",
@@ -93,7 +93,7 @@ function buildAcceptedUiWorkflowCandidate() {
         ],
         controls: [
           "Assign next case",
-          "Approve refund",
+          "Recommend refund approval",
           "Send to policy review",
           "Return for evidence",
           "Next owner",

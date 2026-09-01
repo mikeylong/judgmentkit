@@ -145,14 +145,14 @@
       "model-candidate",
       "expected-next-action:proceed-to-ui-concept"
     ],
-    "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether to recommend support, send a case to policy review, or return it to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the recommendation.",
     "model_candidate": {
       "activity_model": {
         "activity": "Support lead reviews refund requests during daily triage workflow.",
         "participants": [
           "support lead"
         ],
-        "objective": "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
+        "objective": "Decide whether to recommend support, policy review, or more evidence.",
         "outcomes": [
           "Clear handoff with next action and decision reason."
         ],
@@ -163,7 +163,7 @@
         ]
       },
       "interaction_contract": {
-        "primary_decision": "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
+        "primary_decision": "Decide whether to recommend support, policy review, or more evidence.",
         "next_actions": [
           "Confirm the handoff path."
         ],
@@ -192,12 +192,12 @@
       "workflow": {
         "surface_name": "Refund escalation queue",
         "primary_actions": [
-          "Approve refund",
+          "Recommend support",
           "Send to policy review",
           "Return for evidence"
         ],
         "decision_points": [
-          "Decide whether the case should be approved, sent to policy review, or returned for missing evidence."
+          "Decide whether to recommend support, policy review, or more evidence."
         ],
         "completion_state": "Clear handoff with next action and decision reason.",
         "topology": "workspace",
@@ -232,7 +232,7 @@
             "Handoff"
           ],
           "controls": [
-            "Approve refund",
+            "Recommend support",
             "Send to policy review",
             "Return for evidence",
             "Send handoff"
@@ -256,7 +256,7 @@
       },
       "observed_includes": {
         "activity": [
-          "case should be approved"
+          "recommend support"
         ],
         "participants": [
           "support lead"
@@ -267,7 +267,7 @@
           "missing evidence"
         ],
         "primary_decisions": [
-          "case should be approved"
+          "recommend support"
         ],
         "outcomes": [
           "clear handoff"
@@ -275,10 +275,10 @@
       },
       "ui_brief_includes": {
         "activity_focus": [
-          "case should be approved"
+          "recommend support"
         ],
         "primary_decision": [
-          "case should be approved"
+          "recommend support"
         ],
         "outcome": [
           "clear handoff"
@@ -300,7 +300,7 @@
             "support lead"
           ],
           "interaction_contract.primary_decision": [
-            "case should be approved"
+            "recommend support"
           ],
           "interaction_contract.completion": [
             "clear handoff"
@@ -315,7 +315,7 @@
             "refund requests"
           ],
           "interaction_contract.primary_decision": [
-            "case should be approved"
+            "recommend support"
           ],
           "interaction_contract.completion": [
             "Clear handoff"
@@ -330,7 +330,7 @@
             "refund requests"
           ],
           "interaction_contract.primary_decision": [
-            "case should be approved"
+            "recommend support"
           ],
           "interaction_contract.completion": [
             "Clear handoff"
@@ -352,7 +352,7 @@
             "Refund escalation queue"
           ],
           "workflow.primary_actions": [
-            "Approve refund",
+            "Recommend support",
             "Send to policy review",
             "Return for evidence"
           ],
@@ -536,9 +536,9 @@
     "id": "diagnostic-integration-audit",
     "tags": [
       "diagnostic-audit",
-      "implementation-terms-allowed-in-disclosure",
-      "model-candidate-leakage",
-      "expected-next-action:contain-diagnostic-language"
+      "implementation-terms-allowed-in-setup-activity",
+      "model-candidate-setup-vocabulary",
+      "expected-next-action:preserve-task-machinery"
     ],
     "brief": "A support operations manager is auditing an integration setup workflow. The activity is deciding whether a JSON schema change and prompt template update are safe to ship, then producing a handoff with the next action for the platform team.",
     "model_candidate": {
@@ -595,7 +595,7 @@
       "workflow": {
         "surface_name": "Integration JSON schema audit",
         "primary_actions": [
-          "Approve JSON schema",
+          "Validate JSON schema",
           "Send to platform team"
         ],
         "decision_points": [
@@ -636,7 +636,7 @@
             "Platform team handoff"
           ],
           "controls": [
-            "Approve JSON schema",
+            "Validate JSON schema",
             "Send handoff"
           ],
           "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
@@ -721,12 +721,18 @@
         ]
       },
       "model_assisted": {
-        "status": "needs_source_context",
+        "status": "ready_for_review",
         "max_targeted_questions": 2,
         "candidate_includes": {
+          "activity_model.activity": [
+            "JSON schema"
+          ],
           "activity_model.participants": [
             "support operations manager",
             "platform team"
+          ],
+          "interaction_contract.primary_decision": [
+            "prompt template"
           ],
           "interaction_contract.completion": [
             "Handoff"
@@ -734,23 +740,21 @@
           "disclosure_policy.terms_to_use": [
             "integration setup workflow"
           ]
-        },
-        "candidate_primary_excludes": [
-          "JSON schema",
-          "prompt template"
-        ],
-        "guardrail_terms_includes": [
-          "JSON schema",
-          "prompt template"
-        ]
+        }
       },
       "model_proposer": {
-        "status": "needs_source_context",
+        "status": "ready_for_review",
         "max_targeted_questions": 2,
         "candidate_includes": {
+          "activity_model.activity": [
+            "JSON schema"
+          ],
           "activity_model.participants": [
             "support operations manager",
             "platform team"
+          ],
+          "interaction_contract.primary_decision": [
+            "prompt template"
           ],
           "interaction_contract.completion": [
             "Handoff"
@@ -758,35 +762,25 @@
           "disclosure_policy.terms_to_use": [
             "integration setup workflow"
           ]
-        },
-        "candidate_primary_excludes": [
-          "JSON schema",
-          "prompt template"
-        ],
-        "guardrail_terms_includes": [
-          "JSON schema",
-          "prompt template"
-        ]
+        }
       },
       "ui_workflow": {
-        "status": "needs_source_context",
+        "status": "ready_for_review",
         "max_targeted_questions": 3,
         "candidate_includes": {
+          "workflow.surface_name": [
+            "JSON schema"
+          ],
+          "workflow.primary_actions": [
+            "Validate JSON schema"
+          ],
           "handoff.next_owner": [
             "platform team"
           ],
           "handoff.next_action": [
             "Send handoff"
           ]
-        },
-        "candidate_primary_excludes": [
-          "JSON schema",
-          "prompt template"
-        ],
-        "guardrail_terms_includes": [
-          "JSON schema",
-          "prompt template"
-        ]
+        }
       }
     }
   },
@@ -798,13 +792,13 @@
       "ready",
       "expected-next-action:proceed-to-ui-concept"
     ],
-    "brief": "A field operations manager is reviewing repair visits. The activity is deciding which technician should handle the next job, comparing route constraints, approving the handoff, and leaving the dispatch team with a completed next action.",
+    "brief": "A field operations manager is reviewing repair visits. The activity is deciding which technician should handle the next job, comparing route constraints, recording the handoff recommendation, and leaving the dispatch team with a completed next action.",
     "ui_workflow_candidate": {
       "workflow": {
         "surface_name": "Repair visit dispatch review",
         "primary_actions": [
           "Assign technician",
-          "Approve handoff"
+          "Record handoff recommendation"
         ],
         "decision_points": [
           "Decide which technician should handle the next job."
@@ -814,13 +808,13 @@
         "work_units": [
           "Review repair visit",
           "Compare route constraints",
-          "Approve handoff"
+          "Prepare handoff recommendation"
         ]
       },
       "handoff": {
         "next_owner": "dispatch team",
         "reason": "Technician assignment is ready for dispatch.",
-        "next_action": "Approve the handoff."
+        "next_action": "Send the handoff recommendation."
       },
       "diagnostics": {
         "implementation_terms": [],
@@ -843,7 +837,7 @@
           ],
           "controls": [
             "Assign technician",
-            "Approve handoff"
+            "Record handoff recommendation"
           ],
           "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
         }
@@ -939,17 +933,17 @@
       "review-packet-leakage",
       "expected-next-action:remove-meta-language"
     ],
-    "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether to recommend support, send a case to policy review, or return it to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the recommendation.",
     "ui_workflow_candidate": {
       "workflow": {
         "surface_name": "ready_for_review",
         "primary_actions": [
-          "Approve refund",
+          "Recommend support",
           "Send to policy review",
           "Return for evidence"
         ],
         "decision_points": [
-          "Main decision: approve or return the case."
+          "Main decision: recommend support or return the case."
         ],
         "completion_state": "Clear handoff with next action and decision reason.",
         "topology": "workspace",
@@ -983,7 +977,7 @@
             "Handoff"
           ],
           "controls": [
-            "Approve refund",
+            "Recommend support",
             "Send handoff"
           ],
           "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
@@ -1007,7 +1001,7 @@
             "refund requests"
           ],
           "interaction_contract.primary_decision": [
-            "case should be approved"
+            "recommend support"
           ]
         }
       },
@@ -1037,7 +1031,7 @@
       "multi-surface",
       "expected-next-action:block-staged-workbench"
     ],
-    "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The work moves between a case queue, evidence comparison, and handoff receipt, but the lead can move between those surfaces as needed. The outcome is a clear handoff with the next action and the reason for the decision.",
+    "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether to recommend support, send a case to policy review, or return it to the agent for missing evidence. The work moves between a case queue, evidence comparison, and handoff receipt, but the lead can move between those surfaces as needed. The outcome is a clear handoff with the next action and the reason for the recommendation.",
     "ui_workflow_candidate": {
       "workflow": {
         "surface_name": "Refund triage workspace",
@@ -1048,12 +1042,12 @@
           "3. Prepare handoff"
         ],
         "primary_actions": [
-          "Approve refund",
+          "Recommend support",
           "Send to policy review",
           "Return for evidence"
         ],
         "decision_points": [
-          "Decide whether the case should be approved, sent to policy review, or returned for missing evidence."
+          "Decide whether to recommend support, policy review, or more evidence."
         ],
         "completion_state": "Clear handoff with next action and decision reason."
       },
@@ -1079,7 +1073,7 @@
             "Handoff"
           ],
           "controls": [
-            "Approve refund",
+            "Recommend support",
             "Send to policy review",
             "Return for evidence",
             "Send handoff"

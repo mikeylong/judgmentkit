@@ -5,7 +5,20 @@
   "source": {
     "mode": "model_assisted",
     "proposer": "external_candidate",
-    "input_excerpt": "A support operations manager is reviewing customer refund escalation cases. The request says to build the surface from the refund_case data model, expose every database table field, show JSON schema validation errors, show prompt template v"
+    "input_excerpt": "A support operations manager is reviewing customer refund escalation cases. The request says to build the surface from the refund_case data model, expose every database table field, show JSON schema validation errors, show prompt template v",
+    "activity_brief_sha256": "55e0cf5643e8b4f02c0895c15f2a3454eed4c1ad001b9c1e13674ce0173fe4fd",
+    "activity_case_review_integrity": {
+      "schema": "judgmentkit.portable-integrity-receipt/v1",
+      "algorithm": "sha256-canonical-json",
+      "kind": "activity_case_review",
+      "digest": "9cb95885ee11055d7b8de8c5cd2af0930e0220110edacf391c5ee4b35c33b6ad"
+    },
+    "activity_case_handoff_integrity": {
+      "schema": "judgmentkit.portable-integrity-receipt/v1",
+      "algorithm": "sha256-canonical-json",
+      "kind": "activity_case_ui_generation_handoff",
+      "digest": "cb3b0a9714e6309bc78cf123d995a76023b4e7804ef17c04bf8859c966ce50c5"
+    }
   },
   "surface_type": "workbench",
   "surface_guidance": {
@@ -61,6 +74,159 @@
       ]
     }
   },
+  "activity_case": {
+    "schema": "judgmentkit.activity-case/v1",
+    "mode": "deterministic",
+    "claims": [
+      {
+        "id": "activity",
+        "path": "activity_model.activity",
+        "value": "Support operations manager reviews customer refund escalation cases.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "participants",
+        "path": "activity_model.participants",
+        "value": [
+          "support operations manager",
+          "support agent"
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "low",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "objective",
+        "path": "activity_model.objective",
+        "value": "Whether an escalation should be approved, sent to policy review, or returned to the support agent for missing evidence.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "outcomes",
+        "path": "activity_model.outcomes",
+        "value": [
+          "A clear handoff with the next action and reason for the decision."
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "domain_vocabulary",
+        "path": "activity_model.domain_vocabulary",
+        "value": [
+          "support operations manager",
+          "support agent",
+          "customer refund escalation cases",
+          "policy review",
+          "missing evidence",
+          "handoff",
+          "next action",
+          "reason for the decision"
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "low",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "primary_decision",
+        "path": "interaction_contract.primary_decision",
+        "value": "Whether an escalation should be approved, sent to policy review, or returned to the support agent for missing evidence.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "next_actions",
+        "path": "interaction_contract.next_actions",
+        "value": [
+          "The outcome is a clear handoff with the next action and reason for the decision."
+        ],
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      },
+      {
+        "id": "completion",
+        "path": "interaction_contract.completion",
+        "value": "A clear handoff with the next action and reason for the decision.",
+        "origin": "source_supported",
+        "source_refs": [
+          "brief"
+        ],
+        "authoritative_source_refs": [],
+        "confidence": "high",
+        "materiality": "medium",
+        "alternatives": [],
+        "impact_if_wrong": "",
+        "reversibility": "easy"
+      }
+    ],
+    "assumptions": [],
+    "unresolved_ambiguities": [],
+    "readiness": {
+      "decision": "proceed",
+      "exploration": "allowed_with_visible_assumptions",
+      "exploration_meaning": "The activity case may guide concept exploration with visible assumptions.",
+      "commitment": "not_authorized",
+      "commitment_meaning": "Activity-case readiness never authorizes product, policy, safety, release, or implementation commitments.",
+      "blocking_ambiguity_ids": [],
+      "next_question": null
+    }
+  },
   "activity_model": {
     "activity": "Support operations manager reviews customer refund escalation cases",
     "participants": [
@@ -94,6 +260,137 @@
       "Adjust vocabulary before implementation detail reaches the product UI"
     ]
   },
+  "disclosure_policy": {
+    "terms_to_use": [
+      "support operations manager",
+      "support agent",
+      "customer refund escalation cases",
+      "policy review",
+      "missing evidence",
+      "handoff",
+      "next action",
+      "reason for the decision"
+    ],
+    "hidden_implementation_terms": [
+      {
+        "detected_term": "API endpoint",
+        "count": 1
+      },
+      {
+        "detected_term": "CRUD",
+        "count": 1
+      },
+      {
+        "detected_term": "data model",
+        "count": 1
+      },
+      {
+        "detected_term": "database table",
+        "count": 1
+      },
+      {
+        "detected_term": "field",
+        "count": 1
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1
+      },
+      {
+        "detected_term": "prompt",
+        "count": 1
+      },
+      {
+        "detected_term": "prompt template",
+        "count": 1
+      },
+      {
+        "detected_term": "resource",
+        "count": 1
+      },
+      {
+        "detected_term": "resource id",
+        "count": 1
+      },
+      {
+        "detected_term": "schema",
+        "count": 1
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1
+      }
+    ],
+    "translation_candidates": [
+      {
+        "detected_term": "API endpoint",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "CRUD",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "data model",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "database table",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "field",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "prompt",
+        "count": 1,
+        "prefer": "instruction"
+      },
+      {
+        "detected_term": "prompt template",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "resource",
+        "count": 1,
+        "prefer": "guidance"
+      },
+      {
+        "detected_term": "resource id",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "schema",
+        "count": 1,
+        "prefer": "contract"
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1,
+        "prefer": "system action"
+      }
+    ],
+    "diagnostic_contexts": [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration",
+      "explicit source inspection"
+    ]
+  },
   "workflow": {
     "surface_name": "Refund escalation review",
     "topology": "workspace",
@@ -118,13 +415,13 @@
       }
     },
     "primary_actions": [
-      "Approve refund",
+      "Recommend refund approval",
       "Send to policy review",
       "Return for evidence",
       "Send handoff"
     ],
     "decision_points": [
-      "Decide whether the refund can be approved, needs policy review, or must return to the support agent for missing evidence"
+      "Decide whether to recommend refund approval, request policy review, or return to the support agent for missing evidence"
     ],
     "completion_state": "The next owner receives a handoff with the chosen path and the reason"
   },
@@ -142,7 +439,7 @@
       ],
       "controls": [
         "Select request",
-        "Approve refund",
+        "Recommend refund approval",
         "Send to policy review",
         "Return for evidence",
         "Choose next owner",
@@ -2840,9 +3137,5 @@
       "focus, disabled, or error states are missing",
       "browser QA is skipped after UI generation"
     ]
-  },
-  "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
-  "activity_review_status": "ready_for_review",
-  "surface_review_status": "ready",
-  "workflow_review_status": "ready_for_review"
+  }
 }

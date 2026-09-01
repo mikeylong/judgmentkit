@@ -64,11 +64,29 @@ The first workflow is AI UI generation. It starts with one contract:
 
 ## First 10 Minutes
 
-Use the first-use fixture when you want to see the AI-native contract loop without reading an eval report:
+Start with a short activity brief in any client that can load the JudgmentKit skill, including Codex or Claude Code. For example:
+
+```text
+Use JudgmentKit to plan an interface for a support lead reviewing refund requests during daily triage. They decide whether to recommend support, send a case to policy review, or return it for missing evidence. The outcome is a clear handoff with the next action and reason.
+```
+
+The default experience is inference-first: the agent proposes and briefly shows its best-current activity case, keeps reversible assumptions visible, and continues. It asks at most one targeted question only when a consequential fork would materially change the design and be costly to reverse. It stops when a protected action needs an authoritative source. A field-by-field interview is never the default.
+
+The portable path is the same across clients:
+
+1. Infer and review the activity case from the short brief.
+2. Classify the surface and review the proposed workflow.
+3. Pass the exact brief and attributed context through handoff, frontend generation, and portable frontend skill compilation.
+4. Apply the selected design-system adapter and implementation contract.
+5. Review implementation evidence before acceptance.
+
+For direct MCP integrations, the corresponding sequence is `create_activity_model_review`, `review_activity_model_candidate`, `recommend_surface_types`, `review_ui_workflow_candidate`, `create_ui_implementation_contract`, `create_ui_generation_handoff`, `create_frontend_generation_context`, and `create_frontend_implementation_skill_context`; generate the UI in the client, then call `review_ui_implementation_candidate` before acceptance. Resupply the exact current `brief` and attributed `context_items` at every validating boundary; integrity receipts prove continuity, not action authority.
+
+Use the first-use fixture when you want to inspect the later implementation acceptance loop without reading an eval report:
 
 - `examples/ai-native-design-system/first-use.json`
 
-The fixture contains one brief, one implementation contract input, one failing candidate, one repaired candidate, and a two-attempt transcript. The intended loop is:
+The fixture contains one brief, one implementation contract input, one failing candidate, one repaired candidate, and a two-attempt transcript. That later loop is:
 
 1. Create the implementation contract.
 2. Review the failing candidate.

@@ -1,7 +1,7 @@
 {
   "name": "judgmentkit",
-  "version": "0.1.0",
-  "description": "AI UI review, handoff guidance, and slide deck creation triggers that help Codex preserve design intent, catch workflow mismatches, and enforce hard design-system acceptance gates.",
+  "version": "0.2.0",
+  "description": "Activity-centered UI design and handoff guidance that helps Codex infer a working design premise, preserve intent into code, and enforce acceptance gates.",
   "author": {
     "name": "JudgmentKit",
     "url": "https://judgmentkit.ai"
@@ -10,21 +10,24 @@
   "repository": "https://github.com/mikeylong/judgmentkit",
   "keywords": [
     "ai-ui-review",
+    "activity-centered-design",
     "design-handoff",
     "design-system",
+    "design-to-code",
     "figma",
     "presentation",
     "slide-deck",
     "pptx",
     "powerpoint",
+    "ui-generation",
     "workflow-fit",
     "ui-critique"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "JudgmentKit",
-    "shortDescription": "AI UI review, slide decks, and hard design-system gates",
-    "longDescription": "JudgmentKit helps product designers and design teams review AI-generated UI before screens are planned, built, or accepted. It turns product briefs, Figma or Adobe handoffs, design-system guidance, and generated screens into clear decisions, states, terminology, workflow checks, implementation evidence, and hard design-system acceptance gates. It is also the discoverable route for JudgmentKit slide deck, presentation, PowerPoint, and PPTX requests from allowed briefs, review packets, handoffs, or implementation evidence once the MCP deck creation tool is available. If generated UI does not pass the active design system, it is a failed candidate, not an artifact. The hosted endpoint is for allowed or sanitized work; use a local or self-hosted JudgmentKit path for confidential briefs, unreleased designs, proprietary design-system details, source code, or customer data.",
+    "shortDescription": "Inference-first UI design, handoff, and acceptance",
+    "longDescription": "JudgmentKit helps product designers and design teams turn a rough brief, Figma or Adobe handoff, existing interface, or generated screen into a reviewed working premise and concrete design direction without beginning with an intake questionnaire. It infers a complete activity case, preserves consequential decisions through design and code handoffs, asks only when an unresolved choice would materially change the interaction, and enforces hard design-system acceptance gates before generated UI is accepted. It also routes JudgmentKit slide deck, presentation, PowerPoint, and PPTX requests from allowed source material. The hosted endpoint is for allowed or sanitized work; use a local or self-hosted JudgmentKit path for confidential briefs, unreleased designs, proprietary design-system details, source code, or customer data.",
     "developerName": "JudgmentKit",
     "category": "Productivity",
     "capabilities": [
@@ -34,8 +37,9 @@
     "websiteURL": "https://judgmentkit.ai",
     "brandColor": "#255C99",
     "defaultPrompt": [
-      "Turn this product brief into UI decisions and review criteria.",
-      "Review this sanitized Figma or generated screen for workflow fit and disclosure issues.",
+      "Make a first UI pass from this brief. Infer what you can, show the working premise and key decisions, and ask only if a missing decision would materially change the design.",
+      "Turn this sanitized Figma or generated screen into a reviewed activity case and implementation handoff.",
+      "Carry this reviewed design intent into a React prototype without losing its workflow or disclosure decisions.",
       "Create hard design-system acceptance criteria for this interface.",
       "Create a JudgmentKit slide deck from this product brief.",
       "Turn this workflow review into a presentation handoff."

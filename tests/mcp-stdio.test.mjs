@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import Ajv from "ajv";
 
 function withTimeout(promise, timeoutMs) {
   return Promise.race([
@@ -20,6 +21,20 @@ function assertPlanningCard(response, heading, status) {
 
   assert.ok(text.includes(heading));
   assert.ok(text.includes(`**Status:** ${status}`));
+  assert.equal(text.trim().startsWith("{"), false);
+  assert.equal(text.includes('"structuredContent"'), false);
+
+  return text;
+}
+
+function assertActivityPremiseCard(response) {
+  const text = textContent(response);
+
+  assert.ok(text.includes("## JudgmentKit Working Premise"));
+  assert.ok(text.includes("**Working premise**"));
+  assert.ok(text.includes("**Next step:** Show a first direction now"));
+  assert.equal(text.includes("**Status:**"), false);
+  assert.equal(text.includes("Diagnostics"), false);
   assert.equal(text.trim().startsWith("{"), false);
   assert.equal(text.includes('"structuredContent"'), false);
 
@@ -141,6 +156,41 @@ try {
       "search_icon_catalog",
       "get_icon_svg",
     ],
+  );
+  const createActivityTool = toolsResponse.tools.find(
+    (tool) => tool.name === "create_activity_model_review",
+  );
+  const validateCreateActivityInput = new Ajv({ strict: false }).compile(
+    createActivityTool.inputSchema,
+  );
+
+  assert.equal(
+    validateCreateActivityInput({
+      brief: "Create a clinical review workspace.",
+      context_items: [
+        {
+          id: "clinical-policy",
+          kind: "authoritative_source",
+          content: "Only physicians may authorize discharge.",
+        },
+      ],
+    }),
+    false,
+    "The stdio-advertised schema must require source_ref for authoritative context.",
+  );
+  assert.equal(
+    validateCreateActivityInput({
+      brief: "Create a clinical review workspace.",
+      context_items: [
+        {
+          id: "clinical-policy",
+          kind: "authoritative_source",
+          content: "Only physicians may authorize discharge.",
+          source_ref: "policy://clinical/discharge",
+        },
+      ],
+    }),
+    true,
   );
   const recommendSurfaceTool = toolsResponse.tools.find(
     (tool) => tool.name === "recommend_surface_types",
@@ -298,11 +348,7 @@ try {
   );
 
   assert.equal(reviewResponse.isError, undefined);
-  const reviewText = assertPlanningCard(
-    reviewResponse,
-    "## JudgmentKit Activity Review",
-    "Ready for concept planning",
-  );
+  const reviewText = assertActivityPremiseCard(reviewResponse);
 
   assert.ok(reviewText.includes("**Primary decision:**"));
   assert.ok(reviewText.includes("case should be approved"));
@@ -387,34 +433,66 @@ try {
     ["operator-review-ui"],
   );
 
+  const activityContextItems = [
+    {
+      id: "existing-refund-receipt",
+      kind: "provided_artifact",
+      content: "A prioritized set of refund requests is ready for follow-up.",
+      source_ref: "artifact://refund-follow-up/receipt",
+    },
+  ];
   const candidateReviewResponse = await withTimeout(
     client.callTool({
       name: "review_activity_model_candidate",
       arguments: {
-        brief:
-          "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+        brief: "A refund triage tool.",
+        context_items: activityContextItems,
         candidate: {
           activity_model: {
-            activity: "Support lead reviews refund requests during daily triage workflow.",
-            participants: ["support lead"],
-            objective:
-              "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
-            outcomes: ["Clear handoff with next action and decision reason."],
-            domain_vocabulary: ["refund requests", "policy review", "missing evidence"],
+            activity: "Support leads triage refund requests.",
+            participants: ["support leads"],
+            objective: "Identify which refund requests need attention first.",
+            outcomes: ["A prioritized set of refund requests is ready for follow-up."],
+            domain_vocabulary: ["refund requests", "triage", "follow-up"],
           },
           interaction_contract: {
-            primary_decision:
-              "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
-            next_actions: ["Confirm the handoff path."],
-            completion: "Clear handoff with next action and decision reason.",
-            make_easy: ["Review decision options in domain language."],
+            primary_decision: "Decide which refund requests need attention first.",
+            next_actions: ["Prioritize a refund request for follow-up."],
+            completion: "A prioritized set of refund requests is ready for follow-up.",
+            make_easy: ["Compare refund requests and record the next follow-up."],
           },
           disclosure_policy: {
-            terms_to_use: ["refund requests", "policy review", "missing evidence"],
+            terms_to_use: ["refund requests", "triage", "follow-up"],
             hidden_implementation_terms: [],
             translation_candidates: [],
             diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
           },
+          claims: [
+            {
+              id: "completion_assumption",
+              path: "interaction_contract.completion",
+              value: "A prioritized set of refund requests is ready for follow-up.",
+              origin: "model_inferred",
+              source_refs: [],
+              confidence: "medium",
+              materiality: "low",
+              alternatives: [],
+              impact_if_wrong: "The concept may need a different follow-up receipt.",
+              reversibility: "easy",
+            },
+            {
+              id: "next_action_convention",
+              path: "interaction_contract.next_actions",
+              value: ["Prioritize a refund request for follow-up."],
+              origin: "convention_assumed",
+              source_refs: [],
+              confidence: "medium",
+              materiality: "low",
+              alternatives: [],
+              impact_if_wrong: "The first concept direction may need a different next action.",
+              reversibility: "easy",
+            },
+          ],
         },
       },
     }),
@@ -422,57 +500,63 @@ try {
   );
 
   assert.equal(candidateReviewResponse.isError, undefined);
-  assertPlanningCard(
-    candidateReviewResponse,
-    "## JudgmentKit Activity Review",
-    "Ready for concept planning",
-  );
+  assertActivityPremiseCard(candidateReviewResponse);
   assert.equal(candidateReviewResponse.structuredContent.source.mode, "model_assisted");
   assert.equal(
     candidateReviewResponse.structuredContent.source.proposer,
     "external_candidate",
   );
   assert.equal(candidateReviewResponse.structuredContent.review_status, "ready_for_review");
+  assert.equal(
+    candidateReviewResponse.structuredContent.activity_case.schema,
+    "judgmentkit.activity-case/v1",
+  );
+  assert.equal(candidateReviewResponse.structuredContent.activity_case.mode, "inference_first");
+  assert.equal(
+    candidateReviewResponse.structuredContent.activity_case.readiness.decision,
+    "proceed",
+  );
+  assert.ok(candidateReviewResponse.structuredContent.activity_case.assumptions.length > 0);
 
   const workflowReviewResponse = await withTimeout(
     client.callTool({
       name: "review_ui_workflow_candidate",
       arguments: {
-        brief:
-          "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+        brief: "A refund triage tool.",
+        activity_review: candidateReviewResponse.structuredContent,
+        context_items: activityContextItems,
         candidate: {
           workflow: {
-            surface_name: "Refund escalation queue",
+            surface_name: "Refund triage queue",
             topology: "workspace",
-            work_units: ["Review evidence", "Choose path", "Prepare handoff"],
+            work_units: ["Review requests", "Compare priority", "Record follow-up"],
             primary_actions: [
-              "Approve refund",
-              "Send to policy review",
-              "Return for evidence",
+              "Prioritize for follow-up",
+              "Defer for more evidence",
+              "Record the next follow-up",
             ],
             decision_points: [
-              "Decide whether the case should be approved, sent to policy review, or returned for missing evidence.",
+              "Decide which refund requests need attention first.",
             ],
-            completion_state: "Clear handoff with next action and decision reason.",
+            completion_state: "A prioritized set of refund requests is ready for follow-up.",
           },
           surface_set: [
             {
-              name: "Refund escalation workspace",
-              purpose: "Review evidence, choose the refund path, and send a handoff.",
-              sections: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
+              name: "Refund triage workspace",
+              purpose: "Compare refund requests, set priority, and record follow-up.",
+              sections: ["Refund requests", "Selected request", "Evidence", "Follow-up"],
               controls: [
-                "Approve refund",
-                "Send to policy review",
-                "Return for evidence",
-                "Send handoff",
+                "Prioritize for follow-up",
+                "Defer for more evidence",
+                "Record the next follow-up",
               ],
-              relationship_to_workflow: "Keeps evidence, decision controls, and handoff receipt together.",
+              relationship_to_workflow: "Keeps comparison, priority, and follow-up together.",
             },
           ],
           handoff: {
-            next_owner: "support agent",
-            reason: "Receipt or support evidence is missing.",
-            next_action: "Send handoff with next action and decision reason.",
+            next_owner: "support team",
+            reason: "Priority and evidence signals are recorded.",
+            next_action: "Continue follow-up from the prioritized queue.",
           },
           diagnostics: {
             implementation_terms: [],
@@ -493,14 +577,19 @@ try {
     "Ready for UI handoff",
   );
 
-  assert.ok(workflowText.includes("**Workflow:** Refund escalation queue"));
-  assert.ok(workflowText.includes("Approve refund"));
+  assert.ok(workflowText.includes("**Workflow:** Refund triage queue"));
+  assert.ok(workflowText.includes("Prioritize for follow-up"));
   assert.equal(workflowReviewResponse.structuredContent.source.mode, "model_assisted");
   assert.equal(
     workflowReviewResponse.structuredContent.source.proposer,
     "external_candidate",
   );
   assert.equal(workflowReviewResponse.structuredContent.review_status, "ready_for_review");
+  assert.deepEqual(
+    workflowReviewResponse.structuredContent.activity_review,
+    candidateReviewResponse.structuredContent,
+    "The workflow gate must preserve the exact reviewed activity packet.",
+  );
   assert.equal(
     workflowReviewResponse.structuredContent.guidance_profile.profile_id,
     "operator-review-ui",
@@ -508,7 +597,7 @@ try {
   assert.equal(workflowReviewResponse.structuredContent.surface_type, "workbench");
   assert.ok(
     workflowReviewResponse.structuredContent.candidate.workflow.primary_actions.includes(
-      "Approve refund",
+      "Prioritize for follow-up",
     ),
   );
 
@@ -516,8 +605,9 @@ try {
     client.callTool({
       name: "review_ui_workflow_candidate",
       arguments: {
-        brief:
-          "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+        brief: "A refund triage tool.",
+        activity_review: candidateReviewResponse.structuredContent,
+        context_items: activityContextItems,
         candidate: {
           ...workflowReviewResponse.structuredContent.candidate,
           workflow: {
@@ -853,8 +943,10 @@ try {
     client.callTool({
       name: "create_ui_generation_handoff",
       arguments: {
+        brief: "A refund triage tool.",
         workflow_review: workflowReviewResponse.structuredContent,
         implementation_contract: implementationContractResponse.structuredContent,
+        context_items: activityContextItems,
       },
     }),
     5_000,
@@ -875,8 +967,24 @@ try {
     "operator-review-ui",
   );
   assert.equal(handoffResponse.structuredContent.surface_type, "workbench");
+  assert.deepEqual(
+    handoffResponse.structuredContent.source.activity_context_items,
+    candidateReviewResponse.structuredContent.source.context_items,
+  );
   assert.ok(
-    handoffResponse.structuredContent.workflow.primary_actions.includes("Approve refund"),
+    handoffResponse.structuredContent.workflow.primary_actions.includes(
+      "Prioritize for follow-up",
+    ),
+  );
+  assert.deepEqual(
+    handoffResponse.structuredContent.activity_case,
+    candidateReviewResponse.structuredContent.activity_case,
+    "The handoff must preserve the inference-first activity case exactly.",
+  );
+  assert.deepEqual(
+    handoffResponse.structuredContent.disclosure_policy,
+    candidateReviewResponse.structuredContent.candidate.disclosure_policy,
+    "The handoff must preserve the reviewed disclosure policy exactly.",
   );
 
   const frontendContextResponse = await withTimeout(
@@ -884,6 +992,8 @@ try {
       name: "create_frontend_generation_context",
       arguments: {
         ui_generation_handoff: handoffResponse.structuredContent,
+        brief: "A refund triage tool.",
+        context_items: activityContextItems,
         frontend_context: {
           target_runtime: "React",
           ui_library: "Material UI",
@@ -920,6 +1030,16 @@ try {
     "ready_for_frontend_implementation",
   );
   assert.equal(frontendContextResponse.structuredContent.surface_type, "workbench");
+  assert.deepEqual(
+    frontendContextResponse.structuredContent.activity_case,
+    candidateReviewResponse.structuredContent.activity_case,
+    "Frontend context must preserve the inference-first activity case exactly.",
+  );
+  assert.deepEqual(
+    frontendContextResponse.structuredContent.disclosure_policy,
+    candidateReviewResponse.structuredContent.candidate.disclosure_policy,
+    "Frontend context must preserve the reviewed disclosure policy exactly.",
+  );
   assert.equal(
     frontendContextResponse.structuredContent.selected_surface_profile.id,
     "judgmentkit.workbench.operational-v1",
@@ -949,6 +1069,8 @@ try {
     client.callTool({
       name: "create_frontend_implementation_skill_context",
       arguments: {
+        brief: "A refund triage tool.",
+        context_items: activityContextItems,
         frontend_generation_context: frontendContextResponse.structuredContent,
         target_client: "codex",
         design_system_adapter: {
@@ -1038,6 +1160,11 @@ try {
     frontendSkillContextResponse.structuredContent.source_skill.raw_skill_exposed,
     false,
   );
+  assert.deepEqual(
+    frontendSkillContextResponse.structuredContent.disclosure_policy,
+    candidateReviewResponse.structuredContent.candidate.disclosure_policy,
+    "Frontend skill context must preserve the reviewed disclosure policy exactly.",
+  );
   assert.ok(
     frontendSkillContextResponse.structuredContent.visual_asset_policy.preferred_paths.some(
       (rule) => rule.includes("D3"),
@@ -1091,11 +1218,17 @@ try {
       (item) => item.includes("substantive visuals"),
     ),
   );
+  assert.deepEqual(
+    frontendSkillContextResponse.structuredContent.activity_case,
+    candidateReviewResponse.structuredContent.activity_case,
+    "Portable implementation context must preserve the inference-first activity case exactly.",
+  );
 
   const blockedHandoffResponse = await withTimeout(
     client.callTool({
       name: "create_ui_generation_handoff",
       arguments: {
+        brief: "A refund triage tool.",
         workflow_review: blockedWorkflowResponse.structuredContent,
         implementation_contract: implementationContractResponse.structuredContent,
       },

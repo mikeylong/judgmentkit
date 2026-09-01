@@ -5,8 +5,8 @@ import {
   WORKBENCH_SURFACE_PROFILE,
   WORKBENCH_SURFACE_PROFILE_ID,
   JudgmentKitInputError,
-  createFrontendGenerationContext,
-  createFrontendImplementationSkillContext,
+  createFrontendGenerationContext as createFrontendGenerationContextRaw,
+  createFrontendImplementationSkillContext as createFrontendImplementationSkillContextRaw,
   createUiGenerationHandoff,
   createUiImplementationContract,
   listSurfacePresentationProfiles,
@@ -51,36 +51,31 @@ const GROUNDED_REPORT_BRIEF = `
 `;
 
 function readyHandoff(surfaceType = "workbench", implementationContract = {}) {
-  return {
-    version: "0.1.0",
-    contract_id: "judgmentkit.ai-ui-generation",
-    handoff_status: "ready_for_generation",
-    ...(surfaceType ? { surface_type: surfaceType } : {}),
-    activity_model: {
-      activity: "Review service exceptions",
-      participants: ["dispatch lead"],
-      objective: "Resolve the next exception with evidence",
-    },
-    interaction_contract: {
-      primary_decisions: ["Choose the next operational action"],
-    },
-    workflow: {
-      topology: "workspace",
-      work_units: ["Inspect evidence", "Choose action", "Leave handoff"],
-      stepper_eligibility: { allowed: false },
-    },
-    surface_set: [],
-    product_terms: ["Exception", "Route impact", "Handoff"],
-    handoff: {
-      next_action: "Generate the operational workspace.",
-      payload: ["Decision", "Reason", "Owner"],
-    },
+  const workflowReview = reviewUiWorkflowCandidate(
+    GROUNDED_WORKBENCH_BRIEF,
+    workbenchWorkflowCandidate(),
+    surfaceType ? { surface_type: surfaceType } : {},
+  );
+  return createUiGenerationHandoff(workflowReview, {
+    brief: GROUNDED_WORKBENCH_BRIEF,
     implementation_contract: implementationContract,
-    disclosure_reminders: {
-      terms_to_keep_out_of_product_ui: ["tool call"],
-      diagnostic_contexts: ["debugging"],
-    },
-  };
+  });
+}
+
+function createFrontendGenerationContext(options = {}) {
+  return createFrontendGenerationContextRaw({
+    ...options,
+    brief: options.brief ?? GROUNDED_WORKBENCH_BRIEF,
+    context_items: options.context_items ?? [],
+  });
+}
+
+function createFrontendImplementationSkillContext(options = {}) {
+  return createFrontendImplementationSkillContextRaw({
+    ...options,
+    brief: options.brief ?? GROUNDED_WORKBENCH_BRIEF,
+    context_items: options.context_items ?? [],
+  });
 }
 
 function completeExternalDesignSystemAdapter() {
@@ -347,12 +342,15 @@ assert.equal(
   assert.equal(workflowReview.surface_type, "workbench");
   assert.equal(workflowReview.surface_guidance.confidence, "low");
 
-  const handoff = createUiGenerationHandoff(workflowReview);
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief: GROUNDED_WORKBENCH_BRIEF,
+  });
   assert.equal(handoff.surface_type, "workbench");
   assert.equal(handoff.surface_guidance.confidence, "low");
 
   const frontendContext = createFrontendGenerationContext({
     ui_generation_handoff: handoff,
+    brief: GROUNDED_WORKBENCH_BRIEF,
   });
   assert.equal(
     frontendContext.source.surface_type_source,
@@ -367,6 +365,7 @@ assert.equal(
     () =>
       createFrontendGenerationContext({
         ui_generation_handoff: handoff,
+        brief: GROUNDED_WORKBENCH_BRIEF,
         surface_profile: EXPECTED_WORKBENCH_PROFILE_ID,
       }),
     "An exact profile request must not upgrade low-confidence handoff lineage.",
@@ -521,13 +520,13 @@ assert.equal(
   tamperedFrontendContext.selected_surface_profile.status = "experimental";
   tamperedFrontendContext.selected_surface_profile.authority.public_contract = false;
 
-  const canonicalized = createFrontendImplementationSkillContext({
-    frontend_generation_context: tamperedFrontendContext,
-  });
-
-  assert.equal(canonicalized.selected_surface_profile.name, WORKBENCH_SURFACE_PROFILE.name);
-  assert.equal(canonicalized.selected_surface_profile.status, "supported");
-  assert.equal(canonicalized.selected_surface_profile.authority.public_contract, true);
+  assertInputError(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: tamperedFrontendContext,
+      }),
+    "Compiled context must reject profile metadata changed after the frontend boundary.",
+  );
 }
 
 for (const [field, value] of [
@@ -732,13 +731,16 @@ for (const invalidId of [undefined, "auto", "none"]) {
   assert.equal("experimental_surface_profile" in properties, false);
 
   const automaticResult = await handleToolCall("create_frontend_generation_context", {
+    brief: GROUNDED_WORKBENCH_BRIEF,
     ui_generation_handoff: readyHandoff(),
   });
   const explicitResult = await handleToolCall("create_frontend_generation_context", {
+    brief: GROUNDED_WORKBENCH_BRIEF,
     ui_generation_handoff: readyHandoff(),
     surface_profile: EXPECTED_WORKBENCH_PROFILE_ID,
   });
   const optedOutResult = await handleToolCall("create_frontend_generation_context", {
+    brief: GROUNDED_WORKBENCH_BRIEF,
     ui_generation_handoff: readyHandoff(),
     surface_profile: "none",
   });

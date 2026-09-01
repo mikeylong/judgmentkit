@@ -15,6 +15,16 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 const DEFAULT_MCP_URL = "https://judgmentkit.ai/mcp";
+const canonicalSkillDir = path.join(root, "packages", "agent-skill", "judgmentkit-hosted-mcp");
+const canonicalSkillText = await fs.readFile(path.join(canonicalSkillDir, "SKILL.md"), "utf8");
+const canonicalUiReferenceText = await fs.readFile(
+  path.join(canonicalSkillDir, "references", "ui-handoff-and-acceptance.md"),
+  "utf8",
+);
+const canonicalDeckReferenceText = await fs.readFile(
+  path.join(canonicalSkillDir, "references", "deck-creation.md"),
+  "utf8",
+);
 
 function codexSuffix() {
   return `+${"codex"}`;
@@ -36,24 +46,32 @@ async function createFixture(overrides = {}) {
   const version = overrides.packageVersion ?? "1.2.3";
   const pluginVersion = overrides.pluginVersion ?? version;
   const skillText = overrides.skillText ?? validSkillText();
+  const uiReferenceText = overrides.uiReferenceText ?? canonicalUiReferenceText;
+  const deckReferenceText = overrides.deckReferenceText ?? canonicalDeckReferenceText;
   const agentYaml = overrides.agentYaml ?? validAgentYaml();
   const pluginJson = {
     name: "judgmentkit",
     version: pluginVersion,
-    description: "AI UI review and handoff guidance that enforces hard design-system acceptance gates.",
+    description:
+      overrides.pluginDescription ??
+      "Activity-centered UI design and handoff guidance with hard acceptance gates.",
     skills: "./skills/",
     mcpServers: "./.mcp.json",
     interface: {
       displayName: "JudgmentKit",
-      shortDescription: "AI UI review with hard design-system gates",
-      longDescription: "The hosted endpoint is for allowed or sanitized work; use a local or self-hosted JudgmentKit path for confidential briefs, unreleased designs, proprietary design-system details, source code, or customer data.",
+      shortDescription:
+        overrides.pluginShortDescription ??
+        "Inference-first UI design and acceptance gates",
+      longDescription:
+        overrides.pluginLongDescription ??
+        "JudgmentKit turns a rough brief into a working premise without beginning with an intake questionnaire, preserves design intent through handoff, and asks only when a decision materially changes the interaction. The hosted endpoint is for allowed or sanitized work; use a local or self-hosted JudgmentKit path for confidential briefs, unreleased designs, proprietary design-system details, source code, or customer data.",
       developerName: "JudgmentKit",
       category: "Productivity",
       capabilities: ["Interactive", "Read"],
       websiteURL: "https://judgmentkit.ai",
-      defaultPrompt: [
-        "Turn this product brief into UI decisions and review criteria.",
-      ],
+      defaultPrompt:
+        overrides.pluginDefaultPrompt ??
+        ["Make a first UI pass, show the working premise, and ask only if a missing decision would materially change the design."],
     },
   };
   const mcpJson = {
@@ -73,7 +91,16 @@ async function createFixture(overrides = {}) {
   await writeJson(path.join(sourceDir, ".codex-plugin", "plugin.json"), pluginJson);
   await writeJson(path.join(sourceDir, ".mcp.json"), mcpJson);
   await fs.mkdir(path.join(sourceDir, "skills", "judgmentkit-hosted-mcp", "agents"), { recursive: true });
+  await fs.mkdir(path.join(sourceDir, "skills", "judgmentkit-hosted-mcp", "references"), { recursive: true });
   await fs.writeFile(path.join(sourceDir, "skills", "judgmentkit-hosted-mcp", "SKILL.md"), skillText);
+  await fs.writeFile(
+    path.join(sourceDir, "skills", "judgmentkit-hosted-mcp", "references", "ui-handoff-and-acceptance.md"),
+    uiReferenceText,
+  );
+  await fs.writeFile(
+    path.join(sourceDir, "skills", "judgmentkit-hosted-mcp", "references", "deck-creation.md"),
+    deckReferenceText,
+  );
 
   if (overrides.writeAgentYaml !== false) {
     await fs.writeFile(
@@ -99,57 +126,15 @@ async function createFixture(overrides = {}) {
 }
 
 function validSkillText() {
-  return [
-    "---",
-    "name: judgmentkit-hosted-mcp",
-    "description: Use JudgmentKit when the user explicitly asks or the project opts in to clarify what a UI must support, choose the right surface type, review workflow fit, set disclosure boundaries, enforce design-system acceptance gates, or prepare design-system handoff criteria before product UI is planned, generated, reviewed, or accepted.",
-    "---",
-    "",
-    "# JudgmentKit Hosted MCP",
-    "",
-    "Use this skill for JudgmentKit slide deck requests when the user asks to create, draft, generate, export, or turn source material into a deck, presentation, PowerPoint, or PPTX.",
-    "",
-    "## Slide Deck Creation",
-    "",
-    "Treat dry-run deck planning as JudgmentKit guidance when the MCP response uses `schema: \"judgmentkit.mcp.slide-deck/v1\"` and `deck_creation_status: \"planned\"`.",
-    "",
-    "Treat an exported PPTX as JudgmentKit output only when the MCP response or sidecar receipt confirms `tool_name: \"mcp__judgmentkit.create_slide_deck\"`, `deck_creation_status: \"exported\"`, and matching `sha256`, `bytes`, and `mime_type` artifact fields.",
-    "",
-    "If no deck creation tool is listed by the active endpoint, state that the current JudgmentKit endpoint cannot create the deck yet. Do not fabricate a JudgmentKit packet, deck, or MCP result.",
-    "",
-    "## Design-System Acceptance Gate",
-    "",
-    "A generated UI that does not pass the active design system is not an artifact. It is a failed candidate.",
-    "",
-    "Do not accept, render, publish, summarize as successful, or preserve a generated UI candidate until `review_ui_implementation_candidate` passes against the active implementation contract.",
-    "",
-    'Do not treat "mostly uses tokens", wrapper normalization, fallback styling, visual cleanup, or post-hoc token rewriting as design-system compliance.',
-    "",
-    "If the active design-system review fails, the next action is repair or regeneration against the MCP-returned constraints, not acceptance with caveats.",
-    "",
-    "## Privacy Boundary",
-    "",
-    "The hosted endpoint processes the MCP request payload and records sanitized usage events such as event type and tool name.",
-    "",
-    "It does not intentionally store submitted briefs, design context, generated code, or review packets, but hosted requests still leave the local environment.",
-    "",
-    "Use sanitized inputs for confidential work.",
-    "",
-    "For unreleased designs, proprietary design-system details, source code, customer data, or internal roadmaps, prefer a local checkout, local stdio server, or self-hosted JudgmentKit MCP endpoint instead of `https://judgmentkit.ai/mcp`.",
-    "",
-    "## Deck Workflow",
-    "",
-    "For portfolio or case-study decks, pass explicit `template_id` values or strong selection metadata when layout variety matters; heed layout repetition warnings.",
-    "",
-  ].join("\n");
+  return canonicalSkillText;
 }
 
 function validAgentYaml() {
   return [
     "interface:",
-    '  display_name: "JudgmentKit Hosted MCP"',
-    '  short_description: "UI workflow review, slide deck creation, and hard design-system gates"',
-    '  default_prompt: "Use $judgmentkit-hosted-mcp to review this UI brief for workflow fit, surface choice, disclosure boundaries, and the hard design-system acceptance gate, or to create a JudgmentKit slide deck, presentation, PowerPoint, or PPTX from allowed source material when the deck creation tool is available."',
+    '  display_name: "JudgmentKit UI Design"',
+    '  short_description: "Inference-first UI design and acceptance gates"',
+    '  default_prompt: "Use $judgmentkit-hosted-mcp to infer and review a complete activity case before producing the requested UI direction or JudgmentKit slide deck; show the working premise first and ask only one consequential question if needed."',
     "dependencies:",
     "  tools:",
     '    - type: "mcp"',
@@ -304,7 +289,7 @@ async function assertVerifyRejects(options, expectedChecks) {
       sourceDir: fixture.sourceDir,
       packageJsonPath: fixture.packageJsonPath,
     },
-    ["privacy_wording", "design_system_gate_wording"],
+    ["privacy_wording", "activity_case_ux_wording", "conditional_reference_routing", "canonical_skill_mirror"],
   );
 }
 
@@ -320,26 +305,20 @@ async function assertVerifyRejects(options, expectedChecks) {
       sourceDir: fixture.sourceDir,
       packageJsonPath: fixture.packageJsonPath,
     },
-    ["privacy_wording", "design_system_gate_wording"],
+    ["privacy_wording", "activity_case_ux_wording", "conditional_reference_routing", "canonical_skill_mirror"],
   );
 }
 
 {
   const fixture = await createFixture({
-    skillText: validSkillText().replace(
-      /## Slide Deck Creation[\s\S]*?## Design-System Acceptance Gate/,
-      "## Design-System Acceptance Gate",
-    ).replace(
-      /## Deck Workflow[\s\S]*$/,
-      "",
-    ),
+    deckReferenceText: "# Deck Creation\n",
   });
   await assertVerifyRejects(
     {
       sourceDir: fixture.sourceDir,
       packageJsonPath: fixture.packageJsonPath,
     },
-    ["slide_deck_workflow_wording"],
+    ["slide_deck_workflow_wording", "canonical_skill_mirror"],
   );
 }
 
@@ -347,11 +326,11 @@ async function assertVerifyRejects(options, expectedChecks) {
   const fixture = await createFixture({
     agentYaml: validAgentYaml()
       .replace(
-        '  short_description: "UI workflow review, slide deck creation, and hard design-system gates"',
+        '  short_description: "Inference-first UI design and acceptance gates"',
         '  short_description: "UI workflow review and hard design-system gates"',
       )
       .replace(
-        '  default_prompt: "Use $judgmentkit-hosted-mcp to review this UI brief for workflow fit, surface choice, disclosure boundaries, and the hard design-system acceptance gate, or to create a JudgmentKit slide deck, presentation, PowerPoint, or PPTX from allowed source material when the deck creation tool is available."',
+        '  default_prompt: "Use $judgmentkit-hosted-mcp to infer and review a complete activity case before producing the requested UI direction or JudgmentKit slide deck; show the working premise first and ask only one consequential question if needed."',
         '  default_prompt: "Use $judgmentkit-hosted-mcp to review this UI brief for workflow fit, surface choice, disclosure boundaries, and the hard design-system acceptance gate."',
       ),
   });
@@ -360,7 +339,109 @@ async function assertVerifyRejects(options, expectedChecks) {
       sourceDir: fixture.sourceDir,
       packageJsonPath: fixture.packageJsonPath,
     },
-    ["agent_deck_discovery"],
+    ["agent_activity_case_discovery"],
+  );
+}
+
+{
+  const fixture = await createFixture({
+    skillText: validSkillText().replace(
+      "Default to **propose, show, then refine**",
+      "Default to refine after questions",
+    ),
+  });
+  await assertVerifyRejects(
+    {
+      sourceDir: fixture.sourceDir,
+      packageJsonPath: fixture.packageJsonPath,
+    },
+    ["activity_case_ux_wording", "canonical_skill_mirror"],
+  );
+}
+
+{
+  const fixture = await createFixture({
+    skillText: validSkillText().replace(
+      "Call `create_activity_model_review({ brief, context_items })` first",
+      "Call `create_activity_model_review` when useful",
+    ),
+  });
+  await assertVerifyRejects(
+    {
+      sourceDir: fixture.sourceDir,
+      packageJsonPath: fixture.packageJsonPath,
+    },
+    ["activity_case_ux_wording", "canonical_skill_mirror"],
+  );
+}
+
+{
+  const fixture = await createFixture({
+    uiReferenceText: canonicalUiReferenceText.replace(
+      "Select `artifact_inspector` only when the rendered artifact is primary, semantic locus selection is required, and support is locus-relative.",
+      "Select an inspector when it seems useful.",
+    ),
+  });
+  await assertVerifyRejects(
+    {
+      sourceDir: fixture.sourceDir,
+      packageJsonPath: fixture.packageJsonPath,
+    },
+    ["ui_handoff_wording", "canonical_skill_mirror"],
+  );
+}
+
+{
+  const fixture = await createFixture({
+    skillText: `${validSkillText()}\nBefore suggesting screens, components, or styling, establish:\n`,
+  });
+  await assertVerifyRejects(
+    {
+      sourceDir: fixture.sourceDir,
+      packageJsonPath: fixture.packageJsonPath,
+    },
+    ["questionnaire_first_wording", "canonical_skill_mirror"],
+  );
+}
+
+{
+  const fixture = await createFixture({
+    skillText: `${validSkillText()} `,
+  });
+  await assertVerifyRejects(
+    {
+      sourceDir: fixture.sourceDir,
+      packageJsonPath: fixture.packageJsonPath,
+    },
+    ["canonical_skill_mirror"],
+  );
+}
+
+{
+  const fixture = await createFixture({
+    pluginDescription: "UI review and handoff guidance.",
+    pluginShortDescription: "UI review and handoff guidance",
+    pluginLongDescription: "Review generated UI and create implementation evidence.",
+    pluginDefaultPrompt: ["Review this generated UI."],
+  });
+  await assertVerifyRejects(
+    {
+      sourceDir: fixture.sourceDir,
+      packageJsonPath: fixture.packageJsonPath,
+    },
+    ["manifest_activity_case_discovery"],
+  );
+}
+
+{
+  const fixture = await createFixture();
+  await assertVerifyRejects(
+    {
+      sourceDir: fixture.sourceDir,
+      packageJsonPath: fixture.packageJsonPath,
+      canonicalSkillDir: path.join(fixture.tempDir, "missing-canonical-skill"),
+    },
+    ["canonical_skill_file"],
   );
 }
 

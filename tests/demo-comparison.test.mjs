@@ -152,7 +152,7 @@ for (const term of REVIEW_PACKET_TERMS) {
 for (const phrase of [
   "Evidence checklist",
   "Policy review context",
-  "Approve refund",
+  "Recommend refund approval",
   "Return for evidence",
   "Handoff reason",
   "Support agent",

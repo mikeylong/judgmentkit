@@ -1,6 +1,6 @@
 {
   "name": "@judgmentkit/codex-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Versioned source package for the JudgmentKit Codex plugin.",
   "type": "module",

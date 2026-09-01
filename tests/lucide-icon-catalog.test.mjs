@@ -27,6 +27,9 @@ const knownIconIds = [
   "receipt-text",
 ];
 
+const REFUND_WORKFLOW_BRIEF =
+  "A support lead reviews refund requests, decides whether to recommend support, request more evidence, or escalate each case, and creates a handoff receipt.";
+
 execFileSync("node", ["scripts/generate-lucide-icon-catalog.mjs", "--check"], {
   cwd: process.cwd(),
   stdio: "pipe",
@@ -129,14 +132,14 @@ assert.deepEqual(unsupportedIconReview.checks.visual_tokens.unsupported_icon_ids
 ]);
 
 const workflowReview = reviewUiWorkflowCandidate(
-  "A support lead reviews refund requests, decides whether to approve, return, or escalate each case, and creates a handoff receipt.",
+  REFUND_WORKFLOW_BRIEF,
   {
     workflow: {
       surface_name: "Refund review workspace",
       topology: "workspace",
       work_units: ["Refund case queue", "Decision detail"],
       stepper_eligibility: { allowed: false, reason: "Work is triage, not staged setup." },
-      primary_actions: ["Approve refund", "Return for evidence", "Escalate"],
+      primary_actions: ["Record supported outcome", "Return for evidence", "Escalate"],
       decision_points: ["Evidence is sufficient", "Policy exception is present"],
       completion_state: "Case has a handoff receipt.",
     },
@@ -156,12 +159,15 @@ const workflowReview = reviewUiWorkflowCandidate(
   },
 );
 const handoff = createUiGenerationHandoff(workflowReview, {
+  brief: REFUND_WORKFLOW_BRIEF,
   implementation_contract: implementationContract.implementation_contract,
 });
 const frontendContext = createFrontendGenerationContext({
   ui_generation_handoff: handoff,
+  brief: REFUND_WORKFLOW_BRIEF,
 });
 const skillContext = createFrontendImplementationSkillContext({
+  brief: REFUND_WORKFLOW_BRIEF,
   frontend_generation_context: frontendContext,
 });
 

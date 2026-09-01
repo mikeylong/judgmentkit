@@ -1,13 +1,86 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 
 import {
   JudgmentKitInputError,
+  createFrontendGenerationContext,
+  createFrontendImplementationSkillContext,
   createUiImplementationContract,
   createUiGenerationHandoff,
+  loadActivityContract,
+  reviewActivityModelCandidate,
   reviewUiImplementationCandidate as reviewUiImplementationCandidateRaw,
   reviewUiImplementationCandidateWithBrowserRuntime,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
+
+function canonicalIntegrityValue(value) {
+  if (Array.isArray(value)) {
+    return value.map((entry) => canonicalIntegrityValue(entry));
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .filter((key) => value[key] !== undefined)
+        .map((key) => [key, canonicalIntegrityValue(value[key])]),
+    );
+  }
+
+  return value === undefined ? null : value;
+}
+
+function recomputeActivityReviewReceipt(activityReview) {
+  const packet = structuredClone(activityReview);
+  const receiptSource = { ...packet.source };
+  delete receiptSource.activity_case_review_integrity;
+  const payload = {
+    activity_case_policy: loadActivityContract().activity_case_policy,
+    packet: {
+      ...packet,
+      source: receiptSource,
+    },
+  };
+  packet.source.activity_case_review_integrity = {
+    schema: "judgmentkit.portable-integrity-receipt/v1",
+    algorithm: "sha256-canonical-json",
+    kind: "activity_case_review",
+    digest: createHash("sha256")
+      .update("activity_case_review")
+      .update("\0")
+      .update(JSON.stringify(canonicalIntegrityValue(payload)))
+      .digest("hex"),
+  };
+  return packet;
+}
+
+function recomputeFrontendContextReceipt(frontendContext) {
+  const packet = structuredClone(frontendContext);
+  const receiptSource = { ...packet.source };
+  delete receiptSource.activity_case_frontend_integrity;
+  delete receiptSource.artifact_inspector_boundary_integrity;
+  const payload = {
+    activity_case_policy: loadActivityContract().activity_case_policy,
+    stage: "frontend_generation_context",
+    packet: {
+      ...packet,
+      source: receiptSource,
+    },
+  };
+  packet.source.activity_case_frontend_integrity = {
+    schema: "judgmentkit.portable-integrity-receipt/v1",
+    algorithm: "sha256-canonical-json",
+    kind: "activity_case_frontend_generation_context",
+    digest: createHash("sha256")
+      .update("activity_case_frontend_generation_context")
+      .update("\0")
+      .update(JSON.stringify(canonicalIntegrityValue(payload)))
+      .digest("hex"),
+  };
+  return packet;
+}
 
 const FORBIDDEN_HANDOFF_KEYS = new Set([
   "component",
@@ -231,15 +304,35 @@ function refundWorkflowCandidate() {
   };
 }
 
+function refundRecommendationWorkflowCandidate() {
+  const candidate = refundWorkflowCandidate();
+  candidate.workflow.primary_actions = [
+    "Recommend approval",
+    "Recommend policy review",
+    "Request evidence",
+  ];
+  candidate.workflow.decision_points = [
+    "Choose the recommended route for the refund request.",
+  ];
+  candidate.surface_set[0].controls = [
+    "Recommend approval",
+    "Recommend policy review",
+    "Request evidence",
+    "Send recommendation",
+  ];
+  candidate.handoff.next_action = "Send recommendation.";
+  return candidate;
+}
+
 function integrationAuditWorkflowCandidate() {
   return {
     workflow: {
       surface_name: "Integration change audit",
       topology: "workspace",
       work_units: ["Review change summary", "Check release risk", "Prepare platform handoff"],
-      primary_actions: ["Mark safe to ship", "Send to platform review", "Return for evidence"],
+      primary_actions: ["Recommend ready for release", "Send to platform review", "Return for evidence"],
       decision_points: [
-        "Decide whether the integration change is safe to ship or needs platform review.",
+        "Decide whether to recommend the integration change for release or send it to platform review.",
       ],
       completion_state: "Platform team receives a clear handoff with the next action.",
     },
@@ -248,14 +341,14 @@ function integrationAuditWorkflowCandidate() {
         name: "Integration change audit",
         purpose: "Review change summary, release risk, and platform handoff.",
         sections: ["Change summary", "Release risk", "Platform handoff"],
-        controls: ["Mark safe to ship", "Send to platform review", "Return for evidence"],
-        relationship_to_workflow: "Keeps setup audit evidence near the release decision.",
+        controls: ["Recommend ready for release", "Send to platform review", "Return for evidence"],
+        relationship_to_workflow: "Keeps setup audit evidence near the release recommendation.",
       },
     ],
     handoff: {
       next_owner: "platform team",
       reason: "Release risk has been reviewed.",
-      next_action: "Send platform handoff with the release decision.",
+      next_action: "Send platform handoff with the release recommendation.",
     },
     diagnostics: {
       implementation_terms: ["JSON schema", "prompt template"],
@@ -721,11 +814,165 @@ function repairedSessionsButtonCandidate(contract) {
 }
 
 {
+  const brief = "Design refund decisions for support leads.";
+  const contextItems = [
+    {
+      id: "passive-refund-authority",
+      kind: "user_answer",
+      content: "Refund requests may be approved or denied by support leads.",
+    },
+  ];
+  const activityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      activity_model: {
+        activity: "Support leads decide refund requests.",
+        participants: ["support leads"],
+        objective: "Support leads approve or deny refund requests.",
+        outcomes: ["Each refund request has a decision."],
+        domain_vocabulary: ["refund request"],
+      },
+      interaction_contract: {
+        primary_decision: "Support leads approve or deny refund requests.",
+        next_actions: [
+          "Support leads approve refund requests.",
+          "Support leads deny refund requests.",
+        ],
+        completion: "Each refund request has a decision.",
+        make_easy: ["Compare refund evidence."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+  const workflow = refundWorkflowCandidate();
+  workflow.workflow.surface_name = "Support lead refund decisions";
+  workflow.workflow.primary_actions = [
+    "Approve refund request",
+    "Deny refund request",
+  ];
+  workflow.workflow.decision_points = [
+    "Support leads approve or deny refund requests.",
+  ];
+  workflow.workflow.completion_state = "The refund decision is recorded.";
+  workflow.surface_set[0].name = "Support lead refund decisions";
+  workflow.surface_set[0].purpose = "Review refund evidence.";
+  workflow.surface_set[0].controls = [
+    "Approve refund request",
+    "Deny refund request",
+  ];
+  workflow.handoff.next_action = "Send the decision.";
+
+  const review = reviewUiWorkflowCandidate(brief, workflow, {
+    activity_review: activityReview,
+    context_items: contextItems,
+  });
+  assert.equal(activityReview.review_status, "ready_for_review");
+  assert.equal(review.review_status, "ready_for_review");
+  assert.deepEqual(review.guardrails.authority_mismatches, []);
+}
+
+{
+  const brief = "Design a final report publication workspace for editors.";
+  const contextItems = [
+    {
+      id: "publication-policy",
+      kind: "authoritative_source",
+      source_ref: "policy://publication/final-reports/v1",
+      content: "Editors may publish final reports.",
+    },
+  ];
+  const activityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      activity_model: {
+        activity: "Editors review and publish final reports.",
+        participants: ["editors"],
+        objective: "Editors publish final reports.",
+        outcomes: ["The final report is published."],
+        domain_vocabulary: ["final report", "publication"],
+      },
+      interaction_contract: {
+        primary_decision: "Editors publish the final report.",
+        next_actions: ["Editors publish the final report."],
+        completion: "The final report is published.",
+        make_easy: ["Review publication criteria before publishing."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["final report", "publication"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+  const workflow = {
+    workflow: {
+      surface_name: "Final report publication",
+      topology: "workspace",
+      work_units: ["Review final report"],
+      primary_actions: ["Publish final report"],
+      decision_points: ["Editors publish the final report."],
+      completion_state: "The final report is published.",
+    },
+    surface_set: [
+      {
+        name: "Publication workspace",
+        purpose: "Review and publish final report",
+        sections: ["Final report", "Publication criteria"],
+        controls: ["Publish final report"],
+        relationship_to_workflow: "Primary publishing surface",
+      },
+    ],
+    handoff: {
+      next_owner: "editors",
+      reason: "Publication is complete",
+      next_action: "Send publication receipt",
+    },
+    diagnostics: { implementation_terms: [] },
+  };
+  const workflowReview = reviewUiWorkflowCandidate(brief, workflow, {
+    activity_review: activityReview,
+    context_items: contextItems,
+  });
+  assert.equal(activityReview.review_status, "ready_for_review");
+  assert.equal(
+    workflowReview.review_status,
+    "ready_for_review",
+    JSON.stringify(workflowReview.guardrails.authority_mismatches),
+  );
+  assert.deepEqual(workflowReview.guardrails.authority_mismatches, []);
+
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief,
+    context_items: contextItems,
+    implementation_contract: implementationContract,
+  });
+  const frontendContext = createFrontendGenerationContext({
+    ui_generation_handoff: handoff,
+    brief,
+    context_items: contextItems,
+    surface_type: "workbench",
+  });
+  assert.equal(
+    frontendContext.frontend_context_status,
+    "ready_for_frontend_implementation",
+  );
+}
+
+{
   const workflowReview = reviewUiWorkflowCandidate(
     REFUND_TRIAGE_BRIEF,
-    refundWorkflowCandidate(),
+    refundRecommendationWorkflowCandidate(),
   );
   const handoff = createUiGenerationHandoff(workflowReview, {
+    brief: REFUND_TRIAGE_BRIEF,
     implementation_contract: implementationContract,
   });
 
@@ -736,7 +983,7 @@ function repairedSessionsButtonCandidate(contract) {
   assert.ok(handoff.activity_model.participants.includes("support lead"));
   assert.ok(handoff.interaction_contract.primary_decision.includes("case should be approved"));
   assert.equal(handoff.workflow.surface_name, "Refund escalation queue");
-  assert.ok(handoff.workflow.primary_actions.includes("Approve refund"));
+  assert.ok(handoff.workflow.primary_actions.includes("Recommend approval"));
   assert.equal("primary_surface" in handoff, false);
   assert.ok(handoff.surface_set[0].sections.includes("Evidence checklist"));
   assert.equal(handoff.handoff.next_owner, "support agent");
@@ -755,6 +1002,2258 @@ function repairedSessionsButtonCandidate(contract) {
     "judgmentkit_default",
   );
   assertNoForbiddenHandoffKeys(handoff);
+}
+
+{
+  const shortBrief = "Create a refund triage workspace for support leads.";
+  const activityReview = reviewActivityModelCandidate(shortBrief, {
+    activity_model: {
+      activity: "Support leads triage refund requests.",
+      participants: ["support leads"],
+      objective: "Determine the most appropriate next route for each request.",
+      outcomes: ["Each request has a clear recommended route and rationale."],
+      domain_vocabulary: ["refund request", "evidence", "policy review"],
+      existing_tools_artifacts: ["refund queue", "policy guide"],
+      rules_rituals: ["Daily triage review"],
+      division_of_labor: [
+        {
+          participant: "support lead",
+          responsibility: "Recommend the next route",
+        },
+      ],
+    },
+    interaction_contract: {
+      primary_decision: "Choose the recommended route for the refund request.",
+      next_actions: ["Recommend approval", "Recommend policy review", "Request evidence"],
+      completion: "Leave each request with a recommended route and rationale.",
+      make_easy: ["Compare request evidence before recommending a route."],
+      user_is_trying_to: "Leave each request with the right recommended route.",
+      user_thinks_about_work_as: "triaging evidence and recommending a route",
+      user_does_not_think_about_work_as: "editing refund records",
+      primary_decisions: ["Choose the recommended route for the refund request."],
+      make_harder: ["Committing a final refund decision without authority"],
+      state_changes: ["Unreviewed to recommendation ready"],
+      leave_screen_knowing_or_done: [
+        "The request has a recommended route and rationale.",
+      ],
+    },
+    disclosure_policy: {
+      terms_to_use: ["refund request", "evidence", "policy review"],
+      hidden_implementation_terms: [],
+      translation_candidates: [],
+      diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+    },
+  });
+  const overreachingWorkflowReview = reviewUiWorkflowCandidate(
+    shortBrief,
+    refundWorkflowCandidate(),
+    { activity_review: activityReview },
+  );
+  const recommendationWorkflow = refundWorkflowCandidate();
+  recommendationWorkflow.workflow.primary_actions = [
+    "Recommend approval",
+    "Recommend policy review",
+    "Request evidence",
+  ];
+  recommendationWorkflow.workflow.decision_points = [
+    "Choose the recommended route for the refund request.",
+  ];
+  recommendationWorkflow.surface_set[0].controls = [
+    "Recommend approval",
+    "Recommend policy review",
+    "Request evidence",
+    "Send recommendation",
+  ];
+  const workflowReview = reviewUiWorkflowCandidate(
+    shortBrief,
+    recommendationWorkflow,
+    { activity_review: activityReview },
+  );
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief: shortBrief,
+  });
+
+  assert.equal(activityReview.activity_case.readiness.decision, "proceed");
+  assert.ok(activityReview.activity_case.assumptions.length > 0);
+  assert.ok(Object.values(activityReview.guardrails.source_missing_evidence).some(Boolean));
+  assert.equal(overreachingWorkflowReview.review_status, "needs_source_context");
+  assert.ok(
+    overreachingWorkflowReview.guardrails.authority_mismatches.some(
+      (entry) => entry.unsupported_authority_verbs.includes("approve"),
+    ),
+  );
+  assert.throws(
+    () => createUiGenerationHandoff(overreachingWorkflowReview),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "handoff_blocked" &&
+      error.details.authority_mismatches.length > 0,
+  );
+  assert.equal(workflowReview.activity_review, activityReview);
+  assert.equal(handoff.handoff_status, "ready_for_generation");
+  assert.deepEqual(handoff.activity_case, activityReview.activity_case);
+  assert.deepEqual(
+    handoff.disclosure_policy,
+    activityReview.candidate.disclosure_policy,
+  );
+  assert.deepEqual(handoff.activity_model.existing_tools_artifacts, [
+    "refund queue",
+    "policy guide",
+  ]);
+  assert.deepEqual(
+    handoff.activity_model.division_of_labor,
+    activityReview.candidate.activity_model.division_of_labor,
+  );
+  assert.deepEqual(handoff.interaction_contract.state_changes, [
+    "Unreviewed to recommendation ready",
+  ]);
+  assert.ok(
+    handoff.interaction_contract.user_thinks_about_work_as.includes(
+      "Triaging evidence",
+    ),
+  );
+  assert.ok(handoff.activity_model.activity.includes("refund"));
+
+  const frontendContext = createFrontendGenerationContext({
+    ui_generation_handoff: handoff,
+    brief: shortBrief,
+    surface_type: "workbench",
+  });
+  const skillContext = createFrontendImplementationSkillContext({
+    brief: shortBrief,
+    frontend_generation_context: frontendContext,
+  });
+  assert.deepEqual(frontendContext.activity_case, activityReview.activity_case);
+  assert.deepEqual(skillContext.activity_case, activityReview.activity_case);
+  assert.deepEqual(frontendContext.activity_model, handoff.activity_model);
+  assert.deepEqual(skillContext.activity_model, handoff.activity_model);
+  assert.deepEqual(
+    frontendContext.interaction_contract,
+    handoff.interaction_contract,
+  );
+  assert.deepEqual(
+    skillContext.interaction_contract,
+    handoff.interaction_contract,
+  );
+  assert.deepEqual(
+    frontendContext.disclosure_policy,
+    activityReview.candidate.disclosure_policy,
+  );
+  assert.deepEqual(
+    skillContext.disclosure_policy,
+    activityReview.candidate.disclosure_policy,
+  );
+  assert.equal(
+    skillContext.activity_case.readiness.commitment,
+    "not_authorized",
+  );
+
+  const tamperedHandoff = structuredClone(handoff);
+  tamperedHandoff.activity_case.readiness.commitment = "authorized";
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: tamperedHandoff,
+        surface_type: "workbench",
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_context_blocked" &&
+      error.details.field ===
+        "ui_generation_handoff.source.activity_case_handoff_integrity",
+  );
+
+  const downgradedHandoff = structuredClone(handoff);
+  delete downgradedHandoff.activity_case;
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: downgradedHandoff,
+        surface_type: "workbench",
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_context_blocked" &&
+      error.details.field === "ui_generation_handoff.activity_case",
+    "Removing the activity-case discriminator must not downgrade a modern handoff to legacy validation.",
+  );
+
+  const tamperedDisclosureHandoff = structuredClone(handoff);
+  tamperedDisclosureHandoff.disclosure_policy.terms_to_use.push(
+    "implementation trace",
+  );
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: tamperedDisclosureHandoff,
+        surface_type: "workbench",
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_context_blocked" &&
+      error.details.field ===
+        "ui_generation_handoff.source.activity_case_handoff_integrity",
+  );
+
+  const authorityEscalatedHandoff = structuredClone(handoff);
+  authorityEscalatedHandoff.workflow.primary_actions = [
+    "Approve refund",
+    "Commit final refund decision",
+  ];
+  authorityEscalatedHandoff.workflow.decision_points = [
+    "Approve and commit the final refund decision",
+  ];
+  authorityEscalatedHandoff.surface_set[0].controls = [
+    "Approve refund",
+    "Commit final refund decision",
+  ];
+  authorityEscalatedHandoff.handoff.next_action =
+    "Send approval and issue refund.";
+  assert.throws(
+    () =>
+      createFrontendGenerationContext({
+        ui_generation_handoff: authorityEscalatedHandoff,
+        brief: shortBrief,
+        surface_type: "workbench",
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_context_blocked" &&
+      error.details.field ===
+        "ui_generation_handoff.source.activity_case_handoff_integrity",
+  );
+
+  const tamperedFrontendContext = structuredClone(frontendContext);
+  tamperedFrontendContext.activity_case.readiness.commitment = "authorized";
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        brief: shortBrief,
+        frontend_generation_context: tamperedFrontendContext,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_skill_context_blocked" &&
+      error.details.field ===
+        "frontend_generation_context.source.activity_case_frontend_integrity",
+  );
+
+  const authorityEscalatedFrontendContext = structuredClone(frontendContext);
+  authorityEscalatedFrontendContext.workflow.primary_actions = [
+    "Approve refund",
+    "Commit final refund decision",
+  ];
+  authorityEscalatedFrontendContext.surface_set[0].controls = [
+    "Approve refund",
+    "Commit final refund decision",
+  ];
+  authorityEscalatedFrontendContext.handoff.next_action =
+    "Send approval and issue refund.";
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        brief: shortBrief,
+        frontend_generation_context: authorityEscalatedFrontendContext,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_skill_context_blocked" &&
+      error.details.field ===
+        "frontend_generation_context.source.activity_case_frontend_integrity",
+  );
+
+  const tamperedDisclosureFrontendContext = structuredClone(frontendContext);
+  tamperedDisclosureFrontendContext.disclosure_policy.terms_to_use.push(
+    "implementation trace",
+  );
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        brief: shortBrief,
+        frontend_generation_context: tamperedDisclosureFrontendContext,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_skill_context_blocked" &&
+      error.details.field ===
+        "frontend_generation_context.source.activity_case_frontend_integrity",
+  );
+
+  const downgradedFrontendContext = structuredClone(frontendContext);
+  delete downgradedFrontendContext.activity_case;
+  delete downgradedFrontendContext.source.activity_case_frontend_integrity;
+  delete downgradedFrontendContext.source.activity_case_handoff_integrity;
+  delete downgradedFrontendContext.source.activity_brief_sha256;
+  delete downgradedFrontendContext.source.activity_context_items;
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        brief: shortBrief,
+        frontend_generation_context: downgradedFrontendContext,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_skill_context_blocked" &&
+      error.details.field === "frontend_generation_context.activity_case",
+    "Deleting every modern boundary indicator must not downgrade a ready frontend packet to legacy validation.",
+  );
+
+  const forgedFrontendContext = structuredClone(frontendContext);
+  forgedFrontendContext.activity_model.objective =
+    "Support leads approve and commit the final refund decision.";
+  forgedFrontendContext.interaction_contract.primary_decision =
+    "Support leads approve and commit the final refund decision.";
+  forgedFrontendContext.interaction_contract.next_actions = [
+    "Support leads approve refund",
+    "Issue refund",
+  ];
+  forgedFrontendContext.workflow.primary_actions = [
+    "Support leads approve refund",
+    "Issue refund",
+  ];
+  forgedFrontendContext.workflow.decision_points = [
+    "Support leads approve and commit the final refund decision.",
+  ];
+  forgedFrontendContext.surface_set[0].controls = [
+    "Support leads approve refund",
+    "Issue refund",
+  ];
+  forgedFrontendContext.implementation_guidance.required_surfaces =
+    structuredClone(forgedFrontendContext.surface_set);
+  forgedFrontendContext.implementation_guidance.required_controls = [
+    "Support leads approve refund",
+    "Issue refund",
+  ];
+  const reissuedForgedFrontendContext = recomputeFrontendContextReceipt(
+    forgedFrontendContext,
+  );
+  const moduleUrl = new URL("../src/index.mjs", import.meta.url).href;
+  const childScript = [
+    'import fs from "node:fs";',
+    `import { createFrontendImplementationSkillContext } from ${JSON.stringify(moduleUrl)};`,
+    'const input = JSON.parse(fs.readFileSync(0, "utf8"));',
+    "try {",
+    "  createFrontendImplementationSkillContext(input);",
+    "  process.exit(0);",
+    "} catch (error) {",
+    "  process.stdout.write(JSON.stringify({ code: error.code, details: error.details }));",
+    "  process.exit(17);",
+    "}",
+  ].join("\n");
+  const forgedConsumer = spawnSync(
+    process.execPath,
+    ["--input-type=module", "--eval", childScript],
+    {
+      encoding: "utf8",
+      input: JSON.stringify({
+        brief: shortBrief,
+        frontend_generation_context: reissuedForgedFrontendContext,
+      }),
+    },
+  );
+  assert.equal(forgedConsumer.status, 17, forgedConsumer.stderr);
+  assert.ok(
+    [
+      "activity_review_revalidation_failed",
+      "frontend_context_blocked",
+      "frontend_skill_context_blocked",
+    ].includes(JSON.parse(forgedConsumer.stdout).code),
+    "A publicly recomputed receipt must not let forged execution authority cross a fresh-process skill boundary.",
+  );
+
+  const derivedOnlyTamper = structuredClone(frontendContext);
+  derivedOnlyTamper.implementation_guidance.required_controls = [
+    "Approve and issue refund",
+  ];
+  const reissuedDerivedOnlyTamper = recomputeFrontendContextReceipt(
+    derivedOnlyTamper,
+  );
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        brief: shortBrief,
+        frontend_generation_context: reissuedDerivedOnlyTamper,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_skill_context_blocked" &&
+      error.details.field ===
+        "implementation_guidance.required_controls",
+    "Reissuing a continuity receipt cannot make derived controls disagree with the reviewed root surface set.",
+  );
+
+  const contradictoryRootActivity = structuredClone(frontendContext);
+  contradictoryRootActivity.activity_model.activity =
+    "Support leads review renewal-risk accounts.";
+  const reissuedContradictoryRootActivity = recomputeFrontendContextReceipt(
+    contradictoryRootActivity,
+  );
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        brief: shortBrief,
+        frontend_generation_context: reissuedContradictoryRootActivity,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_skill_context_blocked" &&
+      error.details.cause_code === "activity_review_revalidation_failed" &&
+      error.details.field ===
+        "frontend_generation_context.activity_case.claims.activity",
+    "A recomputed continuity receipt must not carry a root activity that contradicts the retained activity-case claim.",
+  );
+
+  const duplicateRootClaimContext = structuredClone(frontendContext);
+  duplicateRootClaimContext.activity_case.claims.push({
+    ...structuredClone(
+      duplicateRootClaimContext.activity_case.claims.find(
+        (claim) => claim.id === "activity",
+      ),
+    ),
+    id: "duplicate_activity",
+    value: "Account executives review renewal-risk accounts.",
+  });
+  const reissuedDuplicateRootClaimContext = recomputeFrontendContextReceipt(
+    duplicateRootClaimContext,
+  );
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        brief: shortBrief,
+        frontend_generation_context: reissuedDuplicateRootClaimContext,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_skill_context_blocked" &&
+      error.details.cause_code === "activity_review_revalidation_failed" &&
+      error.details.field ===
+        "frontend_generation_context.activity_case.claims.activity",
+    "A recomputed continuity receipt must not hide a contradictory duplicate base claim.",
+  );
+
+  const forgedGroundingContext = structuredClone(frontendContext);
+  const inferredObjectiveClaim = forgedGroundingContext.activity_case.claims.find(
+    (claim) => claim.id === "objective" && claim.source_refs.length === 0,
+  );
+  assert.ok(inferredObjectiveClaim);
+  inferredObjectiveClaim.origin = "source_supported";
+  inferredObjectiveClaim.source_refs = ["brief"];
+  inferredObjectiveClaim.confidence = "high";
+  const reissuedForgedGroundingContext = recomputeFrontendContextReceipt(
+    forgedGroundingContext,
+  );
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        brief: shortBrief,
+        frontend_generation_context: reissuedForgedGroundingContext,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_skill_context_blocked" &&
+      error.details.cause_code === "activity_review_revalidation_failed" &&
+      error.details.field ===
+        "frontend_generation_context.activity_case.claims",
+    "A recomputed continuity receipt must not relabel an inferred base claim as source-supported.",
+  );
+
+  const tamperedWorkflowReview = structuredClone(workflowReview);
+  tamperedWorkflowReview.activity_review.activity_case.readiness.commitment =
+    "authorized";
+  assert.throws(
+    () => createUiGenerationHandoff(tamperedWorkflowReview, {
+      brief: shortBrief,
+    }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "handoff_blocked" &&
+      error.details.failures.some(
+        (failure) =>
+          failure.field ===
+          "activity_review.source.activity_case_review_integrity",
+      ),
+  );
+}
+
+{
+  const shortBrief = "Create a refund triage workspace for support leads.";
+  const contextItems = [
+    {
+      id: "refund-authority-answer",
+      kind: "authoritative_source",
+      source_ref: "policy://refund/final-decision/v1",
+      content:
+        "Support leads may approve or deny refund requests and commit the final refund decision. Their objective is to reach the final decision for each refund request. Each request has a committed refund decision.",
+    },
+  ];
+  const authorityActivityReview = reviewActivityModelCandidate(
+    shortBrief,
+    {
+      activity_model: {
+        activity: "Support leads triage refund requests.",
+        participants: ["support leads"],
+        objective: "Support leads approve or deny refund requests.",
+        outcomes: ["Each request has a committed refund decision."],
+        domain_vocabulary: ["refund request", "evidence", "policy review"],
+      },
+      interaction_contract: {
+        primary_decision: "Support leads may approve or deny refund requests.",
+        next_actions: [
+          "Support leads may approve or deny refund requests and commit the final refund decision.",
+        ],
+        completion: "The final refund decision is committed.",
+        make_easy: ["Compare the request evidence before deciding."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request", "evidence", "policy review"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+
+  assert.equal(authorityActivityReview.review_status, "ready_for_review");
+
+  assert.throws(
+    () =>
+      reviewUiWorkflowCandidate(shortBrief, refundWorkflowCandidate(), {
+        activity_review: authorityActivityReview,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_context_required",
+  );
+
+  const workflowReview = reviewUiWorkflowCandidate(
+    shortBrief,
+    refundWorkflowCandidate(),
+    {
+      activity_review: authorityActivityReview,
+      context_items: contextItems,
+    },
+  );
+  assert.equal(workflowReview.review_status, "ready_for_review");
+  assert.deepEqual(workflowReview.guardrails.authority_mismatches, []);
+
+  assert.throws(
+    () => createUiGenerationHandoff(workflowReview),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_source_required",
+    "A portable receipt cannot substitute for resupplying the raw brief and authority context at handoff.",
+  );
+
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief: shortBrief,
+    context_items: contextItems,
+  });
+  assert.equal(handoff.handoff_status, "ready_for_generation");
+
+  const alteredContextItems = structuredClone(contextItems);
+  alteredContextItems[0].content =
+    "Support leads may recommend approval to a finance manager.";
+  assert.throws(
+    () =>
+      createUiGenerationHandoff(workflowReview, {
+        brief: shortBrief,
+        context_items: alteredContextItems,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_context_invalid",
+  );
+
+  const alteredContextKind = structuredClone(contextItems);
+  alteredContextKind[0].kind = "workspace_evidence";
+  assert.throws(
+    () =>
+      createUiGenerationHandoff(workflowReview, {
+        brief: shortBrief,
+        context_items: alteredContextKind,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_context_invalid",
+  );
+
+  const alteredContextSourceRef = structuredClone(contextItems);
+  alteredContextSourceRef[0].source_ref = "answer://different-session";
+  assert.throws(
+    () =>
+      createUiGenerationHandoff(workflowReview, {
+        brief: shortBrief,
+        context_items: alteredContextSourceRef,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_context_invalid",
+  );
+}
+
+{
+  const brief = "Create a refund follow-up workspace for support leads.";
+  const contextItems = [
+    {
+      id: "existing-refund-receipt",
+      kind: "provided_artifact",
+      content: "A prioritized set of refund requests is ready for follow-up.",
+      source_ref: "artifact://refund-follow-up/receipt",
+    },
+  ];
+  const activityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      activity_model: {
+        activity: "Support leads follow up on prioritized refund requests.",
+        participants: ["support leads"],
+        objective: "Prepare the next follow-up for each prioritized refund request.",
+        outcomes: ["Each prioritized request has a clear follow-up."],
+        domain_vocabulary: ["refund request", "follow-up", "priority"],
+      },
+      interaction_contract: {
+        primary_decision: "Choose the next follow-up for each refund request.",
+        next_actions: ["Prepare follow-up", "Request evidence"],
+        completion: "A prioritized set of refund requests is ready for follow-up.",
+        make_easy: ["Compare priority and evidence before preparing follow-up."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request", "follow-up", "priority"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+  const completionClaim = activityReview.activity_case.claims.find(
+    (claim) => claim.path === "interaction_contract.completion",
+  );
+  const recommendationWorkflow = refundWorkflowCandidate();
+  recommendationWorkflow.workflow.primary_actions = [
+    "Recommend follow-up",
+    "Request evidence",
+  ];
+  recommendationWorkflow.workflow.decision_points = [
+    "Choose the recommended follow-up for the refund request.",
+  ];
+  recommendationWorkflow.surface_set[0].controls = [
+    "Recommend follow-up",
+    "Request evidence",
+    "Send recommendation",
+  ];
+
+  assert.equal(activityReview.review_status, "ready_for_review");
+  assert.deepEqual(completionClaim.source_refs, ["existing-refund-receipt"]);
+  assert.throws(
+    () =>
+      reviewUiWorkflowCandidate(brief, recommendationWorkflow, {
+        activity_review: activityReview,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_context_required" &&
+      error.details.required_source_refs.includes("existing-refund-receipt"),
+    "Ordinary attributed evidence relied on by the activity case must be resupplied at workflow review.",
+  );
+
+  const workflowReview = reviewUiWorkflowCandidate(
+    brief,
+    recommendationWorkflow,
+    {
+      activity_review: activityReview,
+      context_items: contextItems,
+    },
+  );
+  assert.equal(workflowReview.review_status, "ready_for_review");
+  assert.throws(
+    () => createUiGenerationHandoff(workflowReview),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_source_required",
+    "The raw activity brief must be resupplied at handoff before attributed evidence can be checked.",
+  );
+  assert.equal(
+    createUiGenerationHandoff(workflowReview, {
+      brief,
+      context_items: contextItems,
+    })
+      .handoff_status,
+    "ready_for_generation",
+  );
+}
+
+{
+  const brief =
+    "Design a refund triage workspace used by finance managers and support leads.";
+  const contextItems = [
+    {
+      id: "refund-limit-answer",
+      kind: "user_answer",
+      content:
+        "Only finance managers may approve refund requests up to 100 dollars. Support leads prepare recommendations.",
+    },
+  ];
+  const activityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      activity_model: {
+        activity: "Finance managers and support leads triage refund requests.",
+        participants: ["finance managers", "support leads"],
+        objective: "Determine the route for each refund request.",
+        outcomes: ["Each request has a result and rationale."],
+        domain_vocabulary: ["refund request", "recommendation", "approval"],
+      },
+      interaction_contract: {
+        primary_decision:
+          "Finance managers may approve refund requests up to 100 dollars.",
+        next_actions: [
+          "Finance managers may approve refund requests up to 100 dollars.",
+          "Support leads prepare recommendations.",
+        ],
+        completion: "Each request has a result and rationale.",
+        make_easy: ["Compare evidence before choosing a route."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request", "recommendation", "approval"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+  assert.equal(activityReview.review_status, "ready_for_review");
+
+  for (const [term, expectedStatus] of [
+    ["approval", "ready_for_review"],
+    ["Finance Approval", "ready_for_review"],
+    ["Support Lead Approval", "needs_source_context"],
+    ["Support Approval", "needs_source_context"],
+    ["Support leads approval", "needs_source_context"],
+  ]) {
+    const vocabularyCandidate = structuredClone(activityReview.candidate);
+    vocabularyCandidate.disclosure_policy.terms_to_use = [term];
+    const vocabularyReview = reviewActivityModelCandidate(
+      brief,
+      vocabularyCandidate,
+      { context_items: contextItems },
+    );
+    assert.equal(
+      vocabularyReview.review_status,
+      expectedStatus,
+      `Role-qualified authority vocabulary was classified incorrectly: ${term} ${JSON.stringify(vocabularyReview.activity_case.claims.filter((claim) => claim.path === "disclosure_policy.terms_to_use"))}`,
+    );
+    if (expectedStatus === "needs_source_context") {
+      assert.ok(
+        vocabularyReview.activity_case.unresolved_ambiguities.some(
+          (entry) => entry.category === "participant_authority",
+        ),
+        `Unsupported authority vocabulary produced no participant-authority ambiguity: ${term}`,
+      );
+    }
+  }
+
+  const scopedWorkflow = (actor, amount) => {
+    const action = `${actor} approve a ${amount} dollar refund`;
+    const candidate = refundWorkflowCandidate();
+    candidate.workflow.surface_name = `${actor} refund triage`;
+    candidate.workflow.primary_actions = [action];
+    candidate.workflow.decision_points = [action];
+    candidate.workflow.completion_state = "Refund review is complete.";
+    candidate.surface_set[0].name = `${actor} refund triage`;
+    candidate.surface_set[0].purpose = `${actor} review refund evidence.`;
+    candidate.surface_set[0].controls = [action];
+    candidate.handoff.next_action = "Send the review result.";
+    return candidate;
+  };
+
+  const allowedReview = reviewUiWorkflowCandidate(
+    brief,
+    scopedWorkflow("Finance managers", 50),
+    { activity_review: activityReview, context_items: contextItems },
+  );
+  assert.equal(allowedReview.review_status, "ready_for_review");
+
+  const approvalNoticeCandidate = scopedWorkflow("Finance managers", 50);
+  approvalNoticeCandidate.handoff.next_action = "Send approval notice.";
+  const approvalNoticeReview = reviewUiWorkflowCandidate(
+    brief,
+    approvalNoticeCandidate,
+    { activity_review: activityReview, context_items: contextItems },
+  );
+  assert.equal(
+    approvalNoticeReview.review_status,
+    "ready_for_review",
+    "Sending an approval notice is not exercising approval authority.",
+  );
+
+  for (const action of [
+    "Submit refund for finance approval",
+    "Route refund to finance for approval",
+    "Escalate refund for finance approval",
+    "Flag refund for manager approval",
+    "Queue refund for finance approval",
+    "Prepare refund for finance approval",
+    "Request finance approval",
+  ]) {
+    const candidate = refundRecommendationWorkflowCandidate();
+    candidate.workflow.surface_name = "Support lead refund recommendation";
+    candidate.workflow.primary_actions = [action];
+    candidate.workflow.decision_points = [action];
+    candidate.surface_set[0].name = "Support lead refund recommendation";
+    candidate.surface_set[0].purpose =
+      "Support leads prepare refund recommendations for finance.";
+    candidate.surface_set[0].controls = [action];
+    candidate.handoff.next_owner = "finance managers";
+    candidate.handoff.next_action = action;
+    const review = reviewUiWorkflowCandidate(brief, candidate, {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(
+      review.review_status,
+      "ready_for_review",
+      `Routing work for approval must not confer approval authority: ${action}`,
+    );
+    assert.deepEqual(
+      review.guardrails.authority_mismatches,
+      [],
+      `Routing work for approval produced an authority mismatch: ${action}`,
+    );
+  }
+
+  for (const field of ["workflow.surface_name", "surface_set[0].name"]) {
+    const candidate = refundRecommendationWorkflowCandidate();
+    candidate.workflow.surface_name = "Support lead refund recommendation";
+    candidate.surface_set[0].name = "Support lead refund recommendation";
+    if (field === "workflow.surface_name") {
+      candidate.workflow.surface_name = "Support Lead Refund Approval";
+    } else {
+      candidate.surface_set[0].name = "Support Lead Refund Approval";
+    }
+    const review = reviewUiWorkflowCandidate(brief, candidate, {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(
+      review.review_status,
+      "needs_source_context",
+      `A primary UI name must not promote recommendation authority: ${field}`,
+    );
+    assert.ok(
+      review.guardrails.authority_mismatches.some(
+        (entry) =>
+          entry.field === field &&
+          entry.unsupported_authority_verbs.includes("approve"),
+      ),
+      `The misleading authority name produced no approval mismatch: ${field}`,
+    );
+  }
+
+  for (const candidate of [
+    scopedWorkflow("Support leads", 50),
+    scopedWorkflow("Finance managers", 101),
+  ]) {
+    const review = reviewUiWorkflowCandidate(brief, candidate, {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(review.review_status, "needs_source_context");
+    assert.ok(review.guardrails.authority_mismatches.length > 0);
+  }
+
+  for (const action of [
+    "Support leads determine the refund outcome",
+    "Support leads adjudicate the refund request",
+    "Support leads resolve the refund request",
+    "Support leads rule on the refund request",
+    "Support leads settle the refund request",
+    "Support leads render the refund decision",
+    "Support leads disposition the refund request",
+    "Support leads make the refund determination",
+  ]) {
+    const candidate = refundWorkflowCandidate();
+    candidate.workflow.surface_name = "Support lead refund triage";
+    candidate.workflow.primary_actions = [action];
+    candidate.workflow.decision_points = [action];
+    candidate.surface_set[0].name = "Support lead refund triage";
+    candidate.surface_set[0].purpose = "Support leads review refund evidence.";
+    candidate.surface_set[0].controls = [action];
+    candidate.handoff.next_action = "Send the review result.";
+    const review = reviewUiWorkflowCandidate(brief, candidate, {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(
+      review.review_status,
+      "needs_source_context",
+      `A final-decision euphemism must not promote recommendation authority: ${action}`,
+    );
+    assert.ok(
+      review.guardrails.authority_mismatches.length > 0,
+      `Final-decision euphemism produced no authority mismatch: ${action}`,
+    );
+  }
+}
+
+{
+  const candidateFor = (brief) => ({
+    activity_model: {
+      activity: "Finance managers and support leads review refund requests.",
+      participants: ["finance managers", "support leads"],
+      objective: "Route each refund request to the correct decision owner.",
+      outcomes: ["Each request has a recorded route and rationale."],
+      domain_vocabulary: ["refund request", "recommendation", "approval"],
+    },
+    interaction_contract: {
+      primary_decision:
+        "Finance managers may approve refund requests up to 100 dollars.",
+      next_actions: [
+        "Finance managers may approve refund requests up to 100 dollars.",
+        "Support leads prepare recommendations.",
+      ],
+      completion: "Each request has a recorded route and rationale.",
+      make_easy: ["Compare the refund evidence with the approval limit."],
+    },
+    disclosure_policy: {
+      terms_to_use: ["refund request", "recommendation", "approval"],
+      hidden_implementation_terms: [],
+      translation_candidates: [],
+      diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+    },
+  });
+  const unambiguousBrief =
+    "Finance managers review refund requests. They may approve refunds up to 100 dollars. Support leads prepare recommendations.";
+  const unambiguousReview = reviewActivityModelCandidate(
+    unambiguousBrief,
+    candidateFor(unambiguousBrief),
+  );
+  assert.equal(
+    unambiguousReview.review_status,
+    "ready_for_review",
+    `An immediately preceding single participant should resolve a simple They authority reference: ${JSON.stringify(unambiguousReview.activity_case.unresolved_ambiguities)}`,
+  );
+
+  const workflow = refundWorkflowCandidate();
+  const action = "Finance managers approve a 50 dollar refund";
+  workflow.workflow.surface_name = "Finance manager refund review";
+  workflow.workflow.primary_actions = [action];
+  workflow.workflow.decision_points = [action];
+  workflow.surface_set[0].name = "Finance manager refund review";
+  workflow.surface_set[0].purpose = "Finance managers review refund evidence.";
+  workflow.surface_set[0].controls = [action];
+  workflow.handoff.next_action = "Send the refund result.";
+  const workflowReview = reviewUiWorkflowCandidate(
+    unambiguousBrief,
+    workflow,
+    { activity_review: unambiguousReview },
+  );
+  assert.equal(
+    workflowReview.review_status,
+    "ready_for_review",
+    "The resolved brief authority must survive workflow review.",
+  );
+
+  const ambiguousBrief =
+    "Finance managers and support leads review refund requests. They may approve refunds up to 100 dollars.";
+  const ambiguousReview = reviewActivityModelCandidate(
+    ambiguousBrief,
+    candidateFor(ambiguousBrief),
+  );
+  assert.equal(
+    ambiguousReview.review_status,
+    "needs_source_context",
+    "A pronoun with more than one participant antecedent must remain unresolved.",
+  );
+  assert.ok(
+    ambiguousReview.activity_case.unresolved_ambiguities.some(
+      (entry) => entry.category === "participant_authority",
+    ),
+  );
+}
+
+{
+  const brief = "Design high-value refund review for finance managers.";
+  const contextItems = [
+    {
+      id: "high-value-refund-limit",
+      kind: "user_answer",
+      content:
+        "Finance managers may approve refund requests up to 20,000 dollars.",
+    },
+  ];
+  const activityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      activity_model: {
+        activity: "Finance managers review high-value refund requests.",
+        participants: ["finance managers"],
+        objective: "Compare each refund amount with the approval limit.",
+        outcomes: ["Each refund request has a decision."],
+        domain_vocabulary: ["refund request", "approval limit"],
+      },
+      interaction_contract: {
+        primary_decision:
+          "Finance managers may approve refund requests up to 20,000 dollars.",
+        next_actions: [
+          "Finance managers may approve refund requests up to 20,000 dollars.",
+        ],
+        completion: "Each refund request has a decision.",
+        make_easy: ["Compare the refund amount with the approval limit."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request", "approval limit"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+  assert.equal(activityReview.review_status, "ready_for_review");
+
+  const amountWorkflow = (amount) => {
+    const candidate = refundWorkflowCandidate();
+    const action = `Finance managers approve a ${amount} dollar refund`;
+    candidate.workflow.surface_name = "Finance manager refund review";
+    candidate.workflow.primary_actions = [action];
+    candidate.workflow.decision_points = [action];
+    candidate.workflow.completion_state = "Refund review is complete.";
+    candidate.surface_set[0].name = "Finance manager refund review";
+    candidate.surface_set[0].purpose = "Finance managers review refund evidence.";
+    candidate.surface_set[0].controls = [action];
+    candidate.handoff.next_action = "Send the refund result.";
+    return candidate;
+  };
+
+  for (const amount of ["50", "100", "999", "1,000", "10,000", "20,000"]) {
+    const review = reviewUiWorkflowCandidate(brief, amountWorkflow(amount), {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(
+      review.review_status,
+      "ready_for_review",
+      `${amount} must remain within the 20,000 ceiling.`,
+    );
+  }
+
+  const overLimitReview = reviewUiWorkflowCandidate(
+    brief,
+    amountWorkflow("20,001"),
+    { activity_review: activityReview, context_items: contextItems },
+  );
+  assert.equal(overLimitReview.review_status, "needs_source_context");
+  assert.ok(overLimitReview.guardrails.authority_mismatches.length > 0);
+}
+
+{
+  const brief = "Design refund limit review for finance managers.";
+  const amountWorkflow = (amount) => {
+    const candidate = refundWorkflowCandidate();
+    const action = `Finance managers approve a ${amount} dollar refund`;
+    candidate.workflow.surface_name = "Finance refund limits";
+    candidate.workflow.work_units = ["Review refund"];
+    candidate.workflow.primary_actions = [action];
+    candidate.workflow.decision_points = [action];
+    candidate.workflow.completion_state = "The refund review is complete.";
+    candidate.surface_set[0].name = "Finance refund limits";
+    candidate.surface_set[0].purpose = "Review refund evidence and limits.";
+    candidate.surface_set[0].sections = ["Refund", "Evidence", "Limit"];
+    candidate.surface_set[0].controls = [action];
+    candidate.handoff.reason = "The refund review is complete.";
+    candidate.handoff.next_action = "Send the refund result.";
+    return candidate;
+  };
+
+  for (const { rule, allowed, blocked } of [
+    {
+      rule: "Finance managers may approve refund requests under 100 dollars.",
+      allowed: 99,
+      blocked: 100,
+    },
+    {
+      rule: "Finance managers may approve refund requests above 100 dollars.",
+      allowed: 101,
+      blocked: 100,
+    },
+  ]) {
+    const contextItems = [{
+      id: `strict-limit-${allowed}`,
+      kind: "user_answer",
+      content: rule,
+    }];
+    const activityReview = reviewActivityModelCandidate(
+      brief,
+      {
+        activity_model: {
+          activity: "Finance managers review refund requests.",
+          participants: ["finance managers"],
+          objective: "Compare each refund with the applicable limit.",
+          outcomes: ["Each refund review has a recorded result."],
+          domain_vocabulary: ["refund request", "limit"],
+        },
+        interaction_contract: {
+          primary_decision: rule,
+          next_actions: [rule],
+          completion: "Each refund review has a recorded result.",
+          make_easy: ["Compare the refund amount with the applicable limit."],
+        },
+        disclosure_policy: {
+          terms_to_use: ["refund request", "limit"],
+          hidden_implementation_terms: [],
+          translation_candidates: [],
+          diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+        },
+      },
+      { context_items: contextItems },
+    );
+    assert.equal(activityReview.review_status, "ready_for_review", rule);
+    const allowedReview = reviewUiWorkflowCandidate(
+      brief,
+      amountWorkflow(allowed),
+      { activity_review: activityReview, context_items: contextItems },
+    );
+    assert.equal(allowedReview.review_status, "ready_for_review", rule);
+    const blockedReview = reviewUiWorkflowCandidate(
+      brief,
+      amountWorkflow(blocked),
+      { activity_review: activityReview, context_items: contextItems },
+    );
+    assert.equal(blockedReview.review_status, "needs_source_context", rule);
+  }
+}
+
+{
+  const brief = "Design daily refund limit review for finance managers.";
+  const rule =
+    "Finance managers may approve up to 10 refund requests per day, each up to 100 dollars.";
+  const contextItems = [{
+    id: "daily-refund-limits",
+    kind: "user_answer",
+    content: rule,
+  }];
+  const activityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      activity_model: {
+        activity: "Finance managers review daily refund requests.",
+        participants: ["finance managers"],
+        objective: "Compare daily refund requests with both limits.",
+        outcomes: ["Each refund review has a recorded result."],
+        domain_vocabulary: ["refund request", "daily limit", "amount limit"],
+      },
+      interaction_contract: {
+        primary_decision: rule,
+        next_actions: [rule],
+        completion: "Each refund review has a recorded result.",
+        make_easy: ["Compare the daily count and amount with both limits."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request", "daily limit", "amount limit"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+  assert.equal(activityReview.review_status, "ready_for_review");
+  const workflowFor = (count, amount) => {
+    const candidate = refundWorkflowCandidate();
+    const action =
+      `Finance managers approve ${count} refund requests of ${amount} dollars each per day`;
+    candidate.workflow.surface_name = "Daily refund limits";
+    candidate.workflow.work_units = ["Review daily refunds"];
+    candidate.workflow.primary_actions = [action];
+    candidate.workflow.decision_points = [action];
+    candidate.workflow.completion_state = "The daily refund review is complete.";
+    candidate.surface_set[0].name = "Daily refund limits";
+    candidate.surface_set[0].purpose = "Review daily refund evidence and limits.";
+    candidate.surface_set[0].sections = ["Refunds", "Evidence", "Limits"];
+    candidate.surface_set[0].controls = [action];
+    candidate.handoff.reason = "The daily refund review is complete.";
+    candidate.handoff.next_action = "Send the refund result.";
+    return candidate;
+  };
+  const allowedReview = reviewUiWorkflowCandidate(
+    brief,
+    workflowFor(10, 50),
+    { activity_review: activityReview, context_items: contextItems },
+  );
+  assert.equal(allowedReview.review_status, "ready_for_review");
+  for (const [count, amount] of [[11, 50], [10, 101]]) {
+    const review = reviewUiWorkflowCandidate(
+      brief,
+      workflowFor(count, amount),
+      { activity_review: activityReview, context_items: contextItems },
+    );
+    assert.equal(review.review_status, "needs_source_context");
+    assert.ok(review.guardrails.authority_mismatches.length > 0);
+  }
+}
+
+{
+  const brief = "Design refund decisions for finance managers.";
+  const contextItems = [
+    {
+      id: "refund-decision-authority",
+      kind: "user_answer",
+      content: "Finance managers may approve or deny refund requests.",
+    },
+  ];
+  const activityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      activity_model: {
+        activity: "Finance managers decide refund requests.",
+        participants: ["finance managers"],
+        objective: "Reach a decision for each refund request.",
+        outcomes: ["Each refund request has a decision."],
+        domain_vocabulary: ["refund request", "approval", "denial"],
+      },
+      interaction_contract: {
+        primary_decision: "Finance managers may approve or deny refund requests.",
+        next_actions: ["Approve refund", "Deny refund"],
+        completion: "Each refund request has a decision.",
+        make_easy: ["Compare refund evidence before deciding."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request", "approval", "denial"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+  assert.equal(activityReview.review_status, "ready_for_review");
+
+  for (const decisionPoint of [
+    "Decide whether to approve or deny the refund",
+    "Approve or deny the refund",
+    "Decide whether the refund should be approved or denied",
+  ]) {
+    const candidate = refundWorkflowCandidate();
+    candidate.workflow.surface_name = "Finance manager refund decisions";
+    candidate.workflow.primary_actions = [
+      "Finance managers approve refund",
+      "Finance managers deny refund",
+    ];
+    candidate.workflow.decision_points = [decisionPoint];
+    candidate.workflow.completion_state = "Refund decision is recorded.";
+    candidate.surface_set[0].name = "Finance manager refund decisions";
+    candidate.surface_set[0].purpose = "Finance managers decide refund requests.";
+    candidate.surface_set[0].controls = [
+      "Finance managers approve refund",
+      "Finance managers deny refund",
+    ];
+    candidate.handoff.next_action = "Send approval notice.";
+    const review = reviewUiWorkflowCandidate(brief, candidate, {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(
+      review.review_status,
+      "ready_for_review",
+      `Coordinated decision lost its shared refund object: ${decisionPoint}`,
+    );
+  }
+}
+
+{
+  const brief = "Design a clinical record review workspace for assigned nurses.";
+  const contextItems = [
+    {
+      id: "assigned-record-policy",
+      kind: "authoritative_source",
+      source_ref: "policy://records/assigned-team/v1",
+      content:
+        "Assigned nurses may view patient medical records for patients on their assigned care team.",
+    },
+  ];
+  const activityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      activity_model: {
+        activity:
+          "Assigned nurses review assigned patient medical records for patients on their assigned care team.",
+        participants: ["assigned nurses"],
+        objective:
+          "Review assigned patient medical records for patients on the assigned care team.",
+        outcomes: ["The record review is complete."],
+        domain_vocabulary: ["patient medical records", "assigned care team"],
+      },
+      interaction_contract: {
+        primary_decision:
+          "Assigned nurses may view patient medical records for patients on their assigned care team.",
+        next_actions: [
+          "View assigned patient medical records for patients on the assigned care team.",
+        ],
+        completion: "The record review is complete.",
+        make_easy: ["Inspect the assigned patient record."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["patient medical records", "assigned care team"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+  assert.equal(activityReview.review_status, "ready_for_review");
+  assert.ok(
+    activityReview.activity_case.claims.some(
+      (claim) =>
+        claim.risk_category === "sensitive_disclosure_boundary" &&
+        claim.authoritative_source_refs.includes("assigned-record-policy"),
+    ),
+  );
+
+  const recordWorkflow = (action) => ({
+    workflow: {
+      surface_name: "Assigned nurse record review",
+      topology: "workspace",
+      work_units: ["Review record"],
+      primary_actions: [action],
+      decision_points: [action],
+      completion_state: "The record review is complete.",
+    },
+    surface_set: [
+      {
+        name: "Assigned nurse record review",
+        purpose: action,
+        sections: ["Patient record"],
+        controls: [action],
+        relationship_to_workflow: "Primary review surface.",
+      },
+    ],
+    handoff: {
+      next_owner: "assigned nurse",
+      reason: "Review complete.",
+      next_action: "Close the review.",
+    },
+    diagnostics: { implementation_terms: [] },
+  });
+
+  for (const action of [
+    "Assigned nurses view assigned patient medical records",
+    "Patient medical records visible to assigned nurses",
+    "Assigned patient medical records are available to assigned nurses",
+  ]) {
+    const preciseReview = reviewUiWorkflowCandidate(
+      brief,
+      recordWorkflow(action),
+      { activity_review: activityReview, context_items: contextItems },
+    );
+    assert.equal(
+      preciseReview.review_status,
+      "ready_for_review",
+      `Authorized viewer availability must remain view authority: ${action}`,
+    );
+  }
+
+  for (const action of [
+    "Assigned nurses may view records",
+    "Assigned nurses may view all records",
+    "View records",
+    "Open records",
+  ]) {
+    const review = reviewUiWorkflowCandidate(brief, recordWorkflow(action), {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(review.review_status, "needs_source_context");
+    assert.ok(review.guardrails.authority_mismatches.length > 0);
+  }
+}
+
+{
+  const shortBrief = "Create a refund triage workspace for support leads.";
+  const portableCandidate = {
+    activity_model: {
+      activity: "Support leads triage refund requests.",
+      participants: ["support leads"],
+      objective: "Determine the most appropriate next route for each request.",
+      outcomes: ["Each request has a clear recommended route and rationale."],
+      domain_vocabulary: ["refund request", "evidence", "policy review"],
+    },
+    interaction_contract: {
+      primary_decision: "Choose the recommended route for the refund request.",
+      next_actions: ["Recommend approval", "Recommend policy review", "Request evidence"],
+      completion: "Leave each request with a recommended route and rationale.",
+      make_easy: ["Compare request evidence before recommending a route."],
+    },
+    disclosure_policy: {
+      terms_to_use: ["refund request", "evidence", "policy review"],
+      hidden_implementation_terms: [],
+      translation_candidates: [],
+      diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+    },
+  };
+  const moduleUrl = new URL("../src/index.mjs", import.meta.url).href;
+  const childScript = [
+    `import { reviewActivityModelCandidate } from ${JSON.stringify(moduleUrl)};`,
+    `const packet = reviewActivityModelCandidate(${JSON.stringify(shortBrief)}, ${JSON.stringify(portableCandidate)});`,
+    "process.stdout.write(JSON.stringify(packet));",
+  ].join("\n");
+  const child = spawnSync(
+    process.execPath,
+    ["--input-type=module", "--eval", childScript],
+    { encoding: "utf8" },
+  );
+  assert.equal(child.status, 0, child.stderr);
+  const crossProcessActivityReview = JSON.parse(child.stdout);
+  const recommendationWorkflow = refundWorkflowCandidate();
+  recommendationWorkflow.workflow.primary_actions = [
+    "Recommend approval",
+    "Recommend policy review",
+    "Request evidence",
+  ];
+  recommendationWorkflow.workflow.decision_points = [
+    "Choose the recommended route for the refund request.",
+  ];
+  recommendationWorkflow.surface_set[0].controls = [
+    "Recommend approval",
+    "Recommend policy review",
+    "Request evidence",
+    "Send recommendation",
+  ];
+  const crossProcessWorkflowReview = reviewUiWorkflowCandidate(
+    shortBrief,
+    recommendationWorkflow,
+    { activity_review: crossProcessActivityReview },
+  );
+  assert.equal(crossProcessWorkflowReview.review_status, "ready_for_review");
+  assert.deepEqual(
+    crossProcessWorkflowReview.activity_review.activity_case,
+    crossProcessActivityReview.activity_case,
+  );
+
+  const fabricatedLegacyReview = structuredClone(crossProcessActivityReview);
+  delete fabricatedLegacyReview.activity_case;
+  delete fabricatedLegacyReview.source.activity_case_review_integrity;
+  assert.throws(
+    () =>
+      reviewUiWorkflowCandidate(shortBrief, recommendationWorkflow, {
+        activity_review: fabricatedLegacyReview,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_integrity_invalid",
+  );
+
+  const forgedAuthorityReview = structuredClone(crossProcessActivityReview);
+  const forgedPrimaryDecisionClaim =
+    forgedAuthorityReview.activity_case.claims.find(
+      (claim) => claim.path === "interaction_contract.primary_decision",
+    );
+  forgedPrimaryDecisionClaim.value = "Approve the refund request.";
+  forgedPrimaryDecisionClaim.origin = "source_supported";
+  forgedPrimaryDecisionClaim.source_refs = ["brief"];
+  forgedAuthorityReview.candidate.interaction_contract.primary_decision =
+    "Approve the refund request.";
+  const reissuedForgedAuthorityReview = recomputeActivityReviewReceipt(
+    forgedAuthorityReview,
+  );
+  assert.throws(
+    () =>
+      reviewUiWorkflowCandidate(shortBrief, refundWorkflowCandidate(), {
+        activity_review: reissuedForgedAuthorityReview,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_revalidation_failed",
+  );
+
+  const contradictoryRootReview = structuredClone(crossProcessActivityReview);
+  contradictoryRootReview.candidate.activity_model.activity =
+    "Support leads review renewal-risk accounts.";
+  const reissuedContradictoryRootReview = recomputeActivityReviewReceipt(
+    contradictoryRootReview,
+  );
+  assert.throws(
+    () =>
+      reviewUiWorkflowCandidate(shortBrief, recommendationWorkflow, {
+        activity_review: reissuedContradictoryRootReview,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_revalidation_failed" &&
+      error.details.field ===
+        "activity_review.activity_case.claims.activity",
+    "A recomputed activity-review receipt must not carry a root activity that contradicts the retained activity-case claim.",
+  );
+
+  const duplicateRootClaimReview = structuredClone(crossProcessActivityReview);
+  duplicateRootClaimReview.activity_case.claims.push({
+    ...structuredClone(
+      duplicateRootClaimReview.activity_case.claims.find(
+        (claim) => claim.id === "activity",
+      ),
+    ),
+    id: "duplicate_activity",
+    value: "Account executives review renewal-risk accounts.",
+  });
+  const reissuedDuplicateRootClaimReview = recomputeActivityReviewReceipt(
+    duplicateRootClaimReview,
+  );
+  assert.throws(
+    () =>
+      reviewUiWorkflowCandidate(shortBrief, recommendationWorkflow, {
+        activity_review: reissuedDuplicateRootClaimReview,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_revalidation_failed" &&
+      error.details.field ===
+        "activity_review.activity_case.claims.activity",
+    "A recomputed activity-review receipt must not hide a contradictory duplicate base claim.",
+  );
+
+  const forgedGroundingReview = structuredClone(crossProcessActivityReview);
+  const inferredReviewObjectiveClaim = forgedGroundingReview.activity_case.claims.find(
+    (claim) => claim.id === "objective" && claim.source_refs.length === 0,
+  );
+  assert.ok(inferredReviewObjectiveClaim);
+  inferredReviewObjectiveClaim.origin = "source_supported";
+  inferredReviewObjectiveClaim.source_refs = ["brief"];
+  inferredReviewObjectiveClaim.confidence = "high";
+  const reissuedForgedGroundingReview = recomputeActivityReviewReceipt(
+    forgedGroundingReview,
+  );
+  assert.throws(
+    () =>
+      reviewUiWorkflowCandidate(shortBrief, recommendationWorkflow, {
+        activity_review: reissuedForgedGroundingReview,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "activity_review_revalidation_failed" &&
+      error.details.field === "activity_review.activity_case.claims",
+    "A recomputed activity-review receipt must not relabel an inferred base claim as source-supported.",
+  );
+}
+
+{
+  const workflowFor = (action, surfaceName = "Decision workspace") => ({
+    workflow: {
+      surface_name: surfaceName,
+      topology: "workspace",
+      work_units: ["Review request"],
+      primary_actions: [action],
+      decision_points: [action],
+      completion_state: "The request review is complete.",
+    },
+    surface_set: [{
+      name: surfaceName,
+      purpose: "Review request evidence.",
+      sections: ["Request", "Evidence"],
+      controls: [action],
+      relationship_to_workflow: "Keeps the request and evidence together.",
+    }],
+    handoff: {
+      next_owner: "operations",
+      reason: "The request review is complete.",
+      next_action: "Send the review result.",
+    },
+    diagnostics: { implementation_terms: [] },
+  });
+  const brief =
+    "Design a decision workspace for finance managers and support leads.";
+  const contextItems = [{
+    id: "separate-authority-clauses",
+    kind: "user_answer",
+    content:
+      "Finance managers may approve refund requests. Support leads may approve travel expenses.",
+  }];
+  const activityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      activity_model: {
+        activity:
+          "Finance managers and support leads review refund requests and travel expenses.",
+        participants: ["finance managers", "support leads"],
+        objective: "Determine the route for each request.",
+        outcomes: ["Each request has a recorded result."],
+        domain_vocabulary: ["refund request", "travel expense"],
+      },
+      interaction_contract: {
+        primary_decision: "Determine the route for each request.",
+        next_actions: [
+          "Finance managers may approve refund requests.",
+          "Support leads may approve travel expenses.",
+        ],
+        completion: "Each request has a recorded result.",
+        make_easy: ["Compare the request with its decision owner."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request", "travel expense"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+  assert.equal(activityReview.review_status, "ready_for_review");
+
+  for (const action of [
+    "Finance managers approve refund requests",
+    "Support leads approve travel expenses",
+  ]) {
+    const review = reviewUiWorkflowCandidate(brief, workflowFor(action), {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(review.review_status, "ready_for_review", action);
+  }
+  for (const action of [
+    "Finance managers approve travel expenses",
+    "Support leads approve refund requests",
+    "Managers approve refund requests",
+  ]) {
+    const review = reviewUiWorkflowCandidate(brief, workflowFor(action), {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(review.review_status, "needs_source_context", action);
+    assert.ok(review.guardrails.authority_mismatches.length > 0, action);
+  }
+}
+
+{
+  const brief = "Design request decisions for finance managers.";
+  const contextItems = [{
+    id: "compound-authority-clause",
+    kind: "user_answer",
+    content:
+      "Finance managers may approve refund requests and deny travel expenses.",
+  }];
+  const activityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      activity_model: {
+        activity: "Finance managers review refund requests and travel expenses.",
+        participants: ["finance managers"],
+        objective: "Determine the route for each request.",
+        outcomes: ["Each request has a recorded result."],
+        domain_vocabulary: ["refund request", "travel expense"],
+      },
+      interaction_contract: {
+        primary_decision: "Determine the route for each request.",
+        next_actions: [
+          "Finance managers may approve refund requests.",
+          "Finance managers may deny travel expenses.",
+        ],
+        completion: "Each request has a recorded result.",
+        make_easy: ["Compare each request with the available route."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request", "travel expense"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+  assert.equal(activityReview.review_status, "ready_for_review");
+  const workflowFor = (action) => {
+    const candidate = refundWorkflowCandidate();
+    candidate.workflow.surface_name = "Finance request decisions";
+    candidate.workflow.work_units = ["Review request"];
+    candidate.workflow.primary_actions = [action];
+    candidate.workflow.decision_points = [action];
+    candidate.workflow.completion_state = "The request review is complete.";
+    candidate.surface_set[0].name = "Finance request decisions";
+    candidate.surface_set[0].purpose = "Review request evidence.";
+    candidate.surface_set[0].sections = ["Request", "Evidence"];
+    candidate.surface_set[0].controls = [action];
+    candidate.handoff.reason = "The request review is complete.";
+    candidate.handoff.next_action = "Send the review result.";
+    return candidate;
+  };
+
+  for (const action of [
+    "Finance managers approve refund requests",
+    "Finance managers deny travel expenses",
+  ]) {
+    const review = reviewUiWorkflowCandidate(brief, workflowFor(action), {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(review.review_status, "ready_for_review", action);
+  }
+  for (const action of [
+    "Finance managers approve travel expenses",
+    "Finance managers deny refund requests",
+  ]) {
+    const review = reviewUiWorkflowCandidate(brief, workflowFor(action), {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(review.review_status, "needs_source_context", action);
+    assert.ok(review.guardrails.authority_mismatches.length > 0, action);
+  }
+}
+
+{
+  const overreachingActivityCandidate = {
+    activity_model: {
+      activity: "Support leads review refund evidence.",
+      participants: ["support leads", "finance managers"],
+      objective: "Prepare a refund recommendation for finance.",
+      outcomes: ["Finance receives a recommendation and rationale."],
+      domain_vocabulary: ["refund evidence", "finance review", "rationale"],
+    },
+    interaction_contract: {
+      primary_decision: "Approve the refund request.",
+      next_actions: ["Recommend approval", "Request evidence"],
+      completion: "Finance receives the recommended route and rationale.",
+      make_easy: ["Compare evidence before recommending a route."],
+    },
+    disclosure_policy: {
+      terms_to_use: ["refund evidence", "finance review", "rationale"],
+      hidden_implementation_terms: [],
+      translation_candidates: [],
+      diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+    },
+  };
+  const recommendationOnlyBriefs = [
+    "A support lead can recommend approval to a finance manager, but does not make the final decision. The activity is reviewing refund evidence and leaving finance with a recommendation and rationale.",
+    "A support lead recommends that finance approve the refund request, but the support lead does not make the final decision. The activity is reviewing refund evidence and leaving finance with a recommendation and rationale.",
+    "A support lead recommends approving the refund request to finance, but the support lead does not make the final decision. The activity is reviewing refund evidence and leaving finance with a recommendation and rationale.",
+  ];
+
+  for (const recommendationOnlyBrief of recommendationOnlyBriefs) {
+    const overreachingActivityReview = reviewActivityModelCandidate(
+      recommendationOnlyBrief,
+      overreachingActivityCandidate,
+    );
+    const overreachingWorkflowReview = reviewUiWorkflowCandidate(
+      recommendationOnlyBrief,
+      refundWorkflowCandidate(),
+      { activity_review: overreachingActivityReview },
+    );
+
+    assert.equal(overreachingActivityReview.review_status, "needs_source_context");
+    assert.equal(
+      overreachingActivityReview.activity_case.claims.find(
+        (claim) => claim.path === "interaction_contract.primary_decision",
+      ).origin,
+      "model_inferred",
+    );
+    assert.equal(overreachingWorkflowReview.review_status, "needs_source_context");
+    assert.ok(
+      overreachingWorkflowReview.guardrails.authority_mismatches.some(
+        (entry) => entry.unsupported_authority_verbs.includes("approve"),
+      ),
+    );
+  }
+
+  const recommendationOnlyReview = reviewActivityModelCandidate(
+    recommendationOnlyBriefs[0],
+    overreachingActivityCandidate,
+  );
+  for (const action of [
+    "Support leads decide the refund",
+    "Support leads choose the refund outcome",
+    "Support leads set the final outcome",
+    "Support leads make the final call",
+    "Support leads greenlight the refund",
+    "Support leads give the go-ahead",
+  ]) {
+    const candidate = refundWorkflowCandidate();
+    candidate.workflow.primary_actions = [action];
+    candidate.workflow.decision_points = [action];
+    candidate.surface_set[0].controls = [action];
+    const review = reviewUiWorkflowCandidate(
+      recommendationOnlyBriefs[0],
+      candidate,
+      { activity_review: recommendationOnlyReview },
+    );
+    assert.equal(
+      review.review_status,
+      "needs_source_context",
+      `Decision euphemism must not promote recommendation authority: ${action}`,
+    );
+    assert.ok(
+      review.guardrails.authority_mismatches.length > 0,
+      `Decision euphemism produced no authority mismatch: ${action}`,
+    );
+  }
+}
+
+{
+  const delegatedAuthorityBriefs = [
+    "Support leads may recommend that finance managers approve refund requests.",
+    "Support leads may suggest finance managers approve refund requests.",
+    "Support leads can propose that finance managers approve refund requests.",
+    "Support leads may advise finance managers to approve refund requests.",
+    "Support leads may ask finance managers to approve refund requests.",
+    "Support leads may request that finance managers approve refund requests.",
+    "Support leads may nominate finance managers to approve refund requests.",
+  ];
+
+  for (const brief of delegatedAuthorityBriefs) {
+    const activityReview = reviewActivityModelCandidate(brief, {
+      activity_model: {
+        activity: "Support leads review refund requests.",
+        participants: ["support leads"],
+        objective: "Prepare a recommendation for finance.",
+        outcomes: ["Finance receives a recommendation and rationale."],
+        domain_vocabulary: ["refund request", "recommendation", "finance"],
+      },
+      interaction_contract: {
+        primary_decision: "Choose what to recommend to finance.",
+        next_actions: ["Send the recommendation to finance."],
+        completion: "Finance receives a recommendation and rationale.",
+        make_easy: ["Compare refund evidence before recommending a route."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request", "recommendation", "finance"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    });
+    const candidate = refundWorkflowCandidate();
+    const action = "Support leads approve refund requests";
+    candidate.workflow.primary_actions = [action];
+    candidate.workflow.decision_points = [action];
+    candidate.surface_set[0].controls = [action];
+    const workflowReview = reviewUiWorkflowCandidate(brief, candidate, {
+      activity_review: activityReview,
+    });
+
+    assert.equal(
+      workflowReview.review_status,
+      "needs_source_context",
+      `Indirect recommendation or delegation must not confer approval authority: ${brief}`,
+    );
+    assert.ok(
+      workflowReview.guardrails.authority_mismatches.some((entry) =>
+        entry.unsupported_authority_verbs.includes("approve")),
+      `Indirect recommendation or delegation produced no approval mismatch: ${brief}`,
+    );
+  }
+}
+
+{
+  const constrainedAuthorityCases = [
+    {
+      rule: "Finance managers may approve refund requests for enterprise customers only.",
+      overreach: "Finance managers approve refund requests",
+    },
+    {
+      rule: "Finance managers may approve refund requests in California.",
+      overreach: "Finance managers approve refund requests",
+    },
+    {
+      rule: "Finance managers may approve refund requests during business hours.",
+      overreach: "Finance managers approve refund requests",
+    },
+    {
+      rule: "Finance managers may approve all refund requests except international refund requests.",
+      overreach: "Finance managers approve international refund requests",
+    },
+    {
+      rule: "Finance managers may approve all refund requests except fraud-related refund requests.",
+      overreach: "Finance managers approve fraud-related refund requests",
+    },
+    {
+      rule: "Finance managers may approve refund requests unless the account is frozen.",
+      overreach: "Finance managers approve refund requests for frozen accounts",
+    },
+    ...[
+      "if fraud review is complete",
+      "provided that fraud review is complete",
+      "subject to completed fraud review",
+      "contingent on completed fraud review",
+      "with fraud review complete",
+      "following fraud review",
+      "once fraud review is complete",
+      "so long as fraud review is complete",
+    ].map((condition) => ({
+      rule: `Finance managers may approve refund requests up to 100 dollars ${condition}.`,
+      overreach: "Finance managers approve refund requests up to 100 dollars",
+    })),
+    ...[
+      "low-risk",
+      "verified",
+      "domestic",
+      "standard",
+      "non-fraudulent",
+      "pre-approved",
+      "business-customer",
+      "premium-customer",
+      "same-day",
+      "internal",
+      "eligible",
+      "documented",
+      "routine",
+      "non-escalated",
+      "card-purchase",
+      "subscription",
+    ].map((modifier) => ({
+      rule: `Finance managers may approve ${modifier} refund requests up to 100 dollars.`,
+      overreach: "Finance managers approve refund requests up to 100 dollars",
+    })),
+    ...[
+      "per transaction",
+      "per customer",
+      "per day",
+      "monthly",
+      "total",
+    ].map((cadence) => ({
+      rule: `Finance managers may approve refund requests up to 100 dollars ${cadence}.`,
+      overreach: "Finance managers approve refund requests up to 100 dollars",
+    })),
+    {
+      rule: "Finance managers may approve max 10 refund requests per day.",
+      overreach: "Finance managers approve 10 refund requests",
+    },
+    {
+      rule: "Finance managers may approve max 10 refund requests per customer.",
+      overreach: "Finance managers approve 10 refund requests",
+    },
+  ];
+
+  const workflowFor = (action) => {
+    const candidate = refundWorkflowCandidate();
+    candidate.workflow.primary_actions = [action];
+    candidate.workflow.decision_points = [action];
+    candidate.surface_set[0].controls = [action];
+    return candidate;
+  };
+
+  for (const [index, { rule, overreach }] of constrainedAuthorityCases.entries()) {
+    const brief = "Design constrained refund approval for finance managers.";
+    const contextItems = [{
+      id: `constrained-refund-authority-${index}`,
+      kind: "user_answer",
+      content: rule,
+    }];
+    const activityReview = reviewActivityModelCandidate(
+      brief,
+      {
+        activity_model: {
+          activity: "Finance managers review refund requests.",
+          participants: ["finance managers"],
+          objective: rule,
+          outcomes: ["Each refund request has a recorded result."],
+          domain_vocabulary: ["refund request", "approval"],
+        },
+        interaction_contract: {
+          primary_decision: rule,
+          next_actions: [rule],
+          completion: "Each refund request has a recorded result.",
+          make_easy: ["Compare the request with the approval rule."],
+        },
+        disclosure_policy: {
+          terms_to_use: ["refund request", "approval"],
+          hidden_implementation_terms: [],
+          translation_candidates: [],
+          diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+        },
+      },
+      { context_items: contextItems },
+    );
+    assert.equal(activityReview.review_status, "ready_for_review", rule);
+
+    const preservedReview = reviewUiWorkflowCandidate(
+      brief,
+      workflowFor(rule),
+      { activity_review: activityReview, context_items: contextItems },
+    );
+    assert.equal(
+      preservedReview.review_status,
+      "ready_for_review",
+      `An exactly preserved authority constraint must remain valid: ${rule}`,
+    );
+
+    const overreachReview = reviewUiWorkflowCandidate(
+      brief,
+      workflowFor(overreach),
+      { activity_review: activityReview, context_items: contextItems },
+    );
+    assert.equal(
+      overreachReview.review_status,
+      "needs_source_context",
+      `Dropping or reversing an authority constraint must block: ${rule}`,
+    );
+    assert.ok(
+      overreachReview.guardrails.authority_mismatches.length > 0,
+      `Constraint loss produced no authority mismatch: ${rule}`,
+    );
+  }
+
+  const aliasRule =
+    "Finance managers may approve low-risk refund requests up to 100 dollars.";
+  const aliasContextItems = [{
+    id: "low-risk-refund-authority",
+    kind: "user_answer",
+    content: aliasRule,
+  }];
+  const aliasActivityReview = reviewActivityModelCandidate(
+    "Design constrained refund approval for finance managers.",
+    {
+      activity_model: {
+        activity: "Finance managers review refund requests.",
+        participants: ["finance managers"],
+        objective: aliasRule,
+        outcomes: ["Each refund request has a recorded result."],
+        domain_vocabulary: ["refund request", "approval"],
+      },
+      interaction_contract: {
+        primary_decision: aliasRule,
+        next_actions: [aliasRule],
+        completion: "Each refund request has a recorded result.",
+        make_easy: ["Compare the request with the approval rule."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request", "approval"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: aliasContextItems },
+  );
+  assert.equal(aliasActivityReview.review_status, "ready_for_review");
+
+  for (const action of [
+    "Finance managers approve low risk refunds up to 100 dollars",
+    "Finance managers approve a low-risk refund request up to 100 dollars",
+    "Finance managers approve a low risk refund case up to 100 dollars",
+    "Finance managers approve a low-risk refund item up to 100 dollars",
+  ]) {
+    const review = reviewUiWorkflowCandidate(
+      "Design constrained refund approval for finance managers.",
+      workflowFor(action),
+      {
+        activity_review: aliasActivityReview,
+        context_items: aliasContextItems,
+      },
+    );
+    assert.equal(
+      review.review_status,
+      "ready_for_review",
+      `Harmless object alias must preserve the authority scope: ${action}`,
+    );
+  }
+}
+
+{
+  const governedAuthorityCases = [
+    {
+      participant: "Legal reviewers",
+      subject: "contract exceptions",
+      rule: "Legal reviewers may approve contract exceptions.",
+      risk: "authoritative_safety_rule",
+    },
+    {
+      participant: "Regulatory analysts",
+      subject: "license applications",
+      rule: "Regulatory analysts may approve license applications.",
+      risk: "authoritative_safety_rule",
+    },
+    {
+      participant: "Court clerks",
+      subject: "legal filings",
+      rule: "Court clerks may approve legal filings.",
+      risk: "authoritative_safety_rule",
+    },
+    {
+      participant: "Lawyers",
+      subject: "settlement offers",
+      rule: "Lawyers may approve settlement offers.",
+      risk: "authoritative_safety_rule",
+    },
+    ...[
+      "employee salary records",
+      "employee home addresses",
+      "customer email addresses",
+      "student education records",
+      "employee performance reviews",
+      "criminal history records",
+      "email addresses",
+      "home addresses",
+      "full names",
+      "dates of birth",
+      "genetic information",
+      "sexual orientation data",
+      "religious beliefs",
+      "union membership",
+      "precise location data",
+      "IP addresses",
+      "financial transaction history",
+      "credit scores",
+      "tax returns",
+      "insurance claims",
+      "disability status",
+      "immigration status",
+      "employee performance ratings",
+      "background screening results",
+      "patient lab results",
+      "therapy notes",
+    ].map((subject) => ({
+      participant: "Managers",
+      subject,
+      rule: `Managers may view ${subject}.`,
+      risk: "sensitive_disclosure_boundary",
+    })),
+    ...[
+      ["customer records", "delete customer records"],
+      ["customer accounts", "cancel a customer account"],
+      ["employee records", "terminate an employee"],
+      ["user accounts", "suspend a user account"],
+      ["fund transfers", "transfer funds"],
+      ["tax filings", "submit a tax filing"],
+      ["wire transfers", "send a wire transfer"],
+      ["securities trades", "place a securities trade"],
+      ["production builds", "deploy a production build"],
+      ["audit logs", "erase audit logs"],
+      ["backups", "purge backups"],
+      ["bank accounts", "close a bank account"],
+      ["accounts", "deactivate an account"],
+      ["signed contracts", "overwrite a signed contract"],
+      ["evidence", "destroy evidence"],
+    ].map(([subject, action]) => ({
+      participant: "Operations managers",
+      subject,
+      rule: `Operations managers may ${action}.`,
+      risk: "authoritative_irreversible_action",
+    })),
+  ];
+
+  for (const [index, { participant, subject, rule, risk }] of governedAuthorityCases.entries()) {
+    const brief = `Design ${subject} review.`;
+    const contextItems = [{
+      id: `ungoverned-protected-source-${index}`,
+      kind: "user_answer",
+      content: rule,
+    }];
+    const activityReview = reviewActivityModelCandidate(
+      brief,
+      {
+        activity_model: {
+          activity: `${participant} review ${subject}.`,
+          participants: [participant],
+          objective: rule,
+          outcomes: [`Each ${subject} item has a recorded result.`],
+          domain_vocabulary: [subject],
+        },
+        interaction_contract: {
+          primary_decision: rule,
+          next_actions: [rule],
+          completion: `Each ${subject} item has a recorded result.`,
+          make_easy: [`Compare evidence for ${subject}.`],
+        },
+        disclosure_policy: {
+          terms_to_use: [subject],
+          hidden_implementation_terms: [],
+          translation_candidates: [],
+          diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+        },
+      },
+      { context_items: contextItems },
+    );
+    assert.equal(
+      activityReview.review_status,
+      "needs_source_context",
+      `A user answer must not govern ${risk}: ${rule}`,
+    );
+    assert.ok(
+      activityReview.activity_case.unresolved_ambiguities.some(
+        (entry) => entry.category === risk,
+      ),
+      `Protected category ${risk} was not surfaced: ${rule}`,
+    );
+
+    const candidate = refundWorkflowCandidate();
+    const action = rule.replace(" may ", " ").replace(/\.$/, "");
+    candidate.workflow.primary_actions = [action];
+    candidate.workflow.decision_points = [action];
+    candidate.surface_set[0].controls = [action];
+    const workflowReview = reviewUiWorkflowCandidate(brief, candidate, {
+      activity_review: activityReview,
+      context_items: contextItems,
+    });
+    assert.equal(
+      workflowReview.review_status,
+      "needs_source_context",
+      `Workflow must not recover authority from an ungoverned protected source: ${rule}`,
+    );
+    assert.ok(
+      workflowReview.guardrails.authority_mismatches.length > 0,
+      `Protected workflow produced no authority mismatch: ${rule}`,
+    );
+  }
+}
+
+{
+  const brief = "Design medication request review for nurses.";
+  const contextItems = [{
+    id: "medication-restriction",
+    kind: "authoritative_source",
+    source_ref: "policy://medication/physician-approval/v1",
+    content: "Nurses must not administer medication before physician approval.",
+  }];
+  const activityReview = reviewActivityModelCandidate(
+    brief,
+    {
+      activity_model: {
+        activity: "Nurses review medication requests.",
+        participants: ["nurses"],
+        objective: "Verify the required evidence before continuing.",
+        outcomes: ["Requests without required evidence remain pending."],
+        domain_vocabulary: ["medication", "physician approval"],
+      },
+      interaction_contract: {
+        primary_decision:
+          "Nurses must not administer medication before physician approval.",
+        next_actions: [
+          "Do not administer medication before physician approval.",
+        ],
+        completion: "The review records whether the required evidence is present.",
+        make_easy: ["See whether the required evidence is present."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["medication", "physician approval"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    },
+    { context_items: contextItems },
+  );
+  const candidate = refundWorkflowCandidate();
+  candidate.workflow.surface_name = "Medication request review";
+  candidate.workflow.work_units = ["Review request", "Check required evidence"];
+  candidate.workflow.primary_actions = [
+    "Do not administer medication before physician approval",
+  ];
+  candidate.workflow.decision_points = [
+    "Do not administer medication before physician approval",
+  ];
+  candidate.workflow.completion_state = "The evidence review is complete.";
+  candidate.surface_set[0].name = "Medication request review";
+  candidate.surface_set[0].purpose = "Review the required evidence.";
+  candidate.surface_set[0].sections = ["Request", "Required evidence"];
+  candidate.surface_set[0].controls = ["Return for required evidence"];
+  candidate.handoff.next_action = "Return for required evidence.";
+  const review = reviewUiWorkflowCandidate(brief, candidate, {
+    activity_review: activityReview,
+    context_items: contextItems,
+  });
+
+  assert.equal(review.review_status, "ready_for_review");
+  assert.deepEqual(review.guardrails.authority_mismatches, []);
 }
 
 {
@@ -3703,10 +6202,12 @@ function repairedSessionsButtonCandidate(contract) {
 {
   const workflowReview = reviewUiWorkflowCandidate(
     REFUND_TRIAGE_BRIEF,
-    refundWorkflowCandidate(),
+    refundRecommendationWorkflowCandidate(),
     { profile_id: "operator-review-ui" },
   );
-  const handoff = createUiGenerationHandoff(workflowReview);
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief: REFUND_TRIAGE_BRIEF,
+  });
 
   assert.equal(handoff.handoff_status, "ready_for_generation");
   assert.equal(handoff.guidance_profile.profile_id, "operator-review-ui");
@@ -3759,11 +6260,27 @@ function repairedSessionsButtonCandidate(contract) {
 }
 
 {
+  const releaseActionCandidate = integrationAuditWorkflowCandidate();
+  releaseActionCandidate.workflow.primary_actions = ["Release risk report"];
+  releaseActionCandidate.surface_set[0].controls = ["Release risk report"];
+  const releaseActionReview = reviewUiWorkflowCandidate(
+    DIAGNOSTIC_AUDIT_BRIEF,
+    releaseActionCandidate,
+  );
+  assert.equal(releaseActionReview.review_status, "needs_source_context");
+  assert.ok(
+    releaseActionReview.guardrails.authority_mismatches.some((entry) =>
+      entry.unsupported_authority_verbs.includes("release")),
+    "An active release command must not inherit the noun-phrase exception for release risk.",
+  );
+
   const workflowReview = reviewUiWorkflowCandidate(
     DIAGNOSTIC_AUDIT_BRIEF,
     integrationAuditWorkflowCandidate(),
   );
-  const handoff = createUiGenerationHandoff(workflowReview);
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    brief: DIAGNOSTIC_AUDIT_BRIEF,
+  });
   const primaryText = primaryHandoffText(handoff);
 
   assert.equal(handoff.handoff_status, "ready_for_generation");
