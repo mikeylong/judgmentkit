@@ -59,6 +59,10 @@ const SOCIAL_THUMBNAIL_PATH = `/assets/${SOCIAL_THUMBNAIL_FILENAME}`;
 const SOCIAL_THUMBNAIL_ALT = "JudgmentKit. Before the UI.";
 const HOMEPAGE_HERO_ART_FILENAME = "judgment-lens-hero.webp";
 const HOMEPAGE_HERO_ART_PATH = `/assets/${HOMEPAGE_HERO_ART_FILENAME}`;
+const MARKETING_PATTERN_HERO_FILENAME =
+  "marketing-surface-weeknight-meal-plan.webp";
+const MARKETING_PATTERN_HERO_PATH =
+  `/assets/patterns/${MARKETING_PATTERN_HERO_FILENAME}`;
 const VISUAL_COMPOSITION_RECORDING_FILENAME =
   "judgmentkit-select-field-agent-demo.mp4";
 const VISUAL_COMPOSITION_DARK_RECORDING_FILENAME =
@@ -3432,17 +3436,26 @@ pre {
 }
 .jk-surface-marketing-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
-  gap: 28px;
   align-items: center;
+  min-height: clamp(430px, 50vw, 570px);
   padding: clamp(24px, 5vw, 56px);
-  background: var(--jk-color-canvas, var(--bg));
+  background-color: var(--hero-art-bg);
+  background-image:
+    linear-gradient(90deg, color-mix(in srgb, var(--hero-art-bg) 96%, transparent) 0%, color-mix(in srgb, var(--hero-art-bg) 86%, transparent) 42%, color-mix(in srgb, var(--hero-art-bg) 42%, transparent) 70%, color-mix(in srgb, var(--hero-art-bg) 22%, transparent) 100%),
+    url("${MARKETING_PATTERN_HERO_PATH}");
+  background-position: 50% 48%;
+  background-size: cover;
+  color: var(--fixed-light-ink);
 }
 .jk-surface-marketing-offer {
   display: grid;
   gap: 14px;
   align-content: center;
   min-width: 0;
+  max-width: 650px;
+}
+.jk-surface-marketing-offer .jk-surface-kicker {
+  color: color-mix(in srgb, var(--fixed-light-ink) 78%, transparent);
 }
 .jk-surface-marketing-offer h4 {
   max-width: 15ch;
@@ -3452,65 +3465,47 @@ pre {
 }
 .jk-surface-marketing-offer p:not(.jk-surface-kicker) {
   max-width: 52ch;
-  color: var(--jk-color-muted, var(--muted));
+  color: color-mix(in srgb, var(--fixed-light-ink) 82%, transparent);
+}
+.jk-surface-marketing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: center;
 }
 .jk-surface-marketing-offer .jk-action-button {
   width: max-content;
 }
+.jk-surface-marketing-offer .jk-action-button:disabled {
+  border-color: var(--fixed-light-ink);
+  background: var(--fixed-light-ink);
+  color: var(--hero-art-bg);
+  opacity: 1;
+}
+.jk-surface-marketing-offer .jk-surface-text-link {
+  color: var(--fixed-light-ink);
+}
 .jk-surface-marketing-offer small {
-  color: var(--jk-color-muted, var(--muted));
+  color: color-mix(in srgb, var(--fixed-light-ink) 72%, transparent);
 }
-.jk-surface-marketing-proof {
+.jk-surface-marketing-proofline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 26px;
+  max-width: 560px;
+  padding-top: 14px;
+  border-top: 1px solid color-mix(in srgb, var(--fixed-light-ink) 28%, transparent);
+}
+.jk-surface-marketing-proofline div {
   display: grid;
-  gap: 14px;
-  min-width: 0;
-  padding: 18px;
-  border: 1px solid var(--jk-color-border, var(--line));
-  border-radius: var(--jk-radius-panel, 8px);
-  background: var(--jk-color-surface, var(--panel));
-  box-shadow: 0 16px 36px color-mix(in srgb, var(--jk-color-text, var(--ink)) 10%, transparent);
+  gap: 1px;
 }
-.jk-surface-plan-card {
-  display: grid;
-  gap: 2px;
-}
-.jk-surface-plan-card > div {
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr);
-  gap: 2px 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--jk-color-border, var(--line));
-}
-.jk-surface-plan-card > div:last-child {
-  border-bottom: 0;
-}
-.jk-surface-plan-card span {
-  grid-row: 1 / 3;
-  color: var(--jk-color-focus, var(--accent));
-  font-size: 11px;
+.jk-surface-marketing-proofline dt {
+  font-size: 17px;
   font-weight: 900;
 }
-.jk-surface-plan-card small {
-  color: var(--jk-color-muted, var(--muted));
-}
-.jk-surface-proof-stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  border-top: 1px solid var(--jk-color-border, var(--line));
-  border-bottom: 1px solid var(--jk-color-border, var(--line));
-}
-.jk-surface-proof-stats div {
-  padding: 10px;
-}
-.jk-surface-proof-stats div + div {
-  border-left: 1px solid var(--jk-color-border, var(--line));
-}
-.jk-surface-proof-stats dt {
-  font-size: 18px;
-  font-weight: 900;
-}
-.jk-surface-proof-stats dd {
-  color: var(--jk-color-muted, var(--muted));
+.jk-surface-marketing-proofline dd {
+  color: color-mix(in srgb, var(--fixed-light-ink) 74%, transparent);
   font-size: 11px;
 }
 .jk-surface-marketing-next {
@@ -5627,15 +5622,21 @@ pre {
     grid-template-columns: minmax(0, 1fr);
   }
   .jk-surface-marketing-hero {
-    gap: 20px;
-    padding: 22px 16px;
+    padding: clamp(210px, 38vw, 310px) 16px 24px;
+    background-image:
+      linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--hero-art-bg) 72%, transparent) 26%, var(--hero-art-bg) 34%, var(--hero-art-bg) 100%),
+      url("${MARKETING_PATTERN_HERO_PATH}");
+    background-position: center, center top;
+    background-repeat: no-repeat;
+    background-size: 100% 100%, 100% auto;
   }
   .jk-surface-marketing-offer h4 {
     max-width: 18ch;
     font-size: clamp(27px, 10vw, 40px);
   }
-  .jk-surface-marketing-proof {
-    padding: 14px;
+  .jk-surface-marketing-actions {
+    align-items: flex-start;
+    flex-direction: column;
   }
   .jk-surface-marketing-next,
   .jk-surface-review-receipt,
@@ -6981,21 +6982,16 @@ function renderMarketingSurface(contract, example) {
                     <p class="jk-surface-kicker">Five dinners. One calm week.</p>
                     <h4>${escapeHtml(example.regions.offer)}</h4>
                     <p>Flexible recipes, one organized grocery list, and simple swaps for nights when plans change.</p>
-                    ${renderPatternControl("primary call to action", 0, example.controls["primary call to action"])}
-                    <small>No card required · Cancel any time</small>
-                  </section>
-                  <aside class="jk-surface-marketing-proof" id="meal-plan" data-pattern-region="proof" aria-label="This week's sample plan">
-                    <div class="jk-surface-plan-card">
-                      <div><span>Mon</span><strong>Lemon herb pasta</strong><small>25 min · family favorite</small></div>
-                      <div><span>Wed</span><strong>Crispy tofu bowls</strong><small>30 min · easy swap</small></div>
-                      <div><span>Fri</span><strong>Sheet-pan fajitas</strong><small>35 min · one pan</small></div>
+                    <div class="jk-surface-marketing-actions">
+                      ${renderPatternControl("primary call to action", 0, example.controls["primary call to action"])}
+                      ${renderPatternStaticLink("secondary information path", example.controls["secondary information path"], "#meal-plan")}
                     </div>
-                    <dl class="jk-surface-proof-stats">
+                    <dl class="jk-surface-marketing-proofline" id="meal-plan" data-pattern-region="proof" aria-label="Meal plan member proof">
                       <div><dt>4.8/5</dt><dd>member rating</dd></div>
                       <div><dt>$34</dt><dd>average weekly savings</dd></div>
                     </dl>
-                    ${renderPatternStaticLink("secondary information path", example.controls["secondary information path"], "#meal-plan")}
-                  </aside>
+                    <small>No card required · Cancel any time</small>
+                  </section>
                 </div>
                 <footer class="jk-surface-marketing-next" data-pattern-region="primary-next-step" data-pattern-completion>
                   <strong>See the whole week before joining.</strong>
@@ -11492,6 +11488,7 @@ export async function buildSite(
   await fs.mkdir(path.join(outDir, "evals", "site-rebuild-log"), { recursive: true });
   await fs.mkdir(path.join(outDir, "examples"), { recursive: true });
   await fs.mkdir(path.join(outDir, "value"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "assets", "patterns"), { recursive: true });
   await fs.mkdir(path.join(outDir, "assets", "releases"), { recursive: true });
 
   await fs.writeFile(path.join(outDir, "assets", "site.css"), stylesheet.trimStart());
@@ -11507,6 +11504,20 @@ export async function buildSite(
   await fs.copyFile(
     path.join(__dirname, "assets", HOMEPAGE_HERO_ART_FILENAME),
     path.join(outDir, "assets", HOMEPAGE_HERO_ART_FILENAME),
+  );
+  await fs.copyFile(
+    path.join(
+      __dirname,
+      "assets",
+      "patterns",
+      MARKETING_PATTERN_HERO_FILENAME,
+    ),
+    path.join(
+      outDir,
+      "assets",
+      "patterns",
+      MARKETING_PATTERN_HERO_FILENAME,
+    ),
   );
   await fs.copyFile(
     path.join(

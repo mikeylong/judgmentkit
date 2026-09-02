@@ -2506,7 +2506,11 @@ assert.equal(
 const expectedPatternSurfaceStructures = {
   marketing: {
     layout: "landing-page",
-    markers: ['<div class="jk-surface-marketing-nav"', '<section class="jk-surface-marketing-offer"'],
+    markers: [
+      '<div class="jk-surface-marketing-nav"',
+      '<section class="jk-surface-marketing-offer"',
+      '<dl class="jk-surface-marketing-proofline"',
+    ],
   },
   workbench: {
     layout: "queue-workspace",
@@ -3331,6 +3335,21 @@ assert.doesNotMatch(
   marketingPatternHtml,
   /<nav class="jk-surface-marketing-nav"/,
   "Decorative marketing labels must not create an empty navigation landmark.",
+);
+assert.doesNotMatch(
+  marketingPatternHtml,
+  /class="jk-surface-marketing-proof(?:\s|")|class="jk-surface-plan-card(?:\s|")|class="jk-surface-proof-stats(?:\s|")/,
+  "The marketing specimen must not restore the right-side plan widget.",
+);
+assert.match(
+  marketingPatternHtml,
+  /<section class="jk-surface-marketing-offer"[^>]*>[\s\S]*<dl class="jk-surface-marketing-proofline"/,
+  "Marketing proof should remain inline with the offer instead of becoming a second hero column.",
+);
+assert.match(
+  siteCss,
+  /url\("\/assets\/patterns\/marketing-surface-weeknight-meal-plan\.webp"\)/,
+  "The marketing hero should reference its generated background asset.",
 );
 const formFlowPatternHtml = patternSpecimensExport.specimens.find(
   (specimen) => specimen.contract_id === "form_flow",
@@ -4284,6 +4303,25 @@ assert.equal(homepageHeroArt.subarray(0, 4).toString("ascii"), "RIFF");
 assert.equal(homepageHeroArt.subarray(8, 12).toString("ascii"), "WEBP");
 assert.ok(homepageHeroArt.length > 0);
 assert.ok(homepageHeroArt.length < 250_000);
+const marketingPatternHeroArt = fs.readFileSync(
+  path.join(
+    tempDir,
+    "assets",
+    "patterns",
+    "marketing-surface-weeknight-meal-plan.webp",
+  ),
+);
+const marketingPatternHeroArtSource = fs.readFileSync(
+  new URL(
+    "../site/assets/patterns/marketing-surface-weeknight-meal-plan.webp",
+    import.meta.url,
+  ),
+);
+assert.deepEqual(marketingPatternHeroArt, marketingPatternHeroArtSource);
+assert.equal(marketingPatternHeroArt.subarray(0, 4).toString("ascii"), "RIFF");
+assert.equal(marketingPatternHeroArt.subarray(8, 12).toString("ascii"), "WEBP");
+assert.ok(marketingPatternHeroArt.length > 0);
+assert.ok(marketingPatternHeroArt.length < 250_000);
 
 const visualCompositionFilmSource = fs.readFileSync(
   new URL(

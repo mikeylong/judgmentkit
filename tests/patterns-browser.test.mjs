@@ -53,6 +53,24 @@ async function inspectPatternsPage(client, page, viewport) {
       const rows = [...(index?.querySelectorAll("tbody tr") ?? [])];
       const specimens = [...document.querySelectorAll("[data-pattern-specimen]")];
       const surfaces = [...document.querySelectorAll("[data-pattern-surface]")];
+      const marketingHero = document.querySelector('[data-pattern-surface="marketing"] .jk-surface-marketing-hero');
+      const marketingOffer = marketingHero?.querySelector('.jk-surface-marketing-offer');
+      const marketingProof = marketingHero?.querySelector('[data-pattern-region="proof"]');
+      const marketingCompletion = document.querySelector('[data-pattern-surface="marketing"] [data-pattern-completion]');
+      const marketingAsset = new Image();
+      marketingAsset.src = "/assets/patterns/marketing-surface-weeknight-meal-plan.webp";
+      let marketingAssetLoaded = true;
+      try {
+        await marketingAsset.decode();
+      } catch {
+        marketingAssetLoaded = false;
+      }
+      const rectOf = (element) => {
+        const rect = element?.getBoundingClientRect();
+        return rect
+          ? { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height }
+          : null;
+      };
       const axe = await globalThis.axe.run(document, {
         reporter: "v2",
         resultTypes: ["violations"]
@@ -102,6 +120,24 @@ async function inspectPatternsPage(client, page, viewport) {
           disabled: select.disabled,
           ariaDisabled: select.getAttribute("aria-disabled"),
         })),
+        marketing: {
+          heroRect: rectOf(marketingHero),
+          offerRect: rectOf(marketingOffer),
+          proofRect: rectOf(marketingProof),
+          completionRect: rectOf(marketingCompletion),
+          backgroundImage: marketingHero ? getComputedStyle(marketingHero).backgroundImage : "none",
+          backgroundPosition: marketingHero ? getComputedStyle(marketingHero).backgroundPosition : "none",
+          backgroundRepeat: marketingHero ? getComputedStyle(marketingHero).backgroundRepeat : "none",
+          backgroundSize: marketingHero ? getComputedStyle(marketingHero).backgroundSize : "none",
+          assetLoaded: marketingAssetLoaded,
+          assetWidth: marketingAsset.naturalWidth,
+          assetHeight: marketingAsset.naturalHeight,
+          proofInsideOffer: Boolean(marketingOffer?.contains(marketingProof)),
+          legacyRightWidgetPresent: Boolean(marketingHero?.querySelector(
+            ".jk-surface-marketing-proof, .jk-surface-plan-card, .jk-surface-proof-stats"
+          )),
+          semanticImageCount: marketingHero?.querySelectorAll("img").length ?? 0,
+        },
         axeViolations: axe.violations.map((violation) => ({
           id: violation.id,
           impact: violation.impact,
@@ -128,6 +164,50 @@ async function inspectPatternsPage(client, page, viewport) {
     `${viewport.id}: a static select remains label-focusable or changeable`,
   );
   assert.deepEqual(observed.axeViolations, [], `${viewport.id}: page-level axe violations`);
+  assert.match(
+    observed.marketing.backgroundImage,
+    /marketing-surface-weeknight-meal-plan\.webp/,
+    `${viewport.id}: marketing hero background asset is missing`,
+  );
+  if (viewport.mobile) {
+    assert.equal(
+      observed.marketing.backgroundSize,
+      "100% 100%, 100%",
+      "mobile: the full generated image should remain visible above an opaque copy field",
+    );
+    assert.equal(observed.marketing.backgroundRepeat, "no-repeat, no-repeat");
+  } else {
+    assert.equal(
+      observed.marketing.backgroundSize.split(",").every((size) => size.trim() === "cover"),
+      true,
+      "desktop: every marketing hero background layer must cover its stage",
+    );
+    assert.equal(observed.marketing.backgroundPosition, "50% 48%, 50% 48%");
+  }
+  assert.equal(observed.marketing.assetLoaded, true, `${viewport.id}: marketing hero asset did not decode`);
+  assert.equal(observed.marketing.assetWidth, 1440, `${viewport.id}: marketing hero width drifted`);
+  assert.equal(observed.marketing.assetHeight, 900, `${viewport.id}: marketing hero height drifted`);
+  assert.equal(observed.marketing.proofInsideOffer, true, `${viewport.id}: proof returned to a right-side column`);
+  assert.equal(observed.marketing.legacyRightWidgetPresent, false, `${viewport.id}: legacy marketing widget returned`);
+  assert.equal(observed.marketing.semanticImageCount, 0, `${viewport.id}: decorative hero media should remain a CSS background`);
+  for (const [part, rect] of Object.entries({
+    hero: observed.marketing.heroRect,
+    offer: observed.marketing.offerRect,
+    proof: observed.marketing.proofRect,
+    completion: observed.marketing.completionRect,
+  })) {
+    assert.ok(rect && rect.width > 0 && rect.height > 0, `${viewport.id}: marketing ${part} is not visible`);
+  }
+  assert.ok(
+    observed.marketing.proofRect.bottom <= observed.marketing.heroRect.bottom + 1,
+    `${viewport.id}: inline marketing proof escapes the hero`,
+  );
+  if (viewport.mobile) {
+    assert.ok(
+      observed.marketing.offerRect.top - observed.marketing.heroRect.top >= 190,
+      "mobile: marketing copy should begin below the generated image focal strip",
+    );
+  }
 
   for (const specimen of observed.specimens) {
     assert.ok(specimen.rect.width > 0 && specimen.rect.height > 0, `${viewport.id}: ${specimen.contract} specimen has no visible geometry`);

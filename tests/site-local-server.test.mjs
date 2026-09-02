@@ -448,6 +448,18 @@ try {
     assert.equal(await headResponse.text(), "");
   }
 
+  await assertStaticGetAndHead(
+    url,
+    "/assets/patterns/marketing-surface-weeknight-meal-plan.webp",
+    "image/webp",
+    (body) => {
+      assert.equal(body.subarray(0, 4).toString("ascii"), "RIFF");
+      assert.equal(body.subarray(8, 12).toString("ascii"), "WEBP");
+      assert.ok(body.length > 0);
+      assert.ok(body.length < 250_000);
+    },
+  );
+
   await assertStaticGetAndHead(url, "/assets/site.css", "text/css; charset=utf-8", (body) => {
     const css = body.toString("utf8");
     const controlsCss = cssRuleBody(css, ".homepage-film-controls");
