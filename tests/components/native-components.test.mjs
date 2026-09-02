@@ -168,6 +168,24 @@ const rtlSelectMarkup = render(SelectField, {
 assert.match(rtlSelectMarkup, /class="jk-select-field__control" dir="rtl"/);
 assert.match(rtlSelectMarkup, /<select[^>]*dir="rtl"/);
 
+const sizedSelectMarkup = render(SelectField, {
+  id: "sized-review-owner",
+  label: "Review owner",
+  value: "policy",
+  controlClassName: "review-owner-control",
+  controlStyle: { maxInlineSize: "18rem" },
+  selectClassName: "review-owner-select",
+  options: [{ value: "policy", label: "Policy" }],
+});
+assert.match(
+  sizedSelectMarkup,
+  /class="jk-select-field__control review-owner-control" style="max-inline-size:18rem"/,
+);
+assert.match(
+  sizedSelectMarkup,
+  /<select[^>]*class="jk-select-field review-owner-select"/,
+);
+
 const implicitEmptySelectMarkup = render(SelectField, {
   id: "unassigned-owner",
   label: "Review owner",

@@ -98,6 +98,10 @@ async function inspectPatternsPage(client, page, viewport) {
         staticTabStops: [...document.querySelectorAll(
           "[data-pattern-surface] a, [data-pattern-surface] button, [data-pattern-surface] input, [data-pattern-surface] select, [data-pattern-surface] textarea"
         )].filter((element) => !element.disabled && element.tabIndex >= 0).map((element) => element.outerHTML),
+        staticSelects: [...document.querySelectorAll("[data-pattern-surface] select")].map((select) => ({
+          disabled: select.disabled,
+          ariaDisabled: select.getAttribute("aria-disabled"),
+        })),
         axeViolations: axe.violations.map((violation) => ({
           id: violation.id,
           impact: violation.impact,
@@ -117,6 +121,12 @@ async function inspectPatternsPage(client, page, viewport) {
   assert.equal(observed.surfaces.length, EXPECTED_PATTERN_COUNT, `${viewport.id}: surface count drifted`);
   assert.equal(new Set(observed.surfaces.map((surface) => surface.layout)).size, EXPECTED_PATTERN_COUNT);
   assert.equal(observed.staticTabStops.length, 0, `${viewport.id}: static examples entered the tab order`);
+  assert.ok(observed.staticSelects.length > 0, `${viewport.id}: static select coverage is missing`);
+  assert.equal(
+    observed.staticSelects.every((select) => select.disabled && select.ariaDisabled === "true"),
+    true,
+    `${viewport.id}: a static select remains label-focusable or changeable`,
+  );
   assert.deepEqual(observed.axeViolations, [], `${viewport.id}: page-level axe violations`);
 
   for (const specimen of observed.specimens) {

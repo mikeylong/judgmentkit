@@ -6951,6 +6951,7 @@ function renderPatternSelectField({ control, id, label, value, options }) {
       label,
       value,
       options,
+      disabled: true,
       tabIndex: -1,
       "aria-disabled": "true",
     }),

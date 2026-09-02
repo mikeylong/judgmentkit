@@ -458,6 +458,7 @@ async function inspectSelectComposition(client, sessionId, scenario) {
       const selectStyle = getComputedStyle(select);
       return {
         appearance: selectStyle.appearance || selectStyle.webkitAppearance,
+        containerWidth: containerRect.width,
         direction,
         valueText: select.selectedOptions[0]?.textContent?.trim() || "",
         valueStartInset: Number.parseFloat(selectStyle.paddingInlineStart),
@@ -658,6 +659,44 @@ async function assertScenarioSemantics(client, sessionId, scenario, viewport) {
         assert.ok(
           composition.selectedTextWidth > composition.availableValueWidth,
           `${scenario.id}: mobile fixture does not exercise selected-value truncation`,
+        );
+      }
+      if (scenario.id === "select_field.ready") {
+        await evaluate(
+          client,
+          sessionId,
+          `(() => {
+            const root = document.querySelector(${JSON.stringify(scenarioSelector(scenario.id))});
+            const container = root?.querySelector(".jk-select-field__control");
+            const select = container?.querySelector("select.jk-select-field");
+            if (!container || !select) return false;
+            const probe = document.createElement("style");
+            probe.id = "jk-select-geometry-probe";
+            probe.textContent = ".jk-select-field.jk-select-field--geometry-probe { box-sizing: content-box; width: 50%; min-inline-size: 30rem; margin-inline-start: 2rem; position: relative; inset-inline-start: 1rem; transform: translateX(0.5rem); translate: 0.5rem 0; }";
+            document.head.append(probe);
+            container.style.maxInlineSize = "15rem";
+            select.classList.add("jk-select-field--geometry-probe");
+            select.setAttribute("style", "box-sizing: content-box; inline-size: 50%; min-inline-size: 30rem; margin-inline-start: 2rem; position: relative; inset-inline-start: 1rem; transform: translateX(0.5rem); translate: 0.5rem 0");
+            return true;
+          })()`,
+        );
+        const guardedComposition = await inspectSelectComposition(client, sessionId, scenario);
+        assert.ok(guardedComposition.containerWidth <= 240.5, `${scenario.id}: composition sizing hook was ignored`);
+        assert.equal(guardedComposition.nativeControlMatchesContainer, true, `${scenario.id}: select customization detached the native field`);
+        assert.ok(Math.abs(guardedComposition.slotEndInset) <= 0.5, `${scenario.id}: select customization detached the indicator slot`);
+        assert.ok(Math.abs(guardedComposition.indicatorEndInset - 16) <= 0.5, `${scenario.id}: select customization detached the indicator`);
+        await evaluate(
+          client,
+          sessionId,
+          `(() => {
+            const root = document.querySelector(${JSON.stringify(scenarioSelector(scenario.id))});
+            const container = root?.querySelector(".jk-select-field__control");
+            const select = container?.querySelector("select.jk-select-field");
+            container?.removeAttribute("style");
+            select?.classList.remove("jk-select-field--geometry-probe");
+            select?.removeAttribute("style");
+            document.querySelector("#jk-select-geometry-probe")?.remove();
+          })()`,
         );
       }
       const options = await evaluate(

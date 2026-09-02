@@ -133,8 +133,19 @@
 .jk-select-field {
   -webkit-appearance: none;
   appearance: none;
+  /* The wrapper owns composition geometry; customize its size through
+     controlClassName/controlStyle so the indicator cannot detach. */
+  position: static !important;
+  inset: auto !important;
+  box-sizing: border-box !important;
+  inline-size: 100% !important;
+  max-inline-size: 100% !important;
+  min-inline-size: 0 !important;
+  margin: 0 !important;
   padding-inline-start: var(--jk-select-value-start-space, 1rem);
   padding-inline-end: var(--jk-select-indicator-slot-width, 3rem);
+  transform: none !important;
+  translate: none !important;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

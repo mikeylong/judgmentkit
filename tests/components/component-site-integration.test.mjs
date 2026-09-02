@@ -434,6 +434,13 @@ try {
         /data-jk-component="(?:text_field|select_field|text_area)"/,
         `${specimen.contract_id} fields should use JudgmentKit field components`,
       );
+      if (/^<select\b/.test(tag)) {
+        assert.match(
+          tag,
+          /\sdisabled(?:="")?/,
+          `${specimen.contract_id} static selects must suppress label and keyboard changes`,
+        );
+      }
     }
     for (const control of specimen.covered_controls) {
       const controlId = control

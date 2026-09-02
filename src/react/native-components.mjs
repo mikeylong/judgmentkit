@@ -312,6 +312,8 @@ export function SelectField({
   placeholder,
   children,
   className,
+  controlClassName,
+  controlStyle,
   selectClassName,
   dir,
   ...selectProps
@@ -391,7 +393,8 @@ export function SelectField({
       h(
         "div",
         {
-          className: "jk-select-field__control",
+          className: joinClassNames("jk-select-field__control", controlClassName),
+          style: controlStyle,
           dir,
           "data-jk-presentation-owner": "design_system",
           "data-jk-composition-variant":
