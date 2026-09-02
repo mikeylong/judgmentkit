@@ -355,18 +355,27 @@ try {
     (count, specimen) => count + specimen.covered_controls.length,
     0,
   );
-  const renderedPatternControls = patternPage.match(
-    /<button\b(?=[^>]*data-pattern-control="[^"]+")[^>]*>[\s\S]*?<\/button>/g,
+  const renderedPatternControlMarkers = patternPage.match(
+    /data-pattern-control="[^"]+"/g,
   ) ?? [];
   assert.equal(
-    renderedPatternControls.length,
+    renderedPatternControlMarkers.length,
     expectedPatternControlCount,
-    "Every visible pattern control must render exactly once.",
+    "Every expected control must appear exactly once in its rendered surface.",
   );
-  for (const controlMarkup of renderedPatternControls) {
-    assert.match(controlMarkup, /class="jk-action-button"/);
+  const renderedPatternActionButtons = patternPage.match(
+    /<button\b(?=[^>]*data-pattern-control="[^"]+")(?=[^>]*data-jk-component="action_button")[^>]*>[\s\S]*?<\/button>/g,
+  ) ?? [];
+  assert.ok(
+    renderedPatternActionButtons.length > 0,
+    "Action-oriented surfaces should still use the real ActionButton component.",
+  );
+  for (const controlMarkup of renderedPatternActionButtons) {
+    assert.match(controlMarkup, /class="[^"]*\bjk-action-button\b[^"]*"/);
     assert.match(controlMarkup, /data-jk-component="action_button"/);
-    assert.match(controlMarkup, /data-jk-state="ready"/);
+    assert.match(controlMarkup, /data-jk-state="disabled"/);
+    assert.match(controlMarkup, /data-jk-base-state="disabled"/);
+    assert.match(controlMarkup, /\sdisabled=""/);
     assert.match(controlMarkup, /data-jk-tone="(?:decision|secondary)"/);
     assert.match(
       controlMarkup,
@@ -374,23 +383,68 @@ try {
     );
     assert.doesNotMatch(controlMarkup, /class="is-primary"/);
   }
+  assert.doesNotMatch(
+    patternPage,
+    /<span\b[^>]*data-pattern-control=/,
+    "Pattern control evidence must be attached to a semantic control, not a styled span.",
+  );
+  assert.doesNotMatch(
+    patternPage,
+    /<a\b(?=[^>]*href=)(?=[^>]*aria-disabled="true")[^>]*>/,
+    "Static links must resolve safely instead of combining href with aria-disabled.",
+  );
+  const renderedPatternActionGroups = patternPage.match(
+    /<div\b(?=[^>]*data-jk-component="action_group")(?=[^>]*aria-label="[^"]+")[^>]*>/g,
+  ) ?? [];
+  assert.ok(
+    renderedPatternActionGroups.length >= 4,
+    "Related pattern actions should use labeled ActionGroup components.",
+  );
+  const patternPageIds = [...patternPage.matchAll(/\sid="([^"]+)"/g)].map(
+    (match) => match[1],
+  );
+  assert.equal(
+    new Set(patternPageIds).size,
+    patternPageIds.length,
+    "The pattern page must not repeat generated component IDs.",
+  );
   for (const specimen of patternSpecimens.specimens) {
+    assert.match(specimen.rendered_html, /data-pattern-surface="[^"]+"/);
+    assert.doesNotMatch(specimen.rendered_html, /jk-pattern-region-grid/);
+    const staticInteractiveTags = specimen.rendered_html.match(
+      /<(?:a|button|input|select|textarea)\b[^>]*>/g,
+    ) ?? [];
+    assert.ok(
+      staticInteractiveTags.length > 0,
+      `${specimen.contract_id} should render recognizable surface controls`,
+    );
+    for (const tag of staticInteractiveTags) {
+      assert.match(
+        tag,
+        /tabindex="-1"|\sdisabled(?:="")?/,
+        `${specimen.contract_id} static preview controls must stay out of the tab order`,
+      );
+    }
+    const fieldTags = specimen.rendered_html.match(
+      /<(?:input|select|textarea)\b[^>]*>/g,
+    ) ?? [];
+    for (const tag of fieldTags) {
+      assert.match(
+        tag,
+        /data-jk-component="(?:text_field|select_field|text_area)"/,
+        `${specimen.contract_id} fields should use JudgmentKit field components`,
+      );
+    }
     for (const control of specimen.covered_controls) {
       const controlId = control
         .replace(/[^a-z0-9]+/gi, "-")
         .replace(/^-+|-+$/g, "")
         .toLowerCase();
-      const controlMarkup = specimen.rendered_html.match(
-        new RegExp(
-          `<button\\b(?=[^>]*data-pattern-control="${controlId}")[^>]*>[\\s\\S]*?<\\/button>`,
-        ),
-      )?.[0];
-      assert.ok(
-        controlMarkup,
-        `${specimen.contract_id}.${controlId} should render a real ActionButton`,
+      assert.match(
+        specimen.rendered_html,
+        new RegExp(`data-pattern-control="${controlId}"`),
+        `${specimen.contract_id}.${controlId} should render in the surface UI`,
       );
-      assert.match(controlMarkup, /data-jk-component="action_button"/);
-      assert.match(controlMarkup, /class="jk-action-button"/);
     }
   }
   assert.doesNotMatch(
@@ -402,6 +456,21 @@ try {
     siteCss,
     /\.design-system-specimen\[data-pattern-specimen\] \.design-system-specimen-body \{\s*display: block;/,
     "Pattern specimens must retain the full-width preview layout.",
+  );
+  assert.match(
+    siteCss,
+    /\.jk-pattern-surface \[aria-disabled="true"\] \{\s*pointer-events: none;/,
+    "Static surface controls must not expose no-op pointer interactions.",
+  );
+  assert.doesNotMatch(
+    siteCss,
+    /\.jk-pattern-surface \.jk-action-button\[data-jk-tone=/,
+    "Pattern specimens must not override component-owned disabled button colors.",
+  );
+  assert.match(
+    patternPage,
+    /<input\b(?=[^>]*id="grocery-phone")(?=[^>]*type="tel")(?=[^>]*required="")[^>]*>/,
+    "The grocery phone field should expose telephone input purpose and required state.",
   );
   assert.equal(
     (patternPage.match(/<details class="design-system-specimen-details">/g) ?? [])

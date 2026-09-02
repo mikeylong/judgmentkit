@@ -131,7 +131,42 @@
 }
 
 .jk-select-field {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-inline-start: var(--jk-select-value-start-space, 1rem);
+  padding-inline-end: var(--jk-select-indicator-slot-width, 3rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   cursor: pointer;
+}
+
+.jk-select-field__control {
+  position: relative;
+  display: grid;
+  min-inline-size: 0;
+}
+
+.jk-select-field__indicator-slot {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  display: grid;
+  inline-size: var(--jk-select-indicator-slot-width, 3rem);
+  place-items: center;
+  color: var(--jk-component-text);
+  pointer-events: none;
+}
+
+.jk-select-field__indicator {
+  display: block;
+  inline-size: var(--jk-select-indicator-size, 1rem);
+  block-size: var(--jk-select-indicator-size, 1rem);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
 }
 
 .jk-text-field::placeholder,
@@ -154,6 +189,10 @@
   color: var(--jk-component-disabled);
   cursor: not-allowed;
   opacity: 1;
+}
+
+.jk-select-field:disabled + .jk-select-field__indicator-slot {
+  color: var(--jk-component-disabled);
 }
 
 .jk-text-field:focus-visible,
@@ -1203,6 +1242,16 @@
 }
 
 @media (forced-colors: active) {
+  .jk-select-field {
+    -webkit-appearance: auto;
+    appearance: auto;
+    padding-inline: 0.75rem;
+  }
+
+  .jk-select-field__indicator-slot {
+    display: none;
+  }
+
   .jk-text-field:focus-visible,
   .jk-text-area:focus-visible,
   .jk-select-field:focus-visible,

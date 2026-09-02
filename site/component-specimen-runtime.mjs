@@ -252,6 +252,7 @@ export const RUNTIME_COMPONENT_SCENARIOS = Object.freeze([
     help_text: "Assign the team responsible for the next decision.",
     value: "policy",
     placeholder: "Choose a review owner",
+    direction: "rtl",
     counter_label: "Changes",
     control_mode: "controlled_update",
   }),
@@ -715,7 +716,10 @@ function renderTextAreaScenario(entry, runtime) {
 
 const REVIEW_OWNER_OPTIONS = Object.freeze([
   Object.freeze({ value: "operations", label: "Operations" }),
-  Object.freeze({ value: "policy", label: "Policy" }),
+  Object.freeze({
+    value: "policy",
+    label: "Policy, compliance, and customer care escalation",
+  }),
   Object.freeze({ value: "support", label: "Customer support" }),
 ]);
 
@@ -734,6 +738,7 @@ function renderSelectFieldScenario(entry, runtime) {
     disabled: state === "disabled",
     placeholder: fixture.placeholder,
     options: REVIEW_OWNER_OPTIONS,
+    dir: fixture.direction,
     ...valueProps,
     "data-scenario-focus-target":
       state === "focus-visible" ? "true" : undefined,

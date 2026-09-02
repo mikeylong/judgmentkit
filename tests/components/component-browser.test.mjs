@@ -438,7 +438,71 @@ async function inspectScenario(client, sessionId, scenario) {
   );
 }
 
-async function assertScenarioSemantics(client, sessionId, scenario) {
+async function inspectSelectComposition(client, sessionId, scenario) {
+  return evaluate(
+    client,
+    sessionId,
+    `(() => {
+      const scenarioRoot = document.querySelector(${JSON.stringify(scenarioSelector(scenario.id))});
+      const container = scenarioRoot?.querySelector(".jk-select-field__control");
+      const select = container?.querySelector("select.jk-select-field");
+      const value = container?.querySelector("[data-part='value']");
+      const slot = container?.querySelector("[data-part='indicator-slot']");
+      const indicator = slot?.querySelector("[data-part='indicator']");
+      if (!container || !select || !value || !slot || !indicator) return null;
+      const containerRect = container.getBoundingClientRect();
+      const selectRect = select.getBoundingClientRect();
+      const slotRect = slot.getBoundingClientRect();
+      const indicatorRect = indicator.getBoundingClientRect();
+      const direction = getComputedStyle(container).direction;
+      const selectStyle = getComputedStyle(select);
+      return {
+        appearance: selectStyle.appearance || selectStyle.webkitAppearance,
+        direction,
+        valueText: select.selectedOptions[0]?.textContent?.trim() || "",
+        valueStartInset: Number.parseFloat(selectStyle.paddingInlineStart),
+        valueEndReserve: Number.parseFloat(selectStyle.paddingInlineEnd),
+        slotWidth: slotRect.width,
+        slotEndInset: direction === "rtl"
+          ? slotRect.left - containerRect.left
+          : containerRect.right - slotRect.right,
+        indicatorSize: { width: indicatorRect.width, height: indicatorRect.height },
+        slotCenterDelta: Math.abs(
+          (slotRect.left + slotRect.right) / 2 -
+          (indicatorRect.left + indicatorRect.right) / 2
+        ),
+        indicatorEndInset: direction === "rtl"
+          ? indicatorRect.left - containerRect.left
+          : containerRect.right - indicatorRect.right,
+        nativeControlMatchesContainer:
+          Math.abs(selectRect.left - containerRect.left) <= 0.5 &&
+          Math.abs(selectRect.right - containerRect.right) <= 0.5 &&
+          Math.abs(selectRect.top - containerRect.top) <= 0.5 &&
+          Math.abs(selectRect.bottom - containerRect.bottom) <= 0.5,
+        slotPointerEvents: getComputedStyle(slot).pointerEvents,
+        overflowX: selectStyle.overflowX,
+        textOverflow: selectStyle.textOverflow,
+        whiteSpace: selectStyle.whiteSpace,
+        selectedTextWidth: (() => {
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          if (!context) return null;
+          context.font = selectStyle.font;
+          return context.measureText(select.selectedOptions[0]?.textContent?.trim() || "").width;
+        })(),
+        availableValueWidth:
+          selectRect.width -
+          Number.parseFloat(selectStyle.paddingInlineStart) -
+          Number.parseFloat(selectStyle.paddingInlineEnd),
+        valueRegionToIndicatorGap: direction === "rtl"
+          ? selectRect.left + Number.parseFloat(selectStyle.paddingInlineEnd) - indicatorRect.right
+          : indicatorRect.left - (selectRect.right - Number.parseFloat(selectStyle.paddingInlineEnd)),
+      };
+    })()`,
+  );
+}
+
+async function assertScenarioSemantics(client, sessionId, scenario, viewport) {
   const observed = await inspectScenario(client, sessionId, scenario);
   assert.ok(observed, `${scenario.id}: required DOM target is missing`);
   assert.equal(observed.scenarioId, scenario.id, `${scenario.id}: scenario id drifted`);
@@ -561,6 +625,41 @@ async function assertScenarioSemantics(client, sessionId, scenario) {
       assert.equal(ax.properties.disabled, true, `${scenario.id}: AX disabled missing`);
     }
     if (scenario.contract_id === "select_field") {
+      const composition = await inspectSelectComposition(client, sessionId, scenario);
+      assert.ok(composition, `${scenario.id}: select composition parts are missing`);
+      assert.equal(composition.appearance, "none", `${scenario.id}: browser-owned indicator remains active`);
+      const expectedValueText = {
+        operations: "Operations",
+        policy: "Policy, compliance, and customer care escalation",
+        support: "Customer support",
+      }[scenario.fixture.value] ?? scenario.fixture.placeholder;
+      assert.equal(composition.valueText, expectedValueText, `${scenario.id}: visible selected value drifted`);
+      assert.ok(Math.abs(composition.valueStartInset - 16) <= 0.5, `${scenario.id}: selected value start inset drifted`);
+      assert.ok(Math.abs(composition.valueEndReserve - 48) <= 0.5, `${scenario.id}: selected value trailing reserve drifted`);
+      assert.ok(Math.abs(composition.slotWidth - 48) <= 0.5, `${scenario.id}: trailing indicator slot width drifted`);
+      assert.ok(Math.abs(composition.slotEndInset) <= 0.5, `${scenario.id}: trailing indicator slot is not edge anchored`);
+      assert.ok(Math.abs(composition.indicatorSize.width - 16) <= 0.5, `${scenario.id}: indicator width drifted`);
+      assert.ok(Math.abs(composition.indicatorSize.height - 16) <= 0.5, `${scenario.id}: indicator height drifted`);
+      assert.ok(composition.slotCenterDelta <= 0.5, `${scenario.id}: indicator is not centered in its slot`);
+      assert.ok(Math.abs(composition.indicatorEndInset - 16) <= 0.5, `${scenario.id}: indicator end inset drifted`);
+      assert.equal(composition.nativeControlMatchesContainer, true, `${scenario.id}: native hit target drifted from the visible field`);
+      assert.equal(composition.slotPointerEvents, "none", `${scenario.id}: indicator slot blocks the native control`);
+      assert.ok(
+        ["clip", "hidden"].includes(composition.overflowX),
+        `${scenario.id}: selected value overflow is not clipped`,
+      );
+      assert.equal(composition.textOverflow, "ellipsis", `${scenario.id}: selected value ellipsis is missing`);
+      assert.equal(composition.whiteSpace, "nowrap", `${scenario.id}: selected value may wrap into the indicator slot`);
+      assert.ok(composition.valueRegionToIndicatorGap >= 15.5, `${scenario.id}: selected value region reaches the indicator`);
+      if (scenario.fixture.direction) {
+        assert.equal(composition.direction, scenario.fixture.direction, `${scenario.id}: public direction prop did not reach the composition`);
+      }
+      if (viewport.mobile && scenario.id === "select_field.ready") {
+        assert.ok(
+          composition.selectedTextWidth > composition.availableValueWidth,
+          `${scenario.id}: mobile fixture does not exercise selected-value truncation`,
+        );
+      }
       const options = await evaluate(
         client,
         sessionId,
@@ -582,7 +681,11 @@ async function assertScenarioSemantics(client, sessionId, scenario) {
       );
       assert.deepEqual(
         options.slice(1).map((option) => option.label),
-        ["Operations", "Policy", "Customer support"],
+        [
+          "Operations",
+          "Policy, compliance, and customer care escalation",
+          "Customer support",
+        ],
         `${scenario.id}: visible option labels drifted`,
       );
       assert.deepEqual(
@@ -2700,6 +2803,9 @@ async function verifyForcedColorsRules(client, baseUrl) {
     const scenario = RUNTIME_COMPONENT_SCENARIOS.find(
       (entry) => entry.id === "action_button.focus-visible",
     );
+    const selectScenario = RUNTIME_COMPONENT_SCENARIOS.find(
+      (entry) => entry.id === "select_field.ready",
+    );
     await assertFocusVisible(client, page.sessionId, scenario);
     const observed = await evaluate(
       client,
@@ -2707,11 +2813,22 @@ async function verifyForcedColorsRules(client, baseUrl) {
       `(() => {
         const target = document.querySelector(${JSON.stringify(focusTargetSelector(scenario))});
         const style = target ? getComputedStyle(target) : null;
+        const select = document.querySelector(${JSON.stringify(semanticSelector(selectScenario))});
+        const selectStyle = select ? getComputedStyle(select) : null;
+        const selectSlot = document.querySelector(${JSON.stringify(
+          `${scenarioSelector(selectScenario.id)} .jk-select-field__indicator-slot`,
+        )});
         return {
           matches: matchMedia("(forced-colors: active)").matches,
           boxShadow: style?.boxShadow ?? null,
           outlineStyle: style?.outlineStyle ?? null,
           outlineWidth: style?.outlineWidth ?? null,
+          select: {
+            appearance: selectStyle?.appearance || selectStyle?.webkitAppearance || null,
+            paddingInlineStart: selectStyle?.paddingInlineStart ?? null,
+            paddingInlineEnd: selectStyle?.paddingInlineEnd ?? null,
+            slotDisplay: selectSlot ? getComputedStyle(selectSlot).display : null,
+          },
           specimenErrors: document.querySelectorAll("[data-component-specimen-error]").length
         };
       })()`,
@@ -2720,6 +2837,10 @@ async function verifyForcedColorsRules(client, baseUrl) {
     assert.equal(observed.boxShadow, "none", "forced-colors focus kept a shadow-only cue");
     assert.notEqual(observed.outlineStyle, "none", "forced-colors focus outline missing");
     assert.ok(Number.parseFloat(observed.outlineWidth) >= 2, "forced-colors focus outline is too thin");
+    assert.notEqual(observed.select.appearance, "none", "forced-colors select kept the custom appearance");
+    assert.equal(observed.select.paddingInlineStart, "12px", "forced-colors select start padding drifted");
+    assert.equal(observed.select.paddingInlineEnd, "12px", "forced-colors select end padding drifted");
+    assert.equal(observed.select.slotDisplay, "none", "forced-colors custom indicator remained visible");
     assert.equal(observed.specimenErrors, 0);
     await assertPageClean(page, "forced-colors page");
     return observed;
@@ -3453,7 +3574,7 @@ async function main() {
             });
 
             for (const scenario of RUNTIME_COMPONENT_SCENARIOS) {
-              await assertScenarioSemantics(client, page.sessionId, scenario);
+              await assertScenarioSemantics(client, page.sessionId, scenario, viewport);
               const axe = await runAxeForScenario(
                 client,
                 page.sessionId,
