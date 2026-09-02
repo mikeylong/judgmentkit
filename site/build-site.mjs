@@ -9,7 +9,13 @@ import { fileURLToPath } from "node:url";
 import { build as buildWithEsbuild } from "esbuild";
 import React, { createElement } from "react";
 import { renderToString } from "react-dom/server";
-import { ActionButton } from "../src/react/index.mjs";
+import {
+  ActionButton,
+  ActionGroup,
+  SelectField,
+  TextArea,
+  TextField,
+} from "../src/react/index.mjs";
 
 import {
   JUDGMENTKIT_MCP_TOOL_NAMES,
@@ -74,7 +80,7 @@ const VISUAL_COMPOSITION_DARK_POSTER_PATH =
 const HOMEPAGE_FILM_ENABLED = false;
 const DESIGN_SYSTEM_SPECIMEN_RENDERER = {
   id: "judgmentkit-static-specimens",
-  version: "0.1.0",
+  version: "0.2.0",
 };
 const COMPONENT_SPECIMEN_RENDERER = {
   id: COMPONENT_RUNTIME_ADAPTER.id,
@@ -2717,10 +2723,12 @@ pre {
   line-height: 1.05;
   overflow-wrap: anywhere;
 }
-.design-system-metrics p {
+.design-system-metrics .design-system-metric-detail {
   margin: 6px 0 0;
   color: var(--muted);
   font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
 }
 .design-system-section {
   padding-top: clamp(28px, 5vw, 48px);
@@ -3271,7 +3279,6 @@ pre {
   overflow-wrap: anywhere;
 }
 .jk-state-label,
-.jk-pattern-header span,
 .jk-specimen-map-row > span {
   color: var(--jk-color-muted, var(--muted));
   font-size: 11px;
@@ -3279,49 +3286,981 @@ pre {
   text-transform: uppercase;
 }
 .jk-pattern-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
+  min-width: 0;
 }
 .jk-specimen-map-row {
   display: grid;
   gap: 6px;
   min-width: 0;
 }
-.jk-pattern-header {
-  display: grid;
-  gap: 3px;
+.jk-specimen-preview.jk-pattern-preview {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--jk-color-surface, var(--panel));
 }
-.jk-pattern-header strong {
+.jk-pattern-surface {
+  min-width: 0;
+  overflow: hidden;
+  background: var(--jk-color-canvas, var(--bg));
+  color: var(--jk-color-text, var(--ink));
+}
+.jk-pattern-surface *,
+.jk-pattern-surface *::before,
+.jk-pattern-surface *::after {
+  box-sizing: border-box;
+}
+.jk-pattern-surface h4,
+.jk-pattern-surface h5,
+.jk-pattern-surface h6,
+.jk-pattern-surface p,
+.jk-pattern-surface dl,
+.jk-pattern-surface dd,
+.jk-pattern-surface ol,
+.jk-pattern-surface ul {
+  margin: 0;
+}
+.jk-pattern-surface ol,
+.jk-pattern-surface ul {
+  padding: 0;
+}
+.jk-pattern-surface button,
+.jk-pattern-surface input,
+.jk-pattern-surface textarea {
+  font: inherit;
+}
+.jk-pattern-surface [aria-disabled="true"] {
+  pointer-events: none;
+}
+.jk-pattern-surface [data-static-control="true"] {
+  pointer-events: none;
+}
+.jk-pattern-static-label {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  min-height: 32px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.jk-pattern-static-label span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--jk-color-receipt, var(--receipt));
+}
+.jk-surface-kicker {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.jk-surface-toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-toolbar > div:first-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.jk-surface-toolbar h4 {
   font-size: 18px;
 }
-.jk-pattern-region-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-  gap: var(--jk-space-3, 0.75rem);
+.jk-surface-text-link {
+  color: var(--jk-color-focus, var(--accent));
+  font-weight: 800;
+  text-underline-offset: 3px;
 }
-.jk-pattern-region-grid section {
+.jk-surface-status-pill {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding: 5px 8px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: 999px;
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+  color: var(--jk-color-text, var(--ink));
+  font-size: 11px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+.jk-surface-status-pill.is-review,
+.jk-surface-status-pill.is-warning {
+  border-color: color-mix(in srgb, var(--jk-color-warning, var(--warn)) 60%, var(--jk-color-border, var(--line)));
+  background: color-mix(in srgb, var(--jk-color-warning, var(--warn)) 10%, var(--jk-color-surface, var(--panel)));
+}
+.jk-surface-status-pill.is-good {
+  border-color: color-mix(in srgb, var(--jk-color-receipt, var(--receipt)) 60%, var(--jk-color-border, var(--line)));
+  background: color-mix(in srgb, var(--jk-color-receipt, var(--receipt)) 10%, var(--jk-color-surface, var(--panel)));
+}
+.jk-pattern-completion {
+  margin: 0;
+  padding: 9px 10px;
+  border-left: 3px solid var(--jk-color-receipt, var(--receipt));
+  background: color-mix(in srgb, var(--jk-color-receipt, var(--receipt)) 8%, transparent);
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-surface-marketing-nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  min-height: 52px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-surface, var(--panel));
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 12px;
+}
+.jk-surface-marketing-nav strong {
+  margin-right: auto;
+  color: var(--jk-color-text, var(--ink));
+  font-size: 17px;
+}
+.jk-surface-marketing-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+  gap: 28px;
+  align-items: center;
+  padding: clamp(24px, 5vw, 56px);
+  background: var(--jk-color-canvas, var(--bg));
+}
+.jk-surface-marketing-offer {
+  display: grid;
+  gap: 14px;
+  align-content: center;
   min-width: 0;
-  min-height: 92px;
-  padding: var(--jk-space-3, 0.75rem);
+}
+.jk-surface-marketing-offer h4 {
+  max-width: 15ch;
+  font-size: clamp(28px, 5vw, 48px);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+.jk-surface-marketing-offer p:not(.jk-surface-kicker) {
+  max-width: 52ch;
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-surface-marketing-offer .jk-action-button {
+  width: max-content;
+}
+.jk-surface-marketing-offer small {
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-surface-marketing-proof {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-panel, 8px);
+  background: var(--jk-color-surface, var(--panel));
+  box-shadow: 0 16px 36px color-mix(in srgb, var(--jk-color-text, var(--ink)) 10%, transparent);
+}
+.jk-surface-plan-card {
+  display: grid;
+  gap: 2px;
+}
+.jk-surface-plan-card > div {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 2px 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+}
+.jk-surface-plan-card > div:last-child {
+  border-bottom: 0;
+}
+.jk-surface-plan-card span {
+  grid-row: 1 / 3;
+  color: var(--jk-color-focus, var(--accent));
+  font-size: 11px;
+  font-weight: 900;
+}
+.jk-surface-plan-card small {
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-surface-proof-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--jk-color-border, var(--line));
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+}
+.jk-surface-proof-stats div {
+  padding: 10px;
+}
+.jk-surface-proof-stats div + div {
+  border-left: 1px solid var(--jk-color-border, var(--line));
+}
+.jk-surface-proof-stats dt {
+  font-size: 18px;
+  font-weight: 900;
+}
+.jk-surface-proof-stats dd {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 11px;
+}
+.jk-surface-marketing-next {
+  display: flex;
+  gap: 8px 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px;
+  border-top: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+  text-align: center;
+}
+.jk-surface-marketing-next span {
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-surface-workbench-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.8fr);
+  min-width: 0;
+}
+.jk-surface-work-queue {
+  min-width: 0;
+  border-right: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+}
+.jk-surface-queue,
+.jk-surface-exceptions {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.jk-surface-queue th,
+.jk-surface-queue td,
+.jk-surface-exceptions th,
+.jk-surface-exceptions td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.jk-surface-queue th,
+.jk-surface-exceptions th {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 10px;
+  text-transform: uppercase;
+}
+.jk-surface-queue th:last-child,
+.jk-surface-queue td:last-child,
+.jk-surface-exceptions th:last-child,
+.jk-surface-exceptions td:last-child {
+  width: 35%;
+  text-align: right;
+}
+.jk-surface-queue tr.is-selected > * {
+  background: color-mix(in srgb, var(--jk-color-focus, var(--accent)) 10%, var(--jk-color-surface, var(--panel)));
+}
+.jk-surface-queue-selection {
+  max-width: 100%;
+  min-block-size: 2rem;
+  padding-block: 0.35rem;
+  padding-inline: 0.55rem;
+  text-align: left;
+}
+.jk-surface-workspace {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 16px;
+}
+.jk-surface-workspace > header,
+.jk-surface-trend > header,
+.jk-surface-diagnostic > header {
+  display: flex;
+  gap: 14px;
+  align-items: start;
+  justify-content: space-between;
+}
+.jk-surface-workspace > header h5 {
+  font-size: 20px;
+}
+.jk-surface-home-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-panel, 8px);
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+}
+.jk-surface-home-summary div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding: 12px;
+}
+.jk-surface-home-summary div + div {
+  border-left: 1px solid var(--jk-color-border, var(--line));
+}
+.jk-surface-home-summary span {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 11px;
+}
+.jk-surface-home-summary strong {
+  overflow-wrap: anywhere;
+}
+.jk-surface-home-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+}
+.jk-surface-home-facts div {
+  padding: 10px;
+}
+.jk-surface-home-facts div + div {
+  border-left: 1px solid var(--jk-color-border, var(--line));
+}
+.jk-surface-home-facts dt {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 10px;
+  text-transform: uppercase;
+}
+.jk-surface-home-facts dd {
+  margin-top: 2px;
+  font-weight: 850;
+}
+.jk-surface-evidence {
+  padding: 12px;
+  border-left: 3px solid var(--jk-color-focus, var(--accent));
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+}
+.jk-surface-evidence h6 {
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+.jk-surface-evidence ul {
+  display: grid;
+  gap: 3px;
+  padding-left: 18px;
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-surface-decision-bar {
+  display: grid;
+  gap: 10px;
+  padding-top: 2px;
+}
+.jk-surface-review-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(220px, 0.65fr);
+  min-width: 0;
+}
+.jk-surface-review-document {
+  min-width: 0;
+  padding: 20px;
+  border-right: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-review-document > header {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+}
+.jk-surface-review-document > header span {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 11px;
+}
+.jk-surface-review-document > header strong {
+  font-size: 18px;
+}
+.jk-surface-itinerary {
+  display: grid;
+  list-style: none;
+}
+.jk-surface-itinerary li {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+}
+.jk-surface-itinerary time {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 12px;
+}
+.jk-surface-itinerary li div {
+  display: grid;
+  gap: 2px;
+}
+.jk-surface-itinerary li span {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 12px;
+}
+.jk-surface-itinerary li.is-flagged {
+  padding-inline: 10px;
+  border-left: 3px solid var(--jk-color-warning, var(--warn));
+  background: color-mix(in srgb, var(--jk-color-warning, var(--warn)) 8%, transparent);
+}
+.jk-surface-review-rail {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+}
+.jk-surface-review-rail section {
+  padding: 12px;
   border: 1px solid var(--jk-color-border, var(--line));
   border-radius: var(--jk-radius-control, 4px);
   background: var(--jk-color-surface, var(--panel));
 }
-.jk-pattern-region-grid strong,
-.jk-pattern-region-grid p,
-.jk-pattern-completion {
-  margin: 0;
+.jk-surface-review-rail h5 {
+  margin-bottom: 7px;
 }
-.jk-pattern-region-grid p,
-.jk-pattern-completion {
+.jk-surface-review-rail ul {
+  display: grid;
+  gap: 5px;
+  padding-left: 18px;
   color: var(--jk-color-muted, var(--muted));
 }
-.jk-pattern-completion {
+.jk-surface-review-rail .jk-surface-risk {
+  border-color: color-mix(in srgb, var(--jk-color-warning, var(--warn)) 55%, var(--jk-color-border, var(--line)));
+}
+.jk-surface-risk p {
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-surface-review-decision {
+  padding: 14px 16px;
+  border-top: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-review-receipt,
+.jk-surface-confirmation,
+.jk-surface-report-share {
+  display: flex;
+  gap: 8px 18px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-top: 1px solid var(--jk-color-border, var(--line));
+  background: color-mix(in srgb, var(--jk-color-receipt, var(--receipt)) 8%, var(--jk-color-soft-surface, var(--soft-surface)));
+}
+.jk-surface-review-receipt span,
+.jk-surface-confirmation span,
+.jk-surface-report-share span {
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-surface-form {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-form > header {
+  display: grid;
+  gap: 2px;
+}
+.jk-surface-form > header h4 {
+  font-size: 20px;
+}
+.jk-surface-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  list-style: none;
+  counter-reset: steps;
+}
+.jk-surface-steps li {
+  position: relative;
+  padding: 28px 6px 7px;
+  border-bottom: 3px solid var(--jk-color-border, var(--line));
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+.jk-surface-steps li::before {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  transform: translateX(-50%);
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: 50%;
+  background: var(--jk-color-canvas, var(--bg));
+  content: counter(steps);
+  counter-increment: steps;
+  font-size: 10px;
+}
+.jk-surface-steps li.is-complete,
+.jk-surface-steps li.is-current {
+  border-bottom-color: var(--jk-color-focus, var(--accent));
+  color: var(--jk-color-text, var(--ink));
+}
+.jk-surface-steps li.is-complete::before,
+.jk-surface-steps li.is-current::before {
+  border-color: var(--jk-color-focus, var(--accent));
+}
+.jk-surface-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-panel, 8px);
+}
+.jk-surface-field-grid legend {
+  padding: 0 6px;
+  font-weight: 850;
+}
+.jk-surface-field-valid {
   padding: 9px 10px;
+  border-left: 3px solid var(--jk-color-success, var(--receipt));
+  background: color-mix(in srgb, var(--jk-color-success, var(--receipt)) 8%, transparent);
+  color: var(--jk-color-text, var(--ink));
+}
+.jk-surface-order-review {
+  display: flex;
+  gap: 18px;
+  align-items: end;
+  justify-content: space-between;
+  min-width: 0;
+  padding-top: 2px;
+}
+.jk-surface-order-review dl {
+  display: grid;
+  gap: 4px;
+  width: min(320px, 100%);
+}
+.jk-surface-order-review dl div {
+  display: flex;
+  justify-content: space-between;
+}
+.jk-surface-order-review dl div:last-child {
+  padding-top: 5px;
+  border-top: 1px solid var(--jk-color-border, var(--line));
+  font-weight: 900;
+}
+.jk-surface-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.jk-surface-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 14px 16px;
+}
+.jk-surface-metric-grid article {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-metric-grid span,
+.jk-surface-metric-grid small {
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-surface-metric-grid span {
+  font-size: 10px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.jk-surface-metric-grid strong {
+  font-size: 22px;
+}
+.jk-surface-dashboard-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(220px, 0.55fr);
+  gap: 12px;
+  padding: 0 16px 16px;
+}
+.jk-surface-trend,
+.jk-surface-exception-panel {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-panel, 8px);
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-trend > header div {
+  display: grid;
+  gap: 2px;
+}
+.jk-surface-trend > header span {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 11px;
+}
+.jk-surface-trend > header > strong {
+  color: var(--jk-color-receipt, var(--receipt));
+}
+.jk-surface-trend-table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.jk-surface-trend-table th,
+.jk-surface-trend-table td {
+  padding: 7px 3px;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+  font-size: 10px;
+  text-align: center;
+}
+.jk-surface-trend-table th {
+  color: var(--jk-color-muted, var(--muted));
+  font-weight: 750;
+}
+.jk-surface-trend-note {
+  margin-top: 7px !important;
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 10px;
+}
+.jk-surface-exception-panel h5 {
+  margin-bottom: 8px;
+}
+.jk-surface-follow-up,
+.jk-surface-next-fix {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-top: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+}
+.jk-surface-follow-up > div,
+.jk-surface-next-fix > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.jk-surface-follow-up span,
+.jk-surface-next-fix span {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 12px;
+}
+.jk-surface-report-toolbar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-report-toolbar > div {
+  display: grid;
+  gap: 2px;
+}
+.jk-surface-report-toolbar h4 {
+  font-size: 22px;
+}
+.jk-surface-report-layout {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.45fr) minmax(0, 1.55fr);
+  min-width: 0;
+}
+.jk-surface-report-toc {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  padding: 18px;
+  border-right: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+}
+.jk-surface-report-toc strong {
+  margin-bottom: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+.jk-surface-report-toc a {
+  padding: 7px 0;
+  color: var(--jk-color-text, var(--ink));
+  text-decoration: none;
+}
+.jk-surface-report-body {
+  display: grid;
+  gap: 18px;
+  min-width: 0;
+  padding: 22px;
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-report-body > section {
+  min-width: 0;
+}
+.jk-surface-report-body h5 {
+  margin: 8px 0 5px;
+  font-size: 20px;
+}
+.jk-surface-report-body p {
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-surface-budget-categories {
+  min-width: 0;
+}
+.jk-surface-budget-categories table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.jk-surface-budget-categories th,
+.jk-surface-budget-categories td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+  font-size: 11px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.jk-surface-budget-categories th:first-child,
+.jk-surface-budget-categories td:first-child {
+  text-align: left;
+}
+.jk-surface-budget-categories thead th {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 9px;
+  text-transform: uppercase;
+}
+.jk-surface-report-evidence {
+  padding: 14px;
   border-left: 3px solid var(--jk-color-receipt, var(--receipt));
-  background: color-mix(in srgb, var(--jk-color-receipt, var(--receipt)) 8%, transparent);
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+}
+.jk-surface-report-evidence h5 {
+  margin-top: 0;
+  font-size: 15px;
+}
+.jk-surface-report-evidence .jk-surface-text-link {
+  display: inline-block;
+  margin-top: 8px;
+}
+.jk-surface-debug-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr);
+  gap: 12px;
+  padding: 16px;
+}
+.jk-surface-debug-config,
+.jk-surface-test-result,
+.jk-surface-diagnostic {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-panel, 8px);
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-debug-config {
+  grid-row: 1 / 3;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+.jk-surface-debug-config .jk-action-button {
+  margin-top: 4px;
+}
+.jk-surface-test-result {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.jk-surface-test-result p {
+  margin-top: 3px;
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-surface-result-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--jk-color-warning, var(--warn)) 14%, var(--jk-color-soft-surface, var(--soft-surface)));
+  color: var(--jk-color-warning, var(--warn));
+  font-weight: 950;
+}
+.jk-surface-diagnostic > header {
+  align-items: center;
+}
+.jk-surface-diagnostic .jk-action-button {
+  min-block-size: 2.25rem;
+  padding: 0.45rem 0.7rem;
+  font-size: 11px;
+}
+.jk-surface-console {
+  margin: 12px 0 0;
+  padding: 12px;
+  overflow-x: auto;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+  background: var(--code-surface);
+  color: var(--jk-color-text, var(--ink));
+  font-size: 12px;
+  line-height: 1.7;
+}
+.jk-surface-conversation-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-conversation-header > div:nth-child(2) {
+  min-width: 0;
+}
+.jk-surface-conversation-header h4 {
+  font-size: 17px;
+}
+.jk-surface-conversation-header div span {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 11px;
+}
+.jk-surface-avatar {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--jk-color-focus, var(--accent));
+  color: var(--jk-color-canvas, var(--bg));
+  font-weight: 900;
+}
+.jk-surface-status-dot {
+  color: var(--jk-color-receipt, var(--receipt));
+  font-size: 11px;
+  font-weight: 850;
+}
+.jk-surface-conversation-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(210px, 0.5fr);
+  min-width: 0;
+}
+.jk-surface-thread {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-width: 0;
+  border-right: 1px solid var(--jk-color-border, var(--line));
+}
+.jk-surface-messages {
+  display: grid;
+  gap: 11px;
+  align-content: start;
+  padding: 16px;
+  list-style: none;
+  background: var(--jk-color-canvas, var(--bg));
+}
+.jk-surface-messages li {
+  display: grid;
+  gap: 4px;
+  max-width: 78%;
+  padding: 10px 12px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: 10px;
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-messages li.is-outgoing {
+  justify-self: end;
+  background: color-mix(in srgb, var(--jk-color-focus, var(--accent)) 10%, var(--jk-color-surface, var(--panel)));
+}
+.jk-surface-messages li.is-recovered {
+  max-width: 100%;
+  border-style: dashed;
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+}
+.jk-surface-messages li > span,
+.jk-surface-messages li > small {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 10px;
+}
+.jk-surface-messages .jk-surface-retry {
+  justify-self: start;
+  min-block-size: 2.1rem;
+  padding: 0.4rem 0.65rem;
+  font-size: 11px;
+}
+.jk-surface-composer {
+  display: grid;
+  gap: 9px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--jk-color-border, var(--line));
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-composer textarea {
+  min-height: 68px;
+  resize: none;
+}
+.jk-surface-composer .jk-pattern-controls .jk-action-group__actions {
+  justify-content: flex-end;
+}
+.jk-surface-context {
+  min-width: 0;
+  padding: 16px;
+  background: var(--jk-color-soft-surface, var(--soft-surface));
+}
+.jk-surface-context h5 {
+  margin-bottom: 12px;
+}
+.jk-surface-context dl {
+  display: grid;
+  gap: 10px;
+}
+.jk-surface-context dl div {
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--jk-color-border, var(--line));
+}
+.jk-surface-context dt {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 10px;
+  text-transform: uppercase;
+}
+.jk-surface-context dd {
+  margin-top: 2px;
+  font-weight: 800;
+}
+.jk-surface-attachment {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  margin-top: 14px;
+  padding: 9px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+  background: var(--jk-color-surface, var(--panel));
+}
+.jk-surface-attachment > span {
+  padding: 5px;
+  border-radius: 3px;
+  background: var(--jk-color-focus, var(--accent));
+  color: var(--jk-color-canvas, var(--bg));
+  font-size: 9px;
+  font-weight: 900;
+}
+.jk-surface-attachment div {
+  display: grid;
+  min-width: 0;
+}
+.jk-surface-attachment strong,
+.jk-surface-attachment small {
+  overflow-wrap: anywhere;
+}
+.jk-surface-attachment small {
+  color: var(--jk-color-muted, var(--muted));
 }
 .token-value-with-swatch {
   display: inline-flex;
@@ -4625,7 +5564,6 @@ pre {
   .design-system-role-grid,
   .design-system-specimen-body,
   .jk-component-state-grid,
-  .jk-pattern-region-grid,
   .design-icon-scenario-grid,
   .design-icon-index-list {
     grid-template-columns: 1fr;
@@ -4646,6 +5584,190 @@ pre {
   }
   .design-system-specimen-details-grid .design-system-specimen-details-wide {
     grid-column: auto;
+  }
+  .jk-pattern-static-label {
+    padding-inline: 12px;
+  }
+  .jk-surface-toolbar,
+  .jk-surface-report-toolbar,
+  .jk-surface-marketing-next,
+  .jk-surface-review-receipt,
+  .jk-surface-confirmation,
+  .jk-surface-report-share,
+  .jk-surface-follow-up,
+  .jk-surface-next-fix,
+  .jk-surface-order-review {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .jk-surface-toolbar,
+  .jk-surface-report-toolbar {
+    flex-wrap: wrap;
+  }
+  .jk-surface-toolbar > .jk-surface-filter-row {
+    width: 100%;
+  }
+  .jk-surface-filter-row > * {
+    flex: 1 1 120px;
+  }
+  .jk-surface-marketing-nav {
+    min-height: 46px;
+    padding-inline: 14px;
+  }
+  .jk-surface-marketing-nav span {
+    display: none;
+  }
+  .jk-surface-marketing-hero,
+  .jk-surface-workbench-layout,
+  .jk-surface-review-layout,
+  .jk-surface-dashboard-layout,
+  .jk-surface-report-layout,
+  .jk-surface-debug-layout,
+  .jk-surface-conversation-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .jk-surface-marketing-hero {
+    gap: 20px;
+    padding: 22px 16px;
+  }
+  .jk-surface-marketing-offer h4 {
+    max-width: 18ch;
+    font-size: clamp(27px, 10vw, 40px);
+  }
+  .jk-surface-marketing-proof {
+    padding: 14px;
+  }
+  .jk-surface-marketing-next,
+  .jk-surface-review-receipt,
+  .jk-surface-confirmation,
+  .jk-surface-report-share {
+    gap: 3px;
+    text-align: left;
+  }
+  .jk-surface-work-queue,
+  .jk-surface-review-document,
+  .jk-surface-thread,
+  .jk-surface-report-toc {
+    border-right: 0;
+    border-bottom: 1px solid var(--jk-color-border, var(--line));
+  }
+  .jk-surface-home-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .jk-surface-home-facts div + div {
+    border-top: 1px solid var(--jk-color-border, var(--line));
+    border-left: 0;
+  }
+  .jk-surface-review-document,
+  .jk-surface-review-rail,
+  .jk-surface-report-body,
+  .jk-surface-context {
+    padding: 16px;
+  }
+  .jk-surface-field-grid,
+  .jk-surface-metric-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .jk-surface-steps li {
+    padding-inline: 2px;
+    font-size: 10px;
+  }
+  .jk-surface-order-review .jk-pattern-controls,
+  .jk-surface-follow-up .jk-action-button,
+  .jk-surface-next-fix .jk-action-button {
+    width: 100%;
+  }
+  .jk-surface-dashboard-layout {
+    padding-inline: 12px;
+  }
+  .jk-surface-report-toc {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px 10px;
+  }
+  .jk-surface-report-toc strong {
+    grid-column: 1 / -1;
+  }
+  .jk-surface-report-toc a {
+    font-size: 12px;
+  }
+  .jk-surface-debug-config {
+    grid-row: auto;
+  }
+  .jk-surface-debug-layout {
+    padding: 12px;
+  }
+  .jk-surface-console {
+    font-size: 11px;
+  }
+  .jk-surface-conversation-header {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .jk-surface-conversation-header > .jk-surface-status-dot {
+    grid-column: 2;
+  }
+  .jk-surface-messages {
+    padding: 12px;
+  }
+  .jk-surface-messages li {
+    max-width: 92%;
+  }
+  .jk-surface-composer {
+    padding: 12px;
+  }
+  [data-pattern-index] .design-system-table-wrap {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+  [data-pattern-index] .design-system-table {
+    display: block;
+    min-width: 0;
+  }
+  [data-pattern-index] .design-system-table caption,
+  [data-pattern-index] .design-system-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+  [data-pattern-index] .design-system-table tbody {
+    display: grid;
+    gap: 10px;
+  }
+  [data-pattern-index] .design-system-table tr {
+    display: grid;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+  }
+  [data-pattern-index] .design-system-table td {
+    display: grid;
+    grid-template-columns: minmax(84px, 0.35fr) minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px 12px;
+    overflow-wrap: anywhere;
+  }
+  [data-pattern-index] .design-system-table td:first-child {
+    border-top: 0;
+  }
+  [data-pattern-index] .design-system-table td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+  [data-pattern-index] .design-system-table td a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
   }
   .design-system-metrics div {
     border-right: 0;
@@ -5553,55 +6675,707 @@ function renderComponentSpecimenPreview(contract, context, scenarios) {
   return `<div data-component-specimen-runtime="${escapeHtml(contract.id)}" data-component-specimen-props="${escapeHtml(serializeJsonForHtml(runtimeProps))}">${runtimeHtml}</div>`;
 }
 
-function renderPatternControl(control, index) {
+const PATTERN_EXAMPLES = {
+  marketing: {
+    label: "Weeknight meal planning",
+    participant: "Busy household comparing meal-planning memberships",
+    activity:
+      "Understand the offer, inspect a sample plan and trust signals, and choose whether to try it.",
+    surface_layout: "landing-page",
+    regions: {
+      offer: "Get five flexible dinners planned around the food your household already enjoys.",
+      proof: "Preview this week's recipes, the average grocery savings, and how easy it is to swap a meal.",
+      "primary next step": "Try a free week or inspect the full sample plan before joining.",
+    },
+    controls: {
+      "primary call to action": "Try a free week",
+      "secondary information path": "See a sample plan",
+    },
+    completion:
+      "The shopper can start a trial or inspect the recipes, grocery list, and cancellation terms first.",
+  },
+  workbench: {
+    label: "Apartment shortlist",
+    participant: "Renter comparing saved apartments",
+    activity:
+      "Move through saved homes, compare practical evidence, and decide which listing to advance or share.",
+    surface_layout: "queue-workspace",
+    regions: {
+      "work queue": "Four saved apartments remain after filtering for the move-in date and budget.",
+      "detail workspace": "184 Oak Street is a two-bedroom apartment available September 15 for $2,420 per month.",
+      evidence: "The commute is 24 minutes, laundry is in-unit, and the estimated monthly total is $2,585.",
+      "decision or handoff": "Request a tour or share the listing with a partner before deciding.",
+    },
+    controls: {
+      selection: "Open Oak Street",
+      "filter or sort": "Sort by total cost",
+      "decision action": "Request a tour",
+      "handoff action": "Share with partner",
+    },
+    completion: "Tour requested for Friday at 4:30 PM, with the cost and commute comparison preserved.",
+  },
+  operator_review: {
+    label: "Family trip review",
+    participant: "Parent reviewing an AI-generated family itinerary",
+    activity:
+      "Review the proposed days, reservation evidence, and practical risks before approving or revising the trip.",
+    surface_layout: "document-review",
+    regions: {
+      "produced work": "A four-day Chicago itinerary balances the aquarium, architecture cruise, parks, and free time.",
+      evidence: "Opening hours, reservation windows, walking times, and cancellation terms are linked to each day.",
+      risk: "The Saturday plan has a 35-minute transfer with a stroller and no weather backup.",
+      decision: "Approve the itinerary, request a slower Saturday, or share the draft for another review.",
+      receipt: "Record which version was approved and which concern still needs a change.",
+    },
+    controls: {
+      "approve or accept": "Approve itinerary",
+      "return or request changes": "Request changes",
+      "handoff action": "Share with family",
+    },
+    completion: "Changes requested for Saturday; Version 3 records the concern and the family reviewer.",
+  },
+  form_flow: {
+    label: "Grocery delivery checkout",
+    participant: "Household shopper scheduling a grocery delivery",
+    activity:
+      "Enter delivery details, resolve validation, review the basket, and place the order.",
+    surface_layout: "staged-form",
+    regions: {
+      inputs: "Confirm the address, delivery window, phone number, and substitution preference.",
+      validation: "The phone number is verified for live substitution approval.",
+      "review or submit": "Review 18 items, the delivery fee, and the final estimated total before ordering.",
+      confirmation: "Order G-204 is scheduled for Tuesday between 6:00 and 7:00 PM.",
+    },
+    controls: {
+      "field controls": "Delivery details",
+      "submit action": "Place order",
+      "cancel or back action": "Back to basket",
+    },
+    completion: "Order G-204 is placed with its delivery window, total, and substitution preference confirmed.",
+  },
+  dashboard_monitor: {
+    label: "Home energy monitor",
+    participant: "Homeowner monitoring household energy use",
+    activity:
+      "Understand current energy use, find unusual devices, compare the weekly trend, and decide whether to investigate.",
+    surface_layout: "monitoring-dashboard",
+    regions: {
+      "status summary": "The home has used 18.4 kWh today, 7% below the usual Tuesday level.",
+      exceptions: "The water heater and basement dehumidifier used more energy than expected overnight.",
+      "trend or comparison": "Daily use declined across the week after the thermostat schedule changed.",
+      "follow-up path": "The water heater accounts for the largest unusual load and is ready for inspection.",
+    },
+    controls: {
+      filter: "Upstairs + kitchen",
+      "time range": "Last 7 days",
+      "drill in": "Inspect water heater",
+    },
+    completion: "The homeowner knows current usage and which appliance is most likely to need follow-up.",
+  },
+  content_report: {
+    label: "Household budget report",
+    participant: "Household member reviewing the monthly budget",
+    activity:
+      "Read the monthly summary, inspect category details and source transactions, and share the report.",
+    surface_layout: "reading-report",
+    regions: {
+      summary: "August spending was $4,280, which is $190 below the household plan.",
+      sections: "Review housing, food, transport, subscriptions, and flexible spending in reading order.",
+      "evidence or references": "Each category links to the transactions and notes that make up its total.",
+      "share or export": "Copy a stable report link or export a PDF for the monthly household check-in.",
+    },
+    controls: {
+      "table of contents": "Jump to category",
+      "copy or export": "Export PDF",
+      "reference navigation": "View transactions",
+    },
+    completion: "The household understands the month and can share a stable, transaction-backed report.",
+  },
+  setup_debug_tool: {
+    label: "Home Wi-Fi connection test",
+    participant: "Resident troubleshooting a slow home connection",
+    activity:
+      "Choose the network and room, run a test, inspect the result, and follow a specific repair step.",
+    surface_layout: "developer-console",
+    regions: {
+      configuration: "Test the Juniper Home network from the living room on a laptop.",
+      "test result": "The internet connection is available, but the living-room signal is weak.",
+      "diagnostic detail": "Download is 38 Mbps, latency is 42 ms, and signal strength is -72 dBm.",
+      "next fix": "Move the mesh point away from the television, then rerun the room test.",
+    },
+    controls: {
+      "run test": "Run Wi-Fi test",
+      "copy diagnostic": "Copy diagnostic",
+      "retry or repair": "Rerun room test",
+    },
+    completion: "The resident sees the likely signal problem and has one concrete repair to try next.",
+  },
+  conversation: {
+    label: "Pet-care handoff",
+    participant: "Pet owner coordinating with a weekend sitter",
+    activity:
+      "Continue a care exchange with the feeding plan, medication note, attachments, and delivery status intact.",
+    surface_layout: "message-thread",
+    regions: {
+      "message history": "The sitter confirms Luna ate breakfast and asks whether the evening tablet should be given with food.",
+      composer: "Draft the next care instruction without losing the active weekend context.",
+      "context or attachments": "The feeding plan, medication note, vet number, and Luna's photo stay attached.",
+      status: "The latest care update is delivered and the medication question is awaiting the owner's reply.",
+    },
+    controls: {
+      send: "Send reply",
+      "attach or reference": "Attach care note",
+      "recover or retry": "Retry last update",
+    },
+    completion: "The conversation continues or recovers with Luna's care plan and message status intact.",
+  },
+};
+
+function patternExample(contract) {
+  const example = PATTERN_EXAMPLES[contract.id];
+  if (!example) {
+    throw new Error(`Missing pattern example for ${contract.id}`);
+  }
+
+  for (const region of contract.required_regions ?? []) {
+    if (!example.regions?.[region]) {
+      throw new Error(`Missing ${contract.id} example region: ${region}`);
+    }
+  }
+  for (const control of contract.expected_controls ?? []) {
+    if (!example.controls?.[control]) {
+      throw new Error(`Missing ${contract.id} example control: ${control}`);
+    }
+  }
+
+  return example;
+}
+
+function renderPatternControl(
+  control,
+  index,
+  label = control,
+  className = "",
+  type = "button",
+) {
   return renderToString(
     createElement(
       ActionButton,
       {
+        "aria-label": `${label} (static example)`,
         "data-pattern-control": slugId(control),
+        className: className || undefined,
+        disabled: true,
         tone: index === 0 ? "decision" : "secondary",
+        type,
       },
-      control,
+      label,
     ),
   );
 }
 
-function renderPatternSpecimenPreview(contract, context) {
-  const id = specimenId("pattern", contract.id);
-  return `<div class="jk-specimen-preview jk-pattern-preview" data-specimen-id="${escapeHtml(id)}" data-contract-id="${escapeHtml(contract.id)}" data-contract-hash="${escapeHtml(context.contract_hash)}" data-surface-type="${escapeHtml(contract.surface_type)}"${renderSpecimenTokenStyleAttribute(context)}>
-            <header class="jk-pattern-header">
-              <span>${escapeHtml(contract.surface_type.replaceAll("_", " "))}</span>
-              <strong>${escapeHtml(contract.label)}</strong>
-            </header>
-            <div class="jk-pattern-region-grid">
-              ${(contract.required_regions ?? [])
-                .map(
-                  (region, index) => `<section data-pattern-region="${escapeHtml(slugId(region))}">
-                <strong>${escapeHtml(region)}</strong>
-                <p>${escapeHtml(patternRegionCopy(contract, region, index))}</p>
-              </section>`,
-                )
-                .join("\n              ")}
-            </div>
-            <div class="jk-pattern-controls" aria-label="${escapeHtml(contract.label)} controls">
-              ${(contract.expected_controls ?? [])
-                .map(renderPatternControl)
-                .join("\n              ")}
-            </div>
-            <p class="jk-pattern-completion">${escapeHtml(contract.completion_or_handoff)}</p>
-          </div>`;
+function renderPatternActionGroup(label, actions) {
+  return renderToString(
+    createElement(
+      ActionGroup,
+      {
+        "aria-label": `${label} (static example)`,
+        className: "jk-pattern-controls",
+        disabled: true,
+        id: `pattern-${slugId(label)}-actions`,
+      },
+      actions.map((action, index) =>
+        createElement(
+          ActionButton,
+          {
+            "aria-label": `${action.label} (static example)`,
+            "data-pattern-control": slugId(action.control),
+            key: action.control,
+            tone: action.tone ?? (index === 0 ? "decision" : "secondary"),
+            type: action.type ?? "button",
+          },
+          action.label,
+        ),
+      ),
+    ),
+  );
 }
 
-function patternRegionCopy(contract, region, index) {
-  const lowerRegion = region.toLowerCase();
-  if (lowerRegion.includes("evidence")) return "Visible support for the decision stays adjacent to the work.";
-  if (lowerRegion.includes("risk")) return "Risk is named in domain terms before action.";
-  if (lowerRegion.includes("decision")) return "The next action is bounded by the review context.";
-  if (lowerRegion.includes("status")) return "Current state is summarized without hiding exceptions.";
-  if (lowerRegion.includes("configuration")) return "Settings are visible because setup is the activity.";
-  if (lowerRegion.includes("composer")) return "Message creation stays close to context and status.";
-  if (lowerRegion.includes("offer")) return "The main promise is stated before supporting proof.";
-  return `${contract.label} region ${index + 1} supports ${contract.purpose.toLowerCase()}`;
+function renderPatternStaticLink(control, label, href = "#", className = "jk-surface-text-link") {
+  return `<a class="${escapeHtml(className)}" href="${escapeHtml(href)}" data-pattern-control="${escapeHtml(slugId(control))}" data-static-control="true" tabindex="-1">${escapeHtml(label)}</a>`;
+}
+
+function renderPatternTextField({
+  id,
+  label,
+  value = "",
+  placeholder,
+  errorMessage,
+  ...inputProps
+}) {
+  return renderToString(
+    createElement(TextField, {
+      id,
+      label,
+      value,
+      placeholder,
+      errorMessage,
+      readOnly: true,
+      tabIndex: -1,
+      "aria-disabled": "true",
+      ...inputProps,
+    }),
+  );
+}
+
+function renderPatternTextArea({ id, label, placeholder, value = "" }) {
+  return renderToString(
+    createElement(TextArea, {
+      id,
+      label,
+      value,
+      placeholder,
+      readOnly: true,
+      rows: 3,
+      tabIndex: -1,
+      "aria-disabled": "true",
+    }),
+  );
+}
+
+function renderPatternSelectField({ control, id, label, value, options }) {
+  return renderToString(
+    createElement(SelectField, {
+      "data-pattern-control": control ? slugId(control) : undefined,
+      id,
+      label,
+      value,
+      options,
+      disabled: true,
+      tabIndex: -1,
+      "aria-disabled": "true",
+    }),
+  );
+}
+
+function renderPatternSurfaceShell(contract, example, content) {
+  return `<section class="jk-pattern-surface jk-pattern-surface-${escapeHtml(slugId(contract.id))}" data-pattern-surface="${escapeHtml(contract.id)}" data-surface-layout="${escapeHtml(example.surface_layout)}" data-fictional-example="true" aria-label="${escapeHtml(example.label)} fictional static UI example">
+              <div class="jk-pattern-static-label"><span aria-hidden="true"></span>Fictional static UI example</div>
+              ${content}
+            </section>`;
+}
+
+function renderMarketingSurface(contract, example) {
+  return renderPatternSurfaceShell(
+    contract,
+    example,
+    `<div class="jk-surface-marketing-shell">
+                <div class="jk-surface-marketing-nav">
+                  <strong>Savor</strong>
+                  <span>How it works</span>
+                  <span>Recipes</span>
+                  <span>Pricing</span>
+                </div>
+                <div class="jk-surface-marketing-hero">
+                  <section class="jk-surface-marketing-offer" data-pattern-region="offer">
+                    <p class="jk-surface-kicker">Five dinners. One calm week.</p>
+                    <h4>${escapeHtml(example.regions.offer)}</h4>
+                    <p>Flexible recipes, one organized grocery list, and simple swaps for nights when plans change.</p>
+                    ${renderPatternControl("primary call to action", 0, example.controls["primary call to action"])}
+                    <small>No card required · Cancel any time</small>
+                  </section>
+                  <aside class="jk-surface-marketing-proof" id="meal-plan" data-pattern-region="proof" aria-label="This week's sample plan">
+                    <div class="jk-surface-plan-card">
+                      <div><span>Mon</span><strong>Lemon herb pasta</strong><small>25 min · family favorite</small></div>
+                      <div><span>Wed</span><strong>Crispy tofu bowls</strong><small>30 min · easy swap</small></div>
+                      <div><span>Fri</span><strong>Sheet-pan fajitas</strong><small>35 min · one pan</small></div>
+                    </div>
+                    <dl class="jk-surface-proof-stats">
+                      <div><dt>4.8/5</dt><dd>member rating</dd></div>
+                      <div><dt>$34</dt><dd>average weekly savings</dd></div>
+                    </dl>
+                    ${renderPatternStaticLink("secondary information path", example.controls["secondary information path"], "#meal-plan")}
+                  </aside>
+                </div>
+                <footer class="jk-surface-marketing-next" data-pattern-region="primary-next-step" data-pattern-completion>
+                  <strong>See the whole week before joining.</strong>
+                  <span>Recipes, grocery list, swaps, and cancellation terms are included.</span>
+                </footer>
+              </div>`,
+  );
+}
+
+function renderWorkbenchSurface(contract, example) {
+  return renderPatternSurfaceShell(
+    contract,
+    example,
+    `<div class="jk-surface-workbench-shell">
+                <header class="jk-surface-toolbar">
+                  <div><span class="jk-surface-kicker">4 saved homes</span><h4>Apartment shortlist</h4></div>
+                  ${renderPatternSelectField({
+                    control: "filter or sort",
+                    id: "apartment-sort",
+                    label: "Sort homes",
+                    value: "total-cost",
+                    options: [
+                      { value: "total-cost", label: "Total monthly cost" },
+                      { value: "commute", label: "Commute time" },
+                      { value: "move-in", label: "Move-in date" },
+                    ],
+                  })}
+                </header>
+                <div class="jk-surface-workbench-layout">
+                  <aside class="jk-surface-work-queue" data-pattern-region="work-queue" aria-label="Saved apartments">
+                    <table class="jk-surface-queue">
+                      <thead><tr><th>Home</th><th>Total</th></tr></thead>
+                      <tbody>
+                        <tr class="is-selected" aria-current="true"><td><span class="sr-only">Selected apartment: </span>${renderPatternControl("selection", 1, "184 Oak Street", "jk-surface-queue-selection")}</td><td>$2,585</td></tr>
+                        <tr><td>32 Garden Lane</td><td>$2,640</td></tr>
+                        <tr><td>8 Lakeview Court</td><td>$2,710</td></tr>
+                        <tr><td>77 Mercer Avenue</td><td>$2,760</td></tr>
+                      </tbody>
+                    </table>
+                  </aside>
+                  <section class="jk-surface-workspace" data-pattern-region="detail-workspace">
+                    <header><div><span class="jk-surface-kicker">Top match</span><h5>184 Oak Street</h5></div><strong>$2,420/mo</strong></header>
+                    <section class="jk-surface-home-summary" aria-label="Oak Street shortlist summary">
+                      <div><span>Budget fit</span><strong>$165 under max</strong></div>
+                      <div><span>Commute rank</span><strong>2nd of 4</strong></div>
+                      <div><span>Move-in</span><strong>September 15</strong></div>
+                    </section>
+                    <dl class="jk-surface-home-facts">
+                      <div><dt>Commute</dt><dd>24 min</dd></div>
+                      <div><dt>Monthly total</dt><dd>$2,585</dd></div>
+                      <div><dt>Laundry</dt><dd>In unit</dd></div>
+                    </dl>
+                    <section class="jk-surface-evidence" data-pattern-region="evidence">
+                      <h6>What stands out</h6>
+                      <ul><li>Quiet street after 8 PM</li><li>Groceries within a 6-minute walk</li><li>$45 pet fee included in total</li></ul>
+                    </section>
+                    <footer class="jk-surface-decision-bar" data-pattern-region="decision-or-handoff">
+                      ${renderPatternActionGroup("Apartment decision actions", [
+                        { control: "decision action", label: example.controls["decision action"] },
+                        { control: "handoff action", label: example.controls["handoff action"] },
+                      ])}
+                      <p class="jk-pattern-completion" data-pattern-completion>${escapeHtml(example.completion)}</p>
+                    </footer>
+                  </section>
+                </div>
+              </div>`,
+  );
+}
+
+function renderOperatorReviewSurface(contract, example) {
+  return renderPatternSurfaceShell(
+    contract,
+    example,
+    `<div class="jk-surface-review-shell">
+                <header class="jk-surface-toolbar">
+                  <div><span class="jk-surface-kicker">Family trip · Version 3</span><h4>Chicago · 4 days</h4></div>
+                  <span class="jk-surface-status-pill is-review">Changes requested</span>
+                </header>
+                <div class="jk-surface-review-layout">
+                  <article class="jk-surface-review-document" data-pattern-region="produced-work">
+                    <header><span>Saturday · Museum Campus</span><strong>Aquarium, lakefront, and an easy dinner</strong></header>
+                    <ol class="jk-surface-itinerary">
+                      <li><time>9:00</time><div><strong>Shedd Aquarium</strong><span>Timed entry · confirmation held</span></div></li>
+                      <li><time>1:15</time><div><strong>Lakefront lunch</strong><span>Indoor backup nearby</span></div></li>
+                      <li class="is-flagged"><time>3:00</time><div><strong>Architecture cruise</strong><span>35-minute transfer with stroller</span></div></li>
+                      <li><time>6:30</time><div><strong>Pizza near the hotel</strong><span>Reservation optional</span></div></li>
+                    </ol>
+                  </article>
+                  <aside class="jk-surface-review-rail">
+                    <section data-pattern-region="evidence"><h5>Checked details</h5><ul><li>Hours verified today</li><li>Tickets refundable until Friday</li><li>Walking times include stroller pace</li></ul></section>
+                    <section class="jk-surface-risk" data-pattern-region="risk"><h5>Saturday concern</h5><p>No weather backup and only 35 minutes between venues.</p></section>
+                  </aside>
+                </div>
+                <section class="jk-surface-review-decision" data-pattern-region="decision">
+                  ${renderPatternActionGroup("Itinerary review actions", [
+                    { control: "approve or accept", label: example.controls["approve or accept"] },
+                    { control: "return or request changes", label: example.controls["return or request changes"] },
+                    { control: "handoff action", label: example.controls["handoff action"] },
+                  ])}
+                </section>
+                <section class="jk-surface-review-receipt" data-pattern-region="receipt" data-pattern-completion>
+                  <strong>Changes requested</strong><span>${escapeHtml(example.completion)}</span>
+                </section>
+              </div>`,
+  );
+}
+
+function renderFormFlowSurface(contract, example) {
+  return renderPatternSurfaceShell(
+    contract,
+    example,
+    `<form class="jk-surface-form" aria-label="Grocery delivery checkout">
+                <header><span class="jk-surface-kicker">FreshCart · 18 items</span><h4>Delivery checkout</h4></header>
+                <ol class="jk-surface-steps" aria-label="Checkout progress">
+                  <li class="is-complete"><span class="sr-only">Completed step: </span>Basket</li><li class="is-complete"><span class="sr-only">Completed step: </span>Delivery</li><li class="is-complete"><span class="sr-only">Completed step: </span>Review</li><li class="is-current" aria-current="step">Confirmation</li>
+                </ol>
+                <fieldset class="jk-surface-field-grid" data-pattern-region="inputs" data-pattern-control="field-controls">
+                  <legend>Delivery details</legend>
+                  ${renderPatternTextField({ id: "grocery-address", label: "Address", value: "42 Maple Avenue", autoComplete: "street-address" })}
+                  ${renderPatternSelectField({
+                    id: "grocery-window",
+                    label: "Delivery window",
+                    value: "tue-6",
+                    options: [
+                      { value: "tue-6", label: "Tue · 6–7 PM" },
+                      { value: "tue-7", label: "Tue · 7–8 PM" },
+                      { value: "wed-5", label: "Wed · 5–6 PM" },
+                    ],
+                  })}
+                  ${renderPatternTextField({ id: "grocery-phone", label: "Phone for substitutions", value: "(555) 014-2068", type: "tel", inputMode: "tel", autoComplete: "tel", required: true })}
+                  ${renderPatternSelectField({
+                    id: "grocery-substitutions",
+                    label: "Substitutions",
+                    value: "ask-first",
+                    options: [
+                      { value: "ask-first", label: "Ask me before replacing" },
+                      { value: "best-match", label: "Choose the closest match" },
+                      { value: "refund", label: "Refund unavailable items" },
+                    ],
+                  })}
+                </fieldset>
+                <p class="jk-surface-field-valid" data-pattern-region="validation"><strong>Validation complete.</strong> ${escapeHtml(example.regions.validation)}</p>
+                <section class="jk-surface-order-review" data-pattern-region="review-or-submit">
+                  <dl><div><dt>Items</dt><dd>$82.40</dd></div><div><dt>Delivery</dt><dd>$4.99</dd></div><div><dt>Estimated total</dt><dd>$87.39</dd></div></dl>
+                  ${renderPatternActionGroup("Checkout actions", [
+                    { control: "cancel or back action", label: example.controls["cancel or back action"], tone: "secondary" },
+                    { control: "submit action", label: example.controls["submit action"], tone: "decision", type: "submit" },
+                  ])}
+                </section>
+                <footer class="jk-surface-confirmation" data-pattern-region="confirmation" data-pattern-completion>
+                  <strong>Order G-204 confirmed</strong><span>${escapeHtml(example.completion)}</span>
+                </footer>
+              </form>`,
+  );
+}
+
+function renderDashboardSurface(contract, example) {
+  return renderPatternSurfaceShell(
+    contract,
+    example,
+    `<div class="jk-surface-dashboard-shell">
+                <header class="jk-surface-toolbar">
+                  <div><span class="jk-surface-kicker">Maple Avenue</span><h4>Home energy</h4></div>
+                  <div class="jk-surface-filter-row">
+                    ${renderPatternSelectField({
+                      control: "filter",
+                      id: "energy-area",
+                      label: "Area",
+                      value: "upstairs-kitchen",
+                      options: [
+                        { value: "whole-home", label: "Whole home" },
+                        { value: "upstairs-kitchen", label: "Upstairs + kitchen" },
+                        { value: "basement", label: "Basement" },
+                      ],
+                    })}
+                    ${renderPatternSelectField({
+                      control: "time range",
+                      id: "energy-range",
+                      label: "Time range",
+                      value: "7-days",
+                      options: [
+                        { value: "today", label: "Today" },
+                        { value: "7-days", label: "Last 7 days" },
+                        { value: "30-days", label: "Last 30 days" },
+                      ],
+                    })}
+                  </div>
+                </header>
+                <section class="jk-surface-metric-grid" data-pattern-region="status-summary">
+                  <article><span>Today</span><strong>18.4 kWh</strong><small>7% below usual</small></article>
+                  <article><span>Current draw</span><strong>1.2 kW</strong><small>Mostly heating</small></article>
+                  <article><span>Estimated month</span><strong>$142</strong><small>$11 under plan</small></article>
+                </section>
+                <div class="jk-surface-dashboard-layout">
+                  <section class="jk-surface-trend" data-pattern-region="trend-or-comparison">
+                    <header><div><h5>Daily use</h5><span>Down after the thermostat change</span></div><strong>−9%</strong></header>
+                    <table class="jk-surface-trend-table" aria-label="Daily home energy use over the last seven days">
+                      <thead><tr><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th><th>Mon</th><th>Tue</th></tr></thead>
+                      <tbody><tr><td>23.1</td><td>21.4</td><td>22.2</td><td>20.1</td><td>19.4</td><td>18.9</td><td><strong>18.4</strong></td></tr></tbody>
+                    </table>
+                    <p class="jk-surface-trend-note">kWh per day · Tuesday is 9% below last Wednesday</p>
+                  </section>
+                  <section class="jk-surface-exception-panel" data-pattern-region="exceptions">
+                    <h5>Needs attention</h5>
+                    <table class="jk-surface-exceptions"><thead><tr><th>Device</th><th>Change</th></tr></thead><tbody><tr><td>Water heater</td><td>+18%</td></tr><tr><td>Dehumidifier</td><td>+9%</td></tr></tbody></table>
+                  </section>
+                </div>
+                <footer class="jk-surface-follow-up" data-pattern-region="follow-up-path" data-pattern-completion>
+                  <div><strong>Water heater used 3.8 kWh overnight</strong><span>Largest unusual load · compare schedule and temperature</span></div>
+                  ${renderPatternControl("drill in", 0, example.controls["drill in"])}
+                </footer>
+              </div>`,
+  );
+}
+
+function renderContentReportSurface(contract, example) {
+  return renderPatternSurfaceShell(
+    contract,
+    example,
+    `<div class="jk-surface-report-shell">
+                <header class="jk-surface-report-toolbar">
+                  <div><span class="jk-surface-kicker">August 2026</span><h4>Household budget</h4></div>
+                  ${renderPatternControl("copy or export", 1, example.controls["copy or export"])}
+                </header>
+                <div class="jk-surface-report-layout">
+                  <nav class="jk-surface-report-toc" data-pattern-region="sections" data-pattern-control="table-of-contents" aria-label="Budget report contents">
+                    <strong>In this report</strong>
+                    <a href="#budget-summary" data-static-control="true" tabindex="-1">Summary</a>
+                    <a href="#budget-categories" data-static-control="true" tabindex="-1">Categories</a>
+                    <a href="#budget-notes" data-static-control="true" tabindex="-1">Notes</a>
+                  </nav>
+                  <article class="jk-surface-report-body">
+                    <section id="budget-summary" data-pattern-region="summary">
+                      <span class="jk-surface-status-pill is-good">$190 below plan</span>
+                      <h5>August stayed on track</h5>
+                      <p>Total spending was <strong>$4,280</strong>. Grocery costs rose, while transport and flexible spending came in lower than planned.</p>
+                    </section>
+                    <section id="budget-categories" class="jk-surface-budget-categories">
+                      <table aria-label="Budget category totals compared with plan">
+                        <thead><tr><th>Category</th><th>Actual</th><th>Plan</th><th>Result</th></tr></thead>
+                        <tbody>
+                          <tr><th scope="row">Housing</th><td>$2,120</td><td>$2,120</td><td>On plan</td></tr>
+                          <tr><th scope="row">Food</th><td>$760</td><td>$650</td><td>$110 over</td></tr>
+                          <tr><th scope="row">Transport</th><td>$410</td><td>$520</td><td>$110 under</td></tr>
+                          <tr><th scope="row">Everything else</th><td>$990</td><td>$1,180</td><td>$190 under</td></tr>
+                        </tbody>
+                      </table>
+                    </section>
+                    <section id="budget-notes" class="jk-surface-report-evidence" data-pattern-region="evidence-or-references">
+                      <h5>Why food was higher</h5><p>Two hosted dinners added $96. Every category total is backed by its source transactions.</p>
+                      <span id="budget-transactions" class="sr-only">Budget source transactions</span>
+                      ${renderPatternStaticLink("reference navigation", example.controls["reference navigation"], "#budget-transactions")}
+                    </section>
+                  </article>
+                </div>
+                <footer class="jk-surface-report-share" data-pattern-region="share-or-export" data-pattern-completion>
+                  <strong>Report ready to share</strong><span>Stable link · transaction-backed totals · PDF available</span>
+                </footer>
+              </div>`,
+  );
+}
+
+function renderSetupDebugSurface(contract, example) {
+  return renderPatternSurfaceShell(
+    contract,
+    example,
+    `<div class="jk-surface-debug-shell">
+                <header class="jk-surface-toolbar"><div><span class="jk-surface-kicker">Juniper Home</span><h4>Wi-Fi connection test</h4></div><span class="jk-surface-status-pill is-warning">Weak signal</span></header>
+                <div class="jk-surface-debug-layout">
+                  <form class="jk-surface-debug-config" data-pattern-region="configuration" aria-label="Wi-Fi test configuration">
+                    ${renderPatternSelectField({
+                      id: "wifi-network",
+                      label: "Network",
+                      value: "juniper-home",
+                      options: [
+                        { value: "juniper-home", label: "Juniper Home" },
+                        { value: "juniper-guest", label: "Juniper Guest" },
+                      ],
+                    })}
+                    ${renderPatternSelectField({
+                      id: "wifi-room",
+                      label: "Room",
+                      value: "living-room",
+                      options: [
+                        { value: "living-room", label: "Living room" },
+                        { value: "bedroom", label: "Bedroom" },
+                        { value: "home-office", label: "Home office" },
+                      ],
+                    })}
+                    ${renderPatternSelectField({
+                      id: "wifi-device",
+                      label: "Device",
+                      value: "laptop",
+                      options: [
+                        { value: "laptop", label: "Laptop" },
+                        { value: "phone", label: "Phone" },
+                        { value: "television", label: "Television" },
+                      ],
+                    })}
+                    ${renderPatternControl("run test", 0, example.controls["run test"], "", "submit")}
+                  </form>
+                  <section class="jk-surface-test-result" data-pattern-region="test-result">
+                    <span class="jk-surface-result-icon" aria-hidden="true">!</span>
+                    <div><strong>Connected, but the signal is weak</strong><p>Browsing should work; video calls may become unstable.</p></div>
+                  </section>
+                  <section class="jk-surface-diagnostic" data-pattern-region="diagnostic-detail">
+                    <header><h5>Room diagnostic</h5>${renderPatternControl("copy diagnostic", 1, example.controls["copy diagnostic"])} </header>
+                    <pre class="jk-surface-console"><code>download   38 Mbps
+latency    42 ms
+signal    -72 dBm
+channel     149
+mesh hop      2</code></pre>
+                  </section>
+                </div>
+                <footer class="jk-surface-next-fix" data-pattern-region="next-fix" data-pattern-completion>
+                  <div><strong>Move the mesh point away from the television</strong><span>Then rerun this room test to compare the signal.</span></div>
+                  ${renderPatternControl("retry or repair", 1, example.controls["retry or repair"])}
+                </footer>
+              </div>`,
+  );
+}
+
+function renderConversationSurface(contract, example) {
+  return renderPatternSurfaceShell(
+    contract,
+    example,
+    `<div class="jk-surface-conversation-shell">
+                <header class="jk-surface-conversation-header" data-pattern-region="status" data-pattern-completion>
+                  <div class="jk-surface-avatar" aria-hidden="true">L</div>
+                  <div><h4>Luna · Weekend care</h4><span>Latest update delivered · medication question waiting</span></div>
+                  <span class="jk-surface-status-dot">Delivered</span>
+                </header>
+                <div class="jk-surface-conversation-layout">
+                  <section class="jk-surface-thread" data-pattern-region="message-history">
+                    <ol class="jk-surface-messages">
+                      <li class="is-incoming"><span>Sam · 8:12 AM</span><p>Luna ate all of breakfast and had her morning walk.</p></li>
+                      <li class="is-outgoing"><span>You · 8:18 AM</span><p>Perfect—thank you. Her blue tablet is due with dinner.</p><small>Delivered</small></li>
+                      <li class="is-incoming"><span>Sam · 5:42 PM</span><p>Should I hide the tablet in food, or give it just after she eats?</p></li>
+                      <li class="is-recovered"><span>Earlier update · recovered</span><p>The photo upload finished after reconnecting.</p>${renderPatternControl("recover or retry", 1, example.controls["recover or retry"], "jk-surface-retry")}</li>
+                    </ol>
+                    <form class="jk-surface-composer" data-pattern-region="composer" aria-label="Reply composer">
+                      ${renderPatternTextArea({ id: "pet-care-reply", label: "Reply to Sam", placeholder: "Write a care update" })}
+                      ${renderPatternActionGroup("Pet-care message actions", [
+                        { control: "attach or reference", label: example.controls["attach or reference"], tone: "secondary" },
+                        { control: "send", label: example.controls.send, tone: "decision", type: "submit" },
+                      ])}
+                    </form>
+                  </section>
+                  <aside class="jk-surface-context" data-pattern-region="context-or-attachments">
+                    <h5>Care plan</h5>
+                    <dl><div><dt>Dinner</dt><dd>6:00 PM · 1 cup</dd></div><div><dt>Medication</dt><dd>Blue tablet with food</dd></div><div><dt>Vet</dt><dd>Northside Animal Care</dd></div></dl>
+                    <div class="jk-surface-attachment"><span aria-hidden="true">JPG</span><div><strong>Luna-medication.jpg</strong><small>Attached by you</small></div></div>
+                  </aside>
+                </div>
+              </div>`,
+  );
+}
+
+const PATTERN_SURFACE_RENDERERS = {
+  marketing: renderMarketingSurface,
+  workbench: renderWorkbenchSurface,
+  operator_review: renderOperatorReviewSurface,
+  form_flow: renderFormFlowSurface,
+  dashboard_monitor: renderDashboardSurface,
+  content_report: renderContentReportSurface,
+  setup_debug_tool: renderSetupDebugSurface,
+  conversation: renderConversationSurface,
+};
+
+function renderPatternSpecimenPreview(contract, context) {
+  const id = specimenId("pattern", contract.id);
+  const example = patternExample(contract);
+  const renderSurface = PATTERN_SURFACE_RENDERERS[contract.id];
+  if (!renderSurface) {
+    throw new Error(`Missing pattern surface renderer for ${contract.id}`);
+  }
+
+  return `<div class="jk-specimen-preview jk-pattern-preview" data-specimen-id="${escapeHtml(id)}" data-pattern-example="${escapeHtml(contract.id)}" data-contract-id="${escapeHtml(contract.id)}" data-contract-hash="${escapeHtml(context.contract_hash)}" data-surface-type="${escapeHtml(contract.surface_type)}"${renderSpecimenTokenStyleAttribute(context)}>
+            ${renderSurface(contract, example)}
+          </div>`;
 }
 
 function buildSpecimenContext(adapter, system) {
@@ -5720,6 +7494,7 @@ function buildPatternSpecimens(contracts, context) {
   return contracts.map((contract) => {
     const id = specimenId("pattern", contract.id);
     const contractHash = hashCanonical(contract);
+    const example = patternExample(contract);
     const renderedHtml = renderPatternSpecimenPreview(contract, {
       ...context,
       contract_hash: contractHash,
@@ -5761,6 +7536,7 @@ function buildPatternSpecimens(contracts, context) {
       completion_or_handoff: contract.completion_or_handoff,
       disclosure_boundary: contract.disclosure_boundary,
       accessibility_expectations: contract.accessibility_expectations ?? [],
+      example,
       rendered_html: renderedHtml,
       contract,
     };
@@ -6105,25 +7881,13 @@ function buildDesignSystemContentModel() {
       summary:
         "Surface patterns that connect activity purpose to required regions, controls, and completion behavior.",
       sections: [
-        "Usage",
-        "Specimens",
         "Surface patterns",
+        "Pattern examples",
         "Presentation profiles",
         "Review checks",
         "Accessibility",
       ],
-      examples: [
-        {
-          title: "Workbench activity",
-          use: "Use the workbench pattern when the user repeatedly inspects, compares, decides, and hands off work items.",
-          caution: "Do not turn repeated review work into a numbered wizard without staged-flow evidence.",
-        },
-        {
-          title: "Setup or debugging",
-          use: "Use the setup pattern when implementation details are the work material.",
-          caution: "Do not leak diagnostics into product surfaces where the activity is not setup, auditing, or debugging.",
-        },
-      ],
+      examples: [],
     },
     {
       id: "accessibility",
@@ -6372,7 +8136,7 @@ function renderDesignSystemHero(pageEntry) {
 }
 
 function renderDesignSystemMetric(label, value, detail = "") {
-  return `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd>${detail ? `<p>${escapeHtml(detail)}</p>` : ""}</div>`;
+  return `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd>${detail ? `<dd class="design-system-metric-detail">${escapeHtml(detail)}</dd>` : ""}</div>`;
 }
 
 function renderDesignSystemMetrics(metrics) {
@@ -6517,8 +8281,9 @@ function renderPatternSpecimenList(specimens) {
                 return `<article class="design-system-specimen" id="${escapeHtml(specimenAnchor(specimen.contract_id))}" data-pattern-specimen="${escapeHtml(specimen.contract_id)}">
               <header class="design-system-specimen-header">
                 <div>
+                  <p class="eyebrow">Fictional screen example · ${escapeHtml(specimen.example.label)}</p>
                   <h3>${escapeHtml(specimen.label)}</h3>
-                  <p>${escapeHtml(specimen.purpose)}</p>
+                  <p>${escapeHtml(specimen.example.activity)}</p>
                 </div>
               </header>
               <div class="design-system-specimen-body">
@@ -6557,8 +8322,14 @@ function renderPatternSpecimenList(specimens) {
           </div>`;
 }
 
-function renderDesignSystemTable({ caption, columns, rows, rowAttributes = () => "" }) {
-  return `<div class="design-system-table-wrap">
+function renderDesignSystemTable({
+  caption,
+  columns,
+  rows,
+  rowAttributes = () => "",
+  responsiveLabels = false,
+}) {
+  return `<div class="design-system-table-wrap" role="region" aria-label="${escapeHtml(caption)}" tabindex="0">
             <table class="design-system-table">
               <caption>${escapeHtml(caption)}</caption>
               <thead>
@@ -6573,7 +8344,10 @@ function renderDesignSystemTable({ caption, columns, rows, rowAttributes = () =>
                   ${columns
                     .map((column) => {
                       const value = column.render ? column.render(row) : escapeHtml(row[column.key] ?? "");
-                      return `<td>${value}</td>`;
+                      const labelAttribute = responsiveLabels
+                        ? ` data-label="${escapeHtml(column.label)}"`
+                        : "";
+                      return `<td${labelAttribute}>${value}</td>`;
                     })
                     .join("")}
                 </tr>`,
@@ -7234,11 +9008,42 @@ function renderDesignSystemPatternsPage(model) {
       "patterns",
       `
           ${renderDesignSystemHero(pageEntry)}
+          <section class="design-system-section" aria-labelledby="surface-patterns" data-pattern-index>
+            <h2 id="surface-patterns">Surface patterns</h2>
+            <p class="note">Choose after the activity and surface type are clear: use what the participant is trying to accomplish and what completion needs to mean. Every public pattern links to one fictional consumer-domain screen below; the examples show required regions and controls through distinct UI compositions.</p>
+            ${renderDesignSystemTable({
+              caption: "Surface pattern contracts",
+              columns: [
+                {
+                  key: "id",
+                  label: "Pattern",
+                  render: (row) => `<span><code>${escapeHtml(row.id)}</code><br>${escapeHtml(row.label)}</span>`,
+                },
+                {
+                  key: "purpose",
+                  label: "Use when",
+                },
+                {
+                  key: "completion_or_handoff",
+                  label: "Done means",
+                },
+                {
+                  key: "example",
+                  label: "Example",
+                  render: (row) =>
+                    `<a href="#${escapeHtml(specimenAnchor(row.id))}">View ${escapeHtml(row.label)} example</a>`,
+                },
+              ],
+              rows: contracts,
+              responsiveLabels: true,
+              rowAttributes: (row) => `data-pattern-contract="${escapeHtml(row.id)}" data-surface-type="${escapeHtml(row.surface_type)}"`,
+            })}
+          </section>
           ${renderDesignSystemMetrics([
             {
-              label: "Specimens",
+              label: "Examples",
               value: specimens.length,
-              detail: "Rendered from current contracts.",
+              detail: "One for every public pattern.",
             },
             {
               label: "Regions",
@@ -7251,43 +9056,10 @@ function renderDesignSystemPatternsPage(model) {
               detail: "Expected control families across patterns.",
             },
           ])}
-          <section class="design-system-section" aria-labelledby="usage">
-            <h2 id="usage">Usage</h2>
-            <p class="note">Use surface patterns after the activity and surface type are clear. A pattern names the regions, controls, completion behavior, and disclosure boundary the interface must support.</p>
-          </section>
-          <section class="design-system-section" aria-labelledby="specimens">
-            <h2 id="specimens">Specimens</h2>
-            <p class="note">Each specimen pairs a rendered miniature surface with required regions, expected controls, completion behavior, and source evidence from the current contract.</p>
+          <section class="design-system-section" id="specimens" aria-labelledby="pattern-examples">
+            <h2 id="pattern-examples">Pattern examples</h2>
+            <p class="note">Each fictional composition renders a recognizable surface UI with consumer-domain content, contextual controls, and a visible completion or handoff. The scenarios are illustrative rather than customer evidence; contract and source evidence stays available in the collapsed details.</p>
             ${renderPatternSpecimenList(specimens)}
-          </section>
-          <section class="design-system-section" aria-labelledby="surface-patterns">
-            <h2 id="surface-patterns">Surface patterns</h2>
-            ${renderDesignSystemTable({
-              caption: "Surface pattern contracts",
-              columns: [
-                {
-                  key: "id",
-                  label: "Pattern",
-                  render: (row) => `<code>${escapeHtml(row.id)}</code><br>${escapeHtml(row.label)}`,
-                },
-                {
-                  key: "purpose",
-                  label: "Purpose",
-                },
-                {
-                  key: "required_regions",
-                  label: "Regions",
-                  render: (row) => escapeHtml((row.required_regions ?? []).join(", ")),
-                },
-                {
-                  key: "expected_controls",
-                  label: "Controls",
-                  render: (row) => escapeHtml((row.expected_controls ?? []).join(", ")),
-                },
-              ],
-              rows: contracts,
-              rowAttributes: (row) => `data-pattern-contract="${escapeHtml(row.id)}" data-surface-type="${escapeHtml(row.surface_type)}"`,
-            })}
           </section>
           <section class="design-system-section" aria-labelledby="presentation-profiles">
             <h2 id="presentation-profiles">Presentation profiles</h2>
@@ -7354,7 +9126,6 @@ function renderDesignSystemPatternsPage(model) {
               "Dense workbenches and dashboards need responsive no-overflow evidence.",
             ])}
           </section>
-          ${renderDesignSystemExamples(pageEntry)}
         `,
     ),
     {
@@ -7637,19 +9408,19 @@ function renderDesignSystemPageMarkdown(model, pageEntry) {
 
   if (pageEntry.id === "patterns") {
     lines.push(
-      "## Specimens",
-      markdownList(
-        model.pattern_specimens.map(
-          (entry) =>
-            `\`${entry.id}\`: rendered from \`${entry.contract_id}\`; regions: ${entry.covered_regions.join(", ")}; controls: ${entry.covered_controls.join(", ")}; output: \`${entry.output_hash}\``,
-        ),
-      ),
-      "",
       "## Surface Pattern Contracts",
       markdownList(
         model.pattern_contracts.map(
           (entry) =>
             `\`${entry.id}\` (${entry.surface_type}): ${entry.purpose}; regions: ${(entry.required_regions ?? []).join(", ")}; controls: ${(entry.expected_controls ?? []).join(", ")}`,
+        ),
+      ),
+      "",
+      "## Pattern Examples",
+      markdownList(
+        model.pattern_specimens.map(
+          (entry) =>
+            `\`${entry.id}\`: ${entry.example.label} for ${entry.example.participant}; activity: ${entry.example.activity}; regions: ${entry.covered_regions.join(", ")}; controls: ${entry.covered_controls.join(", ")}; completion: ${entry.example.completion}; output: \`${entry.output_hash}\``,
         ),
       ),
       "",

@@ -142,6 +142,49 @@ const defaultSelectMarkup = render(SelectField, {
 assert.match(defaultSelectMarkup, /<select[^>]*id="review-owner"/);
 assert.match(defaultSelectMarkup, /<option value="policy" selected="">Policy<\/option>/);
 assert.match(defaultSelectMarkup, /data-jk-base-state="ready"/);
+assert.match(
+  defaultSelectMarkup,
+  /class="jk-select-field__control"[^>]*data-jk-presentation-owner="design_system"/,
+);
+assert.match(
+  defaultSelectMarkup,
+  /data-jk-composition-variant="field_value_trailing_indicator_slot"/,
+);
+assert.match(defaultSelectMarkup, /<select[^>]*data-part="value"/);
+assert.match(defaultSelectMarkup, /data-part="indicator-slot"/);
+assert.match(defaultSelectMarkup, /data-part="indicator"/);
+assert.equal(count(defaultSelectMarkup, /<select/g), 1);
+assert.equal(count(defaultSelectMarkup, /aria-hidden="true"/g), 2);
+assert.match(defaultSelectMarkup, /<svg[^>]*focusable="false"/);
+assert.doesNotMatch(defaultSelectMarkup, /role="combobox"/);
+
+const rtlSelectMarkup = render(SelectField, {
+  id: "rtl-review-owner",
+  label: "Review owner",
+  value: "policy",
+  dir: "rtl",
+  options: [{ value: "policy", label: "Policy" }],
+});
+assert.match(rtlSelectMarkup, /class="jk-select-field__control" dir="rtl"/);
+assert.match(rtlSelectMarkup, /<select[^>]*dir="rtl"/);
+
+const sizedSelectMarkup = render(SelectField, {
+  id: "sized-review-owner",
+  label: "Review owner",
+  value: "policy",
+  controlClassName: "review-owner-control",
+  controlStyle: { maxInlineSize: "18rem" },
+  selectClassName: "review-owner-select",
+  options: [{ value: "policy", label: "Policy" }],
+});
+assert.match(
+  sizedSelectMarkup,
+  /class="jk-select-field__control review-owner-control" style="max-inline-size:18rem"/,
+);
+assert.match(
+  sizedSelectMarkup,
+  /<select[^>]*class="jk-select-field review-owner-select"/,
+);
 
 const implicitEmptySelectMarkup = render(SelectField, {
   id: "unassigned-owner",

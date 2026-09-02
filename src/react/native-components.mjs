@@ -295,7 +295,7 @@ function collectSelectOptionValues(children) {
   return values;
 }
 
-/** Choose one bounded value through a browser-owned native select. */
+/** Choose one bounded value through a native select with governed field chrome. */
 export function SelectField({
   id,
   label,
@@ -312,7 +312,10 @@ export function SelectField({
   placeholder,
   children,
   className,
+  controlClassName,
+  controlStyle,
   selectClassName,
+  dir,
   ...selectProps
 }) {
   const controlled = value !== undefined;
@@ -388,29 +391,61 @@ export function SelectField({
     },
     (accessibilityProps) =>
       h(
-        "select",
+        "div",
         {
-          ...selectProps,
-          ...accessibilityProps,
-          className: joinClassNames("jk-select-field", selectClassName),
-          value: empty ? "" : currentValue,
-          "aria-describedby": mergeIdRefs(
-            selectProps["aria-describedby"],
-            accessibilityProps["aria-describedby"],
-          ),
-          "data-jk-component": "select_field",
-          "data-jk-state": baseState,
-          "data-jk-base-state": baseState,
-          onChange: handleChange,
+          className: joinClassNames("jk-select-field__control", controlClassName),
+          style: controlStyle,
+          dir,
+          "data-jk-presentation-owner": "design_system",
+          "data-jk-composition-variant":
+            "field_value_trailing_indicator_slot",
         },
-        placeholder !== undefined || (empty && !hasExplicitEmptyOption)
-          ? h(
-              "option",
-              { value: "", disabled: required || undefined },
-              placeholder ?? "Select an option",
-            )
-          : null,
-        optionNodes,
+        h(
+          "select",
+          {
+            ...selectProps,
+            ...accessibilityProps,
+            dir,
+            className: joinClassNames("jk-select-field", selectClassName),
+            value: empty ? "" : currentValue,
+            "aria-describedby": mergeIdRefs(
+              selectProps["aria-describedby"],
+              accessibilityProps["aria-describedby"],
+            ),
+            "data-jk-component": "select_field",
+            "data-jk-state": baseState,
+            "data-jk-base-state": baseState,
+            "data-part": "value",
+            onChange: handleChange,
+          },
+          placeholder !== undefined || (empty && !hasExplicitEmptyOption)
+            ? h(
+                "option",
+                { value: "", disabled: required || undefined },
+                placeholder ?? "Select an option",
+              )
+            : null,
+          optionNodes,
+        ),
+        h(
+          "span",
+          {
+            className: "jk-select-field__indicator-slot",
+            "data-part": "indicator-slot",
+            "aria-hidden": "true",
+          },
+          h(
+            "svg",
+            {
+              className: "jk-select-field__indicator",
+              "data-part": "indicator",
+              viewBox: "0 0 16 16",
+              focusable: "false",
+              "aria-hidden": "true",
+            },
+            h("path", { d: "m4 6 4 4 4-4" }),
+          ),
+        ),
       ),
   );
 }

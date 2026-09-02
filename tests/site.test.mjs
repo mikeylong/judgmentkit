@@ -2477,7 +2477,86 @@ for (const [label, html] of [
 }
 assert.ok(designSystemPatterns.includes("<h1>Patterns</h1>"));
 assert.ok(designSystemPatterns.includes("Surface pattern contracts"));
-assert.ok(designSystemPatterns.includes("<h2 id=\"specimens\">Specimens</h2>"));
+assert.ok(designSystemPatterns.includes("<h2 id=\"pattern-examples\">Pattern examples</h2>"));
+assert.equal(
+  designSystemPatterns.includes('<h2 id="examples">Examples</h2>'),
+  false,
+  "The pattern page should not imply that only the two legacy usage cards are examples.",
+);
+const patternIndexStart = designSystemPatterns.indexOf('<h2 id="surface-patterns">');
+const patternMetricsStart = designSystemPatterns.indexOf('<dl class="design-system-metrics">');
+const patternExamplesStart = designSystemPatterns.indexOf('<h2 id="pattern-examples">');
+assert.notEqual(patternIndexStart, -1, "The pattern page should expose a pattern index.");
+assert.notEqual(patternMetricsStart, -1, "The pattern page should retain its coverage summary.");
+assert.notEqual(patternExamplesStart, -1, "The pattern page should expose pattern examples.");
+assert.ok(
+  patternIndexStart < patternMetricsStart && patternMetricsStart < patternExamplesStart,
+  "The pattern index must be the first content section and appear before its coverage summary and examples.",
+);
+assert.ok(designSystemPatterns.includes("data-pattern-index"));
+assert.ok(
+  designSystemPatterns.includes('data-label="Pattern"'),
+  "The responsive pattern index should label its stacked cells.",
+);
+assert.equal(
+  designSystemComponents.includes('data-label="Component"'),
+  false,
+  "Responsive cell labels must not leak into unrelated design-system tables.",
+);
+const expectedPatternSurfaceStructures = {
+  marketing: {
+    layout: "landing-page",
+    markers: ['<div class="jk-surface-marketing-nav"', '<section class="jk-surface-marketing-offer"'],
+  },
+  workbench: {
+    layout: "queue-workspace",
+    markers: ['<table class="jk-surface-queue"', '<section class="jk-surface-workspace"'],
+  },
+  operator_review: {
+    layout: "document-review",
+    markers: ['<article class="jk-surface-review-document"', '<aside class="jk-surface-review-rail"'],
+  },
+  form_flow: {
+    layout: "staged-form",
+    markers: ['<form class="jk-surface-form"', '<ol class="jk-surface-steps"'],
+  },
+  dashboard_monitor: {
+    layout: "monitoring-dashboard",
+    markers: ['<table class="jk-surface-trend-table"', '<table class="jk-surface-exceptions"'],
+  },
+  content_report: {
+    layout: "reading-report",
+    markers: ['<nav class="jk-surface-report-toc"', '<article class="jk-surface-report-body"'],
+  },
+  setup_debug_tool: {
+    layout: "developer-console",
+    markers: ['<form class="jk-surface-debug-config"', '<pre class="jk-surface-console"'],
+  },
+  conversation: {
+    layout: "message-thread",
+    markers: ['<ol class="jk-surface-messages"', '<aside class="jk-surface-context"'],
+  },
+};
+const renderedPatternLayouts = new Set();
+
+for (const contract of patternContractsExport.contracts) {
+  const specimen = patternSpecimensExport.specimens.find(
+    (entry) => entry.contract_id === contract.id,
+  );
+  assert.ok(specimen, `${contract.id} should have one linked pattern example`);
+  assert.ok(
+    designSystemPatterns.includes(
+      `<a href="${specimen.anchor}">View ${contract.label} example</a>`,
+    ),
+    `${contract.id} should link from the pattern index to its example`,
+  );
+  assert.ok(
+    designSystemPatterns.includes(
+      `<article class="design-system-specimen" id="${specimen.anchor.slice(1)}"`,
+    ),
+    `${contract.id} index target should resolve to its example article`,
+  );
+}
 assert.ok(
   designSystemPatterns.includes(
     '<h2 id="presentation-profiles">Presentation profiles</h2>',
@@ -2529,10 +2608,10 @@ assert.ok(
   "Pattern specimen bodies must reserve the full row for the live surface.",
 );
 assert.ok(
-  siteCss.includes(
-    "grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));",
-  ),
-  "Pattern regions should use the available specimen width before wrapping.",
+  siteCss.includes(".jk-pattern-surface {") &&
+    siteCss.includes(".jk-surface-workbench-layout {") &&
+    siteCss.includes(".jk-surface-conversation-layout {"),
+  "Pattern examples should use screen-level surface compositions instead of one shared region grid.",
 );
 assert.ok(siteCss.includes("--jk-color-surface: #181d1b;"));
 assert.ok(
@@ -2574,7 +2653,7 @@ assert.ok(
 );
 assert.ok(designSystemAccessibilityMarkdown.includes("## Evidence Groups"));
 assert.ok(designSystemComponentsMarkdown.includes("## Specimens"));
-assert.ok(designSystemPatternsMarkdown.includes("## Specimens"));
+assert.ok(designSystemPatternsMarkdown.includes("## Pattern Examples"));
 const lucideSmokeProof = fs.readFileSync(
   path.join(tempDir, "examples", "lucide-icon-catalog-smoke.html"),
   "utf8",
@@ -2583,6 +2662,7 @@ assert.equal((lucideSmokeProof.match(/data-catalog-icon=/g) ?? []).length, 1737)
 assert.ok(siteCss.includes(".design-system-page"));
 assert.ok(siteCss.includes(".design-system-foundation-list"));
 assert.ok(siteCss.includes(".design-system-table"));
+assert.ok(siteCss.includes("[data-pattern-index] .design-system-table tbody"));
 assert.ok(siteCss.includes(".design-system-search"));
 assert.ok(siteCss.includes(".design-system-example-grid"));
 assert.ok(siteCss.includes(".design-system-specimen-list"));
@@ -3127,6 +3207,77 @@ for (const contract of patternContractsExport.contracts) {
     specimen.selectors.root,
     `[data-specimen-id="pattern.${contract.id}"]`,
   );
+  assert.equal(specimen.example?.label?.length > 0, true, `${contract.id} should name its example`);
+  assert.equal(
+    specimen.example?.participant?.length > 0,
+    true,
+    `${contract.id} should name the participant in its example`,
+  );
+  assert.equal(
+    specimen.example?.activity?.length > 0,
+    true,
+    `${contract.id} should name the activity in its example`,
+  );
+  assert.deepEqual(
+    Object.keys(specimen.example?.regions ?? {}),
+    contract.required_regions,
+    `${contract.id} example copy should cover every required region`,
+  );
+  assert.deepEqual(
+    Object.keys(specimen.example?.controls ?? {}),
+    contract.expected_controls,
+    `${contract.id} example labels should cover every expected control`,
+  );
+  assert.equal(
+    specimen.example?.completion?.length > 0,
+    true,
+    `${contract.id} example should name a completion or handoff outcome`,
+  );
+  assert.ok(
+    specimen.rendered_html.includes(`data-pattern-example="${contract.id}"`),
+    `${contract.id} should identify its rendered example`,
+  );
+  const expectedSurface = expectedPatternSurfaceStructures[contract.id];
+  assert.ok(expectedSurface, `${contract.id} should declare a screen-level surface structure`);
+  assert.equal(
+    specimen.example?.surface_layout,
+    expectedSurface.layout,
+    `${contract.id} should name its distinct surface layout`,
+  );
+  renderedPatternLayouts.add(specimen.example.surface_layout);
+  assert.ok(
+    specimen.rendered_html.includes(`data-pattern-surface="${contract.id}"`),
+    `${contract.id} should render a recognizable surface screen`,
+  );
+  assert.ok(
+    specimen.rendered_html.includes('data-fictional-example="true"'),
+    `${contract.id} should identify its consumer scenario as fictional`,
+  );
+  assert.ok(
+    specimen.rendered_html.includes(`data-surface-layout="${expectedSurface.layout}"`),
+    `${contract.id} should expose its screen composition`,
+  );
+  assert.equal(
+    specimen.rendered_html.split("data-pattern-completion").length - 1,
+    1,
+    `${contract.id} should render exactly one completion or handoff inside the screen`,
+  );
+  assert.doesNotMatch(
+    specimen.rendered_html,
+    /jk-pattern-region-grid/,
+    `${contract.id} must not fall back to the shared grid of region descriptions`,
+  );
+  for (const marker of expectedSurface.markers) {
+    assert.ok(
+      specimen.rendered_html.includes(marker),
+      `${contract.id} should render screen structure ${marker}`,
+    );
+  }
+  assert.doesNotMatch(
+    specimen.rendered_html,
+    new RegExp(`${contract.label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} region \\d+ supports`, "i"),
+    `${contract.id} should use concrete example copy instead of generic region filler`,
+  );
   assert.ok(
     designSystemPatterns.includes(`data-specimen-id="pattern.${contract.id}"`),
     `${contract.id} specimen root should render`,
@@ -3155,20 +3306,46 @@ for (const contract of patternContractsExport.contracts) {
   for (const region of contract.required_regions) {
     assert.ok(specimen.covered_regions.includes(region), `${contract.id} should cover ${region}`);
     assert.ok(specimen.selectors.regions[region], `${contract.id} should expose selector for ${region}`);
-    assert.ok(
-      specimen.rendered_html.includes(`data-pattern-region="${region.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase()}"`),
-      `${contract.id} should render region ${region}`,
+    const regionMarker = `data-pattern-region="${region.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase()}"`;
+    assert.equal(
+      specimen.rendered_html.split(regionMarker).length - 1,
+      1,
+      `${contract.id} should render region ${region} exactly once`,
     );
   }
   for (const control of contract.expected_controls) {
     assert.ok(specimen.covered_controls.includes(control), `${contract.id} should cover ${control}`);
     assert.ok(specimen.selectors.controls[control], `${contract.id} should expose selector for ${control}`);
-    assert.ok(
-      specimen.rendered_html.includes(`data-pattern-control="${control.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase()}"`),
-      `${contract.id} should render control ${control}`,
+    const controlMarker = `data-pattern-control="${control.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase()}"`;
+    assert.equal(
+      specimen.rendered_html.split(controlMarker).length - 1,
+      1,
+      `${contract.id} should render control ${control} exactly once`,
     );
   }
 }
+const marketingPatternHtml = patternSpecimensExport.specimens.find(
+  (specimen) => specimen.contract_id === "marketing",
+)?.rendered_html ?? "";
+assert.doesNotMatch(
+  marketingPatternHtml,
+  /<nav class="jk-surface-marketing-nav"/,
+  "Decorative marketing labels must not create an empty navigation landmark.",
+);
+const formFlowPatternHtml = patternSpecimensExport.specimens.find(
+  (specimen) => specimen.contract_id === "form_flow",
+)?.rendered_html ?? "";
+assert.match(formFlowPatternHtml, /<li class="is-current" aria-current="step">Confirmation<\/li>/);
+assert.equal(
+  (formFlowPatternHtml.match(/<span class="sr-only">Completed step: <\/span>/g) ?? []).length,
+  3,
+  "Every completed checkout step must expose its completed state to assistive technology.",
+);
+assert.equal(
+  renderedPatternLayouts.size,
+  patternContractsExport.contracts.length,
+  "Every public pattern should use a distinct screen composition.",
+);
 
 assert.deepEqual(
   specimenProvenanceExport.component_specimens.map((entry) => entry.id),
