@@ -170,9 +170,14 @@ async function inspectPatternsPage(client, page, viewport) {
     `${viewport.id}: marketing hero background asset is missing`,
   );
   if (viewport.mobile) {
-    assert.equal(
-      observed.marketing.backgroundSize,
-      "100% 100%, 100%",
+    // Browsers may spell out the implicit auto height in computed CSS.
+    const backgroundDimensions = observed.marketing.backgroundSize.split(",").map((size) => {
+      const [width, height = "auto"] = size.trim().split(/\s+/);
+      return [width, height];
+    });
+    assert.deepEqual(
+      backgroundDimensions,
+      [["100%", "100%"], ["100%", "auto"]],
       "mobile: the full generated image should remain visible above an opaque copy field",
     );
     assert.equal(observed.marketing.backgroundRepeat, "no-repeat, no-repeat");

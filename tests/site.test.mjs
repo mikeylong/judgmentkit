@@ -86,6 +86,9 @@ const APPEARANCE_INVARIANT_SITE_TOKENS = [
   "--captured-artifact-bg",
   "--eval-serif",
   "--fixed-light-ink",
+  "--header-border",
+  "--header-ink",
+  "--header-menu-bg",
   "--hero-art-bg",
   "--hero-art-overlay",
   "--modal-backdrop-bg",
@@ -341,7 +344,7 @@ const systemMapFlowAuthoredCss = fs.readFileSync(
 );
 const systemMapFlowSource = fs.readFileSync(new URL("../site/system-map-flow.jsx", import.meta.url), "utf8");
 const platformNavMarkup =
-  homepage.match(/<nav class="surfaces-navigation" aria-label="Surfaces platform" data-surfaces-navigation>[\s\S]*?<\/nav>/)
+  homepage.match(/<nav class="surfaces-navigation" aria-label="Primary navigation" data-surfaces-navigation>[\s\S]*?<\/nav>/)
     ?.[0] ?? "";
 const homepageMain = homepage.match(/<main>([\s\S]*)<\/main>/)?.[1] ?? "";
 const homepageHeroCopy = homepage.match(
@@ -421,10 +424,10 @@ assert.ok(systemMapFlowSource.includes("active"));
 assert.ok(systemMapFlowSource.includes("design-system provenance is required"));
 assert.ok(
   platformNavMarkup.includes(
-    '<a class="surfaces-navigation-identifier" href="/" aria-current="page">JudgmentKit</a>',
+    '<a class="surfaces-navigation-identifier" href="/" aria-label="JudgmentKit home" aria-current="page">',
   ),
 );
-assert.ok(platformNavMarkup.includes('<div class="surfaces-navigation-sections" aria-label="Primary">'));
+assert.ok(platformNavMarkup.includes('<div class="surfaces-navigation-sections">'));
 assert.ok(platformNavMarkup.includes('href="/value/"'));
 assert.ok(platformNavMarkup.includes('href="/docs/"'));
 assert.ok(platformNavMarkup.includes('href="/design-system/"'));
@@ -448,34 +451,35 @@ for (const [href, label] of [
 ]) {
   assert.ok(platformNavMarkup.includes(`<a href="${href}">${label}</a>`));
 }
-assert.ok(platformNavMarkup.includes('class="surfaces-system-switch-button"'));
-assert.ok(platformNavMarkup.includes('aria-haspopup="true"'));
+assert.ok(platformNavMarkup.includes('class="surfaces-brand-mark"'));
+assert.ok(platformNavMarkup.includes('<img class="surfaces-brand-mark" src="/favicon.svg" width="32" height="32" alt="">'));
+assert.equal(platformNavMarkup.includes("<polygon"), false, "JudgmentKit must use its own favicon mark");
+assert.ok(platformNavMarkup.includes('<span>JudgmentKit</span>'));
+assert.ok(platformNavMarkup.includes('href="https://surfaces.systems/">surfaces.systems</a>'));
+for (const removed of ["surfaces-system-switch", "data-surfaces-system-menu", "surfaceops.ai", "interfacectl.com", "surfaces.dev"]) {
+  assert.equal(platformNavMarkup.includes(removed), false, `${removed} must not return to the header`);
+}
+assert.equal(homepage.includes("data-surfaces-system-menu"), false);
+assert.equal(siteCss.includes("surfaces-system-switch"), false);
 assert.equal(platformNavMarkup.includes('role="menu"'), false);
 assert.equal(platformNavMarkup.includes('role="menuitem"'), false);
 assert.equal(platformNavMarkup.includes('aria-haspopup="menu"'), false);
-assert.ok(platformNavMarkup.includes('data-surfaces-system-menu-button'));
-assert.ok(platformNavMarkup.includes("<span>judgmentkit.ai</span>"));
-assert.ok(platformNavMarkup.includes('href="https://surfaces.systems/"'));
-assert.ok(platformNavMarkup.includes('href="https://surfaceops.ai/"'));
-assert.ok(platformNavMarkup.includes('href="https://interfacectl.com/"'));
-assert.ok(platformNavMarkup.includes('href="https://surfaces.dev/"'));
-assert.ok(
-  platformNavMarkup.includes('href="https://judgmentkit.ai/" aria-current="page"'),
-);
-assert.ok(platformNavMarkup.includes("Embedded MCP judgment for live design decisions"));
+assert.ok(homepage.includes('href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin'));
+assert.ok(fs.statSync(path.join(tempDir, "assets", "fonts", "inter-latin.woff2")).size > 0);
+assert.ok(fs.readFileSync(path.join(tempDir, "assets", "fonts", "OFL.txt"), "utf8").includes("SIL OPEN FONT LICENSE"));
 assert.equal(platformNavMarkup.includes("target="), false);
 assert.equal(platformNavMarkup.includes("rel="), false);
 assert.equal(platformNavMarkup.includes("pop-out"), false);
 const platformNavCss = siteCss.match(/\.surfaces-navigation \{[^}]*\}/)?.[0] ?? "";
-assert.ok(siteCss.includes("body {\n  margin: 0;\n  padding-top: 56px;"));
+assert.ok(siteCss.includes("body {\n  margin: 0;\n  padding-top: 0;"));
 assert.ok(
   siteCss.includes(
-    ".surfaces-navigation {\n  height: 56px;\n  background-color: var(--nav-bg);\n  border-bottom: 1px solid var(--nav-border);\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  width: 100%;",
+    ".surfaces-navigation {\n  height: var(--site-navigation-height);\n  background-color: var(--nav-bg);\n  position: sticky;\n  top: 0;\n  width: 100%;",
   ),
 );
 assert.ok(siteCss.includes("color-scheme: light dark;"));
 assert.ok(siteCss.includes("@media (prefers-color-scheme: dark)"));
-assert.ok(siteCss.includes("--nav-bg: rgba(16, 19, 18, 0.96);"));
+assert.ok(siteCss.includes("--nav-bg: rgba(11, 13, 14, 0.98);"));
 assert.ok(siteCss.includes("--focus-ring: rgba(125, 182, 199, 0.38);"));
 assert.ok(siteCss.includes("--step-marker-bg: #a9d7e4;"));
 assert.ok(siteCss.includes("--step-marker-ink: #101312;"));
@@ -484,7 +488,7 @@ assert.ok(siteCss.includes("--report-toc-bg: rgba(24, 29, 27, 0.88);"));
 assert.ok(siteCss.includes("--system-map-bg: #151a18;"));
 assert.ok(siteCss.includes("background: var(--step-marker-bg);"));
 assert.ok(siteCss.includes("color: var(--step-marker-ink);"));
-assert.ok(siteCss.includes("background-color: var(--menu-item-bg);"));
+assert.ok(siteCss.includes("background: var(--header-menu-bg);"));
 assert.ok(siteCss.includes("background: var(--soft-surface);"));
 assert.ok(siteCss.includes("background: var(--report-toc-bg);"));
 assert.ok(siteCss.includes("background: var(--system-map-bg);"));
@@ -592,15 +596,16 @@ for (const [index, mode] of ["light", "dark"].entries()) {
     3,
   );
 }
-assert.equal(platformNavCss.includes("position: sticky;"), false);
+assert.equal(platformNavCss.includes("position: sticky;"), true);
 assert.ok(siteCss.includes(".surfaces-primary-menu"));
 assert.ok(siteCss.includes(".surfaces-primary-menu-button"));
 assert.ok(siteCss.includes(".surfaces-primary-menu-list"));
-assert.ok(siteCss.includes("@media (max-width: 1120px) and (min-width: 768px)"));
-assert.ok(siteCss.includes("@media (max-width: 767px)"));
+assert.ok(siteCss.includes("@media (max-width: 960px)"));
+assert.ok(siteCss.includes("@media (max-width: 820px)"));
 assert.ok(siteCss.includes(".surfaces-navigation-sections {\n    display: none;"));
 assert.ok(siteCss.includes(".surfaces-primary-menu {\n    display: block;"));
-assert.ok(siteCss.includes("@media (max-width: 359px)"));
+assert.ok(siteCss.includes('font-family: "Header Inter"'));
+assert.ok(siteCss.includes("font-display: optional;"));
 assert.ok(siteCss.includes("--site-gutter: clamp(18px, 4vw, 56px);"));
 assert.ok(siteCss.includes("--site-shell-width: 1220px;"));
 assert.ok(siteCss.includes("--site-reading-width: 820px;"));
@@ -608,7 +613,7 @@ assert.ok(siteCss.includes("--site-reading-wide: 980px;"));
 assert.ok(siteCss.includes("--site-rail-width: 180px;"));
 assert.ok(siteCss.includes("--site-rail-gap: 28px;"));
 assert.ok(siteCss.includes("--site-page-top: clamp(36px, 5vw, 62px);"));
-assert.ok(siteCss.includes("--site-navigation-height: 56px;"));
+assert.ok(siteCss.includes("--site-navigation-height: 72px;"));
 assert.ok(siteCss.includes("--section-rail-top: calc(var(--site-navigation-height) + var(--site-page-top));"));
 assert.ok(siteCss.includes(".site-shell {\n  width: 100%;\n  max-width: var(--site-shell-width);"));
 assert.ok(siteCss.includes(".site-footer {\n  padding: 18px var(--site-gutter) 20px;"));
@@ -663,7 +668,7 @@ assert.ok(siteCss.includes(".design-system-content {\n    grid-column: auto;"));
 assert.ok(homepage.includes("[data-section-rail-menu]"));
 assert.ok(homepage.includes('class="site-shell homepage-section-shell"'));
 assert.ok(homepage.includes("[data-surfaces-primary-menu-button]"));
-assert.ok(homepage.includes("[data-surfaces-system-menu-button]"));
+assert.equal(homepage.includes("[data-surfaces-system-menu-button]"), false);
 assert.ok(homepageHeroCopy.includes("Stop AI from building the wrong interface."));
 assert.ok(homepageHeroCopy.includes("The judgment layer for AI-generated UI"));
 assert.ok(
