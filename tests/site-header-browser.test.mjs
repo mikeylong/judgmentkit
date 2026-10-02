@@ -44,7 +44,8 @@ async function measure(client, sessionId) {
       markSource: mark.getAttribute('src'),
       links: links.map(el => ({ href: el.getAttribute('href'), rect: rect(el) })),
       menuVisible: menu.getBoundingClientRect().height > 0,
-      overflow: document.documentElement.scrollWidth > innerWidth,
+      layoutWidth: document.body.getBoundingClientRect().width,
+      overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
       fontLoaded: [...document.fonts].some(f => f.family === 'Header Inter' && f.status === 'loaded'),
       background: getComputedStyle(nav).backgroundColor,
       weight: getComputedStyle(brand).fontWeight,
@@ -71,14 +72,17 @@ try {
         try {
           const home = await measure(client, sid);
           const label = `${expected.width}px ${colorScheme}`;
+          // Classic scrollbars consume layout width; overlay scrollbars do not.
+          const gutter = Math.max(expected.width <= 820 ? 16 : 24, (home.layoutWidth - 1120) / 2);
           assert.equal(home.header.height, 72, label);
           assert.equal(home.header.y, 0, label);
-          assert.equal(home.shell.x, expected.gutter, label);
-          assert.equal(home.shell.right, expected.width - expected.gutter, label);
-          assert.deepEqual(home.mark, { x: expected.gutter, y: 20, width: 32, height: 32, right: expected.gutter + 32 }, label);
+          assert.equal(home.header.width, home.layoutWidth, label);
+          assert.equal(home.shell.x, gutter, label);
+          assert.equal(home.shell.right, home.layoutWidth - gutter, label);
+          assert.deepEqual(home.mark, { x: gutter, y: 20, width: 32, height: 32, right: gutter + 32 }, label);
           assert.equal(home.markLoaded, true, `${label}: the JudgmentKit mark must load`);
           assert.equal(home.markSource, "/favicon.svg", `${label}: the header and favicon share one mark`);
-          assert.equal(home.text.x, expected.gutter + 42, label);
+          assert.equal(home.text.x, gutter + 42, label);
           assert.equal(home.brand.y, 14, label);
           assert.equal(home.brand.height, 44, label);
           assert.equal(home.menuVisible, expected.menu, label);
@@ -90,7 +94,7 @@ try {
           if (expected.menu) {
             assert.equal(home.button.y, 14, label);
             assert.equal(home.button.height, 44, label);
-            assert.equal(home.button.right, expected.width - expected.gutter, label);
+            assert.equal(home.button.right, home.layoutWidth - gutter, label);
             await tabUntil(client, sid, '[data-surfaces-primary-menu-button]');
             const focus = await evaluate(client, sid, `getComputedStyle(document.activeElement).outlineStyle`);
             assert.equal(focus, "solid", `${label}: menu focus must be visible`);

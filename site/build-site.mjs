@@ -1136,6 +1136,7 @@ ${designSystemAppearanceStylesheet}
 }
 html {
   overflow-x: clip;
+  scrollbar-gutter: stable;
 }
 body {
   margin: 0;
@@ -1335,7 +1336,7 @@ a {
 }
 @media (max-width: 359px) {
   .surfaces-navigation-inner {
-    gap: 20px;
+    gap: 12px;
   }
 }
 @media (forced-colors: active) {
