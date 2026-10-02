@@ -62,7 +62,7 @@
     "site:build": "node site/build-site.mjs",
     "site:dev": "npm run site:build && node scripts/site-local-server.mjs",
     "site:serve": "node scripts/site-local-server.mjs",
-    "test:site": "node tests/site.test.mjs && node tests/site-local-server.test.mjs && node tests/patterns-browser.test.mjs",
+    "test:site": "node tests/site.test.mjs && node tests/site-local-server.test.mjs && node tests/site-header-browser.test.mjs && node tests/patterns-browser.test.mjs",
     "test:components:inventory": "node tests/components/component-reference-inventory.test.mjs",
     "test:components:contracts": "node tests/components/component-contract-registry.test.mjs",
     "test:components:unit": "node tests/components/component-state-model.test.mjs && node tests/components/component-specimen-runtime.test.mjs && node tests/components/native-components.test.mjs && node tests/components/interactive-components.test.mjs",

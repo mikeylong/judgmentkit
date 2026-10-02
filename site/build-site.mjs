@@ -417,39 +417,6 @@ function addAnalyticsToHtml(html) {
   return html;
 }
 
-const platformSites = [
-  {
-    id: "surfaces",
-    label: "surfaces.systems",
-    href: "https://surfaces.systems/",
-    description: "Canonical source of interface truth",
-  },
-  {
-    id: "surfaceops",
-    label: "surfaceops.ai",
-    href: "https://surfaceops.ai/",
-    description: "Operational enforcement and monitoring",
-  },
-  {
-    id: "interfacectl",
-    label: "interfacectl.com",
-    href: "https://interfacectl.com/",
-    description: "Executable interface control",
-  },
-  {
-    id: "surfaces-dev",
-    label: "surfaces.dev",
-    href: "https://surfaces.dev/",
-    description: "Developer documentation and reference",
-  },
-  {
-    id: "judgmentkit",
-    label: "judgmentkit.ai",
-    href: "https://judgmentkit.ai/",
-    description: "Embedded MCP judgment for live design decisions",
-  },
-];
-
 const primaryNavLinks = [
   { label: "Value", href: "/value/" },
   { label: "Docs", href: "/docs/" },
@@ -457,9 +424,11 @@ const primaryNavLinks = [
   { label: "Examples", href: "/examples/" },
   { label: "Evals", href: "/evals/" },
   { label: "MCP", href: "/mcp" },
+  { label: "surfaces.systems", href: "https://surfaces.systems/" },
 ];
 
 function isPrimaryNavCurrent(link, pathName) {
+  if (link.href.startsWith("https://")) return false;
   if (link.href === "/") return pathName === "/";
   if (link.href === "/mcp") return pathName === "/mcp";
   return pathName === link.href || pathName.startsWith(link.href);
@@ -591,72 +560,32 @@ const ICON_PAGE_SCENARIOS = [
 ];
 
 function renderPlatformHeader(pathName = "/") {
-  return `    <nav class="surfaces-navigation" aria-label="Surfaces platform" data-surfaces-navigation>
+  const links = primaryNavLinks.map((link) => {
+    const current = isPrimaryNavCurrent(link, pathName) ? ' aria-current="page"' : "";
+    return `<a href="${escapeHtml(link.href)}"${current}>${escapeHtml(link.label)}</a>`;
+  }).join("\n            ");
+
+  return `    <nav class="surfaces-navigation" aria-label="Primary navigation" data-surfaces-navigation>
       <div class="surfaces-navigation-inner">
-        <div class="surfaces-navigation-left">
-          <a class="surfaces-navigation-identifier" href="/"${pathName === "/" ? ' aria-current="page"' : ""}>JudgmentKit</a>
-          <div class="surfaces-navigation-sections" aria-label="Primary">
-            ${primaryNavLinks
-              .map((link) => {
-                const current = isPrimaryNavCurrent(link, pathName)
-                  ? ' aria-current="page"'
-                  : "";
-                return `<a href="${escapeHtml(link.href)}"${current}>${escapeHtml(link.label)}</a>`;
-              })
-              .join("\n            ")}
+        <a class="surfaces-navigation-identifier" href="/" aria-label="JudgmentKit home"${pathName === "/" ? ' aria-current="page"' : ""}>
+          <img class="surfaces-brand-mark" src="/favicon.svg" width="32" height="32" alt="">
+          <span>JudgmentKit</span>
+        </a>
+        <div class="surfaces-navigation-right">
+          <div class="surfaces-navigation-sections">
+            ${links}
           </div>
           <div class="surfaces-primary-menu" data-surfaces-primary-menu-root>
-            <button
-              class="surfaces-primary-menu-button"
-              type="button"
-              aria-label="Open primary navigation"
-              aria-expanded="false"
-              aria-controls="surfaces-primary-menu"
-              aria-haspopup="true"
-              data-surfaces-primary-menu-button
-            >
+            <button class="surfaces-primary-menu-button" type="button" aria-label="Open primary navigation"
+              aria-expanded="false" aria-controls="surfaces-primary-menu" data-surfaces-primary-menu-button>
               <span>Menu</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
-                <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"></path>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
               </svg>
             </button>
             <div class="surfaces-primary-menu-backdrop" hidden data-surfaces-primary-menu-backdrop></div>
             <div class="surfaces-primary-menu-list" id="surfaces-primary-menu" hidden data-surfaces-primary-menu-list>
-              ${primaryNavLinks
-                .map((link) => {
-                  const current = isPrimaryNavCurrent(link, pathName)
-                    ? ' aria-current="page"'
-                    : "";
-                  return `<a href="${escapeHtml(link.href)}"${current}>${escapeHtml(link.label)}</a>`;
-                })
-                .join("\n              ")}
-            </div>
-          </div>
-        </div>
-        <div class="surfaces-navigation-right">
-          <div class="surfaces-system-switch" data-surfaces-system-switch>
-            <button class="surfaces-system-switch-button" type="button" aria-expanded="false" aria-haspopup="true" data-surfaces-system-menu-button>
-              <span>judgmentkit.ai</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"></path>
-              </svg>
-            </button>
-            <div class="surfaces-system-switch-backdrop" hidden data-surfaces-system-menu-backdrop></div>
-            <div class="surfaces-system-switch-menu" hidden data-surfaces-system-menu>
-            ${platformSites
-              .map((site) => {
-                const isCurrent = site.id === "judgmentkit";
-                const nameClass =
-                  site.id === "interfacectl" || site.id === "surfaces-dev"
-                    ? "surfaces-system-switch-name surfaces-system-switch-name-mono"
-                    : "surfaces-system-switch-name";
-
-                return `<a href="${escapeHtml(site.href)}"${isCurrent ? ' aria-current="page"' : ""}>
-              <span class="${nameClass}">${escapeHtml(site.label)}</span>
-              <span class="surfaces-system-switch-description">${escapeHtml(site.description)}</span>
-            </a>`;
-              })
-              .join("\n            ")}
+              ${links}
             </div>
           </div>
         </div>
@@ -756,7 +685,7 @@ function platformNavigationScript() {
             const railTop = rail ? Number.parseFloat(getComputedStyle(rail).top) : Number.NaN;
             if (!Number.isNaN(railTop)) return railTop + 40;
             const navigation = document.querySelector("[data-surfaces-navigation]");
-            return (navigation ? navigation.getBoundingClientRect().bottom : 56) + 40;
+            return (navigation ? navigation.getBoundingClientRect().bottom : 72) + 40;
           };
 
           const updateFromScroll = () => {
@@ -819,10 +748,13 @@ function platformNavigationScript() {
             backdrop: nav.querySelector("[data-surfaces-primary-menu-backdrop]"),
           });
 
-          bindMenu({
-            button: nav.querySelector("[data-surfaces-system-menu-button]"),
-            menu: nav.querySelector("[data-surfaces-system-menu]"),
-            backdrop: nav.querySelector("[data-surfaces-system-menu-backdrop]"),
+          const button = nav.querySelector("[data-surfaces-primary-menu-button]");
+          const closePrimaryMenu = () => {
+            if (button?.getAttribute("aria-expanded") === "true") button.click();
+          };
+          window.addEventListener("pageshow", closePrimaryMenu);
+          window.addEventListener("resize", () => {
+            if (window.matchMedia("(min-width: 961px)").matches) closePrimaryMenu();
           });
         }
 
@@ -875,6 +807,7 @@ function page(title, body, options = {}) {
     <meta name="twitter:description" content="${escapeHtml(description)}">
     <meta name="twitter:image" content="${escapeHtml(socialThumbnailUrl)}">
     <meta name="twitter:image:alt" content="${escapeHtml(SOCIAL_THUMBNAIL_ALT)}">
+    <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/assets/site.css">
 ${options.headExtra ?? ""}
 ${analyticsBootstrap()}
@@ -1084,9 +1017,9 @@ const stylesheet = `
   --risk: #8f342f;
   --disabled: #8a8f93;
   --receipt: #23615f;
-  --nav-bg: rgba(255, 255, 255, 0.98);
+  --nav-bg: rgba(11, 13, 14, 0.98);
   --nav-border: #e5e5e5;
-  --nav-muted: #525252;
+  --nav-muted: #dad7cf;
   --focus-ring: rgba(36, 95, 115, 0.28);
   --step-marker-bg: #245f73;
   --step-marker-ink: #ffffff;
@@ -1137,7 +1070,10 @@ const stylesheet = `
   --site-rail-width: 180px;
   --site-rail-gap: 28px;
   --site-page-top: clamp(36px, 5vw, 62px);
-  --site-navigation-height: 56px;
+  --site-navigation-height: 72px;
+  --header-ink: #f7f6f2;
+  --header-menu-bg: #0b0d0e;
+  --header-border: #3c4145;
   --section-rail-top: calc(var(--site-navigation-height) + var(--site-page-top));
 }
 @media (prefers-color-scheme: dark) {
@@ -1155,9 +1091,9 @@ const stylesheet = `
     --risk: #e37d76;
     --disabled: #7d8580;
     --receipt: #80cbc7;
-    --nav-bg: rgba(16, 19, 18, 0.96);
+    --nav-bg: rgba(11, 13, 14, 0.98);
     --nav-border: #29312e;
-    --nav-muted: #b8c0bb;
+    --nav-muted: #dad7cf;
     --focus-ring: rgba(125, 182, 199, 0.38);
     --step-marker-bg: #a9d7e4;
     --step-marker-ink: #101312;
@@ -1199,14 +1135,14 @@ ${designSystemAppearanceStylesheet}
   box-sizing: border-box;
 }
 html {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 body {
   margin: 0;
-  padding-top: 56px;
+  padding-top: 0;
   background: var(--bg);
   color: var(--ink);
-  overflow-x: hidden;
+  overflow-x: clip;
   font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 .sr-only {
@@ -1227,102 +1163,115 @@ a {
 [id] {
   scroll-margin-top: 126px;
 }
+/* Header geometry and Inter metrics match surfaces.systems. */
+@font-face {
+  font-family: "Header Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: optional;
+  src: url("/assets/fonts/inter-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Header Inter Fallback";
+  src: local("Arial");
+  ascent-override: 90.44%;
+  descent-override: 22.52%;
+  line-gap-override: 0%;
+  size-adjust: 107.12%;
+}
 .surfaces-navigation {
-  height: 56px;
+  height: var(--site-navigation-height);
   background-color: var(--nav-bg);
-  border-bottom: 1px solid var(--nav-border);
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   width: 100%;
-  z-index: 50;
-  backdrop-filter: blur(8px);
+  z-index: 100;
+  backdrop-filter: blur(16px);
+  color: var(--header-ink);
+  font-family: "Header Inter", "Header Inter Fallback", Arial, Helvetica, sans-serif;
 }
 .surfaces-navigation-inner {
-  max-width: 1120px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  width: min(1120px, calc(100% - 48px));
+  margin-inline: auto;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-.surfaces-navigation-left {
-  display: flex;
-  align-items: center;
-  gap: 48px;
-  min-width: 0;
+  gap: 32px;
 }
 .surfaces-navigation-identifier {
   display: inline-flex;
   align-items: center;
-  min-height: 32px;
-  color: var(--ink);
-  font-family: Inter, sans-serif;
-  font-size: 14px;
+  flex-shrink: 0;
+  gap: 10px;
+  min-height: 44px;
+  color: var(--header-ink);
+  font-size: 20px;
   font-weight: 600;
+  line-height: 1.15;
   text-decoration: none;
   white-space: nowrap;
 }
+.surfaces-brand-mark {
+  display: block;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  object-fit: contain;
+}
+.surfaces-navigation-right,
 .surfaces-navigation-sections {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 28px;
 }
 .surfaces-navigation-sections a {
   display: inline-flex;
   align-items: center;
-  min-height: 32px;
+  min-height: 44px;
   color: var(--nav-muted);
-  font-family: Inter, sans-serif;
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 500;
+  line-height: 1.45;
+  white-space: nowrap;
   text-decoration: none;
-  transition: color 0.12s linear;
 }
 .surfaces-navigation-sections a:hover,
 .surfaces-navigation-sections a:focus-visible,
 .surfaces-navigation-sections a[aria-current="page"] {
-  color: var(--ink);
+  color: var(--header-ink);
 }
 .surfaces-navigation-identifier:focus-visible,
-.surfaces-navigation-sections a:focus-visible {
-  outline: 0;
-  box-shadow: 0 0 0 2px var(--focus-ring);
+.surfaces-navigation-sections a:focus-visible,
+.surfaces-primary-menu-button:focus-visible,
+.surfaces-primary-menu-list a:focus-visible {
+  outline: 2px solid var(--header-ink);
+  outline-offset: 4px;
 }
-.surfaces-navigation-identifier[aria-current="page"],
 .surfaces-navigation-sections a[aria-current="page"] {
-  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 5px;
 }
 .surfaces-primary-menu {
-  position: relative;
   display: none;
 }
 .surfaces-primary-menu-button {
   display: inline-flex;
+  justify-content: center;
   align-items: center;
-  gap: 6px;
-  min-height: 34px;
-  padding: 5px 8px;
-  border: 1px solid var(--nav-border);
+  gap: 10px;
+  min-width: 72px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--header-ink);
   border-radius: 4px;
-  background-color: var(--panel);
-  color: var(--nav-muted);
+  background: transparent;
+  color: var(--header-ink);
   cursor: pointer;
-  font-family: Inter, sans-serif;
+  font-family: inherit;
   font-size: 14px;
   font-weight: 500;
-}
-.surfaces-primary-menu-button:hover,
-.surfaces-primary-menu-button:focus-visible {
-  color: var(--ink);
-  outline: 0;
-}
-.surfaces-primary-menu-button:focus-visible {
-  box-shadow: 0 0 0 2px var(--focus-ring);
+  line-height: 1.45;
 }
 .surfaces-primary-menu-button svg {
   display: block;
@@ -1330,138 +1279,75 @@ a {
 }
 .surfaces-primary-menu-backdrop {
   position: fixed;
-  inset: 0;
-  z-index: 40;
+  inset: var(--site-navigation-height) 0 auto;
+  height: calc(100dvh - var(--site-navigation-height));
+  z-index: 80;
 }
 .surfaces-primary-menu-list {
-  position: absolute;
-  top: calc(100% + 8px);
+  position: fixed;
+  top: var(--site-navigation-height);
   left: 0;
-  width: 220px;
-  max-width: calc(100vw - 48px);
-  padding: 8px;
-  border: 1px solid var(--nav-border);
-  border-radius: 4px;
-  background-color: var(--menu-item-bg);
-  z-index: 50;
-  animation: surfaces-menu-enter 0.12s linear;
+  right: 0;
+  max-height: calc(100dvh - var(--site-navigation-height));
+  overflow-y: auto;
+  padding: 12px 16px 24px;
+  border-bottom: 1px solid var(--header-border);
+  background: var(--header-menu-bg);
+  z-index: 90;
 }
 .surfaces-primary-menu-backdrop[hidden],
 .surfaces-primary-menu-list[hidden] {
   display: none;
 }
 .surfaces-primary-menu-list a {
-  display: block;
-  padding: 12px;
-  border-radius: 4px;
-  color: var(--ink);
-  font-family: Inter, sans-serif;
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--header-border);
+  color: var(--nav-muted);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
+  line-height: 1.45;
   text-decoration: none;
-  transition: background-color 0.12s linear;
 }
 .surfaces-primary-menu-list a:hover,
-.surfaces-primary-menu-list a:focus-visible {
-  background-color: var(--menu-item-bg-hover);
-  outline: 0;
+.surfaces-primary-menu-list a:focus-visible,
+.surfaces-primary-menu-list a[aria-current="page"] {
+  color: var(--header-ink);
 }
 .surfaces-primary-menu-list a[aria-current="page"] {
-  background-color: var(--menu-item-bg-current);
-  font-weight: 850;
+  text-decoration: underline;
+  text-underline-offset: 5px;
 }
-.surfaces-navigation-right {
-  display: flex;
-  align-items: center;
-  gap: 32px;
+@media (max-width: 960px) {
+  .surfaces-navigation-sections {
+    display: none;
+  }
+  .surfaces-primary-menu {
+    display: block;
+  }
 }
-.surfaces-system-switch {
-  position: relative;
+@media (max-width: 820px) {
+  .surfaces-navigation-inner {
+    width: min(1120px, calc(100% - 32px));
+  }
 }
-.surfaces-system-switch-button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border: 0;
-  background-color: transparent;
-  color: var(--nav-muted);
-  cursor: pointer;
-  font-family: Inter, sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  transition: color 0.12s linear;
+@media (max-width: 359px) {
+  .surfaces-navigation-inner {
+    gap: 20px;
+  }
 }
-.surfaces-system-switch-button:hover,
-.surfaces-system-switch-button:focus-visible {
-  color: var(--ink);
-  outline: 0;
-}
-.surfaces-system-switch-button:focus-visible {
-  box-shadow: 0 0 0 2px var(--focus-ring);
-}
-.surfaces-system-switch-button svg {
-  display: block;
-  flex: 0 0 auto;
-}
-.surfaces-system-switch-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-}
-.surfaces-system-switch-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 320px;
-  max-width: calc(100vw - 48px);
-  padding: 8px;
-  border: 1px solid var(--nav-border);
-  border-radius: 4px;
-  background-color: var(--menu-item-bg);
-  z-index: 50;
-  animation: surfaces-menu-enter 0.12s linear;
-}
-.surfaces-system-switch-backdrop[hidden],
-.surfaces-system-switch-menu[hidden] {
-  display: none;
-}
-.surfaces-system-switch-menu a {
-  display: block;
-  padding: 12px;
-  border-radius: 4px;
-  text-decoration: none;
-  transition: background-color 0.12s linear;
-}
-.surfaces-system-switch-menu a[aria-current="page"] {
-  background-color: var(--menu-item-bg-current);
-}
-.surfaces-system-switch-menu a:hover,
-.surfaces-system-switch-menu a:focus-visible {
-  background-color: var(--menu-item-bg-hover);
-  outline: 0;
-}
-.surfaces-system-switch-menu a[aria-current="page"]:hover,
-.surfaces-system-switch-menu a[aria-current="page"]:focus-visible {
-  background-color: var(--menu-item-bg-current);
-}
-.surfaces-system-switch-name {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--ink);
-  font-family: Inter, sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-}
-.surfaces-system-switch-name-mono {
-  font-family: "JetBrains Mono", monospace;
-}
-.surfaces-system-switch-description {
-  display: block;
-  color: var(--muted);
-  font-family: Inter, sans-serif;
-  font-size: 12px;
-  font-weight: 400;
+@media (forced-colors: active) {
+  .surfaces-navigation,
+  .surfaces-primary-menu-list {
+    background: Canvas;
+    color: CanvasText;
+  }
+  .surfaces-navigation a,
+  .surfaces-primary-menu-button {
+    color: LinkText;
+  }
 }
 @keyframes surfaces-menu-enter {
   from {
@@ -5363,14 +5249,6 @@ pre {
   gap: 10px;
   margin-top: 16px;
 }
-@media (max-width: 1120px) and (min-width: 768px) {
-  .surfaces-navigation-left {
-    gap: 28px;
-  }
-  .surfaces-navigation-sections {
-    gap: 20px;
-  }
-}
 @media (max-width: 1120px) {
   .doc-layout,
   .design-system-layout {
@@ -5830,34 +5708,6 @@ pre {
   .surface-type-entry {
     grid-template-columns: minmax(0, 1fr);
     gap: 5px;
-  }
-}
-@media (max-width: 767px) {
-  .surfaces-navigation-inner {
-    padding-left: 16px;
-    padding-right: 16px;
-  }
-  .surfaces-navigation-left {
-    gap: 12px;
-  }
-  .surfaces-navigation-sections {
-    display: none;
-  }
-  .surfaces-primary-menu {
-    display: block;
-  }
-  .surfaces-primary-menu-list {
-    position: fixed;
-    top: 64px;
-    left: 16px;
-    right: 16px;
-    width: auto;
-    max-width: none;
-  }
-}
-@media (max-width: 359px) {
-  .surfaces-primary-menu-button span {
-    display: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -11492,6 +11342,7 @@ export async function buildSite(
   await fs.mkdir(path.join(outDir, "assets", "releases"), { recursive: true });
 
   await fs.writeFile(path.join(outDir, "assets", "site.css"), stylesheet.trimStart());
+  await fs.cp(path.join(__dirname, "assets", "fonts"), path.join(outDir, "assets", "fonts"), { recursive: true });
   const socialThumbnailSourcePath = path.join(__dirname, "assets", SOCIAL_THUMBNAIL_SOURCE_FILENAME);
   await fs.copyFile(
     socialThumbnailSourcePath,

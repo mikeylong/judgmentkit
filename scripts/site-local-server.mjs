@@ -26,6 +26,7 @@ const CONTENT_TYPES = new Map([
   [".txt", "text/plain; charset=utf-8"],
   [".vtt", "text/vtt; charset=utf-8"],
   [".webp", "image/webp"],
+  [".woff2", "font/woff2"],
 ]);
 
 function parseArgs(argv) {
