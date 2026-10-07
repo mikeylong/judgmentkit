@@ -7,7 +7,7 @@ The primary decisions are where to learn about JudgmentKit and whether to visit 
 ## Interaction contract
 
 1. The top-left home link contains JudgmentKit's own logomark, using the same `/favicon.svg` asset as the browser favicon, followed by JudgmentKit. Treat the mark as decorative within the named home link. Preserve the 32 px mark slot and its alignment with Surfaces.
-2. Desktop navigation sits on the right and retains all six JudgmentKit destinations, a Handbooks link to https://handbooks.surfaces.systems/, and a direct https://surfaces.systems/ link in the same tab.
+2. Desktop navigation sits on the right and retains all six JudgmentKit destinations, a Handbooks link to https://handbooks.surfaces.systems/ that opens in a new tab, and a direct https://surfaces.systems/ link in the same tab.
 3. Current-page state is visible without changing font weight or link width. All links and controls have visible keyboard focus.
 4. The mobile menu exposes the same destinations, supports keyboard activation, closes on Escape with focus returned to its button, and closes after link selection or an outside click. Restored pages and desktop resize do not retain an open menu.
 5. Completion means the visitor reaches the chosen page. The header adds no confirmation or intermediate domain chooser.

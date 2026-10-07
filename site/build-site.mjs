@@ -424,7 +424,7 @@ const primaryNavLinks = [
   { label: "Examples", href: "/examples/" },
   { label: "Evals", href: "/evals/" },
   { label: "MCP", href: "/mcp" },
-  { label: "Handbooks", href: "https://handbooks.surfaces.systems/" },
+  { label: "Handbooks", href: "https://handbooks.surfaces.systems/", newTab: true },
   { label: "surfaces.systems", href: "https://surfaces.systems/" },
 ];
 
@@ -563,7 +563,8 @@ const ICON_PAGE_SCENARIOS = [
 function renderPlatformHeader(pathName = "/") {
   const links = primaryNavLinks.map((link) => {
     const current = isPrimaryNavCurrent(link, pathName) ? ' aria-current="page"' : "";
-    return `<a href="${escapeHtml(link.href)}"${current}>${escapeHtml(link.label)}</a>`;
+    const newTab = link.newTab ? ' target="_blank" rel="noopener noreferrer"' : "";
+    return `<a href="${escapeHtml(link.href)}"${current}${newTab}>${escapeHtml(link.label)}</a>`;
   }).join("\n            ");
 
   return `    <nav class="surfaces-navigation" aria-label="Primary navigation" data-surfaces-navigation>
