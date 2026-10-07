@@ -424,6 +424,7 @@ const primaryNavLinks = [
   { label: "Examples", href: "/examples/" },
   { label: "Evals", href: "/evals/" },
   { label: "MCP", href: "/mcp" },
+  { label: "Handbooks", href: "https://handbooks.surfaces.systems/" },
   { label: "surfaces.systems", href: "https://surfaces.systems/" },
 ];
 
@@ -754,7 +755,7 @@ function platformNavigationScript() {
           };
           window.addEventListener("pageshow", closePrimaryMenu);
           window.addEventListener("resize", () => {
-            if (window.matchMedia("(min-width: 961px)").matches) closePrimaryMenu();
+            if (window.matchMedia("(min-width: 1121px)").matches) closePrimaryMenu();
           });
         }
 
@@ -1321,7 +1322,7 @@ a {
   text-decoration: underline;
   text-underline-offset: 5px;
 }
-@media (max-width: 960px) {
+@media (max-width: 1120px) {
   .surfaces-navigation-sections {
     display: none;
   }

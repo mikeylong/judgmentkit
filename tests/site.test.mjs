@@ -455,6 +455,7 @@ assert.ok(platformNavMarkup.includes('class="surfaces-brand-mark"'));
 assert.ok(platformNavMarkup.includes('<img class="surfaces-brand-mark" src="/favicon.svg" width="32" height="32" alt="">'));
 assert.equal(platformNavMarkup.includes("<polygon"), false, "JudgmentKit must use its own favicon mark");
 assert.ok(platformNavMarkup.includes('<span>JudgmentKit</span>'));
+assert.ok(platformNavMarkup.includes('href="https://handbooks.surfaces.systems/">Handbooks</a>'));
 assert.ok(platformNavMarkup.includes('href="https://surfaces.systems/">surfaces.systems</a>'));
 for (const removed of ["surfaces-system-switch", "data-surfaces-system-menu", "surfaceops.ai", "interfacectl.com", "surfaces.dev"]) {
   assert.equal(platformNavMarkup.includes(removed), false, `${removed} must not return to the header`);
@@ -600,7 +601,7 @@ assert.equal(platformNavCss.includes("position: sticky;"), true);
 assert.ok(siteCss.includes(".surfaces-primary-menu"));
 assert.ok(siteCss.includes(".surfaces-primary-menu-button"));
 assert.ok(siteCss.includes(".surfaces-primary-menu-list"));
-assert.ok(siteCss.includes("@media (max-width: 960px)"));
+assert.ok(siteCss.includes("@media (max-width: 1120px)"));
 assert.ok(siteCss.includes("@media (max-width: 820px)"));
 assert.ok(siteCss.includes(".surfaces-navigation-sections {\n    display: none;"));
 assert.ok(siteCss.includes(".surfaces-primary-menu {\n    display: block;"));
