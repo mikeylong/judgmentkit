@@ -1,6 +1,8 @@
 # JudgmentKit
 
-JudgmentKit is a fresh activity-first kernel for AI-generated interface work.
+JudgmentKit helps people build useful interfaces with AI agents. A useful interface lets its intended user complete the work correctly, understand the result, and recover when something goes wrong.
+
+The [product vision](VISION.md) defines that purpose. JudgmentKit guides activity and interaction decisions, checks declared requirements, and verifies supported rendered observations. The implementing agent builds and repairs the interface. Builder effort and observed user task completion remain separate from contract acceptance.
 
 It is not a beautifier, generic design-system linter, prompt library, schema browser, or MCP reference surface. Design-system provenance is now enforced after activity judgment through the implementation contract; the core job remains helping an agent generate or critique UI that is relevant, succinct, and appropriate to the activity it supports.
 
@@ -39,6 +41,7 @@ JudgmentKit keeps the core deterministic and lets model assistance enter through
 3. Model-assisted candidate review seam: accepts a model-proposed candidate through dependency injection or MCP and runs the same guardrails.
 4. Provider-neutral proposer adapter: builds a serializable activity-model request for an injected model caller and returns the proposed candidate to the review seam.
 5. Surface-type recommendation: classifies activity purpose as marketing, workbench, operator review, artifact inspector, form flow, dashboard monitor, content/report, setup/debug tool, or conversation before workflow or frontend implementation guidance.
+   When no surface has positive evidence, routing returns `review_required` with no selected surface. Resolve that activity choice before handoff or frontend generation. Explicit caller choices are labelled as caller-provided, and conflicting choices fail visibly.
 6. UI workflow candidate review seam: accepts a model- or agent-proposed workflow candidate and checks grounding, action support, handoff clarity, and disclosure containment before UI implementation.
 7. UI implementation contract gate: creates or accepts the repo authority for approved primitives, control semantics, required states, static checks, and browser QA.
 8. UI generation handoff gate: turns only ready workflow reviews plus an implementation contract into compact handoffs for the next UI generation pass.
@@ -67,10 +70,12 @@ The first workflow is AI UI generation. It starts with one contract:
 Start with a short activity brief in any client that can load the JudgmentKit skill, including Codex or Claude Code. For example:
 
 ```text
-Use JudgmentKit to plan an interface for a support lead reviewing refund requests during daily triage. They decide whether to recommend support, send a case to policy review, or return it for missing evidence. The outcome is a clear handoff with the next action and reason.
+Use JudgmentKit to build a signup form for a local workshop. Attendees pick an available session, enter their contact details, and receive a clear confirmation. Handle incomplete details and full sessions. Build and check the main task, then show what works and what remains unverified.
 ```
 
 The default experience is inference-first: the agent proposes and briefly shows its best-current activity case, keeps reversible assumptions visible, and continues. It asks at most one targeted question only when a consequential fork would materially change the design and be costly to reverse. It stops when a protected action needs an authoritative source. A field-by-field interview is never the default.
+
+For an existing interface, give the agent the project and the task to improve. The same [builder workflow](docs/builder-workflow.md) carries a correctable premise through implementation, task checks, and focused repairs. The agent handles the review sequence below. The builder should receive the working result and the important checks, with missing verification named explicitly.
 
 The portable path is the same across clients:
 

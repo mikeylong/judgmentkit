@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { buildSite, renderHomepage } from "../site/build-site.mjs";
+import { SYSTEM_MAP_EDGES, SYSTEM_MAP_NODES, SYSTEM_MAP_VIEWBOX, systemMapEdgePath } from "../site/system-map-model.mjs";
 import {
   COMPARISON_COLUMNS,
   COMPARISON_ROWS,
@@ -352,14 +353,16 @@ const homepageHeroCopy = homepage.match(
 )?.[1] ?? "";
 const homepageFilmPreview = renderHomepage({ homepageFilmEnabled: true });
 const homepageFilmPreviewMain = homepageFilmPreview.match(/<main>([\s\S]*)<\/main>/)?.[1] ?? "";
-assert.ok(systemMapFlowJs.includes("MCP boundary"));
 assert.ok(systemMapFlowJs.includes("JudgmentKit React Flow system design map"));
-assert.ok(systemMapFlowJs.includes("Source brief + product context"));
-assert.ok(systemMapFlowJs.includes("Renderer choice after reviewed handoff"));
-assert.ok(systemMapFlowJs.includes("External adapter"));
-assert.ok(systemMapFlowJs.includes("design-system provenance is required"));
+for (const node of SYSTEM_MAP_NODES) {
+  assert.ok(systemMapFlowJs.includes(node.data.title), `React Flow must render the shared ${node.id} stage.`);
+  for (const tool of node.data.tools ?? []) {
+    assert.ok(systemMapFlowJs.includes(tool), `React Flow must depict ${tool}.`);
+  }
+}
+assert.equal(systemMapFlowJs.includes("Renderer choice after reviewed handoff"), false);
+assert.equal(systemMapFlowJs.includes("Access and transport only."), false);
 assert.equal(systemMapFlowJs.includes("Material UI adapter"), false);
-assert.ok(systemMapFlowJs.includes("updated context returns to source/activity review"));
 assert.equal(systemMapFlowJs.includes("optional styling path"), false);
 assert.ok(systemMapFlowCss.includes(".rf-map-node"));
 assert.ok(systemMapFlowCss.includes("overflow-wrap:anywhere"));
@@ -403,25 +406,9 @@ assert.deepEqual(
 );
 assert.ok(systemMapFlowSource.includes('position="bottom-left"'));
 assert.ok(systemMapFlowSource.includes('Background color="var(--rf-map-grid)"'));
-assert.ok(systemMapFlowSource.includes('stroke: "var(--rf-map-edge-output)"'));
+assert.ok(systemMapFlowSource.includes('"var(--rf-map-edge-output)"'));
 assert.equal(systemMapFlowSource.includes('position="top-left"'), false);
-assert.match(
-  systemMapFlowSource,
-  /id: "external-design-system-adapter"[\s\S]*?style: \{ width: 204, height: 112 \}/,
-);
-assert.match(
-  systemMapFlowSource,
-  /id: "judgmentkit-default-source"[\s\S]*?style: \{ width: 204, height: 112 \}/,
-);
-assert.match(
-  systemMapFlowSource,
-  /id: "zone-generation"[\s\S]*?style: \{ width: 500, height: 640 \}/,
-);
-assert.equal(systemMapFlowSource.includes('id: "with-design-system"'), false);
-assert.equal(systemMapFlowSource.includes('id: "without-design-system"'), false);
 assert.equal(systemMapFlowSource.includes("without design system"), false);
-assert.ok(systemMapFlowSource.includes("active"));
-assert.ok(systemMapFlowSource.includes("design-system provenance is required"));
 assert.ok(
   platformNavMarkup.includes(
     '<a class="surfaces-navigation-identifier" href="/" aria-label="JudgmentKit home" aria-current="page">',
@@ -546,7 +533,7 @@ assert.deepEqual(
   "dark appearance tokens must have a light/default counterpart",
 );
 assert.ok(siteCss.includes(".doc-section[data-system-map-flow-section] {\n  overflow-x: hidden;"));
-assert.ok(siteCss.includes(".system-map-canvas {\n  aspect-ratio: 1760 / 1040;\n  position: relative;\n  max-width: 100%;"));
+assert.ok(siteCss.includes(`.system-map-canvas {\n  aspect-ratio: ${SYSTEM_MAP_VIEWBOX.width} / ${SYSTEM_MAP_VIEWBOX.height};\n  position: relative;\n  max-width: 100%;`));
 assert.ok(siteCss.includes("contain: layout paint;\n  overflow: hidden;"));
 assert.ok(siteCss.includes(".system-map-flow-root .react-flow,\n.system-map-flow-root .react-flow__renderer,\n.system-map-flow-root .react-flow__pane"));
 assert.ok(siteCss.includes("box-shadow: 0 0 0 2px var(--focus-ring);"));
@@ -1824,8 +1811,8 @@ assert.equal(homepageMain.includes("create_frontend_generation_context"), false)
 assert.equal(homepageMain.includes("create_frontend_implementation_skill_context"), false);
 assert.equal(homepage.includes("System map"), false);
 assert.equal(homepage.includes('id="system-map"'), false);
-assert.equal(homepage.includes('href="/assets/system-map-flow.css?v=judgmentkit-flow-design-source-authority"'), false);
-assert.equal(homepage.includes('src="/assets/system-map-flow.js?v=judgmentkit-flow-design-source-authority"'), false);
+assert.equal(/href="\/assets\/system-map-flow\.css\?v=/.test(homepage), false);
+assert.equal(/src="\/assets\/system-map-flow\.js\?v=/.test(homepage), false);
 assert.equal(homepage.includes('data-system-map-flow-section'), false);
 assert.equal(homepage.includes('data-system-map-flow-viewer'), false);
 assert.equal(homepage.includes('data-system-map-flow-root'), false);
@@ -1941,8 +1928,8 @@ assert.ok(docs.includes("review_activity_model_candidate"));
 assert.ok(docs.includes("with that same raw source and the ready frontend context"));
 assert.ok(docs.includes('id="system-map"'));
 assert.ok(docs.includes("System Map"));
-assert.ok(docs.includes('href="/assets/system-map-flow.css?v=judgmentkit-flow-design-source-authority"'));
-assert.ok(docs.includes('src="/assets/system-map-flow.js?v=judgmentkit-flow-design-source-authority"'));
+assert.ok(/href="\/assets\/system-map-flow\.css\?v=/.test(docs));
+assert.ok(/src="\/assets\/system-map-flow\.js\?v=/.test(docs));
 assert.ok(docs.includes('data-system-map-flow-section'));
 assert.ok(docs.includes('data-system-map-flow-viewer'));
 assert.ok(docs.includes('data-system-map-flow-root'));
@@ -1966,19 +1953,42 @@ assert.ok(docs.includes("create_ui_implementation_contract"));
 assert.ok(docs.includes("review_ui_implementation_candidate"));
 assert.ok(docs.includes("create_frontend_generation_context"));
 assert.ok(docs.includes("create_frontend_implementation_skill_context"));
-assert.ok(docs.includes("MCP boundary"));
-assert.ok(docs.includes("MCP is access and transport, not the LLM"));
-assert.ok(docs.includes("LLM / provider seam"));
-assert.ok(docs.includes("JudgmentKit kernel"));
-assert.ok(docs.includes("Surface type"));
-assert.ok(docs.includes("Frontend adapter"));
-assert.ok(docs.includes("Source brief + product context"));
-assert.ok(docs.includes("External adapter"));
-assert.ok(docs.includes("Complete tokens, components,"));
+const systemMapSection = docs.match(/<section class="doc-section" id="system-map"[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? "";
+assert.ok(systemMapSection, "Docs must include an accessible System Map section.");
+assert.deepEqual(
+  [...systemMapSection.matchAll(/data-node-id="([^"]+)"/g)].map((match) => match[1]).sort(),
+  SYSTEM_MAP_NODES.map((node) => node.id).sort(),
+  "The static fallback must contain every shared diagram node exactly once.",
+);
+assert.deepEqual(
+  [...systemMapSection.matchAll(/data-edge-id="([^"]+)"/g)].map((match) => match[1]).sort(),
+  SYSTEM_MAP_EDGES.map((edge) => edge.id).sort(),
+  "The static fallback must contain every shared diagram edge exactly once.",
+);
+for (const edge of SYSTEM_MAP_EDGES) {
+  const fallbackEdge = systemMapSection.match(new RegExp(`<g data-edge-id="${edge.id}">([\\s\\S]*?)<\\/g>`))?.[1] ?? "";
+  assert.ok(fallbackEdge.includes(`d="${systemMapEdgePath(edge.data.points)}"`),
+    `The static fallback must preserve the shared ${edge.id} route.`);
+}
+assert.ok(systemMapSection.includes(`viewBox="0 0 ${SYSTEM_MAP_VIEWBOX.width} ${SYSTEM_MAP_VIEWBOX.height}"`));
+for (const node of SYSTEM_MAP_NODES) {
+  assert.ok(systemMapSection.includes(node.data.title), `The fallback must render the shared ${node.id} title.`);
+  for (const tool of node.data.tools ?? []) {
+    assert.ok(systemMapSection.includes(tool), `The fallback must depict ${tool}.`);
+  }
+}
+for (const claim of [
+  "Caller-owned execution", "CLI supports activity analysis and review",
+  "deterministic kernel does not call a model", "no recommended surface",
+  "Implementation contract before handoff", "Incomplete external adapters fail without falling back",
+  "self-contained HTML", "repair_and_resubmit", "stop_for_human", "review_required",
+  "no trusted interactive-attestation producer or verifier", "Human task outcome",
+  "separate from implementation acceptance", "Separate presentation tools",
+]) assert.ok(systemMapSection.includes(claim), `The System Map must explain ${claim}.`);
+assert.equal(systemMapSection.includes("Renderer choice after reviewed handoff"), false);
+assert.equal(systemMapSection.includes("Access and transport only."), false);
 assert.equal(docs.includes("@mui/material components"), false);
 assert.ok(docs.includes("selected surface type"));
-assert.ok(docs.includes("Design-system compliance is not a substitute for activity fit"));
-assert.ok(docs.includes("design-system provenance is required"));
 assert.ok(docs.includes("implementation_contract.design_system_source"));
 assert.ok(docs.includes("implementation_contract.local_component_authority"));
 assert.ok(docs.includes("implementation_contract.visual_token_adapter"));
@@ -1990,10 +2000,6 @@ assert.ok(docs.includes("complete"));
 assert.ok(docs.includes("missing authorities fail"));
 assert.equal(docs.includes("without design system"), false);
 assert.equal(docs.includes("does not enforce Material UI or any design system"), false);
-assert.ok(docs.includes("updated context"));
-assert.ok(docs.includes("re-enters source/activity review rather than becoming only a longer prompt"));
-assert.ok(docs.includes("resolve targeted questions or leakage details before generating UI"));
-assert.ok(docs.includes("not the final UI renderer"));
 assert.equal(docs.includes("optional styling path"), false);
 assert.ok(docs.includes("operator-review-ui"));
 assert.ok(

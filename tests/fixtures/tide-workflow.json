@@ -1,0 +1,229 @@
+{
+  "source": "Tide experiment 2026-10-07; exact saved inputs, no transport or acceptance claim",
+  "brief": "Build a simple responsive tide app. Let me choose a coastal location and day, see the tide height and whether it is rising or falling, the next high and low tides, and a readable 24-hour tide chart. Use the supplied data.\n",
+  "paragraph_context": [
+    {
+      "id": "technical",
+      "kind": "provided_artifact",
+      "content": "Use the supplied React 19 / esbuild starter and unchanged public/data.js. The shared fixture contains 14 coastal locations and two dates. Measurements are metres and times Pacific time; the clock is noon on the selected day. Initial selection is Half Moon Bay, 2026-10-06. Every location/day must update all readings and the chart from the supplied values, with a chart scale that contains the selected data. Build and check with npm run build and npm run check. dist/index.html must work by file and local HTTP. Desktop 1280x800, mobile 390x844. Use local assets and system fonts; no live data APIs. Design decisions are delegated. Show light mode only with no system-theme switching. Do not add demo-data banners or notices. Keep units, timezone and selected-day clock clear. Output working code and RUN.md with resource calls, outcomes, QA, assumptions, and limitations. Standard file/shell/browser infrastructure is common to all conditions.\n",
+      "source_ref": "TECHNICAL.txt"
+    },
+    {
+      "id": "persistent-clarification",
+      "kind": "provided_artifact",
+      "content": "Mike previously answered \u201cProceed as inferred\u201d for this exact tide-prototype product scope: a person checking tides for a coastal outing, no particular activity prioritized; one-screen prototype, no accounts/live data/safety claims; supplied technical constraints, no extra brand/accessibility standard. This persistent answer is authorized context, not a fabricated new interview or a visual-direction choice. Mike now asks to add 12 locations and regenerate all eight with the same model/effort/resource settings. His later presentation instructions supersede earlier demo-label instructions: no demo-data banners and light mode only. Design decisions remain delegated. No previous app design or sibling choices are supplied.\n",
+      "source_ref": "USER_ANSWER.txt"
+    }
+  ],
+  "sentence_context": [
+    {
+      "id": "technical",
+      "kind": "provided_artifact",
+      "content": "Use the supplied React 19 / esbuild starter and unchanged public/data.js. The shared fixture contains 14 coastal locations and two dates. Measurements are metres and times Pacific time; the clock is noon on the selected day. Initial selection is Half Moon Bay, 2026-10-06. Every location/day must update all readings and the chart from the supplied values, with a chart scale that contains the selected data. Build and check with npm run build and npm run check. dist/index.html must work by file and local HTTP. Desktop 1280x800, mobile 390x844. Use local assets and system fonts; no live data APIs. Design decisions are delegated. Show light mode only with no system-theme switching. Do not add demo-data banners or notices. Keep units, timezone and selected-day clock clear. Output working code and RUN.md with resource calls, outcomes, QA, assumptions, and limitations. Standard file/shell/browser infrastructure is common to all conditions.\n",
+      "source_ref": "TECHNICAL.txt"
+    },
+    {
+      "id": "persistent-clarification-sentence-1",
+      "kind": "provided_artifact",
+      "content": "Mike previously answered \u201cProceed as inferred\u201d for this exact tide-prototype product scope: a person checking tides for a coastal outing, no particular activity prioritized; one-screen prototype, no accounts/live data/safety claims; supplied technical constraints, no extra brand/accessibility standard. ",
+      "source_ref": "USER_ANSWER.txt#sentence-1"
+    },
+    {
+      "id": "persistent-clarification-sentence-2",
+      "kind": "provided_artifact",
+      "content": "This persistent answer is authorized context, not a fabricated new interview or a visual-direction choice. ",
+      "source_ref": "USER_ANSWER.txt#sentence-2"
+    },
+    {
+      "id": "persistent-clarification-sentence-3",
+      "kind": "provided_artifact",
+      "content": "Mike now asks to add 12 locations and regenerate all eight with the same model/effort/resource settings. ",
+      "source_ref": "USER_ANSWER.txt#sentence-3"
+    },
+    {
+      "id": "persistent-clarification-sentence-4",
+      "kind": "provided_artifact",
+      "content": "His later presentation instructions supersede earlier demo-label instructions: no demo-data banners and light mode only. ",
+      "source_ref": "USER_ANSWER.txt#sentence-4"
+    },
+    {
+      "id": "persistent-clarification-sentence-5",
+      "kind": "provided_artifact",
+      "content": "Design decisions remain delegated. ",
+      "source_ref": "USER_ANSWER.txt#sentence-5"
+    },
+    {
+      "id": "persistent-clarification-sentence-6",
+      "kind": "provided_artifact",
+      "content": "No previous app design or sibling choices are supplied.\n",
+      "source_ref": "USER_ANSWER.txt#sentence-6"
+    }
+  ],
+  "activity_candidate": {
+    "activity_model": {
+      "activity": "Check tides for a coastal outing.",
+      "participants": [
+        "Person considering a coastal outing"
+      ],
+      "objective": "Understand tide conditions for a chosen coastal location and day.",
+      "outcomes": [
+        "Read noon height and direction, next high and low tides and the full day curve."
+      ],
+      "tools_and_artifacts": [
+        "Supplied tide readings and daily events"
+      ],
+      "rules_and_rituals": [
+        "Use Pacific time and metres; reference noon on the chosen day."
+      ],
+      "division_of_labor": [
+        "Person selects place and day; app calculates and presents supplied tide information."
+      ],
+      "domain_vocabulary": [
+        "Tide",
+        "Rising",
+        "Falling",
+        "High tide",
+        "Low tide",
+        "Location",
+        "Day"
+      ]
+    },
+    "interaction_contract": {
+      "primary_decision": "Which location and day to inspect?",
+      "next_actions": [
+        "Choose location",
+        "Choose day",
+        "Read current conditions",
+        "Compare upcoming high and low tides with the day curve"
+      ],
+      "meaningful_state_changes": [
+        "Location/day selection changes all measurements and chart scale together."
+      ],
+      "completion": "The person can read the selected day tide height, direction, upcoming events, and 24-hour pattern.",
+      "make_easy": [
+        "Keep selections and resulting values visible together."
+      ]
+    },
+    "disclosure_policy": {
+      "terms_to_use": [
+        "Tide",
+        "Location",
+        "Day",
+        "Pacific time",
+        "metres"
+      ],
+      "hidden_implementation_terms": [
+        "MCP",
+        "contract",
+        "schema"
+      ],
+      "boundaries": [
+        "Information from supplied values; no activity suitability decision is made."
+      ],
+      "diagnostic_contexts": [
+        "setup",
+        "debugging",
+        "auditing",
+        "integration"
+      ]
+    },
+    "assumptions": [
+      {
+        "statement": "Single informational view rather than an outing booking or safety decision.",
+        "source_refs": [
+          "brief",
+          "persistent-clarification"
+        ],
+        "origin": "model_inferred"
+      }
+    ]
+  },
+  "workflow_candidate": {
+    "workflow": {
+      "surface_name": "Tide check",
+      "topology": "workspace",
+      "work_units": [
+        {
+          "id": "choose_place_day",
+          "label": "Choose coastal location and day",
+          "purpose": "Select one of the 14 coastal locations and one of the two days; initial selection Half Moon Bay, 2026-10-06."
+        },
+        {
+          "id": "read_now",
+          "label": "Read tide at 12:00 noon Pacific time",
+          "purpose": "Tide height in metres at the selected-day clock and whether the tide is rising or falling."
+        },
+        {
+          "id": "read_next_events",
+          "label": "Read next high and next low",
+          "purpose": "Time (Pacific time) and height (m) of the next high tide and next low tide after noon; an event at 24:00 is shown as 00:00 next day."
+        },
+        {
+          "id": "scan_day_chart",
+          "label": "Scan the 24-hour tide chart",
+          "purpose": "Hourly tide heights for the selected day with a scale that contains the selected data, the noon clock marked, and high/low points labelled."
+        }
+      ],
+      "primary_actions": [
+        "Choose coastal location",
+        "Choose day"
+      ],
+      "decision_points": [
+        "Which coastal location to check",
+        "Which day to check"
+      ],
+      "completion_state": "The person has read the noon height and direction, the next high and low, and the day curve for the chosen place and day; nothing is submitted or saved."
+    },
+    "surface_set": [
+      {
+        "name": "Tide check",
+        "purpose": "Choose a coastal location and day, then read the noon tide height and direction, next high and low, and the 24-hour curve together.",
+        "sections": [
+          "Place and day selection (coastal location, day)",
+          "Tide at 12:00 noon Pacific time (height in m, rising or falling)",
+          "Next high tide and next low tide (time Pacific time, height m)",
+          "24-hour tide trend chart (hourly heights, noon marker, high/low points, metre scale containing the day data)",
+          "Detailed high and low tide measurements for the day (table: tide, time Pacific time, height m)"
+        ],
+        "controls": [
+          "Coastal location select (14 locations)",
+          "Day select (2026-10-06, 2026-10-07)"
+        ],
+        "relationship_to_workflow": "Read-only monitoring view: place/day selection sits above a summary (noon height and rising/falling signal), the next high/low signals, the 24-hour trend chart and a detailed measurements table; every change updates all of them together. Desktop 1280px two columns; mobile 390px one column, no horizontal overflow."
+      }
+    ],
+    "handoff": {
+      "next_owner": "implementation",
+      "reason": "Workflow covers selection, noon reading, next events and day chart for a read-only one-screen prototype.",
+      "next_action": "Implement the Tide check workspace with the reviewed sections and states.",
+      "states": [
+        "initial selection",
+        "location changed",
+        "day changed",
+        "rising",
+        "falling"
+      ],
+      "copy_rules": [
+        "Use domain terms: coastal location, tide height, rising, falling, high tide, low tide, metres, Pacific time, noon",
+        "State units (m), timezone (Pacific time) and the selected-day clock (12:00 noon) visibly",
+        "No safety verdicts or outing recommendations; no demo-data banners; light mode only"
+      ],
+      "data": "Read-only supplied tide table; every reading and the chart update from supplied values on each selection."
+    },
+    "diagnostics": {
+      "hidden_implementation_terms": [
+        "fixture",
+        "station id",
+        "samples array",
+        "JSON",
+        "React",
+        "esbuild",
+        "demo flag"
+      ],
+      "assumptions": [
+        "Read-only, single-screen; no persistence",
+        "Surface recommendation (rerun, jk3/30) was workbench at low confidence with zero trigger scores; dashboard_monitor (track status, trends) is chosen because the completion state is reading a tide summary, direction signal, next extremes, trend chart and detailed measurements, with no decision or handoff action in this read-only check."
+      ]
+    }
+  }
+}

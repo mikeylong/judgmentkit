@@ -301,75 +301,29 @@ assert.equal(
   }
 }
 
-// A neutral low-confidence fallback never supplies Workbench presentation authority.
+// Unresolved routing cannot supply interaction or presentation authority.
 {
   const neutralFallback = neutralFallbackReview();
-  assert.equal(neutralFallback.recommended_surface_type, "workbench");
+  assert.equal(neutralFallback.recommended_surface_type, null);
+  assert.equal(neutralFallback.status, "review_required");
   assert.equal(neutralFallback.confidence, "low");
-
-  for (const request of [undefined, "auto"]) {
-    const frontendContext = createFrontendGenerationContext({
+  for (const request of [undefined, "auto", EXPECTED_WORKBENCH_PROFILE_ID]) {
+    assertInputError(() => createFrontendGenerationContext({
       ui_generation_handoff: readyHandoff(null),
       surface_review: neutralFallback,
       ...(request === undefined ? {} : { surface_profile: request }),
-    });
-
-    assertNoSelectedSurfaceProfile(
-      frontendContext,
-      "Low-confidence fallback must not activate the supported profile.",
-    );
+    }), "Unresolved routing must not become frontend guidance.");
   }
-
-  assertInputError(
-    () =>
-      createFrontendGenerationContext({
-        ui_generation_handoff: readyHandoff(null),
-        surface_review: neutralFallback,
-        surface_profile: EXPECTED_WORKBENCH_PROFILE_ID,
-      }),
-    "An exact profile id must not turn low-only fallback evidence into Workbench authority.",
-  );
-}
-
-// Low-confidence lineage remains intact across the real workflow handoff boundary.
-{
   const workflowReview = reviewUiWorkflowCandidate(
     GROUNDED_WORKBENCH_BRIEF,
     workbenchWorkflowCandidate(),
-    { surface_review: neutralFallbackReview() },
+    { surface_review: neutralFallback },
   );
-  assert.equal(workflowReview.review_status, "ready_for_review");
-  assert.equal(workflowReview.surface_type, "workbench");
-  assert.equal(workflowReview.surface_guidance.confidence, "low");
-
-  const handoff = createUiGenerationHandoff(workflowReview, {
-    brief: GROUNDED_WORKBENCH_BRIEF,
-  });
-  assert.equal(handoff.surface_type, "workbench");
-  assert.equal(handoff.surface_guidance.confidence, "low");
-
-  const frontendContext = createFrontendGenerationContext({
-    ui_generation_handoff: handoff,
-    brief: GROUNDED_WORKBENCH_BRIEF,
-  });
-  assert.equal(
-    frontendContext.source.surface_type_source,
-    "ui_generation_handoff",
-  );
-  assertNoSelectedSurfaceProfile(
-    frontendContext,
-    "A low-confidence fallback must remain unprofiled after a real handoff.",
-  );
-
-  assertInputError(
-    () =>
-      createFrontendGenerationContext({
-        ui_generation_handoff: handoff,
-        brief: GROUNDED_WORKBENCH_BRIEF,
-        surface_profile: EXPECTED_WORKBENCH_PROFILE_ID,
-      }),
-    "An exact profile request must not upgrade low-confidence handoff lineage.",
-  );
+  assert.equal(workflowReview.review_status, "needs_source_context");
+  assert.equal(workflowReview.surface_type, "");
+  assert.equal(workflowReview.review.confidence, "low");
+  assert.equal(workflowReview.review.targeted_questions.length, 1);
+  assertInputError(() => createUiGenerationHandoff(workflowReview, { brief: GROUNDED_WORKBENCH_BRIEF }), "Unresolved routing must block handoff.");
 }
 
 // Auto is inert for other surfaces; the exact Workbench id rejects a mismatch.
@@ -583,7 +537,7 @@ for (const invalidId of [undefined, "auto", "none"]) {
 {
   const lowConfidenceFrontendContext = createFrontendGenerationContext({
     ui_generation_handoff: readyHandoff(null),
-    surface_review: neutralFallbackReview(),
+    surface_review: { recommended_surface_type: "workbench", confidence: "low", blocked_surface_types: [] },
   });
   lowConfidenceFrontendContext.selected_surface_profile = structuredClone(selectedProfile);
   lowConfidenceFrontendContext.selected_surface_profile.selection = {

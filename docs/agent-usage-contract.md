@@ -2,6 +2,8 @@
 
 Use JudgmentKit before UI generation, UI critique, implementation planning, or handoff review when the work depends on understanding an activity.
 
+The [builder workflow](builder-workflow.md) defines what the person should receive. For a build request, continue through implementation and focused task repairs; a reviewed packet alone is not completion. The agent owns the sequence below. Report the working result, supported checks, actual task observations, and remaining verification limits separately.
+
 ## Default Order
 
 1. Read the user's brief and any local source context that is already available. Keep non-brief evidence as attributed `context_items`; an `authoritative_source` requires a `source_ref`.

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Office supply requests</title>
+<style>
+body{font:16px system-ui;margin:24px;max-width:900px} main{display:grid;grid-template-columns:220px 1fr;gap:24px} button,textarea{font:inherit} button{display:block;margin:10px 0;padding:8px} textarea{width:100%;min-height:100px;box-sizing:border-box} @media(max-width:600px){main{grid-template-columns:1fr}}
+</style>
+<h1>Office supply requests</h1>
+<main><nav aria-label="Requests" id="queue"></nav><section aria-labelledby="request-title"><h2 id="request-title"></h2><p id="details"></p><label for="note">Coordinator note</label><textarea id="note"></textarea><button id="save">Save note</button><p id="message" role="status"></p></section></main>
+<script>
+// Existing local prototype supplied equally to all conditions, not a generated study candidate.
+const requests = [
+{id:'R-101',requester:'Studio team',item:'Whiteboard markers',requested:6,note:'For the planning session'},
+{id:'R-102',requester:'Library team',item:'Notebooks',requested:3,note:'For new volunteers'},
+{id:'R-103',requester:'Events team',item:'USB hubs',requested:2,note:'For the check-in desk'}
+];
+const savedNotes = {}; let selected = requests[0];
+const note = document.getElementById('note');
+function select(request){selected=request;document.getElementById('request-title').textContent=request.id+' · '+request.requester;document.getElementById('details').textContent=request.requested+' '+request.item+'. '+request.note;note.value=savedNotes[request.id]||'';document.getElementById('message').textContent='';}
+for(const request of requests){const button=document.createElement('button');button.textContent=request.id+' · '+request.requester;button.addEventListener('click',()=>select(request));document.getElementById('queue').append(button);}
+document.getElementById('save').addEventListener('click',()=>{savedNotes[selected.id]=note.value;document.getElementById('message').textContent='Note saved for '+selected.id;});
+select(selected);
+</script>
+</html>

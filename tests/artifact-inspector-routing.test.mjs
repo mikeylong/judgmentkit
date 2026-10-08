@@ -22,6 +22,25 @@ const ARTIFACT_ACTIVITY = `
   implementation details remain diagnostic.
 `;
 
+{
+  const backgroundDiscussion = "People exchange replies in a message thread and continue the conversation while reviewing comments.";
+  const ambiguous = recommendSurfaceTypes(`${ARTIFACT_ACTIVITY} ${backgroundDiscussion}`);
+  assert.ok(artifactEvidence(ambiguous).matched_exclusion_evidence.includes("conversation_turns_are_primary"));
+  const scoped = recommendSurfaceTypes(`${ARTIFACT_ACTIVITY} Conversation turns are secondary. ${backgroundDiscussion}`);
+  assert.equal(scoped.recommended_surface_type, "artifact_inspector", "Secondary discussion must not replace the artifact inspection activity.");
+  assert.ok(!artifactEvidence(scoped).matched_exclusion_evidence.includes("conversation_turns_are_primary"));
+  const conflicting = recommendSurfaceTypes(`${ARTIFACT_ACTIVITY} Conversation turns are secondary. Conversation turns are primary. ${backgroundDiscussion}`);
+  assert.equal(conflicting.status, "review_required", "Contradictory primary activities must remain unresolved.");
+  assert.ok(artifactEvidence(conflicting).matched_exclusion_evidence.includes("conversation_turns_are_primary"));
+
+  const chat = "A support agent handles an open-ended live chat. The activity is continuing a customer conversation, replying with context, and recovering from failed sends. The outcome is a thread the agent can continue or close.";
+  for (const scope of ["Internal comments are secondary.", "Internal comments are secondary. The message exchange is primary."]) {
+    const conversation = recommendSurfaceTypes(`${chat} ${scope}`);
+    assert.equal(conversation.status, recommendSurfaceTypes(chat).status);
+    assert.equal(conversation.recommended_surface_type, "conversation", "Secondary comments do not demote the primary chat.");
+  }
+}
+
 function artifactEvidence(review) {
   return review.evidence.artifact_inspector;
 }

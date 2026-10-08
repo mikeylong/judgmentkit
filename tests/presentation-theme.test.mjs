@@ -630,7 +630,7 @@ assert.deepEqual(
 );
 assert.deepEqual(
   packageJson.files,
-  ["bin/", "contracts/", "examples/ai-native-design-system/", "src/", "README.md", "DESIGN.md"],
+  ["bin/", "contracts/", "examples/ai-native-design-system/", "src/", "README.md", "DESIGN.md", "VISION.md"],
   "The package file allowlist should keep generated outputs out of npm tarballs.",
 );
 assert.equal(
