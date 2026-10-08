@@ -1,0 +1,34 @@
+{
+  "scope": "Exact static documentation and diagram identity",
+  "status": "pass",
+  "checks": [
+    {
+      "path": "/docs/",
+      "status": "200",
+      "sha256": "96f9dafd87a2417c8f178a4629e5de959599c7ae9fc5b8e7b6670c9893da1fce",
+      "expected_sha256": "96f9dafd87a2417c8f178a4629e5de959599c7ae9fc5b8e7b6670c9893da1fce",
+      "matches": true
+    },
+    {
+      "path": "/assets/system-map-flow.js",
+      "status": "200",
+      "sha256": "9878773ce393b889517768f0d329a2930d7ed93dc56f2ae6e900e030c25ee0cb",
+      "expected_sha256": "9878773ce393b889517768f0d329a2930d7ed93dc56f2ae6e900e030c25ee0cb",
+      "matches": true
+    },
+    {
+      "path": "/assets/system-map-flow.css",
+      "status": "200",
+      "sha256": "89da6dead8d560e7df30d869ccc7efadd8890cd221d353135bf0d06e5e9b3969",
+      "expected_sha256": "89da6dead8d560e7df30d869ccc7efadd8890cd221d353135bf0d06e5e9b3969",
+      "matches": true
+    },
+    {
+      "path": "/assets/site.css",
+      "status": "200",
+      "sha256": "067bfa3500dd90b1d5ff817bbf1fc1fc74dd9158bffb5da3ed4c2fb90aefc3eb",
+      "expected_sha256": "067bfa3500dd90b1d5ff817bbf1fc1fc74dd9158bffb5da3ed4c2fb90aefc3eb",
+      "matches": true
+    }
+  ]
+}

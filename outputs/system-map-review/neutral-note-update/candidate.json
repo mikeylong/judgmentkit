@@ -1,0 +1,28 @@
+{
+  "scope": "Neutral System Map workflow note",
+  "stage": "/private/tmp/jk-neutral-note-preview-e013aipl",
+  "target": "preview",
+  "project": "judgmentkit-ai",
+  "team": "surfaces-platform",
+  "approved_copy": "If a review cannot proceed, the agent explains what is missing and resolves it using available evidence. It asks you when a product decision or governing policy is needed.",
+  "upload_scope": "static site/dist only",
+  "hosted_mcp_kernel_updated": false,
+  "checks": [
+    {
+      "path": "docs/index.html",
+      "sha256": "674b1c8c9ed3dba8f571118a7a84cec3b80b1d6055a80c7abc1817cce6020d2c"
+    },
+    {
+      "path": "assets/system-map-flow.js",
+      "sha256": "9878773ce393b889517768f0d329a2930d7ed93dc56f2ae6e900e030c25ee0cb"
+    },
+    {
+      "path": "assets/system-map-flow.css",
+      "sha256": "89da6dead8d560e7df30d869ccc7efadd8890cd221d353135bf0d06e5e9b3969"
+    },
+    {
+      "path": "assets/site.css",
+      "sha256": "ac3a7f5ae0075b99bc094cdc07635449a714f8c5cb14a0d5e3c758b498d3452c"
+    }
+  ]
+}

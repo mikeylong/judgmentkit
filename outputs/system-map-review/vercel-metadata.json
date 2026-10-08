@@ -1,0 +1,20 @@
+{
+  "deployment": {
+    "id": "dpl_Ec4u54sMF6Jw55D52t9DXYRjPPkP",
+    "url": "judgmentkit-kls0sjyf8-surfaces-platform.vercel.app",
+    "state": "READY",
+    "readyState": "READY",
+    "target": null,
+    "project": {
+      "id": "prj_eUa3RzScodv8FSdotCJSg4MXzNzE",
+      "name": "judgmentkit-ai",
+      "framework": null
+    },
+    "source": "cli"
+  },
+  "production": {
+    "alias": "judgmentkit.ai",
+    "deploymentId": "dpl_6GfQ4NwaqcJQKBYTWvZYtX3jysbV",
+    "unchanged": true
+  }
+}
