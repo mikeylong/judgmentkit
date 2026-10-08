@@ -450,7 +450,7 @@ npm test
 npm run benchmark
 ```
 
-Run this after a production deploy to verify the public site, hosted `/mcp` Streamable HTTP endpoint, legacy redirects, hosted installer, and hosted MCP tool catalog:
+Run this after publishing the GitHub Release and completing the production deploy. It verifies that the package version has a published, non-draft, non-prerelease GitHub Release, then checks the public site, hosted `/mcp` Streamable HTTP endpoint, legacy redirects, hosted installer, and hosted MCP tool catalog:
 
 ```bash
 npm run release:verify
