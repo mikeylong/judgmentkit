@@ -1,13 +1,15 @@
 ---
 name: judgmentkit-hosted-mcp
-description: Use JudgmentKit when explicitly requested or a project opts in to infer and review an activity-centered UI case, show a concrete first design direction, prepare a Figma or code handoff, review generated UI, enforce design-system acceptance, or create a JudgmentKit slide deck from allowed source material.
+description: Use JudgmentKit when explicitly requested or a project opts in to help build or improve a useful interface with an AI agent, carry a correctable working premise through implementation and focused repairs, prepare a Figma or code handoff, or create a JudgmentKit slide deck from allowed source material.
 ---
 
 # JudgmentKit
 
 ## Purpose
 
-Use JudgmentKit to carry design intent from a rough brief or existing artifact into a reviewed activity case and, when requested, a design or implementation handoff. Start from the user's activity and domain language, not a component catalog, implementation schema, or discovery questionnaire.
+Help the builder turn an intent into an interface that supports the intended work. Start from the user's activity and domain language. Carry a correctable working premise from a rough brief or existing interface through the requested design, implementation, and repair work.
+
+For a build or improvement request, completion means a working interface for the agreed task, a clear reason for its structure, and an honest account of what was checked. Planning ends with the agreed direction or handoff. Critique ends with task-specific findings and proposed repairs. Match the user's scope; a reviewed packet alone does not complete a build.
 
 MCP and server details belong only in setup, diagnostics, audit, or integration work. Keep them out of ordinary designer-facing responses and product UI.
 
@@ -20,6 +22,20 @@ MCP and server details belong only in setup, diagnostics, audit, or integration 
 The hosted endpoint processes the MCP request payload and records sanitized usage events such as event type and tool name. It does not intentionally store submitted briefs, design context, generated code, or review packets, but hosted requests still leave the local environment.
 
 Use sanitized inputs for confidential work. For unreleased designs, proprietary design-system details, source code, customer data, or internal roadmaps, prefer a local checkout, local stdio server, or self-hosted JudgmentKit MCP endpoint instead of `https://judgmentkit.ai/mcp`.
+
+## Builder Loop
+
+Keep the builder focused on the interface and consequential product choices. The agent assembles packets, selects tools, carries source context, collects verification evidence, and interprets repairs through the existing APIs.
+
+1. **Start from the requested result.** For a new interface, read the brief and available project context. For an existing interface, inspect the supplied artifact or the code for the target task before proposing changes. Preserve current user work and useful existing behavior. Establish one representative task and its observable completion condition from the available source; do not invent a user study or require an intake form.
+2. **Show a short working premise.** Use the inference-first sequence below, then explain who is doing what, the intended result, and the design choices that matter. Keep reversible assumptions visible and proceed when ready. Ask one consequential question only when needed. The builder can correct the premise in ordinary language throughout the work.
+3. **Build or revise through the reviewed handoff.** Read the UI reference for the existing API sequence. Resolve an unresolved or conflicting surface recommendation before frontend guidance; explain a mixed activity in terms of its completion state. Keep the active implementation contract and design-system authority intact. Do not add a stateful orchestration service or invent an API to hide this sequence.
+4. **Inspect the important task and apply focused repairs.** Run the required implementation checks and, where the environment permits, exercise the representative task, relevant failure or recovery states, and required keyboard and viewport paths. Use returned repair instructions to fix the implementation. Name the user-visible failure, its consequence, and the correction. Follow the returned iteration policy and maintain the agent-owned attempt context accurately. Stop when the review requires human input; do not turn missing evidence into a pass.
+5. **Return the result with verification scope.** Link or open the accepted working interface when a build was requested. Explain the consequential structure and the task paths actually observed, distinguish JudgmentKit acceptance from observed user success, and name material checks still unavailable. If acceptance is blocked, return the blocker and repair status without presenting the candidate as complete. Publishing or releasing remains subject to the user's authorization.
+
+When feedback changes the premise, preserve the user's correction as attributed source context, revise the whole activity case, and rerun the validating sequence with the exact current brief and context. Refresh downstream packets derived from the changed case; never pair a new premise with stale workflow, handoff, frontend, or acceptance evidence. Keep unchanged protected boundaries and existing user work intact.
+
+These instructions define a builder-experience prototype. They do not establish reduced effort, improved task completion, or runtime coverage beyond the evidence actually collected. Artifact Inspector retains its current missing-attestation boundary: an otherwise valid implementation remains `review_required` because this release has no accepting interactive-attestation producer or verifier.
 
 ## Inference-First Activity Case
 
@@ -57,6 +73,8 @@ These modes change pacing, not inference depth, model capability, evidence requi
 - **One thing to resolve** — only when a consequential question is truly needed
 
 Do not dump targeted questions or expose `activity_model`, `review_status`, `ready_for_review`, schemas, resource ids, tool names, traces, or model configuration. Use raw `content[0].text` only for explicit setup, audit, debugging, or integration work.
+
+During iteration, show the revised premise only when the intended work or a consequential design decision changes. For a repair, explain the failing task and the visible correction. At completion, name the result, the important paths checked, and the limits of verification. Guidance, declared-requirement checks, supported behavior verification, and observed human task completion are separate claims.
 
 ## Conditional Routes
 

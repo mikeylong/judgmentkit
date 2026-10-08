@@ -1,0 +1,192 @@
+{
+  "id": "synthetic-inspector-preview-cancel-v1",
+  "evidence_type": "synthetic_fixture",
+  "source_origin": "authored_public_synthetic_fixture",
+  "human_encounter": "not_run",
+  "usefulness": "not_measured",
+  "brief": "A human reviewer inspects one rendered diagram that remains the primary artifact. The diagram is an exhibit plan. They must select a specific node. The rule, source and evidence attach to that selected node. The AI agent prepares proposals and checks them. The reviewer previews the proposed correction and compares its local result beside the diagram, then cancels, leaving the saved artifact unchanged. This task does not apply or adopt changes. The primary decision is whether the finding and correction are supported by the selected target and evidence. The outcome is that the reviewer understands the selected finding and proposed correction and returns from preview with the saved artifact unchanged.",
+  "source_file": "inspector-preview-cancel.source.md",
+  "source_file_sha256": "4612b4e26b2917104e84c79b2400906bc4b69d4a3756524821f3b7c4649b5b06",
+  "context_items": [
+    {
+      "id": "artifact-targets",
+      "kind": "workspace_evidence",
+      "content": "Reviewers select a node in the rendered exhibit plan and read its attached finding, rule and evidence. The rendered exhibit plan remains the primary artifact; related evidence supports inspection of the selected node.",
+      "source_ref": "fixture://inspector-preview-cancel/artifact-targets/v1#sha256=4612b4e26b2917104e84c79b2400906bc4b69d4a3756524821f3b7c4649b5b06"
+    },
+    {
+      "id": "artifact-lifecycle",
+      "kind": "workspace_evidence",
+      "content": "Preview correction temporarily renders the proposed node change. Cancel preview returns to the saved artifact without adopting a change. Apply suggestion commits a new artifact version and is a separate reviewer decision.",
+      "source_ref": "fixture://inspector-preview-cancel/artifact-lifecycle/v1#sha256=4612b4e26b2917104e84c79b2400906bc4b69d4a3756524821f3b7c4649b5b06"
+    },
+    {
+      "id": "artifact-authority",
+      "kind": "workspace_evidence",
+      "content": "Inspector chrome and the inspection overlay use the selected host design system. The primary artifact keeps its independently declared Sample exhibit rules for type, spacing and colors. Its external authority has not been reviewed by JudgmentKit.",
+      "source_ref": "fixture://inspector-preview-cancel/artifact-authority/v1#sha256=4612b4e26b2917104e84c79b2400906bc4b69d4a3756524821f3b7c4649b5b06"
+    },
+    {
+      "id": "participant-roles",
+      "kind": "workspace_evidence",
+      "content": "The AI agent prepares proposals and checks them. The reviewer selects the finding, inspects evidence, previews the correction and cancels. This synthetic task covers inspection and preview cancellation only.",
+      "source_ref": "fixture://inspector-preview-cancel/participant-roles/v1#sha256=4612b4e26b2917104e84c79b2400906bc4b69d4a3756524821f3b7c4649b5b06"
+    }
+  ],
+  "source_snapshots": [
+    {
+      "context_id": "artifact-targets",
+      "content_sha256": "d3bfcda5b45155f6eec9f50f242a5fd2b12fd047ac49209f14a134e6c3a490f0",
+      "start_byte": 0,
+      "end_byte": 217
+    },
+    {
+      "context_id": "artifact-lifecycle",
+      "content_sha256": "87b497df7c794576d1df39cf778e534989126f7289081ac0909418ab80247f34",
+      "start_byte": 219,
+      "end_byte": 440
+    },
+    {
+      "context_id": "artifact-authority",
+      "content_sha256": "2ec3cc8ba6557098271c3a40dd7b9da5b9483aef9cd2c5c8f77478954283dbf0",
+      "start_byte": 442,
+      "end_byte": 688
+    },
+    {
+      "context_id": "participant-roles",
+      "content_sha256": "64d0e56a6391f4f5df23d0dcfbbf9d112e7f329cb2f78a60fc16e20c438aa035",
+      "start_byte": 690,
+      "end_byte": 897
+    }
+  ],
+  "activity_candidate": {
+    "activity_model": {
+      "activity": "Inspect a finding beside a rendered exhibit plan and preview its correction without adopting it.",
+      "participants": [
+        "Human reviewer",
+        "AI agent"
+      ],
+      "objective": "Understand the selected finding, its node and evidence, then inspect and cancel its preview.",
+      "outcomes": [
+        "The reviewer sees the target, evidence and source for the selected finding.",
+        "The reviewer cancels the preview and leaves the saved artifact unchanged."
+      ],
+      "existing_tools_artifacts": [
+        "Rendered exhibit plan",
+        "Finding",
+        "Source evidence",
+        "Sample exhibit rules",
+        "Correction preview"
+      ],
+      "rules_rituals": [
+        "Preview changes provisional presentation.",
+        "Cancel returns to the saved artifact.",
+        "The exhibit plan preserves its declared visual rules."
+      ],
+      "division_of_labor": [
+        {
+          "participant": "Human reviewer",
+          "responsibility": "Select a finding, inspect its evidence, preview the correction and cancel."
+        },
+        {
+          "participant": "AI agent",
+          "responsibility": "Prepare and check proposals."
+        }
+      ],
+      "domain_vocabulary": [
+        "Finding",
+        "Target",
+        "Node",
+        "Evidence",
+        "Source",
+        "Preview",
+        "Cancel",
+        "Apply suggestion"
+      ]
+    },
+    "interaction_contract": {
+      "primary_decision": "Whether the selected finding and correction are supported by the target and source.",
+      "next_actions": [
+        "Select finding",
+        "Read evidence and source",
+        "Preview correction",
+        "Compare original and proposed states",
+        "Cancel preview"
+      ],
+      "completion": "The reviewer understands the selected finding and returns from preview with the saved artifact unchanged.",
+      "user_is_trying_to": "Inspect the selected finding and correction in the artifact without adopting a change.",
+      "user_thinks_about_work_as": "A finding attached to a particular node, its evidence and the proposed correction.",
+      "primary_decisions": [
+        "Whether to preview the correction.",
+        "Whether to cancel the preview or continue inspecting."
+      ],
+      "make_easy": [
+        "See the selected target and its evidence together.",
+        "Distinguish preview from an applied change.",
+        "Select the node through its linked finding and inspect its source beside it."
+      ],
+      "make_harder": [
+        "Treat a preview as approval."
+      ],
+      "state_changes": [
+        "Selecting a finding selects its node.",
+        "Preview changes only provisional presentation.",
+        "Cancel returns to the saved artifact."
+      ],
+      "leave_screen_knowing_or_done": [
+        "The finding and its source are understood.",
+        "No change was applied."
+      ]
+    },
+    "disclosure_policy": {
+      "terms_to_use": [
+        "Finding",
+        "Target",
+        "Node",
+        "Evidence",
+        "Source",
+        "Preview",
+        "Cancel"
+      ],
+      "hidden_implementation_terms": [
+        "MCP",
+        "schema",
+        "fingerprint",
+        "operation identifier"
+      ],
+      "diagnostic_contexts": [
+        "setup",
+        "debugging",
+        "auditing",
+        "integration"
+      ]
+    },
+    "claims": [
+      {
+        "id": "preview-does-not-adopt",
+        "path": "interaction_contract.completion",
+        "value": "The reviewer cancels the preview and leaves the saved artifact unchanged.",
+        "origin": "source_supported",
+        "source_refs": [
+          "artifact-lifecycle"
+        ],
+        "confidence": "high",
+        "materiality": "high",
+        "alternatives": [],
+        "impact_if_wrong": "Preview could be mistaken for an applied change.",
+        "reversibility": "costly"
+      }
+    ]
+  },
+  "scope": {
+    "task": "Select finding, inspect target and evidence, preview correction, then cancel.",
+    "task_effect": "inspection and preview cancellation only",
+    "apply_executed": false,
+    "new_generation": false,
+    "excluded_effects": [
+      "Apply suggestion",
+      "Artifact adoption",
+      "Release"
+    ]
+  }
+}

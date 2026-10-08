@@ -1,0 +1,22 @@
+{
+  "status": "ok",
+  "deployment": {
+    "id": "dpl_Ec4u54sMF6Jw55D52t9DXYRjPPkP",
+    "url": "https://judgmentkit-kls0sjyf8-surfaces-platform.vercel.app",
+    "inspectorUrl": "https://vercel.com/surfaces-platform/judgmentkit-ai/Ec4u54sMF6Jw55D52t9DXYRjPPkP",
+    "readyState": "READY",
+    "target": null,
+    "deploymentApiUrl": "https://api.vercel.com/v13/deployments/dpl_Ec4u54sMF6Jw55D52t9DXYRjPPkP"
+  },
+  "message": "Deployment judgmentkit-kls0sjyf8-surfaces-platform.vercel.app ready.",
+  "next": [
+    {
+      "command": "vercel inspect judgmentkit-kls0sjyf8-surfaces-platform.vercel.app --scope surfaces-platform --non-interactive",
+      "when": "Inspect deployment"
+    },
+    {
+      "command": "vercel deploy --prod --scope surfaces-platform --non-interactive",
+      "when": "Promote to production"
+    }
+  ]
+}

@@ -1238,6 +1238,15 @@ function surfaceEvidence(id, label, matched, reason) {
 
 function hasConversationTurnActivity(input) {
   const text = normalizeText(input);
+  const conversationObject = "(?:conversation(?: turns?)?|(?:live )?chat|message(?: turns?| exchange)|assistant exchange)";
+  const explicitlySecondary = hasAffirmedPattern(text, new RegExp(
+    `\\b${conversationObject}\\s+(?:is|are|remains?|stays?)\\s+(?:secondary|supporting|context only|not (?:the )?primary)\\b`,
+  ));
+  const explicitlyPrimary = hasAffirmedAny(text, [
+    new RegExp(`\\b${conversationObject}\\s+(?:is|are|remains?|stays?)\\s+(?:the\\s+)?primary\\b`),
+    new RegExp(`\\bprimary (?:activity|work|surface|object)\\s+(?:is|remains|stays)\\s+(?:a\\s+|the\\s+)?${conversationObject}\\b`),
+  ]);
+  if (explicitlySecondary && !explicitlyPrimary) return false;
   const hasConversationObject = hasAffirmedAny(text, [
     /\b(?:chat|conversation|message exchange|message thread|live chat|assistant exchange)\b/,
     /\bthread\b/,
@@ -1571,7 +1580,13 @@ function buildSurfacePurposeEvidence(input, implementationTermsDetected = [], op
   const hasMonitorStatus = hasAffirmedAny(text, [
     /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|exceptions?|shipments?|sensors?|sensor readings?|temperature|cold[- ]chain|overview|tracking|thresholds?|downtime|faults?|capacity|sla-risk|forecast variance|runway|stale-data|stale data)\b/,
   ]);
-  const hasAwarenessCompletion = hasAffirmedAny(text, [
+  const hasSelectedMeasurementReading =
+    hasAffirmedPattern(text, /\b(?:choose|chooses|select|selects|selected|chosen)\b[^.;]{0,100}\b(?:location|place|day|date)\b/) &&
+    hasAffirmedPattern(text, /\b(?:read|reads|reading|see|check|understand)\b/) &&
+    hasAffirmedPattern(text, /\b(?:measurements?|readings?|conditions?|height|levels?|direction)\b/) &&
+    hasAffirmedPattern(text, /\b(?:chart|curve|trend|pattern)\b/) &&
+    !hasDirectWorkbenchAction(directActionText);
+  const hasAwarenessCompletion = hasSelectedMeasurementReading || hasAffirmedAny(text, [
     /\b(?:completion is knowing|knowing (?:current )?(?:state|status)|knows? current (?:state|status|health)|whether follow-up is needed|if (?:the )?(?:business|service|fleet|operation) is on track|awareness of whether)\b/,
     /\bwhether (?:follow[- ]up|investigation|attention|action|escalation) is needed\b/,
     /\b(?:what|which)\b[^.]{0,80}\b(?:needs?|requires?)\s+(?:follow[- ]up|investigation|attention|escalation)\b/,
@@ -1630,7 +1645,8 @@ function buildSurfacePurposeEvidence(input, implementationTermsDetected = [], op
             ? "ambiguous"
             : "none";
   const monitorRole =
-    hasMonitorStatus && hasAwarenessCompletion
+    (hasMonitorStatus || hasSelectedMeasurementReading) && hasAwarenessCompletion &&
+      !(hasSelectedMeasurementReading && hasReportProductionAction)
       ? "primary_status_awareness"
       : hasMonitorStatus
         ? "status_context"
@@ -1742,7 +1758,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
     /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete|save|saving)\b/,
   ]);
   const hasDirectWorkAction = hasDirectWorkbenchAction(directActionText);
-  const hasDashboardMonitoringContext = hasAffirmedAny(text, [
+  const hasDashboardMonitoringContext = hasStatusAwarenessMonitor || hasAffirmedAny(text, [
     /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|exceptions?|shipments?|sensors?|sensor readings?|temperature|cold[- ]chain|overview|analytics|tracking|watch)\b/,
   ]);
   const hasNoDecisionRequired =
@@ -2641,7 +2657,8 @@ export function recommendSurfaceTypes(input, options = {}) {
       : scoredRecommendation;
   const recommendedSurfaceType = routingConflict
     ? null
-    : recommended.surface_type;
+    : recommended.score > 0 ? recommended.surface_type : null;
+  const unresolvedSurface = !routingConflict && !recommendedSurfaceType;
   const confidence = routingConflict
     ? "low"
     : surfaceConfidence(activityReview, recommended.score);
@@ -2665,7 +2682,7 @@ export function recommendSurfaceTypes(input, options = {}) {
     version: contract.version,
     contract_id: contract.id,
     workflow_id: getContractWorkflowId(contract),
-    status: routingConflict
+    status: routingConflict || unresolvedSurface
       ? "review_required"
       : activityReview.review_status === "ready_for_review"
         ? "ready"
@@ -2690,6 +2707,12 @@ export function recommendSurfaceTypes(input, options = {}) {
     blocked_surface_types: unique(blockedSurfaceTypes),
     confidence,
     ...(routingConflict ? { routing_conflict: routingConflict } : {}),
+    ...(unresolvedSurface ? { routing_conflict: {
+      status: "review_required",
+      reason: "no_positive_surface_evidence",
+      question: "Which activity and completion outcome should determine the interface structure?",
+      competing_surface_types: [],
+    } } : {}),
     evidence: {
       activity_review_status: activityReview.review_status,
       input_excerpt: input.trim().slice(0, 240),
@@ -2754,6 +2777,8 @@ function summarizeSurfaceReview(surfaceReview, { includeFrontendPosture = false 
     recommended_surface_type: optionalString(surfaceReview.recommended_surface_type),
     blocked_surface_types: toStringArray(surfaceReview.blocked_surface_types),
     confidence: optionalString(surfaceReview.confidence),
+    ...(optionalString(surfaceReview.selection_origin)
+      ? { selection_origin: surfaceReview.selection_origin } : {}),
     interaction_implications: isPlainObject(surfaceReview.interaction_implications)
       ? surfaceReview.interaction_implications
       : {},
@@ -4108,6 +4133,95 @@ const IRREVERSIBLE_ACTION_VERB_SOURCE = [
 const IRREVERSIBLE_ACTION_PATTERN = new RegExp(
   String.raw`\b(?:${IRREVERSIBLE_ACTION_VERB_SOURCE})\b`,
 );
+const IRREVERSIBLE_COMMIT_ACTION_PATTERN =
+  /\b(?:commit|commits|committed|committing|execute|executes|executed|executing|finalize|finalizes|finalized|finalizing|publish|publishes|published|publishing|release|releases|released|releasing)\b/;
+const PERSISTED_CHANGE_ACTION_PATTERN =
+  /\b(?:apply|applies|applying|adopt|adopts|adopting|revert|reverts|reverting)\s+(?:(?:the|a|an|any|selected|reviewed|existing|saved|artifact|new)\s+){0,3}(?:suggestions?|corrections?|proposals?|changes?|versions?)\b/;
+const EXECUTING_TASK_ACTION_PATTERN =
+  /\b(?:apply|applies|applying|adopt|adopts|adopting|revert|reverts|reverting)\b/;
+const PERSISTED_WRITE_ACTION_PATTERN =
+  /\b(?:sav(?:e|es|ing)|persist(?:s|ing)?|updat(?:e|es|ing)|replac(?:e|es|ing)|overwrit(?:e|es|ing)|writ(?:e|es|ing)|merg(?:e|es|ing)|modif(?:y|ies|ying)|chang(?:e|es|ing)|edit(?:s|ing)?|revis(?:e|es|ing))\b(?=(?:\s+[a-z0-9'-]+){0,8}\s+(?:artifact|original|correction|proposal|version)\b)/;
+const INSPECTION_ACTION_PATTERNS = [
+  /\bselect(?:s|ed|ing)?\b/,
+  /\binspect(?:s|ed|ing|ion)?\b/,
+  /\bread(?:s|ing)?\b/,
+  /\bpreview(?:s|ed|ing)?\b/,
+  /\bcompar(?:e|es|ed|ing)\b/,
+  /\bcancel(?:s|led|ing)?\b/,
+];
+
+function hasAffirmedIrreversibleAction(value) {
+  const text = stripRecommendationAuthorityLanguage(value);
+  return hasAffirmedPattern(text, IRREVERSIBLE_COMMIT_ACTION_PATTERN) ||
+    hasAffirmedPattern(text, IRREVERSIBLE_ACTION_PATTERN);
+}
+
+function activeCandidateActions(candidate) {
+  return {
+    ...protectedCandidateContextValue(candidate),
+    domain_vocabulary: undefined,
+    make_harder: undefined,
+    division_of_labor: candidate?.activity_model?.division_of_labor,
+    state_changes: candidate?.interaction_contract?.state_changes,
+  };
+}
+
+function hasAffirmedPassivePersistedEffect(clause) {
+  const patterns = [
+    /\b(?:records?|data|logs?|backups?|accounts?|contracts?|evidence)\b(?:\s+[a-z0-9'-]+){0,4}\s+(?:is|are|was|were|gets?|got|will be|has been|have been)\s+(?:[a-z0-9'-]+\s+){0,4}(deleted|wiped|erased|removed|destroyed)\b/g,
+    /\b(?:artifacts?|originals?|corrections?|proposals?|versions?)\b(?:\s+[a-z0-9'-]+){0,4}\s+(?:is|are|was|were|gets?|got|will be|has been|have been)\s+(?:[a-z0-9'-]+\s+){0,4}(saved|persisted|updated|replaced|overwritten|written|merged|modified|changed|edited|revised)\b/g,
+  ];
+  return patterns.some((pattern) => [...clause.matchAll(pattern)].some((match) => {
+    const start = match.index + match[0].lastIndexOf(match[1]);
+    return !isNegatedMatch(clause, start, start + match[1].length);
+  }));
+}
+
+const INSPECTION_TARGET_MODIFIER_TOKENS = new Set([
+  "itself", "them", "their", "this", "that", "those", "these", "only", "one",
+  "specific", "selected", "proposed", "saved", "original", "existing", "new",
+].map(normalizeActivityClaimToken));
+
+function inspectionOperationTargets(value, pattern) {
+  const text = normalizeText(value);
+  return [...text.matchAll(toGlobalPattern(pattern))]
+    .filter((match) => !isNegatedMatch(text, match.index, match.index + match[0].length))
+    .map((match) => {
+      const target = text.slice(match.index + match[0].length)
+        .split(/[.;!?,]|\b(?:and|but|then|when|while|whereas|however|without|with|by|after|before|is|are|was|were|will|must|can|may|does|do|leaves?|returns?|temporarily|commits?|saves?|deletes?|runs?)\b/, 1)[0];
+      return activityClaimTokens(target.split(/\s+/).slice(0, 8).join(" "))
+        .filter((token) => !INSPECTION_TARGET_MODIFIER_TOKENS.has(token));
+    });
+}
+
+function sourceRetainsInspectionOperation(clause, candidateActions, pattern) {
+  const sourceTargets = inspectionOperationTargets(clause, pattern);
+  const candidateTargets = candidateActions.flatMap((action) => inspectionOperationTargets(action, pattern));
+  if (!candidateTargets.length) return false;
+  const explicitCandidateTargets = new Set(candidateTargets.flat());
+  return sourceTargets.some((targets) =>
+    // Elided targets remain conservative; explicit different objects do not
+    // transfer effects just because they share an inspection verb.
+    !targets.length || !explicitCandidateTargets.size ||
+    targets.some((target) => explicitCandidateTargets.has(target)));
+}
+
+function sourceInspectionHasIrreversibleEffect(source, candidate, sourceBrief) {
+  const candidateActions = normalizedClaimStrings([sourceBrief, activeCandidateActions(candidate)]);
+  const sourceClauses = normalizeText(source).split(/[.;!?\n]|(?:,\s*|\s+)(?:and|but|then|whereas|while|however)[,\s]+(?=(?:apply|adopt|revert)(?:\s+(?:suggestions?|corrections?|proposals?|changes?|versions?))?\s+(?:commits|saves|updates|replaces|writes|merges|is|requires)\b)/);
+  return INSPECTION_ACTION_PATTERNS.some((pattern) =>
+    candidateActions.some((action) => hasAffirmedPattern(normalizeText(action), pattern)) &&
+    sourceClauses.some((clause) => {
+      if (!sourceRetainsInspectionOperation(clause, candidateActions, pattern)) return false;
+      // Effects can precede their operation, including passive descriptions.
+      // Keep independently described Apply clauses outside a preview-only task.
+      return hasAffirmedIrreversibleAction(clause) ||
+        hasAffirmedPassivePersistedEffect(clause) ||
+        hasAffirmedPattern(clause, PERSISTED_WRITE_ACTION_PATTERN) ||
+        hasAffirmedPattern(clause, PERSISTED_CHANGE_ACTION_PATTERN);
+    }),
+  );
+}
 
 const PROTECTED_CLAIM_ACTION_PATTERNS = [
   /\b(?:clear|clears|cleared|clearing)\b/,
@@ -4423,6 +4537,43 @@ function protectedCandidateContextValue(candidate) {
   };
 }
 
+function explicitlyNonExecutingActivity(sourceBrief, candidate) {
+  const brief = normalizeText(sourceBrief);
+  const inspectionTask =
+    /\b(?:inspect(?:s|ed|ing|ion)?|read(?:s|ing)?|read-only|review(?:s|ed|ing)?|preview(?:s|ed|ing)?|compar(?:e|es|ed|ing)|cancel(?:s|led|ing)?)\b/.test(brief);
+  const nonExecutionBoundary =
+    /\b(?:unchanged|read-only)\b/.test(brief) ||
+    /\bno\s+(?:applied|adopted|committed)\s+change\b/.test(brief) ||
+    /\bwithout\s+(?:adopting|applying|committing|executing|publishing|releasing)\b/.test(brief) ||
+    /\b(?:does?|must|will)\s+not\s+(?:apply|adopt|commit|execute|publish|release)\b/.test(brief);
+  const activeBrief = brief.split(/[.;!?]/).filter((clause) =>
+    !/\bis\s+(?:a\s+)?separate\s+(?:human\s+)?decision\b/.test(clause) &&
+    !/\boutside\s+(?:this|the current)\s+(?:[a-z-]+\s+){0,3}task\b/.test(clause),
+  ).join(". ");
+  const candidateActions = activeCandidateActions(candidate);
+  const candidateValues = normalizedClaimStrings(candidateActions).map(normalizeText);
+  const participants = toStringArray(candidate?.activity_model?.participants).map(normalizeText);
+  const nextActionsStayNonExecuting = toStringArray(candidate?.interaction_contract?.next_actions)
+    .every((action) => {
+      let text = normalizeText(action);
+      for (const participant of participants) {
+        for (const prefix of [`${participant} `, `the ${participant} `]) {
+          if (text.startsWith(prefix)) text = text.slice(prefix.length);
+        }
+      }
+      text = text.replace(/^(?:may|can|must|shall|will)\s+/, "");
+      return /^(?:select|read|view|inspect|open|browse|preview|compare|cancel|return|navigate|choose|review|check|understand|evaluate|explain|find|show|display)\b/.test(text);
+    });
+  return inspectionTask && nonExecutionBoundary &&
+    !hasAffirmedIrreversibleAction(sourceBrief) &&
+    !hasAffirmedIrreversibleAction(candidateActions) &&
+    !hasAffirmedPattern(activeBrief, EXECUTING_TASK_ACTION_PATTERN) &&
+    !candidateValues.some((value) =>
+      hasAffirmedPattern(value, EXECUTING_TASK_ACTION_PATTERN) ||
+      hasAffirmedPattern(value, PERSISTED_WRITE_ACTION_PATTERN)) &&
+    nextActionsStayNonExecuting;
+}
+
 function protectedSourceIsRelevant(
   entry,
   candidate,
@@ -4736,7 +4887,12 @@ function contextualProtectedRiskEvidence(
       });
       continue;
     }
-    if (sourceRisk === "authoritative_irreversible_action") {
+    // An excerpt can describe both inspection and a separate commitment.
+    // Sharing "read" or "inspect" with it does not make this claim executable.
+    if (
+      sourceRisk === "authoritative_irreversible_action" &&
+      hasAffirmedIrreversibleAction(value)
+    ) {
       evidence.push({
         risk_category: sourceRisk,
         context_boundary_expected: !boundaryCompatible,
@@ -5101,9 +5257,13 @@ function activityClaimRiskCategory(claim) {
   if (passiveIrreversibleStatus && !explicitIrreversibleAction) {
     return null;
   }
-  const directSafetyRule =
-    /\b(?:safety|unsafe|hazard|emergency)\b/.test(claimValueText) &&
-    /\b(?:rule|require(?:ment|d)?|decision|must|shall|authoriz(?:e|es|ed|ing|ation)|permit|permits|permitted|prohibit|prohibits|prohibited|clear|clears|cleared|approv(?:e|es|ed|ing|al)|eligible|eligibility)\b/.test(claimValueText);
+  // Domain omissions and unrelated design authorization are not safety rules.
+  // Keep co-occurrence within a sentence, with the domain term's polarity intact.
+  const directSafetyRule = claimValueText.split(/(?<=[.!?])\s+/).some((span) => {
+    const scoped = span.replace(/\b(?:no|without|exclude|excludes|excluding)\s+(?:\w+[\s/,]+){0,6}(?:safety|unsafe|hazard|emergency)\s+(?:claims?|verdicts?|advice)\b/g, "");
+    return /\b(?:safety|unsafe|hazard|emergency)\b/.test(scoped) &&
+      /\b(?:rule|require(?:ment|d)?|decision|must|shall|authoriz(?:e|es|ed|ing|ation)|permit|permits|permitted|prohibit|prohibits|prohibited|clear|clears|cleared|approv(?:e|es|ed|ing|al)|eligible|eligibility)\b/.test(scoped);
+  });
   const highRiskAction =
     !nonExecutingProtectedArtifactReference &&
     (
@@ -5576,7 +5736,9 @@ function buildActivityCaseClaims({
     if (!protectedSourceIsRelevant(entry, normalizedCandidate, originalInput)) {
       continue;
     }
-    const riskCategory = protectedSourceRiskCategory(entry.text);
+    const inspectionEffect = sourceInspectionHasIrreversibleEffect(entry.text, normalizedCandidate, originalInput);
+    const riskCategory = protectedSourceRiskCategory(entry.text) ??
+      (inspectionEffect ? "authoritative_irreversible_action" : null);
     if (![
       "participant_authority",
       "authoritative_safety_rule",
@@ -5585,12 +5747,24 @@ function buildActivityCaseClaims({
     ].includes(riskCategory)) {
       continue;
     }
+    if (
+      riskCategory === "authoritative_irreversible_action" &&
+      explicitlyNonExecutingActivity(originalInput, normalizedCandidate) &&
+      !inspectionEffect
+    ) {
+      // Keep the source unchanged for continuity, but do not introduce an
+      // execution activity from background documentation. Checking the brief
+      // as well as the candidate prevents an omitted action from escaping review.
+      continue;
+    }
     const id = `context_${entry.id}_protected_boundary`;
     if (claims.some((claim) => claim.id === id)) continue;
     const candidateValues = normalizedClaimStrings(
       protectedCandidateContextValue(normalizedCandidate),
     );
     const retainedBoundaryValues = candidateValues.filter((candidateValue) =>
+      (riskCategory !== "authoritative_irreversible_action" ||
+        hasAffirmedIrreversibleAction(candidateValue)) &&
       protectedClaimBoundaryCompatibleForCandidate(
         entry.text,
         candidateValue,
@@ -5853,7 +6027,7 @@ function buildInferenceAwareActivityCase({
           },
         ]
       : [];
-  const unresolvedAmbiguities = orderActivityCaseAmbiguities([
+  let unresolvedAmbiguities = orderActivityCaseAmbiguities([
     ...missingCandidateAmbiguities(candidateGuardrails),
     ...missingSourceGrounding,
     ...inferredAmbiguities,
@@ -5866,6 +6040,17 @@ function buildInferenceAwareActivityCase({
     evidence.outcome &&
     !hasMissingCandidateField(candidateGuardrails.candidate_missing_fields) &&
     candidateGuardrails.candidate_primary_terms_detected.length === 0;
+  if (source.mode === "deterministic" && !deterministicReady && unresolvedAmbiguities.length === 0) {
+    unresolvedAmbiguities = [{
+      id: "ambiguity_source_activity_completion",
+      claim_id: "activity",
+      category: "missing_source_grounding",
+      materiality: "high",
+      resolution: "clarification",
+      alternatives: [],
+      question: "What should the person leave knowing or having done, and in what activity?",
+    }];
+  }
   const decision = unresolvedAmbiguities.some(
     (entry) => entry.resolution === "authoritative_source",
   )
@@ -9918,7 +10103,8 @@ function normalizeUiWorkflowCandidate(
   const workUnits = artifactInspectorSelected
     ? cloneWorkflowStructuredValue(toWorkflowWorkUnitArray(workflow.work_units))
     : sanitizeUiWorkflowList(
-        workflow.work_units,
+        toWorkflowWorkUnitArray(workflow.work_units).map((unit) =>
+          typeof unit === "string" ? unit : unit.label ?? unit.name ?? unit.purpose),
         candidatePrimaryTermsDetected,
       );
   const topology = artifactInspectorSelected
@@ -10245,8 +10431,11 @@ function buildUiWorkflowReviewPacket(
         guidanceProfile,
         resolvedSurfaceGuidance,
       ),
-      confidence: buildUiWorkflowConfidence(activityReview, candidateGuardrails),
-      targeted_questions: buildUiWorkflowQuestions(activityReview, candidateGuardrails),
+      confidence: resolvedSurfaceGuidance?.status === "review_required"
+        ? "low" : buildUiWorkflowConfidence(activityReview, candidateGuardrails),
+      targeted_questions: sourceReady && resolvedSurfaceGuidance?.routing_conflict?.question
+        ? [resolvedSurfaceGuidance.routing_conflict.question]
+        : buildUiWorkflowQuestions(activityReview, candidateGuardrails),
     },
     guardrails: {
       activity_review_status: activityReview.review_status,
@@ -11289,12 +11478,23 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
   const resolvedSurfaceType = providedSurfaceType
     ? resolveSurfaceType(contract, providedSurfaceType).surface_type
     : null;
+  if (resolvedSurfaceType && providedSurfaceReview?.recommended_surface_type &&
+      resolvedSurfaceType !== providedSurfaceReview.recommended_surface_type) {
+    throw new JudgmentKitInputError("Workflow review received conflicting surface selections.", {
+      code: "conflicting_surface_selection",
+      details: {
+        provided_surface_type: resolvedSurfaceType,
+        recommended_surface_type: providedSurfaceReview.recommended_surface_type,
+      },
+    });
+  }
   const surfaceReview = isPlainObject(providedSurfaceReview)
     ? providedSurfaceReview
     : resolvedSurfaceType
       ? {
           recommended_surface_type: resolvedSurfaceType,
-          confidence: "user_selected",
+          confidence: "provided",
+          selection_origin: "caller",
           blocked_surface_types: [],
           ...buildSurfaceImplications(resolvedSurfaceType),
         }
@@ -24325,6 +24525,12 @@ export function createFrontendGenerationContext({
               },
             },
           });
+  if (inferredSurfaceReview.status === "review_required") {
+    throw new JudgmentKitInputError("Frontend generation requires a resolved surface selection.", {
+      code: "frontend_context_blocked",
+      details: { routing_conflict: inferredSurfaceReview.routing_conflict ?? null },
+    });
+  }
   let surfaceGuidance = summarizeSurfaceReview(inferredSurfaceReview, {
     includeFrontendPosture: true,
   });

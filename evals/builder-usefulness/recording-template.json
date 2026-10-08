@@ -1,0 +1,37 @@
+{
+  "template_only": true,
+  "instruction": "Replace nulls with observed facts and exact identities. Copy these objects into the episode record as evidence is captured. This file is not study data.",
+  "candidate": { "id": null, "artifact_ref": null, "sha256": null },
+  "builder_observation": {
+    "episode_id": null, "task_id": null, "condition_id": null, "candidate_id": null, "candidate_sha256": null,
+    "observer_id": null, "observed_at": null, "source_ref": null,
+    "observed_actions": null, "setup_minutes": null, "total_minutes": null,
+    "log_coverage": null,
+    "events": []
+  },
+  "event": { "type": null, "observed_at": null, "description": null, "source_ref": null, "assessment_reason": null },
+  "end_user_observation": {
+    "episode_id": null, "task_id": null, "condition_id": null, "candidate_id": null, "candidate_sha256": null,
+    "observer_id": null, "observed_at": null, "source_ref": null,
+    "participant_id": null, "check_id": null, "result": null,
+    "observed_action": null, "observed_result": null,
+    "assessment_order": null, "treatment_disclosure": null
+  },
+  "supporting_evidence": {
+    "episode_id": null, "task_id": null, "condition_id": null, "candidate_id": null, "candidate_sha256": null,
+    "observer_id": null, "observed_at": null, "source_ref": null,
+    "kind": null, "capability_level": null,
+    "scope": null, "method": null, "result": null, "limitations": null
+  },
+  "execution_accounting": {
+    "episode_id": null, "task_id": null, "condition_id": null, "candidate_id": null, "candidate_sha256": null,
+    "observer_id": null, "observed_at": null, "source_ref": null,
+    "generation_tokens": null, "total_tokens": null, "generation_requests": null,
+    "total_requests": null, "tool_calls": null, "limitations": null
+  },
+  "repeat_use": {
+    "return_episode_id": null, "builder_slot": null, "task_id": null, "condition_id": null,
+    "candidate_id": null, "candidate_sha256": null, "observer_id": null, "observed_at": null,
+    "source_ref": null, "observed_actions": null
+  }
+}

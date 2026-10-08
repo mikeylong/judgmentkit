@@ -17,6 +17,8 @@ Guiding and reviewing AI-generated interface work so the result supports the use
 
 Help an agent generate or critique UI that is relevant, succinct, and appropriate to the activity being supported.
 
+This kernel supports the [product vision](../VISION.md): help people build useful interfaces with AI agents. The agent uses it during a complete [builder workflow](build-useful-interfaces.md), with a working result and task-specific verification as the completion condition for a build request. Kernel readiness, implementation acceptance, and observed usefulness remain distinct.
+
 ## Outcomes
 
 - The agent understands the activity before proposing UI.

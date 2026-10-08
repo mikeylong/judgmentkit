@@ -1,0 +1,38 @@
+{
+  "kind": "builder_usefulness_pilot",
+  "version": 1,
+  "human_study_status": "not_run",
+  "task_source": "synthetic_fixtures_pending_participant_fit_review",
+  "tasks": [
+    { "id": "workshop_registration", "activity": "ordinary form", "inputs": ["tasks/workshop-registration/brief.md", "tasks/workshop-registration/source.json"] },
+    { "id": "supply_workbench", "activity": "improve an existing workbench", "inputs": ["tasks/supply-workbench/brief.md", "tasks/supply-workbench/source.json", "tasks/supply-workbench/starter.html"] },
+    { "id": "room_guide", "activity": "read-only information", "inputs": ["tasks/room-guide/brief.md", "tasks/room-guide/source.json"] }
+  ],
+  "conditions": ["ordinary_agent", "activity_checklist", "full_judgmentkit"],
+  "builder_slots": ["builder_1", "builder_2", "builder_3"],
+  "episodes": [
+    { "id": "E01", "builder_slot": "builder_1", "order": 1, "task_id": "workshop_registration", "condition_id": "ordinary_agent" },
+    { "id": "E02", "builder_slot": "builder_2", "order": 1, "task_id": "supply_workbench", "condition_id": "activity_checklist" },
+    { "id": "E03", "builder_slot": "builder_3", "order": 1, "task_id": "room_guide", "condition_id": "full_judgmentkit" },
+    { "id": "E04", "builder_slot": "builder_1", "order": 2, "task_id": "supply_workbench", "condition_id": "full_judgmentkit" },
+    { "id": "E05", "builder_slot": "builder_2", "order": 2, "task_id": "room_guide", "condition_id": "ordinary_agent" },
+    { "id": "E06", "builder_slot": "builder_3", "order": 2, "task_id": "workshop_registration", "condition_id": "activity_checklist" },
+    { "id": "E07", "builder_slot": "builder_1", "order": 3, "task_id": "room_guide", "condition_id": "activity_checklist" },
+    { "id": "E08", "builder_slot": "builder_2", "order": 3, "task_id": "workshop_registration", "condition_id": "full_judgmentkit" },
+    { "id": "E09", "builder_slot": "builder_3", "order": 3, "task_id": "supply_workbench", "condition_id": "ordinary_agent" }
+  ],
+  "configuration": {
+    "status": "unconfigured",
+    "agent": null,
+    "model": null,
+    "model_settings": null,
+    "implementation_system": null,
+    "underlying_tools": null,
+    "matched_generation_budget": null,
+    "total_elapsed_limit_minutes": null,
+    "repair_policy": null,
+    "judgmentkit_versions": null,
+    "builder_overhead_limits": null,
+    "preregistered_at": null
+  }
+}

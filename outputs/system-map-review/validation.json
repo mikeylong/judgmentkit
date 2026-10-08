@@ -1,0 +1,43 @@
+{
+  "scope": "System Map documentation audit",
+  "status": "pass",
+  "source_identity_current": true,
+  "base_commit": "2e7fe8ef3e9888fe7d2e63d9cd6f051fcfd5a910",
+  "uncommitted": true,
+  "spec": "specs/system-map.md",
+  "contracts": [
+    "specs/judgmentkit-kernel.md",
+    "specs/interface-contract.md",
+    "contracts/ai-ui-generation.activity-contract.json",
+    "specs/build-useful-interfaces.md"
+  ],
+  "checks": [
+    {
+      "command": "npm run site:build",
+      "status": "pass"
+    },
+    {
+      "command": "node tests/system-map.test.mjs",
+      "status": "pass"
+    },
+    {
+      "command": "node tests/site.test.mjs",
+      "status": "pass"
+    },
+    {
+      "command": "node tests/site-first-use-browser.test.mjs",
+      "status": "pass"
+    },
+    {
+      "command": "git diff --check",
+      "status": "pass"
+    }
+  ],
+  "local_render": "pass",
+  "preview_render": "pass",
+  "static_content_identity": "pass",
+  "production_alias_unchanged": true,
+  "hosted_mcp_kernel_updated": false,
+  "human_task_encounter": "not_run",
+  "full_test_suite": "not_rerun; prior component browser matrix timeout unresolved"
+}

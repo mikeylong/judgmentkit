@@ -1,0 +1,14 @@
+{
+  "fixture_kind": "synthetic",
+  "stock": [
+    { "item_id": "marker", "name": "Whiteboard markers", "available": 4 },
+    { "item_id": "notebook", "name": "Notebooks", "available": 8 },
+    { "item_id": "usb-hub", "name": "USB hubs", "available": 0 }
+  ],
+  "requests": [
+    { "id": "R-101", "requester": "Studio team", "item_id": "marker", "requested": 6, "note": "For the planning session", "fulfillment_state": "pending" },
+    { "id": "R-102", "requester": "Library team", "item_id": "notebook", "requested": 3, "note": "For new volunteers", "fulfillment_state": "pending" },
+    { "id": "R-103", "requester": "Events team", "item_id": "usb-hub", "requested": 2, "note": "For the check-in desk", "fulfillment_state": "pending" }
+  ],
+  "decisions": []
+}

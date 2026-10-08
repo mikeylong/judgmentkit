@@ -1,0 +1,148 @@
+{
+  "kind": "judgmentkit_system_map_neutral_note_browser_qa",
+  "scope": "Approved System Map paragraph and neutral note styling",
+  "captured_at": "2026-10-08T18:37:06.522Z",
+  "expected_copy": "If a review cannot proceed, the agent explains what is missing and resolves it using available evidence. It asks you when a product decision or governing policy is needed.",
+  "owner_browser_storage": "not_used",
+  "mcp_calls": "not_run",
+  "screenshots": [
+    "desktop-light.png",
+    "desktop-dark.png",
+    "mobile-light.png",
+    "mobile-dark.png"
+  ],
+  "cases": [
+    {
+      "id": "desktop-light",
+      "width": 1280,
+      "height": 900,
+      "colorScheme": "light",
+      "status": "pass",
+      "observed": {
+        "class_name": "system-note",
+        "color": "rgb(97, 97, 92)",
+        "muted_token": "#61615c",
+        "resolved_muted_color": "rgb(97, 97, 92)",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "background_image": "none",
+        "border_widths": [
+          "0px",
+          "0px",
+          "0px",
+          "0px"
+        ],
+        "paragraph_width": 786,
+        "paragraph_scroll_width": 786,
+        "paragraph_height": 48,
+        "paragraph_scroll_height": 48,
+        "paragraph_left": 259.1875,
+        "paragraph_right": 1045.28125,
+        "page_client_width": 1280,
+        "page_scroll_width": 1280,
+        "section_client_width": 970,
+        "section_scroll_width": 970
+      },
+      "page_errors": []
+    },
+    {
+      "id": "desktop-dark",
+      "width": 1280,
+      "height": 900,
+      "colorScheme": "dark",
+      "status": "pass",
+      "observed": {
+        "class_name": "system-note",
+        "color": "rgb(184, 192, 187)",
+        "muted_token": "#b8c0bb",
+        "resolved_muted_color": "rgb(184, 192, 187)",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "background_image": "none",
+        "border_widths": [
+          "0px",
+          "0px",
+          "0px",
+          "0px"
+        ],
+        "paragraph_width": 786,
+        "paragraph_scroll_width": 786,
+        "paragraph_height": 48,
+        "paragraph_scroll_height": 48,
+        "paragraph_left": 259.1875,
+        "paragraph_right": 1045.28125,
+        "page_client_width": 1280,
+        "page_scroll_width": 1280,
+        "section_client_width": 970,
+        "section_scroll_width": 970
+      },
+      "page_errors": []
+    },
+    {
+      "id": "mobile-light",
+      "width": 390,
+      "height": 844,
+      "colorScheme": "light",
+      "status": "pass",
+      "observed": {
+        "class_name": "system-note",
+        "color": "rgb(97, 97, 92)",
+        "muted_token": "#61615c",
+        "resolved_muted_color": "rgb(97, 97, 92)",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "background_image": "none",
+        "border_widths": [
+          "0px",
+          "0px",
+          "0px",
+          "0px"
+        ],
+        "paragraph_width": 354,
+        "paragraph_scroll_width": 354,
+        "paragraph_height": 96,
+        "paragraph_scroll_height": 96,
+        "paragraph_left": 18,
+        "paragraph_right": 372,
+        "page_client_width": 390,
+        "page_scroll_width": 390,
+        "section_client_width": 354,
+        "section_scroll_width": 354
+      },
+      "page_errors": []
+    },
+    {
+      "id": "mobile-dark",
+      "width": 390,
+      "height": 844,
+      "colorScheme": "dark",
+      "status": "pass",
+      "observed": {
+        "class_name": "system-note",
+        "color": "rgb(184, 192, 187)",
+        "muted_token": "#b8c0bb",
+        "resolved_muted_color": "rgb(184, 192, 187)",
+        "background_color": "rgba(0, 0, 0, 0)",
+        "background_image": "none",
+        "border_widths": [
+          "0px",
+          "0px",
+          "0px",
+          "0px"
+        ],
+        "paragraph_width": 354,
+        "paragraph_scroll_width": 354,
+        "paragraph_height": 96,
+        "paragraph_scroll_height": 96,
+        "paragraph_left": 18,
+        "paragraph_right": 372,
+        "page_client_width": 390,
+        "page_scroll_width": 390,
+        "section_client_width": 354,
+        "section_scroll_width": 354
+      },
+      "page_errors": []
+    }
+  ],
+  "status": "pass",
+  "target": "https://judgmentkit-aw53zeokv-surfaces-platform.vercel.app/docs/#system-map",
+  "authentication": "origin_scoped_development_oidc_header",
+  "browser": "154.0.8037.98"
+}

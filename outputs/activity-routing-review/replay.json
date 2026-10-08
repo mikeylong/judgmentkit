@@ -1,0 +1,59 @@
+{
+  "kind": "saved_input_kernel_replay",
+  "fresh_generation": false,
+  "implementation_acceptance": "not_run",
+  "replay": [
+    {
+      "attribution": "paragraph",
+      "baseline": {
+        "decision": "ask",
+        "exploration": "paused_for_material_clarification",
+        "exploration_meaning": "The activity case may guide a provisional first direction with the material ambiguity visible; resolve the one consequential question before treating the direction as implementation-ready.",
+        "commitment": "not_authorized",
+        "commitment_meaning": "Activity-case readiness never authorizes product, policy, safety, release, or implementation commitments.",
+        "blocking_ambiguity_ids": [
+          "ambiguity_source_activity_completion"
+        ],
+        "next_question": "What should the person leave knowing or having done, and in what activity?"
+      },
+      "activity": "ready_for_review",
+      "surface": "dashboard_monitor",
+      "workflow": "ready_for_review",
+      "handoff": "ready_for_generation",
+      "frontend": "ready_for_frontend_implementation",
+      "skill": "ready",
+      "work_units": [
+        "Choose coastal location and day",
+        "Read tide at 12:00 noon Pacific time",
+        "Read next high and next low",
+        "Scan the 24-hour tide chart"
+      ]
+    },
+    {
+      "attribution": "sentences",
+      "baseline": {
+        "decision": "ask",
+        "exploration": "paused_for_material_clarification",
+        "exploration_meaning": "The activity case may guide a provisional first direction with the material ambiguity visible; resolve the one consequential question before treating the direction as implementation-ready.",
+        "commitment": "not_authorized",
+        "commitment_meaning": "Activity-case readiness never authorizes product, policy, safety, release, or implementation commitments.",
+        "blocking_ambiguity_ids": [
+          "ambiguity_source_activity_completion"
+        ],
+        "next_question": "What should the person leave knowing or having done, and in what activity?"
+      },
+      "activity": "ready_for_review",
+      "surface": "dashboard_monitor",
+      "workflow": "ready_for_review",
+      "handoff": "ready_for_generation",
+      "frontend": "ready_for_frontend_implementation",
+      "skill": "ready",
+      "work_units": [
+        "Choose coastal location and day",
+        "Read tide at 12:00 noon Pacific time",
+        "Read next high and next low",
+        "Scan the 24-hour tide chart"
+      ]
+    }
+  ]
+}

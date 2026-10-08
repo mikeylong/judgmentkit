@@ -67,3 +67,16 @@ Participant action authority may come only from direct affirmative language in t
 None of these states authorizes approval policy, safety rules, sensitive disclosure, release, or irreversible external action. Those remain explicit human or authoritative-source boundaries.
 
 Implementation vocabulary remains hidden from ordinary product UI. When setup, debugging, auditing, or integration machinery is itself the user activity, relevant server, endpoint, schema, trace, or connection terms remain available as domain vocabulary rather than being stripped as leakage.
+
+## Interpretation and routing consistency
+
+Excluded safety claims and unrelated design decisions must not create a safety rule.
+Paragraph and sentence attribution of the same source should preserve readiness.
+An `ask` result always names an unresolved ambiguity and a material question.
+
+No positive surface evidence leaves routing unresolved, with no Workbench fallback
+contract. Resolve it before handoff or frontend generation. An explicit caller
+selection is not a human selection or an authorization credential. Conflicting
+explicit and recommended selections are rejected instead of silently choosing one.
+
+See `specs/activity-routing-reliability.md` for the Tide regression contract.

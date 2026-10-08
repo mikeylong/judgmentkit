@@ -1,0 +1,16 @@
+{
+  "fixture_kind": "synthetic",
+  "time_basis": "local community-center time",
+  "opening_hours": { "start": "09:00", "end": "18:00" },
+  "rooms": [
+    { "id": "cedar", "name": "Cedar", "capacity": 12, "step_free": true, "projector": true },
+    { "id": "maple", "name": "Maple", "capacity": 24, "step_free": true, "projector": false },
+    { "id": "loft", "name": "Loft", "capacity": 10, "step_free": false, "projector": true }
+  ],
+  "bookings": [
+    { "room_id": "cedar", "date": "2026-11-12", "start": "12:00", "end": "14:00", "activity": "Art club" },
+    { "room_id": "maple", "date": "2026-11-12", "start": "14:00", "end": "15:00", "activity": "Reading circle" },
+    { "room_id": "loft", "date": "2026-11-12", "start": "10:00", "end": "12:00", "activity": "Music practice" }
+  ],
+  "interval_rule": "start-inclusive, end-exclusive"
+}
