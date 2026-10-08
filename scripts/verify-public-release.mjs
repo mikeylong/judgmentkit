@@ -21,6 +21,8 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, "..");
 const DEFAULT_BASE_URL = "https://judgmentkit.ai";
+const GITHUB_API_ORIGIN = "https://api.github.com";
+const GITHUB_REPOSITORY = "mikeylong/judgmentkit";
 const PUBLIC_MCP_ROUTES = ["/mcp", "/mcp/"];
 const PUBLIC_MCP_MAX_POST_BODY_BYTES = 128 * 1024;
 const REDIRECT_HOSTS = [
@@ -318,6 +320,78 @@ async function readPackageVersion() {
   assert.match(packageJson.version, /^\d+\.\d+\.\d+$/, "package.json version must be semver");
 
   return packageJson.version;
+}
+
+export async function verifyPublishedGithubRelease(
+  expectedPackageVersion,
+  { apiOrigin = GITHUB_API_ORIGIN } = {},
+) {
+  assert.match(
+    expectedPackageVersion,
+    /^\d+\.\d+\.\d+$/,
+    "GitHub Release verification requires a semver package version",
+  );
+
+  const tagName = `v${expectedPackageVersion}`;
+  const apiUrl = new URL(
+    `/repos/${GITHUB_REPOSITORY}/releases/tags/${encodeURIComponent(tagName)}`,
+    apiOrigin,
+  );
+  const response = await fetch(apiUrl, {
+    headers: {
+      accept: "application/vnd.github+json",
+      "user-agent": "judgmentkit-public-release-verifier",
+      "x-github-api-version": "2022-11-28",
+    },
+  });
+
+  if (response.status === 404) {
+    throw new Error(
+      `GitHub Release ${tagName} is missing. A Git tag alone does not satisfy release publication.`,
+    );
+  }
+
+  assert.equal(
+    response.ok,
+    true,
+    `GitHub Release ${tagName} lookup failed with status ${response.status}`,
+  );
+
+  const release = await response.json();
+  const expectedHtmlUrl =
+    `https://github.com/${GITHUB_REPOSITORY}/releases/tag/${tagName}`;
+
+  assert.equal(release.tag_name, tagName, "GitHub Release should match the package tag");
+  assert.equal(release.draft, false, `GitHub Release ${tagName} must not be a draft`);
+  assert.equal(
+    release.prerelease,
+    false,
+    `GitHub Release ${tagName} must not be a prerelease`,
+  );
+  assert.equal(
+    release.html_url,
+    expectedHtmlUrl,
+    `GitHub Release ${tagName} should expose the canonical release URL`,
+  );
+  assert.equal(
+    typeof release.published_at,
+    "string",
+    `GitHub Release ${tagName} should record its publication time`,
+  );
+  assert.equal(
+    Number.isNaN(Date.parse(release.published_at)),
+    false,
+    `GitHub Release ${tagName} should record a valid publication time`,
+  );
+
+  return {
+    tag_name: release.tag_name,
+    name: release.name,
+    url: release.html_url,
+    published_at: release.published_at,
+    draft: release.draft,
+    prerelease: release.prerelease,
+  };
 }
 
 async function readJsonIfExists(relativePath) {
@@ -2132,6 +2206,7 @@ async function main() {
   const report = {
     base_url: baseUrl.toString(),
     package_version: packageVersion,
+    github_release: await verifyPublishedGithubRelease(packageVersion),
     routes: await verifyPublicRoutes(baseUrl.toString(), {
       skipAnalyticsScript: options.skipAnalyticsScript,
       expectedPackageVersion: packageVersion,
