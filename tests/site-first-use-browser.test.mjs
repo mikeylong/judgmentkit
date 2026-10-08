@@ -76,7 +76,43 @@ const transformExpression = `(() => {
   return { x: matrix.e, y: matrix.f, zoom: matrix.a };
 })()`;
 
+const mapMeasurementExpression = `(() => {
+  const host = document.querySelector('${MAP} .react-flow').getBoundingClientRect();
+  const nodes = [...document.querySelectorAll('${MAP} .react-flow__node')].map(el => {
+    const rect = el.getBoundingClientRect();
+    return { id: el.dataset.id, visible: el.checkVisibility(),
+      left: rect.left - host.left, top: rect.top - host.top,
+      right: rect.right - host.left, bottom: rect.bottom - host.top,
+      width: rect.width, height: rect.height };
+  });
+  return { transform: ${transformExpression}, width: host.width, height: host.height, nodes,
+    bounds: { left: Math.min(...nodes.map(node => node.left)),
+      top: Math.min(...nodes.map(node => node.top)),
+      right: Math.max(...nodes.map(node => node.right)),
+      bottom: Math.max(...nodes.map(node => node.bottom)) } };
+})()`;
+
+async function waitForFittedMap(client, sid, label) {
+  // onInit's mounted marker precedes React Flow's queued fit and node
+  // measurements. Observe current rendered bounds across layout frames instead
+  // of treating the first mounted transform as the fitted reference.
+  await waitForExpression(client, sid, `(async () => {
+    const before = ${mapMeasurementExpression};
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const after = ${mapMeasurementExpression};
+    const { bounds, width, height, nodes } = after;
+    return JSON.stringify(before) === JSON.stringify(after)
+      && nodes.length > 0 && nodes.every(node => node.visible && node.width > 0 && node.height > 0)
+      && bounds.left >= -1 && bounds.top >= -1
+      && bounds.right <= width + 1 && bounds.bottom <= height + 1
+      && Math.abs((bounds.left + bounds.right) / 2 - width / 2) < 1
+      && Math.abs((bounds.top + bounds.bottom) / 2 - height / 2) < 1;
+  })()`, { label: `${label}: fit centers and encloses the current measured nodes after layout settles` });
+}
+
 async function checkMapControls(client, sid, label) {
+  await pointerActivate(client, sid, `${MAP} .react-flow__controls-fitview`);
+  await waitForFittedMap(client, sid, label);
   const baseline = await evaluate(client, sid, transformExpression);
   await pointerActivate(client, sid, `${MAP} .react-flow__controls-zoomin`);
   await waitForExpression(client, sid,
@@ -118,11 +154,12 @@ async function checkMapControls(client, sid, label) {
   })()`, { label: `${label}: map pointer pan` });
 
   await pointerActivate(client, sid, `${MAP} .react-flow__controls-fitview`);
+  await waitForFittedMap(client, sid, label);
   await waitForExpression(client, sid, `(() => {
     const after = ${transformExpression};
     return Math.abs(after.x - ${baseline.x}) < 1 && Math.abs(after.y - ${baseline.y}) < 1
       && Math.abs(after.zoom - ${baseline.zoom}) < 0.001;
-  })()`, { label: `${label}: fit view restores the map after pan` });
+  })()`, { label: `${label}: fit view restores the stable fitted transform after pan` });
   assert.equal(await evaluate(client, sid,
     `document.querySelector(${JSON.stringify(MAP)}).dataset.systemMapFlowMounted`),
   "true", `${label}: the map must remain mounted after interaction`);

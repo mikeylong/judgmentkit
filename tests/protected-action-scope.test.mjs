@@ -44,6 +44,27 @@ for (const separator of [". ", " and ", ", and ", ", then ", ", but ", ", wherea
   assert.equal(packet.activity_case.readiness.decision, "proceed", `A separate Apply action must remain outside Preview: ${separator}`);
 }
 
+for (const kind of ["workspace_evidence", "authoritative_source"]) {
+  for (const cancellation of [
+    "Reviewers may cancel customer subscriptions.",
+    "Reviewers cancel customer subscriptions by deleting artifact records.",
+    "Reviewers cancel selected customer subscriptions by deleting artifact records.",
+  ]) {
+    const source = {
+      ...lifecycle, kind,
+      content: `Reviewers inspect artifact corrections and read their evidence. ${cancellation}`,
+      ...(kind === "authoritative_source" ? { source_ref: "policy://separate-subscription-cancellation/v1" } : {}),
+    };
+    for (const qualified of [false, true]) {
+      const changed = candidate();
+      if (qualified) changed.interaction_contract.next_actions[2] = "Reviewers cancel the selected preview.";
+      const packet = reviewActivityModelCandidate(brief, changed, { context_items: [source] });
+      assert.equal(packet.activity_case.readiness.decision, "proceed", "Cancel preview cannot inherit authority for cancelling a different object.");
+      assert.equal(packet.activity_case.readiness.commitment, "not_authorized");
+    }
+  }
+}
+
 for (const path of ["division_of_labor", "state_changes"]) {
   const changed = candidate();
   if (path === "division_of_labor") {
@@ -91,6 +112,8 @@ for (const content of [
   "Preview will select the correction and apply changes to the saved artifact.",
   "Preview will inspect the artifact, and apply the correction.",
   "Preview will inspect the artifact, then apply the correction.",
+  "Cancel preview deletes artifact correction records.",
+  "Artifact correction records are deleted when preview is cancelled.",
 ]) {
   const source = { ...lifecycle, content };
   const packet = reviewActivityModelCandidate(brief, candidate(), { context_items: [source] });

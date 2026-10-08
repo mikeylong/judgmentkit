@@ -4177,13 +4177,42 @@ function hasAffirmedPassivePersistedEffect(clause) {
   }));
 }
 
+const INSPECTION_TARGET_MODIFIER_TOKENS = new Set([
+  "itself", "them", "their", "this", "that", "those", "these", "only", "one",
+  "specific", "selected", "proposed", "saved", "original", "existing", "new",
+].map(normalizeActivityClaimToken));
+
+function inspectionOperationTargets(value, pattern) {
+  const text = normalizeText(value);
+  return [...text.matchAll(toGlobalPattern(pattern))]
+    .filter((match) => !isNegatedMatch(text, match.index, match.index + match[0].length))
+    .map((match) => {
+      const target = text.slice(match.index + match[0].length)
+        .split(/[.;!?,]|\b(?:and|but|then|when|while|whereas|however|without|with|by|after|before|is|are|was|were|will|must|can|may|does|do|leaves?|returns?|temporarily|commits?|saves?|deletes?|runs?)\b/, 1)[0];
+      return activityClaimTokens(target.split(/\s+/).slice(0, 8).join(" "))
+        .filter((token) => !INSPECTION_TARGET_MODIFIER_TOKENS.has(token));
+    });
+}
+
+function sourceRetainsInspectionOperation(clause, candidateActions, pattern) {
+  const sourceTargets = inspectionOperationTargets(clause, pattern);
+  const candidateTargets = candidateActions.flatMap((action) => inspectionOperationTargets(action, pattern));
+  if (!candidateTargets.length) return false;
+  const explicitCandidateTargets = new Set(candidateTargets.flat());
+  return sourceTargets.some((targets) =>
+    // Elided targets remain conservative; explicit different objects do not
+    // transfer effects just because they share an inspection verb.
+    !targets.length || !explicitCandidateTargets.size ||
+    targets.some((target) => explicitCandidateTargets.has(target)));
+}
+
 function sourceInspectionHasIrreversibleEffect(source, candidate, sourceBrief) {
   const candidateActions = normalizedClaimStrings([sourceBrief, activeCandidateActions(candidate)]);
   const sourceClauses = normalizeText(source).split(/[.;!?\n]|(?:,\s*|\s+)(?:and|but|then|whereas|while|however)[,\s]+(?=(?:apply|adopt|revert)(?:\s+(?:suggestions?|corrections?|proposals?|changes?|versions?))?\s+(?:commits|saves|updates|replaces|writes|merges|is|requires)\b)/);
   return INSPECTION_ACTION_PATTERNS.some((pattern) =>
     candidateActions.some((action) => hasAffirmedPattern(normalizeText(action), pattern)) &&
     sourceClauses.some((clause) => {
-      if (!hasAffirmedPattern(clause, pattern)) return false;
+      if (!sourceRetainsInspectionOperation(clause, candidateActions, pattern)) return false;
       // Effects can precede their operation, including passive descriptions.
       // Keep independently described Apply clauses outside a preview-only task.
       return hasAffirmedIrreversibleAction(clause) ||

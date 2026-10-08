@@ -154,8 +154,15 @@ export function buildReport(manifest, outcomes, run, expectedSourceIdentity) {
     rows.push({ episode_id: label, task_id: assigned.task_id, condition_id: assigned.condition_id, record_valid: recordValid, build_status: episode.status, candidate_id: episode.candidate?.id ?? null, task_result: taskResult, setup_minutes: episode.builder_observation?.setup_minutes ?? null, total_minutes: episode.builder_observation?.total_minutes ?? null, event_counts: eventCounts, execution_accounting: accounting ?? null, supporting_evidence_count: episode.supporting_evidence.length, termination_reason: episode.termination_reason });
   }
   if (!Array.isArray(run.repeat_use)) errors.push("repeat_use must be an array");
+  const returnEpisodeIds = new Set();
   for (const observation of Array.isArray(run.repeat_use) ? run.repeat_use : []) {
-    if (!object(observation) || !["return_episode_id", "builder_slot", "task_id", "condition_id", "candidate_id", "observer_id", "source_ref", "observed_actions"].every(key => text(observation[key])) || !timestamp(observation.observed_at) || !/^[a-f0-9]{64}$/.test(observation.candidate_sha256 ?? "")) errors.push("repeat use needs an observed return episode, exact artifact identity, actions, and evidence reference");
+    if (!object(observation) || !["return_episode_id", "builder_slot", "task_id", "condition_id", "candidate_id", "observer_id", "source_ref", "observed_actions"].every(key => text(observation[key])) || !timestamp(observation.observed_at) || !/^[a-f0-9]{64}$/.test(observation.candidate_sha256 ?? "")) {
+      errors.push("repeat use needs an observed return episode, exact artifact identity, actions, and evidence reference");
+      continue;
+    }
+    const returnEpisodeId = observation.return_episode_id.trim();
+    if (returnEpisodeIds.has(returnEpisodeId)) errors.push(`repeat use repeats return_episode_id ${returnEpisodeId}; record each return episode once`);
+    returnEpisodeIds.add(returnEpisodeId);
   }
   const started = rows.filter(row => row.build_status !== "not_run").length;
   const observed = rows.filter(row => ["observed_completion", "observed_failure"].includes(row.task_result)).length;
@@ -171,7 +178,7 @@ export function buildReport(manifest, outcomes, run, expectedSourceIdentity) {
     episodes_started: started, episodes_with_complete_task_observations: observed,
     failed_builds: rows.filter(row => row.build_status === "failed").length,
     abandoned_builds: rows.filter(row => row.build_status === "abandoned").length,
-    observed_return_episodes: run.repeat_use?.length ?? 0,
+    observed_return_episodes: returnEpisodeIds.size,
     episodes: rows,
   };
 }

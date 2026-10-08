@@ -128,6 +128,33 @@ assert.equal(report(modelAsVerification).valid, false);
 const fakeReturn = blank();
 fakeReturn.repeat_use = [true];
 assert.equal(report(fakeReturn).valid, false);
+assert.equal(report(fakeReturn).observed_return_episodes, 0);
+const returnRun = blank();
+returnRun.repeat_use = [{
+  return_episode_id: "test-return-1", builder_slot: "builder_1", task_id: "test-subsequent-task", condition_id: "full_judgmentkit",
+  candidate_id: "test-return-candidate", candidate_sha256: fakeHash, observer_id: "test-facilitator",
+  source_ref: "test-only-return-note#1", observed_at: observedAt, observed_actions: "Test-only builder returned for a subsequent task",
+}];
+assert.equal(report(returnRun).valid, true);
+assert.equal(report(returnRun).observed_return_episodes, 1);
+for (const repeatedObservation of [
+  structuredClone(returnRun.repeat_use[0]),
+  { ...returnRun.repeat_use[0], candidate_id: "test-other-return-candidate", candidate_sha256: "b".repeat(64), source_ref: "test-only-return-note#2" },
+  { ...returnRun.repeat_use[0], return_episode_id: " test-return-1 " },
+]) {
+  const duplicateReturn = structuredClone(returnRun);
+  duplicateReturn.repeat_use.push(repeatedObservation);
+  const duplicateReport = report(duplicateReturn);
+  assert.equal(duplicateReport.valid, false, "Repeated observations of one return episode cannot count as separate return use.");
+  assert.ok(duplicateReport.errors.some(error => error.includes("repeats return_episode_id test-return-1")));
+  assert.equal(duplicateReport.observed_return_episodes, 1, "A duplicate record cannot inflate the return-episode metric even in an invalid report.");
+  assert.equal(duplicateReport.human_study_status, "invalid_records");
+  assert.equal(duplicateReport.product_value, "unmeasured");
+}
+const distinctReturns = structuredClone(returnRun);
+distinctReturns.repeat_use.push({ ...returnRun.repeat_use[0], return_episode_id: "test-return-2", source_ref: "test-only-return-note#2" });
+assert.equal(report(distinctReturns).valid, true);
+assert.equal(report(distinctReturns).observed_return_episodes, 2);
 assert.equal(buildReport(manifest, outcomes, blank(), "changed-source").valid, false);
 assert.equal(buildReport(manifest, outcomes, blank()).valid, false);
 const invalidArrays = blank();
