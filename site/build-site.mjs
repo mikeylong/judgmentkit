@@ -566,11 +566,17 @@ const ICON_PAGE_SCENARIOS = [
   },
 ];
 
+const NEW_TAB_LINK_ATTRIBUTES = ' target="_blank" rel="noopener noreferrer" title="Opens in a new tab"';
+
+function renderExternalLinkIcon() {
+  return '<svg class="external-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>';
+}
+
 function renderPlatformHeader(pathName = "/") {
   const links = primaryNavLinks.map((link) => {
     const current = isPrimaryNavCurrent(link, pathName) ? ' aria-current="page"' : "";
-    const newTab = link.newTab ? ' target="_blank" rel="noopener noreferrer" title="Opens in a new tab"' : "";
-    const externalIcon = link.newTab ? '<svg class="header-external-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7M21 3l-10 10"/><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>' : '';
+    const newTab = link.newTab ? NEW_TAB_LINK_ATTRIBUTES : "";
+    const externalIcon = link.newTab ? renderExternalLinkIcon() : "";
     return `<a href="${escapeHtml(link.href)}"${current}${newTab}>${escapeHtml(link.label)}${externalIcon}</a>`;
   }).join("\n            ");
 
@@ -1159,9 +1165,10 @@ a {
   white-space: nowrap;
   text-decoration: none;
 }
-.header-external-link-icon {
+.external-link-icon {
   margin-left: 6px;
   flex: 0 0 auto;
+  vertical-align: -2px;
 }
 .surfaces-navigation-sections a:hover,
 .surfaces-navigation-sections a:focus-visible,
@@ -9819,8 +9826,8 @@ function renderExampleGalleryCard(item, index) {
           <div><dt>Render</dt><dd>${escapeHtml(item.renderLabel)}</dd></div>
         </dl>
         <div class="example-gallery-card-actions">
-          <a class="pill-link" href="${escapeHtml(item.artifactHref)}" target="_blank" rel="noreferrer">Open artifact</a>
-          <a class="pill-link" href="${escapeHtml(item.imageHref)}" target="_blank" rel="noreferrer">Open image</a>
+          <a class="pill-link" href="${escapeHtml(item.artifactHref)}"${NEW_TAB_LINK_ATTRIBUTES}>Open artifact${renderExternalLinkIcon()}</a>
+          <a class="pill-link" href="${escapeHtml(item.imageHref)}"${NEW_TAB_LINK_ATTRIBUTES}>Open image${renderExternalLinkIcon()}</a>
         </div>
       </div>
     </article>`;
@@ -9999,7 +10006,7 @@ function renderExampleActions(actions) {
   return actions
     .map(
       (action) =>
-        `<a class="pill-link" href="${escapeHtml(action.href)}" target="_blank" rel="noreferrer">${escapeHtml(action.label)}</a>`,
+        `<a class="pill-link" href="${escapeHtml(action.href)}"${NEW_TAB_LINK_ATTRIBUTES}>${escapeHtml(action.label)}${renderExternalLinkIcon()}</a>`,
     )
     .join("");
 }
@@ -10008,7 +10015,7 @@ function renderNoScriptModelUiLinks(example) {
   const useCaseLinks = (example.useCases ?? [])
     .map(
       (useCase) =>
-        `<a class="pill-link" href="${escapeHtml(useCase.indexHref)}" target="_blank" rel="noreferrer">${escapeHtml(useCase.label)}</a>`,
+        `<a class="pill-link" href="${escapeHtml(useCase.indexHref)}"${NEW_TAB_LINK_ATTRIBUTES}>${escapeHtml(useCase.label)}${renderExternalLinkIcon()}</a>`,
     )
     .join("");
 
@@ -10223,8 +10230,8 @@ function renderExampleGalleryModal() {
               <div><dt>Provenance</dt><dd data-gallery-modal-provenance></dd></div>
             </dl>
             <div class="example-gallery-modal-actions">
-              <a class="pill-link" data-gallery-modal-artifact href="" target="_blank" rel="noreferrer">Open artifact</a>
-              <a class="pill-link" data-gallery-modal-source href="" target="_blank" rel="noreferrer">Open image</a>
+              <a class="pill-link" data-gallery-modal-artifact href=""${NEW_TAB_LINK_ATTRIBUTES}>Open artifact${renderExternalLinkIcon()}</a>
+              <a class="pill-link" data-gallery-modal-source href=""${NEW_TAB_LINK_ATTRIBUTES}>Open image${renderExternalLinkIcon()}</a>
             </div>
           </div>
           <div class="example-gallery-modal-footer">

@@ -142,11 +142,17 @@
         display: inline-flex;
         width: fit-content;
         margin-top: 28px;
+        align-items: center;
         padding: 10px 14px;
         border-radius: 4px;
         background: var(--text);
         color: #050505;
         font-weight: 800;
+      }
+
+      .external-link-icon {
+        margin-left: 6px;
+        flex: 0 0 auto;
       }
 
       @media (max-width: 720px) {
@@ -173,19 +179,19 @@
         <code>do a zero-shot, single-pass generation of a Netflix video library</code>
       </section>
       <section class="variant-grid" aria-label="Prototype variants">
-        <a class="variant-card" href="./judgmentkit/" target="_blank" rel="noreferrer">
+        <a class="variant-card" href="./judgmentkit/" target="_blank" rel="noopener noreferrer" title="Opens in a new tab">
           <div>
             <h2>JudgmentKit MCP</h2>
             <p>Activity-first generation centered on helping a viewer decide what to watch.</p>
           </div>
-          <span class="variant-action">Open variant</span>
+          <span class="variant-action">Open variant<svg class="external-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg></span>
         </a>
-        <a class="variant-card" href="./baseline/" target="_blank" rel="noreferrer">
+        <a class="variant-card" href="./baseline/" target="_blank" rel="noopener noreferrer" title="Opens in a new tab">
           <div>
             <h2>Baseline</h2>
             <p>Direct generation from the same broad product idea without the JudgmentKit activity handoff.</p>
           </div>
-          <span class="variant-action">Open variant</span>
+          <span class="variant-action">Open variant<svg class="external-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg></span>
         </a>
       </section>
     </main>

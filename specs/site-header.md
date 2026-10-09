@@ -19,3 +19,11 @@ The live Surfaces header measured on 2026-10-01 is the reference: a 72 px sticky
 JudgmentKit retains more links, so its menu appears at widths up to 1120 px. The brand and menu remain aligned with Surfaces at shared mobile widths. Both headers retain their geometry on scroll and page navigation. Reserve classic scrollbar space to prevent shorter pages from shifting the header; measure the shell against available layout width when scrollbars consume space. Header fonts are local and preloaded; optional font display avoids a late font swap. The header font does not change JudgmentKit's framework-neutral design-system font contract.
 
 Validate header dimensions, gutters, mark placement, font loading, current-page width stability, menu operation, and horizontal overflow in light and dark modes across desktop, mobile, and breakpoint widths. Compare the local candidate with live Surfaces in both navigation directions, including Back/Forward. Full production round-trip verification requires the candidate to be released.
+
+## Links that open another tab or window
+
+Every public page uses the same arrow-out-of-square icon beside links that open another tab or window. The convention includes page content, gallery dialogs, no-script navigation, and unlisted comparison pages. A link with `target="_blank"` has the title "Opens in a new tab" and `rel="noopener noreferrer"`. A named window target uses "Opens in a new window". Same-tab links keep their existing behavior.
+
+Use a decorative 14 px SVG with `currentColor` so the icon follows the link in light and dark appearances. Keep the icon visible beside the link label at desktop and mobile widths. The site renderer shares its icon markup; standalone comparison navigation uses the same shape. Preserve the comparison prototypes and captured evidence.
+
+The site test scans every built HTML page, including copied examples, reports, and experiments, and rejects a new tab or window link without the icon, title, or safe `rel` values. Browser checks cover the shared header at desktop, mobile, and breakpoint widths.

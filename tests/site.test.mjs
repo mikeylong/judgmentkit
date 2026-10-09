@@ -5010,8 +5010,34 @@ assert.equal(netflixExperiment.includes("same one-shot request"), false);
 assert.ok(netflixExperiment.includes("same prompt"));
 assert.ok(netflixExperiment.includes("Prompt used"));
 assert.ok(netflixExperiment.includes("do a zero-shot, single-pass generation of a Netflix video library"));
-assert.ok(netflixExperiment.includes('href="./judgmentkit/" target="_blank" rel="noreferrer"'));
-assert.ok(netflixExperiment.includes('href="./baseline/" target="_blank" rel="noreferrer"'));
+assert.ok(netflixExperiment.includes('href="./judgmentkit/" target="_blank" rel="noopener noreferrer" title="Opens in a new tab"'));
+assert.ok(netflixExperiment.includes('href="./baseline/" target="_blank" rel="noopener noreferrer" title="Opens in a new tab"'));
+
+// Scan the complete published HTML tree, including copied standalone pages.
+// Exclude scripts, styles, and comments so example code is never treated as UI.
+let checkedNewContextLinks = 0;
+const publishedHtmlFiles = listRelativeFiles(tempDir).filter(file => /\.html$/i.test(file));
+for (const relativeFile of publishedHtmlFiles) {
+  const markup = fs.readFileSync(path.join(tempDir, relativeFile), "utf8")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "");
+  for (const [, attributes, content] of markup.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a\s*>/gi)) {
+    const attrs = new Map([...attributes.matchAll(/([^\s=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g)]
+      .map(([, name, doubleQuoted, singleQuoted, unquoted]) => [name.toLowerCase(), doubleQuoted ?? singleQuoted ?? unquoted ?? ""]));
+    const target = (attrs.get("target") ?? "").toLowerCase();
+    if (["", "_self", "_parent", "_top"].includes(target)) continue;
+    checkedNewContextLinks += 1;
+    const label = content.replace(/<[^>]+>/g, "").trim();
+    const context = `${relativeFile}: ${label || attrs.get("href") || "unnamed link"}`;
+    assert.equal(attrs.get("title"), target === "_blank" ? "Opens in a new tab" : "Opens in a new window", context);
+    const rel = new Set((attrs.get("rel") ?? "").toLowerCase().split(/\s+/));
+    assert.ok(rel.has("noopener") && rel.has("noreferrer"), `${context}: protect the destination window`);
+    assert.match(content, /<svg\b[^>]*\bclass="external-link-icon"[^>]*\bwidth="14"[^>]*\bheight="14"[^>]*\baria-hidden="true"/i,
+      `${context}: show the decorative external-link icon beside the label`);
+  }
+}
+assert.ok(publishedHtmlFiles.length > 0, "scan the full public page tree, including standalone artifacts");
+assert.ok(checkedNewContextLinks > 0, "the all-page external-link check must inspect real links");
 
 const mcp = getHostedMcpMetadata();
 assert.equal(mcp.name, "JudgmentKit");
@@ -5104,4 +5130,4 @@ for (const oldToolName of [
   }
 }
 
-console.log("Site checks passed.");
+console.log(`Site checks passed, including ${checkedNewContextLinks} new tab/window links across ${publishedHtmlFiles.length} published HTML pages.`);

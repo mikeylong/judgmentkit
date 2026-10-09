@@ -53,6 +53,34 @@ async function measure(client, sessionId) {
   })()`);
 }
 
+async function assertVisibleExternalLink(client, sessionId, label) {
+  const links = await evaluate(client, sessionId, `(() => {
+    return [...document.querySelectorAll('[data-surfaces-navigation] a[target="_blank"]')]
+      .filter(link => link.getBoundingClientRect().height > 0)
+      .map(link => {
+        const icon = link.querySelector('.external-link-icon');
+        const bounds = icon?.getBoundingClientRect();
+        return {
+          title: link.title,
+          rel: [...link.relList].sort(),
+          decorative: icon?.getAttribute('aria-hidden'),
+          width: bounds?.width,
+          height: bounds?.height,
+          color: icon && getComputedStyle(icon).color,
+          linkColor: getComputedStyle(link).color,
+        };
+      });
+  })()`);
+  assert.equal(links.length, 1, `${label}: one visible Handbooks link`);
+  const [link] = links;
+  assert.equal(link.title, "Opens in a new tab", label);
+  assert.deepEqual(link.rel, ["noopener", "noreferrer"], label);
+  assert.equal(link.decorative, "true", label);
+  assert.equal(link.width, 14, `${label}: visible external-link icon width`);
+  assert.equal(link.height, 14, `${label}: visible external-link icon height`);
+  assert.equal(link.color, link.linkColor, `${label}: icon follows link color`);
+}
+
 try {
   await buildSite(outDir);
   const local = await listenSiteLocalServer({ siteDir: outDir, host: "127.0.0.1", port: 0 });
@@ -92,6 +120,7 @@ try {
           assert.equal(home.weight, "600", label);
           assert.equal(home.links.at(-2).href, "https://handbooks.surfaces.systems/", label);
           assert.equal(home.links.at(-1).href, "https://surfaces.systems/", label);
+          if (!expected.menu) await assertVisibleExternalLink(client, sid, label);
           if (expected.menu) {
             assert.equal(home.button.y, 14, label);
             assert.equal(home.button.height, 44, label);
@@ -106,6 +135,7 @@ try {
               return { hidden: el.hidden, top: el.getBoundingClientRect().top, count: el.querySelectorAll('a').length, last: el.querySelector('a:last-child').href };
             })()`);
             assert.deepEqual(menu, { hidden: false, top: 72, count: 8, last: "https://surfaces.systems/" });
+            await assertVisibleExternalLink(client, sid, label);
             await pressKey(client, sid, "Tab");
             await pressKey(client, sid, "Escape");
             assert.equal(await evaluate(client, sid, `document.activeElement.matches('[data-surfaces-primary-menu-button]') && document.querySelector('[data-surfaces-primary-menu-list]').hidden`), true);
@@ -142,7 +172,7 @@ try {
       }
     }
   });
-  console.log("Header browser checks passed: 14 viewport/appearance cases, navigation, font loading, keyboard menu, dismissal, sticky positioning, and Back restoration.");
+  console.log("Header browser checks passed: 14 viewport/appearance cases, external-link indicators, navigation, font loading, keyboard menu, dismissal, sticky positioning, and Back restoration.");
 } finally {
   if (server) await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
   fs.rmSync(outDir, { recursive: true, force: true });
