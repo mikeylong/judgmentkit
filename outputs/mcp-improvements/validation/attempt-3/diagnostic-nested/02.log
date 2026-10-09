@@ -1,0 +1,5 @@
+
+> judgmentkit@0.8.0 test:components:site
+> node tests/components/component-site-integration.test.mjs
+
+component site integration tests passed

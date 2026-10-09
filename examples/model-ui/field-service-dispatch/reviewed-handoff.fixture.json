@@ -17,7 +17,7 @@
       "schema": "judgmentkit.portable-integrity-receipt/v1",
       "algorithm": "sha256-canonical-json",
       "kind": "activity_case_ui_generation_handoff",
-      "digest": "2399e4ad7342da8f3c6c8a1323e04759c5bfe7c4a99db36f74c115de8c862898"
+      "digest": "5169f8619b5632eee0702f6dc66268223b7bfe0730b61563a995ac4436625538"
     }
   },
   "surface_type": "workbench",
@@ -31,6 +31,36 @@
       "conversation"
     ],
     "confidence": "high",
+    "selection_origin": "inferred",
+    "confidence_evidence": {
+      "required_evidence": [
+        [
+          "inspect_compare_decide_act"
+        ],
+        [
+          "repeated_work_items"
+        ]
+      ],
+      "missing_required_evidence": [],
+      "core_evidence_coverage": 1,
+      "activity_review_status": "ready_for_review",
+      "competing_surface_types": [
+        {
+          "surface_type": "dashboard_monitor",
+          "score": 1,
+          "core_evidence_coverage": 0.5,
+          "matched_exclusions": []
+        },
+        {
+          "surface_type": "setup_debug_tool",
+          "score": 1,
+          "core_evidence_coverage": 0.5,
+          "matched_exclusions": []
+        }
+      ],
+      "score_margin": 2,
+      "competing_complete_activity": false
+    },
     "interaction_implications": {
       "primary_structure": "Item selection, detail evidence, decision controls, and completion state.",
       "make_easy": [

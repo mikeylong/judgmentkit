@@ -39,6 +39,12 @@ import {
   ComponentSpecimenPreview,
   RUNTIME_COMPONENT_IDS,
 } from "./component-specimen-runtime.mjs";
+import {
+  SYSTEM_MAP_VIEWBOX,
+  SYSTEM_MAP_NODES,
+  SYSTEM_MAP_EDGES,
+  systemMapEdgePath,
+} from "./system-map-model.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -47,7 +53,7 @@ const require = createRequire(import.meta.url);
 const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
 const JUDGMENTKIT_PACKAGE_VERSION = require("../package.json").version;
 const ACTIVITY_CONTRACT = loadActivityContract();
-const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-design-source-authority";
+const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-evidence-admission-v2";
 const COMPONENT_SPECIMEN_ASSET_VERSION =
   "judgmentkit-react-component-candidate-v1";
 const SITE_ORIGIN = "https://judgmentkit.ai";
@@ -865,134 +871,47 @@ function systemMapShell(titleId, descId) {
 }
 
 function systemMapFallbackSvg(titleId, descId) {
-  return `<svg class="system-map-svg system-map-fallback-svg" data-system-map-svg-fallback viewBox="0 0 1760 1120" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="${escapeHtml(titleId)} ${escapeHtml(descId)}">
+  const renderNode = (node) => {
+    const { x, y } = node.position;
+    const { width, height } = node.style;
+    const { title, boundary, tools = [], lines = [], tone = "default" } = node.data;
+    const zone = node.type === "zoneNode";
+    const kind = zone ? "zone" : "node";
+    const toneClass = tone === "default" ? "" : ` map-${kind}-${tone}`;
+    const content = zone
+      ? `<span class="map-boundary">${escapeHtml(boundary)}</span><strong class="map-zone-title">${escapeHtml(title)}</strong>`
+      : `<strong class="map-node-title">${escapeHtml(title)}</strong>${tools.map((tool) => `<code class="map-node-code">${escapeHtml(tool)}</code>`).join("")}${lines.map((line) => `<span class="map-node-text">${escapeHtml(line)}</span>`).join("")}`;
+    return `<g data-node-id="${escapeHtml(node.id)}">
+            <rect class="map-${kind}${toneClass}" x="${x}" y="${y}" width="${width}" height="${height}" rx="${zone ? 18 : 12}"></rect>
+            <foreignObject x="${x}" y="${y}" width="${width}" height="${height}">
+              <div xmlns="http://www.w3.org/1999/xhtml" class="map-${kind}-content">${content}</div>
+            </foreignObject>
+          </g>`;
+  };
+  const renderEdge = (edge) => {
+    const { tone = "default", dashed, points, labelPosition } = edge.data;
+    const toneClass = tone === "warning" ? " map-edge-blocked" : tone === "output" ? " map-edge-output" : "";
+    const label = edge.label && labelPosition
+      ? `<text class="map-edge-label" x="${labelPosition.x}" y="${labelPosition.y - 10}" text-anchor="middle">${escapeHtml(edge.label)}</text>`
+      : "";
+    return `<g data-edge-id="${escapeHtml(edge.id)}">
+            <path class="map-edge${toneClass}" d="${systemMapEdgePath(points)}"${dashed ? ' stroke-dasharray="7 6"' : ""}></path>${label}
+          </g>`;
+  };
+  const zones = SYSTEM_MAP_NODES.filter((node) => node.type === "zoneNode").map(renderNode).join("\n");
+  const stages = SYSTEM_MAP_NODES.filter((node) => node.type !== "zoneNode").map(renderNode).join("\n");
+  const edges = SYSTEM_MAP_EDGES.map(renderEdge).join("\n");
+  return `<svg class="system-map-svg system-map-fallback-svg" data-system-map-svg-fallback viewBox="0 0 ${SYSTEM_MAP_VIEWBOX.width} ${SYSTEM_MAP_VIEWBOX.height}" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="${escapeHtml(titleId)} ${escapeHtml(descId)}">
           <title id="${escapeHtml(titleId)}">JudgmentKit system design map</title>
-          <desc id="${escapeHtml(descId)}">A static fallback node and edge diagram showing source context, the MCP boundary, JudgmentKit kernel, optional LLM provider seam, UI rendering outside JudgmentKit, design-system source choices with provenance, blocked path, and iteration with updated context returning to source and activity review.</desc>
+          <desc id="${escapeHtml(descId)}">An integration route showing caller-owned execution, library and MCP access, optional model proposals, deterministic activity and workflow review, implementation authority before handoff, frontend guidance, caller implementation and evidence, bounded implementation review, repair, and a separate observed human task result. Artifact Inspector remains review_required without trusted interactive attestation.</desc>
           <defs>
             <marker id="system-map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path class="map-arrow" d="M 0 0 L 10 5 L 0 10 z"></path>
             </marker>
           </defs>
-
-          <rect class="map-zone" x="36" y="64" width="330" height="470" rx="18"></rect>
-          <text class="map-boundary" x="60" y="104">MCP boundary</text>
-          <text class="map-zone-title" x="60" y="138">Agent / Client / MCP</text>
-          <rect class="map-node" x="60" y="156" width="282" height="78" rx="12"></rect>
-          <text class="map-node-title" x="78" y="188">Codex or agent client</text>
-          <text class="map-node-text" x="78" y="212">Calls tools; owns the turn.</text>
-          <rect class="map-node" x="60" y="258" width="282" height="112" rx="12"></rect>
-          <text class="map-node-title" x="78" y="290">Source brief + product context</text>
-          <text class="map-node-text" x="78" y="314">Brief, product facts,</text>
-          <text class="map-node-text" x="78" y="338">current draft findings.</text>
-          <rect class="map-node" x="60" y="392" width="282" height="116" rx="12"></rect>
-          <text class="map-node-title" x="78" y="424">MCP server</text>
-          <text class="map-node-text" x="78" y="448">Access and transport only.</text>
-          <text class="map-node-text" x="78" y="472">MCP is not the LLM.</text>
-          <text class="map-node-code" x="78" y="496">tools/list + tools/call</text>
-
-          <rect class="map-zone map-zone-kernel" x="430" y="64" width="700" height="670" rx="18"></rect>
-          <text class="map-boundary" x="458" y="104">JudgmentKit kernel</text>
-          <text class="map-zone-title" x="458" y="138">Deterministic review, guardrails, handoff</text>
-          <rect class="map-node map-node-kernel" x="462" y="170" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="482" y="202">analyze_implementation_brief</text>
-          <text class="map-node-text" x="482" y="228">Extract activity evidence, source gaps,</text>
-          <text class="map-node-text" x="482" y="250">implementation terms, disclosure risks.</text>
-          <rect class="map-node map-node-kernel" x="804" y="170" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="824" y="202">create_activity_model_review</text>
-          <text class="map-node-text" x="824" y="228">Name activity, participant, objective,</text>
-          <text class="map-node-text" x="824" y="250">decision, outcome, vocabulary.</text>
-          <rect class="map-node map-node-kernel" x="462" y="318" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="482" y="350">review_activity_model_candidate</text>
-          <text class="map-node-text" x="482" y="376">Review model or agent candidates</text>
-          <text class="map-node-text" x="482" y="398">before trusting them.</text>
-          <rect class="map-node map-node-kernel" x="804" y="318" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="824" y="350">review_ui_workflow_candidate</text>
-          <text class="map-node-text" x="824" y="376">Check grounding, action support,</text>
-          <text class="map-node-text" x="824" y="398">handoff clarity, leakage containment.</text>
-          <rect class="map-node map-node-kernel" x="462" y="466" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="482" y="498">recommend_ui_workflow_profiles</text>
-          <text class="map-node-text" x="482" y="524">Optional guidance such as</text>
-          <text class="map-node-text" x="482" y="546">operator-review-ui; not styling.</text>
-          <rect class="map-node map-node-kernel" x="804" y="466" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="824" y="498">create_ui_generation_handoff</text>
-          <text class="map-node-text" x="824" y="524">Gate: only ready workflow reviews</text>
-          <text class="map-node-text" x="824" y="546">become generation handoffs.</text>
-          <rect class="map-node map-node-blocked" x="594" y="606" width="420" height="94" rx="12"></rect>
-          <text class="map-node-title" x="616" y="638">Blocked path</text>
-          <text class="map-node-text" x="616" y="662">Resolve targeted questions or leakage</text>
-          <text class="map-node-text" x="616" y="684">before UI generation.</text>
-
-          <rect class="map-zone map-zone-llm" x="1212" y="64" width="500" height="286" rx="18"></rect>
-          <text class="map-boundary" x="1240" y="104">LLM / provider seam</text>
-          <text class="map-zone-title" x="1240" y="138">Optional model assistance</text>
-          <rect class="map-node map-node-llm" x="1240" y="170" width="204" height="116" rx="12"></rect>
-          <text class="map-node-title" x="1258" y="202">Provider adapter</text>
-          <text class="map-node-text" x="1258" y="226">OpenAI, local model,</text>
-          <text class="map-node-text" x="1258" y="250">or injected caller.</text>
-          <rect class="map-node map-node-llm" x="1470" y="170" width="204" height="116" rx="12"></rect>
-          <text class="map-node-title" x="1488" y="202">Candidate proposal</text>
-          <text class="map-node-text" x="1488" y="226">Activity/workflow JSON.</text>
-          <text class="map-node-text" x="1488" y="250">Reviewed before use.</text>
-
-          <rect class="map-zone map-zone-output" x="1212" y="412" width="500" height="640" rx="18"></rect>
-          <text class="map-boundary" x="1240" y="452">Outside JudgmentKit</text>
-          <text class="map-zone-title" x="1240" y="486">UI rendering from reviewed handoff</text>
-          <rect class="map-node map-node-output" x="1240" y="518" width="434" height="94" rx="12"></rect>
-          <text class="map-node-title" x="1258" y="550">LLM / agent UI pass</text>
-          <text class="map-node-text" x="1258" y="574">Generate from reviewed handoff,</text>
-          <text class="map-node-text" x="1258" y="596">not raw brief.</text>
-          <rect class="map-node map-node-output" x="1240" y="640" width="434" height="106" rx="12"></rect>
-          <text class="map-node-title" x="1258" y="672">Renderer choice after reviewed handoff</text>
-          <text class="map-node-text" x="1258" y="696">Renderer may vary; active</text>
-          <text class="map-node-text" x="1258" y="720">design-system provenance is required.</text>
-          <rect class="map-node map-node-output" x="1240" y="774" width="204" height="112" rx="12"></rect>
-          <text class="map-node-title" x="1258" y="806">External adapter</text>
-          <text class="map-node-text" x="1258" y="830">Complete tokens, components,</text>
-          <text class="map-node-text" x="1258" y="854">patterns, and provenance.</text>
-          <rect class="map-node map-node-output" x="1470" y="774" width="204" height="112" rx="12"></rect>
-          <text class="map-node-title" x="1488" y="806">JudgmentKit default</text>
-          <text class="map-node-text" x="1488" y="830">Use /design-system/ exports;</text>
-          <text class="map-node-text" x="1488" y="854">no fallback from failed adapters.</text>
-          <rect class="map-node map-node-output" x="1240" y="916" width="434" height="82" rx="12"></rect>
-          <text class="map-node-title" x="1258" y="948">UI draft</text>
-          <text class="map-node-text" x="1258" y="972">Reviewed by human or agent for next iteration.</text>
-
-          <rect class="map-zone" x="430" y="780" width="700" height="190" rx="18"></rect>
-          <text class="map-boundary" x="458" y="820">Iteration loop</text>
-          <text class="map-zone-title" x="458" y="854">Draft findings become updated context</text>
-          <rect class="map-node" x="462" y="884" width="292" height="60" rx="12"></rect>
-          <text class="map-node-title" x="482" y="920">Review findings</text>
-          <rect class="map-node map-node-kernel" x="804" y="884" width="292" height="60" rx="12"></rect>
-          <text class="map-node-title" x="824" y="920">updated context</text>
-
-          <path class="map-edge map-edge-muted" d="M 201 370 L 201 392"></path>
-          <path class="map-edge" d="M 342 450 C 388 450 382 220 462 220"></path>
-          <text class="map-edge-label" x="350" y="360">MCP tool call</text>
-          <path class="map-edge map-edge-muted" d="M 754 220 L 804 220"></path>
-          <path class="map-edge map-edge-muted" d="M 950 270 L 950 318"></path>
-          <path class="map-edge map-edge-muted" d="M 754 368 L 804 368"></path>
-          <path class="map-edge map-edge-muted" d="M 950 418 L 950 466"></path>
-          <path class="map-edge map-edge-blocked" d="M 804 544 C 744 580 704 590 672 606"></path>
-          <path class="map-edge map-edge-blocked" d="M 594 650 C 372 650 342 512 292 508"></path>
-          <text class="map-edge-label" x="348" y="620">needs source context</text>
-          <path class="map-edge map-edge-llm" d="M 1096 368 C 1166 338 1192 238 1240 226"></path>
-          <text class="map-edge-label" x="1130" y="302">request candidate</text>
-          <path class="map-edge map-edge-llm" d="M 1470 226 C 1340 300 1220 362 1096 368"></path>
-          <text class="map-edge-label" x="1302" y="338">proposed JSON returns for review</text>
-          <path class="map-edge map-edge-output" d="M 1096 516 C 1158 516 1178 564 1240 564"></path>
-          <text class="map-edge-label" x="1124" y="546">reviewed handoff</text>
-          <path class="map-edge map-edge-output" d="M 1457 612 L 1457 640"></path>
-          <path class="map-edge map-edge-output" d="M 1457 746 C 1356 746 1342 774 1342 774"></path>
-          <text class="map-edge-label" x="1246" y="760">external adapter</text>
-          <path class="map-edge map-edge-output" d="M 1457 746 C 1560 746 1572 774 1572 774"></path>
-          <text class="map-edge-label" x="1500" y="760">default source</text>
-          <path class="map-edge map-edge-output" d="M 1342 886 C 1342 904 1457 904 1457 916"></path>
-          <path class="map-edge map-edge-output" d="M 1572 886 C 1572 904 1457 904 1457 916"></path>
-          <path class="map-edge" d="M 1240 958 C 1068 920 912 914 754 914"></path>
-          <text class="map-edge-label" x="1030" y="930">review draft</text>
-          <path class="map-edge map-edge-muted" d="M 754 914 L 804 914"></path>
-          <path class="map-edge" d="M 804 914 C 640 760 420 420 342 314"></path>
-          <text class="map-edge-label" x="492" y="766">updated context returns to source/activity review</text>
+          ${zones}
+          ${edges}
+          ${stages}
         </svg>`;
 }
 
@@ -2087,18 +2006,14 @@ pre {
   margin-top: 14px;
   color: var(--muted);
 }
-.system-branch {
-  margin-top: 14px;
-  padding: 13px;
-  border-left: 3px solid color-mix(in srgb, var(--warn) 35%, transparent);
-  background: var(--status-warning-bg);
-  color: var(--warn);
-}
 .doc-section[data-system-map-flow-section] {
   overflow-x: hidden;
 }
+#system-map code {
+  overflow-wrap: anywhere;
+}
 .system-map-canvas {
-  aspect-ratio: 1760 / 1040;
+  aspect-ratio: ${SYSTEM_MAP_VIEWBOX.width} / ${SYSTEM_MAP_VIEWBOX.height};
   position: relative;
   max-width: 100%;
   min-height: 420px;
@@ -2209,6 +2124,58 @@ pre {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   font-size: 13px;
   font-weight: 800;
+}
+.system-map-svg .map-zone-content,
+.system-map-svg .map-node-content {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+.system-map-svg .map-zone-content {
+  padding: 28px 26px;
+}
+.system-map-svg .map-zone-content .map-boundary {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.2;
+}
+.system-map-svg .map-zone-content .map-zone-title {
+  display: block;
+  color: var(--accent-strong);
+  font-size: 22px;
+  line-height: 1.12;
+}
+.system-map-svg .map-node-content {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  padding: 14px 16px;
+  color: var(--ink);
+}
+.system-map-svg .map-node-content .map-node-title {
+  display: block;
+  color: var(--accent-strong);
+  font-size: 16px;
+  line-height: 1.15;
+}
+.system-map-svg .map-node-content .map-node-code {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent-strong);
+  font-size: 11px;
+  line-height: 1.22;
+  white-space: normal;
+}
+.system-map-svg .map-node-content .map-node-text {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.25;
 }
 .system-map-svg .map-edge {
   fill: none;
@@ -2400,6 +2367,9 @@ pre {
 }
 .doc-section {
   padding-bottom: 28px;
+}
+#first-use details code {
+  overflow-wrap: anywhere;
 }
 .surface-type-list {
   display: grid;
@@ -9519,12 +9489,19 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
           </section>
           <section class="doc-section" id="first-use">
             <h2>First 10 Minutes</h2>
+            <p>Start with an interface task in your agent conversation. Describe who needs to do what, or point the agent at an existing interface and the task to improve.</p>
+            <pre><code>Use JudgmentKit to build a signup form for a local workshop. Attendees pick an available session, enter their contact details, and receive a clear confirmation. Handle incomplete details and full sessions. Build and check the main task, then show what works and what remains unverified.</code></pre>
+            <p>The agent should show a short working premise, build or revise the interface, try the important task, and make focused repairs. You can correct the premise as the work develops. The agent handles the review sequence.</p>
+            <p>Finish with the working interface, the important paths checked, and any missing verification. Contract acceptance is bounded to its checks; observed user task completion is separate evidence.</p>
+            <details>
+              <summary>Replay the review mechanism</summary>
             <p>Use the replayable first-use fixture to see the AI-native design system as a contract loop, not a renderer. The fixture gives the agent one brief, one implementation contract input, one failing candidate, one repaired candidate, and the expected two-attempt transcript.</p>
             <pre><code>examples/ai-native-design-system/first-use.json
 examples/ai-native-design-system/canonical-examples.json</code></pre>
             <p><strong>Loop:</strong> create the implementation contract, review the failing candidate, read <code>next_agent_action</code> and grouped <code>repair_instructions</code>, repair the candidate, then resubmit and expect <code>accept</code>.</p>
             <p><strong>Canonical cases:</strong> setup/onboarding, operational dashboard, and high-stakes review/refund workflow. Each case includes the activity model, implementation contract input, failing candidate, repaired candidate, and proof expectation.</p>
             <p><strong>Runtime boundary:</strong> <code>implementation_contract.design_system_source</code> exposes the optional 17-contract React adapter candidate and its canonical registry. The root library, CLI, MCP, and <code>visual_token_adapter</code> remain framework-neutral. A complete <code>design_system_adapter</code> selects <code>external_design_system</code>; missing authorities fail instead of falling back to JudgmentKit defaults.</p>
+            </details>
           </section>
           <section class="doc-section" id="planning-examples">
             <h2>Planning Mode Examples</h2>
@@ -9552,20 +9529,24 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
           </section>
           <section class="doc-section" id="system-map" data-system-map-flow-section>
             <h2>System Map</h2>
-            <p>Use JudgmentKit before generation and across iterations. It is the contract and review layer around the LLM or agent, not the final UI renderer.</p>
+            <p>Use JudgmentKit before generation and across iterations. The agent coordinates the work; JudgmentKit returns reviewed contracts, evidence findings, and repair instructions.</p>
+            <p class="system-note">This map describes the current source. Installed and hosted clients should check <code>tools/list</code> and tool input schemas for the capabilities available in their release.</p>
             ${systemMapShell("system-map-svg-title", "system-map-svg-desc")}
             <div class="system-map-summary" aria-label="System map text summary">
-              <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>
-              <p><strong>JudgmentKit kernel:</strong> deterministic review, candidate review, disclosure rules, targeted questions, and the handoff gate decide whether UI generation is ready.</p>
-              <p><strong>LLM / provider seam:</strong> a model may propose activity or workflow candidates, but JudgmentKit reviews those candidates before trusting them.</p>
-              <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose as marketing, workbench, operator review, artifact inspection, form flow, dashboard monitoring, content/report, setup/debug work, or conversation before frontend implementation guidance.</p>
-              <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
-              <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies <code>implementation_contract.design_system_source</code>, <code>implementation_contract.local_component_authority</code>, <code>implementation_contract.visual_token_adapter</code>, <code>implementation_contract.default_ai_native_design_system</code>, approved primitives, required states, static checks, browser QA expectations, <code>implementation_contract.visual_asset_policy</code>, and <code>implementation_contract.accessibility_policy</code> before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract and marks failed design-system candidates as repair-only diagnostics, not accepted artifacts.</p>
-              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, Lucide icon catalog policy, design-system provenance expectations, and local component authority without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
-              <p><strong>Slide decks:</strong> <code>create_slide_deck</code> plans or exports JudgmentKit presentation-theme decks from user-facing slide content. Hosted callers can use dry-run planning; PPTX export requires a local artifact runtime.</p>
-              <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
+              <p><strong>Caller-owned execution:</strong> the builder’s agent uses the library or MCP for this workflow. The CLI supports activity analysis and review, plus <code>preflight-implementation</code> for evidence admission. MCP provides access and transport and wires supported browser checks. The agent owns inference, questions, generation, task checks, and repairs. Pass the exact current brief and attributed context through each validating boundary; integrity receipts establish continuity, not action authority.</p>
+              <p><strong>Optional model proposals:</strong> an injected provider or the host agent may propose activity or workflow candidates. The caller sends the proposals to JudgmentKit for review; the deterministic kernel does not call a model.</p>
+              <p><strong>Activity, surface, and workflow:</strong> activity review establishes the working premise, decisions, vocabulary, and disclosure rules. <code>recommend_surface_types</code> recommends among nine purposes: marketing, workbench, operator review, artifact inspector, form flow, dashboard monitor, content/report, setup/debug tool, and conversation. No positive surface evidence returns <code>review_required</code> with no recommended surface. Pattern confidence reflects core purpose evidence and competing purposes. Explicit selections identify caller, user, or agent origin; provenance does not grant action authority. Conflicts fail visibly. Workflow review checks grounding, supported actions, and completion or handoff.</p>
+              <p><strong>Implementation contract before handoff:</strong> <code>create_ui_implementation_contract</code> defines approved primitives, required states, static checks, browser QA, and accessibility evidence. <code>implementation_contract.design_system_source</code> selects JudgmentKit defaults or a complete external adapter for tokens, fonts, icons, and components. Incomplete external adapters fail without falling back to JudgmentKit.</p>
+              <p><strong>Ready handoff and frontend guidance:</strong> <code>create_ui_generation_handoff</code> requires a ready workflow review and a valid implementation contract. An optional Cognitive Dimensions review blocks handoff when supplied and not ready. <code>create_frontend_generation_context</code> combines the ready handoff, selected surface type, and frontend context. <code>create_frontend_implementation_skill_context</code> compiles portable implementation guidance. The client builds and runs the interface; renderer choice follows the active design-system source.</p>
+              <p><strong>Evidence admission before review:</strong> call <code>preflight_ui_implementation_candidate</code> to check evidence structure and declared selectors. <code>ready_for_review</code> admits the packet to substantive review. <code>repair_evidence_packet</code> or <code>retry_evidence_preflight</code> performs no substantive review and consumes no implementation attempt. A valid packet describing a failing interface still fails implementation review.</p>
+              <p><strong>Implementation evidence and review:</strong> the caller supplies static, state, accessibility, and browser QA evidence to <code>review_ui_implementation_candidate</code>. Eligible self-contained HTML can receive trusted visual-composition and chart observations through the MCP route. Chart checks measure label collisions, clipping, and selected-data correspondence at the required states and viewports, using expected data attributed to the active contract. Those supported observations do not authenticate data truth or attest live transitions. The result directs the agent to <code>accept</code>, <code>repair_and_resubmit</code>, or <code>stop_for_human</code>, or keeps the implementation <code>review_required</code> when an authority requirement remains unresolved.</p>
+              <p><strong>Full and compact packets:</strong> full output is the default. Optional <code>packet_format: "compact"</code> carries readable active guidance and a bounded lossless continuation. Pass the complete envelope to downstream MCP tools; library clients expand it with the packet helpers first. Raw source is still required. For large implementation evidence, the local <code>judgmentkit/packets</code> helpers prepare candidate continuations without dropping snapshots or declared evidence.</p>
+              <p><strong>Artifact Inspector limit:</strong> this proposed profile separates JudgmentKit-owned chrome and overlays from the external artifact. JudgmentKit has no trusted interactive-attestation producer or verifier, so an otherwise valid Inspector implementation remains <code>review_required</code>. Static browser measurements cannot close that requirement.</p>
+              <p><strong>Caller-owned iteration:</strong> the agent repairs the implementation and resubmits evidence, or stops for human help when the attempt policy requires it. Changes to source decisions require fresh affected reviews using the updated brief and attributed context.</p>
+              <p><strong>Human task outcome:</strong> an intended user’s observed task completion and understanding remain separate from implementation acceptance. A passing contract cannot establish usefulness by itself.</p>
             </div>
-            <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
+            <p class="system-note"><strong>Separate presentation tools:</strong> <code>create_slide_deck</code> plans JudgmentKit presentation-theme decks from slide content. Hosted callers can use dry-run planning; PPTX export requires a local artifact runtime. These tools are separate from the UI generation path.</p>
+            <p class="system-note">If a review cannot proceed, the agent explains what is missing and resolves it using available evidence. It asks you when a product decision or governing policy is needed.</p>
           </section>
           <section class="doc-section" id="activity-review">
             <h2>Activity Review</h2>

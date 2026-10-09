@@ -1,6 +1,8 @@
 # Agent Usage Contract
 
-Use JudgmentKit before UI generation, UI critique, implementation planning, or handoff review when the work depends on understanding an activity.
+Use JudgmentKit before UI generation, UI critique, implementation planning, or handoff review when the user requests it or current project instructions opt in and the work depends on understanding an activity.
+
+The [builder workflow](builder-workflow.md) defines what the person should receive. For a build request, continue through implementation and focused task repairs; a reviewed packet alone is not completion. The agent owns the sequence below. Report the working result, supported checks, actual task observations, and remaining verification limits separately.
 
 ## Default Order
 
@@ -17,7 +19,8 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 11. Call `create_frontend_generation_context` with the exact current brief and the same attributed raw `context_items` when frontend implementation guidance needs a selected surface type, project frontend context, and verification expectations.
 12. Call `create_frontend_implementation_skill_context` with the exact current brief, the same attributed raw `context_items`, and the ready frontend generation context when the implementing agent needs a compiled frontend skill packet that is portable across MCP clients.
 13. Generate or critique UI from the frontend context and skill context only after the activity, decision, outcome, disclosure boundary, workflow candidate, surface type, and implementation contract are clear enough.
-14. Call `review_ui_implementation_candidate` on generated code or evidence before accepting the result.
+14. Call `preflight_ui_implementation_candidate` on the evidence packet with the implementation contract carried by the handoff/frontend packet and the frontend generation context. Repair admission errors or retry unavailable observers without advancing the implementation attempt.
+15. Call `review_ui_implementation_candidate` with that same contract and context before accepting the result. It repeats admission before substantive review.
 
 ## Rules For Agents
 
@@ -28,8 +31,10 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 - Never infer authority, approval policy, safety rules, sensitive disclosure, or irreversible external effects as established fact. Mark context as `authoritative_source` only when it actually governs that protected boundary.
 - Never treat an activity-case digest, claim origin, or source-reference label as an action credential. Participant action authority must survive workflow review against direct affirmative language in the current brief or an exact, relevant, affirmative `user_answer` or `authoritative_source` resupplied as raw context. Recommendation and negated language cannot grant it; workspace evidence and provided artifacts are not action credentials. Safety, legal, clinical, regulatory, compliance, sensitive-disclosure, and irreversible boundaries require the relevant governing `authoritative_source` and its `source_ref`.
 - Treat surface type as activity-purpose guidance, not visual styling.
+- Keep unsupported selections unresolved. Use `confidence_evidence` to inspect required signals and alternatives; reconcile explicit-versus-inherited conflicts before handoff. When supplying `surface_type`, set `surface_selection_origin` to `user` or `agent` only when that describes the actual choice; omission means `caller`. Inferred recommendations report `selection_origin: "inferred"`.
 - Select `artifact_inspector` only when the rendered artifact is primary, semantic locus selection is required, and support is locus-relative. If those mandatory signals conflict with a queue, creation, conversation, linear-reading, monitoring, or configuration activity, stop at `review_required`; do not break the tie from layout vocabulary.
 - Treat the implementation contract as the authority for allowed primitives, control semantics, states, static checks, browser QA, visual asset handling, and accessibility evidence.
+- Preserve chart obligations in the handoff/frontend contract. Supply its attributed expected data and required states/viewports before reviewing a promised chart; the candidate supplies rendered snapshots and selectors, never the expected truth. Missing chart policy is an admission repair, not permission to suppress the obligation.
 - Treat `implementation_contract.design_system_source` as the active authority for visual tokens, typography, icon assets, and renderer components. `judgmentkit_default` uses JudgmentKit `/design-system/` exports; `external_design_system` requires a complete adapter and has no implicit JudgmentKit fallback. `external_authority` is trace metadata unless paired with `design_system_adapter`.
 - For Artifact Inspector, preserve `design_system_scopes`, `boundary_contracts`, and `artifact_inspector` as one bundle through workflow review, implementation handoff, frontend context, and implementation review. Apply JudgmentKit conformance only to owned chrome and overlay scopes; keep `primary_artifact` as `external_not_reviewed`.
 - Do not accept candidate-authored claims or static browser-composition observations as Artifact Inspector authority proof. This release has no accepting interactive-attestation producer or verifier: retain `review_required`, emit the stable missing-attestation diagnostic, and expose no runnable runtime-review action.
@@ -62,6 +67,7 @@ Before handing off UI work, confirm:
 - implementation terms contained in disclosure, evidence, or guardrails
 - workflow topology, work units, surface set, primary actions, decision support, and handoff are named
 - implementation contract names approved primitives and required states
+- owned chart promises, when present, carry the contract's expected data and required observations
 - Artifact Inspector handoffs, when applicable, preserve the artifact identity, semantic locus model, `artifact_centered` topology, active state groups, authority scopes, boundary contract, and external artifact status
 - token, font, icon, and renderer component guidance comes from `implementation_contract.design_system_source`, with no implied font CDN, remote icon package, or fallback from external systems to JudgmentKit defaults
 - substantive visual requirements have an image-generation, premium 3D/rendering, or high-quality visualization path when present
@@ -70,6 +76,29 @@ Before handing off UI work, confirm:
 - targeted questions resolved or explicitly accepted as open
 
 ## Status Interpretation
+
+Run `preflight_ui_implementation_candidate` before a substantive implementation
+review when preparing a new evidence packet. `repair_evidence_packet` means repair
+the named evidence fields or selectors; it consumes no implementation repair
+attempt. Admission readiness is not implementation acceptance.
+`retry_evidence_preflight` means the observer could not complete admission.
+An implementation review blocked at admission reports
+`implementation_review_status: "not_reviewed"`. Admission packets report
+`substantive_review_performed: false` and `attempt_consumed: false`; the client
+owns the retry record and implementation attempt counter.
+
+Use `packet_format: "compact"` for focused current guidance and a lossless
+continuation. Pass the complete envelope in the named downstream packet field.
+Resupply exact current brief and attributed context where required. Expand with
+`expandCompactPacket` from `judgmentkit/packets` when implementing a rule that needs
+the full calibration or catalog. `packet_format: "full"` preserves the previous
+response shape. See [the packet contract](../specs/mcp-evidence-and-packets.md).
+
+Report chart checks as observed only when the trusted runtime measured the exact
+render against the contract's attributed expected data. Report declarations and
+untested transitions separately. Source attribution alone does not authenticate
+the expected-data oracle. A static chart snapshot does not prove live
+selection behavior, usability, or general accessibility compliance.
 
 `ready_for_review` means the packet is usable for the next design or implementation pass. The richer activity-case readiness explains whether assumptions are acceptable for exploration or still require confirmation before commitment.
 

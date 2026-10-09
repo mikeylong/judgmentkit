@@ -1,6 +1,8 @@
 # JudgmentKit
 
-JudgmentKit is a fresh activity-first kernel for AI-generated interface work.
+JudgmentKit helps people build useful interfaces with AI agents. A useful interface lets its intended user complete the work correctly, understand the result, and recover when something goes wrong.
+
+The [product vision](VISION.md) defines that purpose. JudgmentKit guides activity and interaction decisions, checks declared requirements, and verifies supported rendered observations. The implementing agent builds and repairs the interface. Builder effort and observed user task completion remain separate from contract acceptance.
 
 It is not a beautifier, generic design-system linter, prompt library, schema browser, or MCP reference surface. Design-system provenance is now enforced after activity judgment through the implementation contract; the core job remains helping an agent generate or critique UI that is relevant, succinct, and appropriate to the activity it supports.
 
@@ -32,6 +34,12 @@ Aesthetics are adapter-layer work. They should refine a relevant UI, not rescue 
 
 ## Architecture
 
+Evidence admission separates malformed submissions from implementation failures.
+Supported chart observations check the primary reading task against contract-attributed
+expected data, while untested behavior remains visible. MCP tools also offer compact active
+guidance with a lossless continuation; full packets remain the default. See the
+[MCP evidence and packet contract](specs/mcp-evidence-and-packets.md).
+
 JudgmentKit keeps the core deterministic and lets model assistance enter through explicit seams:
 
 1. Deterministic analyzer: extracts activity evidence, implementation terms, review questions, and disclosure risks from a brief.
@@ -39,12 +47,14 @@ JudgmentKit keeps the core deterministic and lets model assistance enter through
 3. Model-assisted candidate review seam: accepts a model-proposed candidate through dependency injection or MCP and runs the same guardrails.
 4. Provider-neutral proposer adapter: builds a serializable activity-model request for an injected model caller and returns the proposed candidate to the review seam.
 5. Surface-type recommendation: classifies activity purpose as marketing, workbench, operator review, artifact inspector, form flow, dashboard monitor, content/report, setup/debug tool, or conversation before workflow or frontend implementation guidance.
+   When no surface has positive evidence, routing returns `review_required` with no selected surface. Resolve that activity choice before handoff or frontend generation. Explicit caller choices are labelled as caller-provided, and conflicting choices fail visibly.
 6. UI workflow candidate review seam: accepts a model- or agent-proposed workflow candidate and checks grounding, action support, handoff clarity, and disclosure containment before UI implementation.
 7. UI implementation contract gate: creates or accepts the repo authority for approved primitives, control semantics, required states, static checks, and browser QA.
 8. UI generation handoff gate: turns only ready workflow reviews plus an implementation contract into compact handoffs for the next UI generation pass.
 9. Frontend generation context adapter: combines a ready handoff, selected surface type, frontend context, and verification expectations, then applies governed presentation guidance such as the supported default Workbench operational profile or the proposed Artifact Inspector profile contract without making styling or component inventory part of the kernel contract.
 10. Frontend implementation skill context: compiles repo-local frontend skill guidance into a gated MCP packet for agents that cannot read local skills directly, including the active `implementation_contract.design_system_source` for tokens, typography, icons, and component contracts.
-11. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
+11. Evidence preflight and implementation review: validate packet fields and selectors before assessing the interface, return focused repairs, and measure supported chart promises against contract-attributed expectations. Admission repairs consume no implementation attempt.
+12. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
 
 ## Structure
 
@@ -67,10 +77,12 @@ The first workflow is AI UI generation. It starts with one contract:
 Start with a short activity brief in any client that can load the JudgmentKit skill, including Codex or Claude Code. For example:
 
 ```text
-Use JudgmentKit to plan an interface for a support lead reviewing refund requests during daily triage. They decide whether to recommend support, send a case to policy review, or return it for missing evidence. The outcome is a clear handoff with the next action and reason.
+Use JudgmentKit to build a signup form for a local workshop. Attendees pick an available session, enter their contact details, and receive a clear confirmation. Handle incomplete details and full sessions. Build and check the main task, then show what works and what remains unverified.
 ```
 
 The default experience is inference-first: the agent proposes and briefly shows its best-current activity case, keeps reversible assumptions visible, and continues. It asks at most one targeted question only when a consequential fork would materially change the design and be costly to reverse. It stops when a protected action needs an authoritative source. A field-by-field interview is never the default.
+
+For an existing interface, give the agent the project and the task to improve. The same [builder workflow](docs/builder-workflow.md) carries a correctable premise through implementation, task checks, and focused repairs. The agent handles the review sequence below. The builder should receive the working result and the important checks, with missing verification named explicitly.
 
 The portable path is the same across clients:
 
@@ -78,9 +90,9 @@ The portable path is the same across clients:
 2. Classify the surface and review the proposed workflow.
 3. Pass the exact brief and attributed context through handoff, frontend generation, and portable frontend skill compilation.
 4. Apply the selected design-system adapter and implementation contract.
-5. Review implementation evidence before acceptance.
+5. Preflight the implementation evidence, repair admission errors, then review the interface before acceptance.
 
-For direct MCP integrations, the corresponding sequence is `create_activity_model_review`, `review_activity_model_candidate`, `recommend_surface_types`, `review_ui_workflow_candidate`, `create_ui_implementation_contract`, `create_ui_generation_handoff`, `create_frontend_generation_context`, and `create_frontend_implementation_skill_context`; generate the UI in the client, then call `review_ui_implementation_candidate` before acceptance. Resupply the exact current `brief` and attributed `context_items` at every validating boundary; integrity receipts prove continuity, not action authority.
+For direct MCP integrations, the corresponding sequence is `create_activity_model_review`, `review_activity_model_candidate`, `recommend_surface_types`, `review_ui_workflow_candidate`, `create_ui_implementation_contract`, `create_ui_generation_handoff`, `create_frontend_generation_context`, and `create_frontend_implementation_skill_context`; generate the UI in the client, then call `preflight_ui_implementation_candidate` and `review_ui_implementation_candidate` before acceptance. Carry the implementation contract from the ready handoff/frontend packet and that frontend context into both evidence calls. Resupply the exact current `brief` and attributed `context_items` at every validating boundary; integrity receipts prove continuity, not action authority. This checkout exposes 17 MCP tools; inspect the active endpoint's `tools/list` and input schemas for preflight, `packet_format`, and `chart_review_policy` before relying on them. Local implementation does not establish hosted availability.
 
 Use the first-use fixture when you want to inspect the later implementation acceptance loop without reading an eval report:
 

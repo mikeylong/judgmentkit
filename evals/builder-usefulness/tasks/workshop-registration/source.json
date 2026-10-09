@@ -1,0 +1,11 @@
+{
+  "fixture_kind": "synthetic",
+  "currency": "USD",
+  "sessions": [
+    { "id": "print-12", "name": "Screen printing", "date": "2026-11-12", "start": "18:00", "end": "20:00", "remaining_places": 2, "price_per_person": 24 },
+    { "id": "clay-14", "name": "Clay handbuilding", "date": "2026-11-14", "start": "10:00", "end": "12:00", "remaining_places": 4, "price_per_person": 29 },
+    { "id": "print-19", "name": "Screen printing", "date": "2026-11-19", "start": "18:00", "end": "20:00", "remaining_places": 0, "price_per_person": 24 }
+  ],
+  "bookings": [],
+  "booking_rules": { "minimum_places": 1, "integer_quantity": true, "required_contact_fields": ["name", "email"], "duplicate_submission_creates_booking": false }
+}

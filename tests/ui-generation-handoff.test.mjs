@@ -3787,7 +3787,7 @@ function repairedSessionsButtonCandidate(contract) {
 
   const missingDefaultProvenanceReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
-      design_system_provenance: null,
+      design_system_provenance: undefined,
     }),
     { implementation_contract: implementationContract },
   );
@@ -4595,11 +4595,16 @@ function repairedSessionsButtonCandidate(contract) {
     { implementation_contract: implementationContract },
   );
 
-  assert.equal(notApplicableWithoutRationaleReview.implementation_review_status, "failed");
-  assert.equal(
-    notApplicableWithoutRationaleReview.checks.accessibility_evidence.form_errors.status,
-    "fail",
-  );
+  assert.equal(notApplicableWithoutRationaleReview.implementation_review_status, "not_reviewed");
+  assert.equal(notApplicableWithoutRationaleReview.admission_status, "repair_evidence_packet");
+  assert.equal(notApplicableWithoutRationaleReview.attempt_consumed, false);
+  assert.equal(notApplicableWithoutRationaleReview.substantive_review_performed, false);
+  assert.equal(notApplicableWithoutRationaleReview.next_agent_action, "repair_packet_and_resubmit");
+  assert.ok(notApplicableWithoutRationaleReview.diagnostics.some(
+    ({ code, path, expected }) => code === "not_applicable_rationale_missing" &&
+      path === "candidate.accessibility_evidence.form_errors.rationale" &&
+      expected === "nonempty string",
+  ));
 
   const visualHeavyReview = await reviewUiImplementationCandidate(
     visualHeavyStaticCandidate({

@@ -2030,7 +2030,9 @@ function assertSurfaceRecommendation({
     },
   });
 
-  assert.equal(neutralFallback.recommended_surface_type, "workbench");
+  assert.equal(neutralFallback.recommended_surface_type, null);
+  assert.equal(neutralFallback.status, "review_required");
+  assert.deepEqual(neutralFallback.interaction_implications, {});
   assert.equal(neutralFallback.confidence, "low");
   assert.ok(
     neutralFallback.evidence.surface_type_scores.every(

@@ -1,0 +1,6 @@
+{
+  "status": "fail",
+  "reason": "Existing strict <1px centering assertion rejects exact1px applied-padding floor correction in public React Flow getViewportForBounds. Desktop Light/Dark cards/inventories/fallback passed before mobile fit check.",
+  "source_manifest_sha256": "79cc0ba3ee0d52979663cc366fa0b9e8e3cfa0261aa61567b3ccd9dbe6da7eb1",
+  "log_sha256": "f7b983104af4a61a372afd05197821043b45c5bc7fceacc4599f5c2c4d7fa290"
+}

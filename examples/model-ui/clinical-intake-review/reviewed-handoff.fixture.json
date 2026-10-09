@@ -17,7 +17,7 @@
       "schema": "judgmentkit.portable-integrity-receipt/v1",
       "algorithm": "sha256-canonical-json",
       "kind": "activity_case_ui_generation_handoff",
-      "digest": "134977807337ad0960df9266801d99137d641581065cc05f9d08832130f7bc08"
+      "digest": "1355ddbfd303ee0abc5006775835e677599a6682b07a061f110ce716f750e4bb"
     }
   },
   "surface_type": "form_flow",
@@ -30,6 +30,34 @@
       "conversation"
     ],
     "confidence": "medium",
+    "selection_origin": "inferred",
+    "confidence_evidence": {
+      "required_evidence": [
+        [
+          "collect_or_change_structured_information"
+        ],
+        [
+          "validation_or_required_inputs"
+        ]
+      ],
+      "missing_required_evidence": [
+        [
+          "validation_or_required_inputs"
+        ]
+      ],
+      "core_evidence_coverage": 0.5,
+      "activity_review_status": "ready_for_review",
+      "competing_surface_types": [
+        {
+          "surface_type": "dashboard_monitor",
+          "score": 1,
+          "core_evidence_coverage": 0.5,
+          "matched_exclusions": []
+        }
+      ],
+      "score_margin": 0,
+      "competing_complete_activity": false
+    },
     "interaction_implications": {
       "primary_structure": "Input groups, validation, review, submit, and confirmation.",
       "make_easy": [

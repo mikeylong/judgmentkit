@@ -17,6 +17,7 @@ import {
   modelUiPublicRoutePath,
   probeRemoteMcpEndpoint,
   verifyDesignSystemSurfaceProfiles,
+  verifyPublishedGithubRelease,
 } from "../scripts/verify-public-release.mjs";
 import { buildSite, modelUiPublicPath } from "../site/build-site.mjs";
 import { MAX_MCP_POST_BODY_BYTES } from "../src/mcp-http.mjs";
@@ -168,6 +169,76 @@ function listenFixtureServer(handler) {
       });
     });
   });
+}
+
+{
+  const releaseTag = `v${EXPECTED_RELEASE_VERSION}`;
+  const releaseApiPath =
+    `/repos/mikeylong/judgmentkit/releases/tags/${releaseTag}`;
+  const releaseFixture = (version, overrides = {}) => ({
+    tag_name: `v${version}`,
+    name: `JudgmentKit ${version}`,
+    html_url:
+      `https://github.com/mikeylong/judgmentkit/releases/tag/v${version}`,
+    published_at: "2026-08-30T21:44:33Z",
+    draft: false,
+    prerelease: false,
+    ...overrides,
+  });
+  const fixtureReleases = new Map([
+    [releaseApiPath, releaseFixture(EXPECTED_RELEASE_VERSION)],
+    [
+      "/repos/mikeylong/judgmentkit/releases/tags/v9.9.8",
+      releaseFixture("9.9.8", { draft: true }),
+    ],
+    [
+      "/repos/mikeylong/judgmentkit/releases/tags/v9.9.7",
+      releaseFixture("9.9.7", { prerelease: true }),
+    ],
+  ]);
+  const fixture = await listenFixtureServer((req, res) => {
+    res.setHeader("content-type", "application/json");
+    const release = fixtureReleases.get(req.url);
+
+    if (release) {
+      res.statusCode = 200;
+      res.end(JSON.stringify(release));
+      return;
+    }
+
+    res.statusCode = 404;
+    res.end(JSON.stringify({ message: "Not Found" }));
+  });
+
+  try {
+    assert.deepEqual(
+      await verifyPublishedGithubRelease(EXPECTED_RELEASE_VERSION, {
+        apiOrigin: fixture.url,
+      }),
+      {
+        tag_name: releaseTag,
+        name: `JudgmentKit ${EXPECTED_RELEASE_VERSION}`,
+        url: `https://github.com/mikeylong/judgmentkit/releases/tag/${releaseTag}`,
+        published_at: "2026-08-30T21:44:33Z",
+        draft: false,
+        prerelease: false,
+      },
+    );
+    await assert.rejects(
+      () => verifyPublishedGithubRelease("9.9.9", { apiOrigin: fixture.url }),
+      /GitHub Release v9\.9\.9 is missing\. A Git tag alone does not satisfy release publication\./,
+    );
+    await assert.rejects(
+      () => verifyPublishedGithubRelease("9.9.8", { apiOrigin: fixture.url }),
+      /GitHub Release v9\.9\.8 must not be a draft/,
+    );
+    await assert.rejects(
+      () => verifyPublishedGithubRelease("9.9.7", { apiOrigin: fixture.url }),
+      /GitHub Release v9\.9\.7 must not be a prerelease/,
+    );
+  } finally {
+    await closeServer(fixture.server);
+  }
 }
 
 async function fetchRoute(baseUrl, route, options = {}) {

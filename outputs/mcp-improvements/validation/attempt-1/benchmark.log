@@ -1,0 +1,18 @@
+
+> judgmentkit@0.8.0 benchmark
+> node evals/benchmark.mjs
+
+{
+  "summary": {
+    "iterations": 2000,
+    "cases": 8,
+    "average_ms": 0.1145,
+    "p95_ms": 0.1525,
+    "max_ms": 16.2991,
+    "thresholds": {
+      "average_ms": 5,
+      "p95_ms": 20
+    },
+    "passed": true
+  }
+}

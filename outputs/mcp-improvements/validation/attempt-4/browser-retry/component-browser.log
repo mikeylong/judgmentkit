@@ -1,0 +1,14 @@
+
+> judgmentkit@0.8.0 test:components:browser
+> node tests/components/component-browser.test.mjs
+
+file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-4/source/tests/components/support/chromium-harness.mjs:297
+            rej(new Error(`Timed out sending Chrome command ${method}.`));
+                ^
+
+Error: Timed out sending Chrome command Runtime.evaluate.
+    at Timeout._onTimeout (file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-4/source/tests/components/support/chromium-harness.mjs:297:17)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+
+Node.js v22.16.0

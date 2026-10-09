@@ -31,6 +31,8 @@ import {
   validateComponentImplementationRegistry,
 } from "./component-registry.mjs";
 import { deriveFieldValueTrailingIndicatorSlotObservation } from "./visual-composition-observation.mjs";
+import { evidenceAdmissionPacket, inspectImplementationEvidenceShape, retryEvidenceAdmission, selectorAdmissionExpression } from "./implementation-evidence-preflight.mjs";
+import { chartEvidenceDigest, chartObservationExpression, chartReviewCandidateDigest, inspectChartManifest, normalizeChartReviewPolicy, observeChartInBrowser } from "./chart-review.mjs";
 
 export {
   ARTIFACT_INSPECTOR_SURFACE_PROFILE,
@@ -734,8 +736,16 @@ function toGlobalPattern(pattern) {
     : new RegExp(pattern.source, `${pattern.flags}g`);
 }
 
+function contrastAssertionSpans(text) {
+  return text.replace(/\b(?:but|however|whereas|nevertheless|yet)\b/g, (word, offset) =>
+    word === "yet" && /(?:\bnot|n't)[\s-]+$/.test(text.slice(0, offset))
+      ? word : "\u0000").split("\u0000");
+}
+
 function isNegatedMatch(text, start, end) {
-  const prefix = text.slice(Math.max(0, start - 160), start);
+  // A contrast begins a new assertion, while comma-separated lists retain the
+  // original negation ("no signup, demo, or pricing").
+  const prefix = contrastAssertionSpans(text.slice(Math.max(0, start - 160), start)).at(-1);
   const suffix = text.slice(end, Math.min(text.length, end + 56));
 
   if (/\bnot\s+only[\s/,-]+$/.test(prefix)) {
@@ -744,7 +754,7 @@ function isNegatedMatch(text, start, end) {
 
   return (
     /(?:^|[\s([{:;,.!?/-])(?:no|not(?!\s+only\b)|without|never|avoid|avoids|avoiding|exclude|excludes|excluding|do not(?!\s+only\b)|does not(?!\s+only\b)|don't(?!\s+only\b)|doesn't(?!\s+only\b)|did not(?!\s+only\b)|should not|shouldn't|must not|cannot|can't|won't|no need to|need not|not required to)(?:[\s/,-]+\w+){0,12}(?:[\s/,-]+(?:or|and))?[\s/,-]*$/.test(prefix) ||
-    /^[\s/,-]+(?:(?:is|are|was|were|be|being|to be|should be|must be|can be|remain|remains)[\s/,-]+)?(?:not required|not needed|never required|never needed|unneeded|unnecessary|optional|absent|disabled|excluded|not included|not present|not part of|not the primary)\b/.test(suffix)
+    /^[\s/,-]+(?:(?:is|are|was|were|be|being|to be|should be|must be|can be|remain|remains)[\s/,-]+)?(?:not required|not needed|never required|never needed|unneeded|unnecessary|optional|absent|disabled|excluded|not included|not present|not part of|not the primary|outside (?:the |this |its )?(?:[a-z'-]+\s+){0,4}scope|out of scope)\b/.test(suffix)
   );
 }
 
@@ -762,6 +772,44 @@ function hasAffirmedPattern(text, pattern) {
 
 function hasAffirmedAny(text, patterns) {
   return patterns.some((pattern) => hasAffirmedPattern(text, pattern));
+}
+
+/** A reviewed promise to read an owned chart needs independent chart evidence. */
+export function deriveOwnedChartReviewObligation({ activity_review, workflow_review, surface_guidance, surface_type } = {}) {
+  const surfaceTypes = [surface_type, surface_guidance?.surface_type, surface_guidance?.recommended_surface_type, workflow_review?.surface_type,
+    workflow_review?.surface_guidance?.surface_type, workflow_review?.surface_guidance?.recommended_surface_type];
+  // Inspector review owns chrome and overlays; the external primary artifact
+  // remains outside JudgmentKit conformance even when it contains a chart.
+  if (surfaceTypes.includes("artifact_inspector")) return null;
+  const promises = [];
+  const record = (path, value) => {
+    if (typeof value === "string") promises.push({ path, value });
+    else if (Array.isArray(value)) value.forEach((entry, index) => record(`${path}[${index}]`, entry));
+  };
+  for (const [name, review] of [["activity_review", activity_review], ["workflow_review", workflow_review]]) {
+    if (review?.review_status !== "ready_for_review") continue;
+    const candidate = review.candidate ?? {};
+    for (const key of ["activity", "objective", "outcomes"]) record(`${name}.candidate.activity_model.${key}`, candidate.activity_model?.[key]);
+    for (const key of ["primary_decision", "next_actions", "completion"]) record(`${name}.candidate.interaction_contract.${key}`, candidate.interaction_contract?.[key]);
+    for (const key of ["primary_actions", "work_units", "completion_state"]) record(`${name}.candidate.workflow.${key}`, candidate.workflow?.[key]);
+    if (Array.isArray(candidate.workflow?.steps)) candidate.workflow.steps.forEach((step, index) => {
+      for (const key of ["label", "purpose"]) record(`${name}.candidate.workflow.steps[${index}].${key}`, step?.[key]);
+    });
+  }
+  const chart = /\b(?:charts?|graphs?|plots?|curves?)\b/;
+  const reading = /\b(?:read|reads|reading|scan|scans|scanning|understand|understands|understood|understanding|interpret|interprets|interpreting|view|views|viewing|inspect|inspects|inspecting|compare|compares|comparing|check|checks|checking)\b/;
+  const sourcePaths = promises.filter(({ value }) => normalizeText(value).split(/[.;!?]/)
+    .flatMap(contrastAssertionSpans).some((span) => hasAffirmedPattern(span, chart) && hasAffirmedPattern(span, reading)))
+    .map(({ path }) => path);
+  if (sourcePaths.length === 0) return null;
+  return {
+    required: true,
+    scope: "owned_interface",
+    status: "data_oracle_required",
+    reason: "owned_chart_activity_promise",
+    source_paths: unique(sourcePaths),
+    required_checks: ["label_collision", "label_clipping", "selected_data_correspondence"],
+  };
 }
 
 function hasDiagnosticMachineryAbsence(text) {
@@ -1238,6 +1286,15 @@ function surfaceEvidence(id, label, matched, reason) {
 
 function hasConversationTurnActivity(input) {
   const text = normalizeText(input);
+  const conversationObject = "(?:conversation(?: turns?)?|(?:live )?chat|message(?: turns?| exchange)|assistant exchange)";
+  const explicitlySecondary = hasAffirmedPattern(text, new RegExp(
+    `\\b${conversationObject}\\s+(?:is|are|remains?|stays?)\\s+(?:secondary|supporting|context only|not (?:the )?primary)\\b`,
+  ));
+  const explicitlyPrimary = hasAffirmedAny(text, [
+    new RegExp(`\\b${conversationObject}\\s+(?:is|are|remains?|stays?)\\s+(?:the\\s+)?primary\\b`),
+    new RegExp(`\\bprimary (?:activity|work|surface|object)\\s+(?:is|remains|stays)\\s+(?:a\\s+|the\\s+)?${conversationObject}\\b`),
+  ]);
+  if (explicitlySecondary && !explicitlyPrimary) return false;
   const hasConversationObject = hasAffirmedAny(text, [
     /\b(?:chat|conversation|message exchange|message thread|live chat|assistant exchange)\b/,
     /\bthread\b/,
@@ -1503,6 +1560,9 @@ function buildSurfaceTypeInputs(input, activityReview, contract, options = {}) {
     (hasAffirmedSourceDecision || options.hasExplicitActivityReview);
   const includeExplicitDecisionText =
     options.hasExplicitActivityReview && hasSourceDecision;
+  const reviewedWorkObjects = options.hasExplicitActivityReview &&
+    activityReview?.review_status === "ready_for_review"
+      ? toStringArray(activityModel.existing_tools_artifacts) : [];
   const sourceText = [
     input,
     activityModel.activity,
@@ -1545,6 +1605,7 @@ function buildSurfaceTypeInputs(input, activityReview, contract, options = {}) {
     normalized: normalizeText(sourceText),
     implementation_terms_detected: implementationTermsDetected,
     purpose_evidence: purposeEvidence,
+    reviewed_work_objects: reviewedWorkObjects,
     artifact_inspector_evidence: artifactInspectorEvidence,
   };
 }
@@ -1571,7 +1632,13 @@ function buildSurfacePurposeEvidence(input, implementationTermsDetected = [], op
   const hasMonitorStatus = hasAffirmedAny(text, [
     /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|exceptions?|shipments?|sensors?|sensor readings?|temperature|cold[- ]chain|overview|tracking|thresholds?|downtime|faults?|capacity|sla-risk|forecast variance|runway|stale-data|stale data)\b/,
   ]);
-  const hasAwarenessCompletion = hasAffirmedAny(text, [
+  const hasSelectedMeasurementReading =
+    hasAffirmedPattern(text, /\b(?:choose|chooses|select|selects|selected|chosen)\b[^.;]{0,100}\b(?:location|place|day|date)\b/) &&
+    hasAffirmedPattern(text, /\b(?:read|reads|reading|see|check|understand)\b/) &&
+    hasAffirmedPattern(text, /\b(?:measurements?|readings?|conditions?|height|levels?|direction)\b/) &&
+    hasAffirmedPattern(text, /\b(?:chart|curve|trend|pattern)\b/) &&
+    !hasDirectWorkbenchAction(directActionText);
+  const hasAwarenessCompletion = hasSelectedMeasurementReading || hasAffirmedAny(text, [
     /\b(?:completion is knowing|knowing (?:current )?(?:state|status)|knows? current (?:state|status|health)|whether follow-up is needed|if (?:the )?(?:business|service|fleet|operation) is on track|awareness of whether)\b/,
     /\bwhether (?:follow[- ]up|investigation|attention|action|escalation) is needed\b/,
     /\b(?:what|which)\b[^.]{0,80}\b(?:needs?|requires?)\s+(?:follow[- ]up|investigation|attention|escalation)\b/,
@@ -1630,7 +1697,8 @@ function buildSurfacePurposeEvidence(input, implementationTermsDetected = [], op
             ? "ambiguous"
             : "none";
   const monitorRole =
-    hasMonitorStatus && hasAwarenessCompletion
+    (hasMonitorStatus || hasSelectedMeasurementReading) && hasAwarenessCompletion &&
+      !(hasSelectedMeasurementReading && hasReportProductionAction)
       ? "primary_status_awareness"
       : hasMonitorStatus
         ? "status_context"
@@ -1742,7 +1810,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
     /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete|save|saving)\b/,
   ]);
   const hasDirectWorkAction = hasDirectWorkbenchAction(directActionText);
-  const hasDashboardMonitoringContext = hasAffirmedAny(text, [
+  const hasDashboardMonitoringContext = hasStatusAwarenessMonitor || hasAffirmedAny(text, [
     /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|exceptions?|shipments?|sensors?|sensor readings?|temperature|cold[- ]chain|overview|analytics|tracking|watch)\b/,
   ]);
   const hasNoDecisionRequired =
@@ -1791,7 +1859,8 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   const hasSpecificWorkbenchItems =
     hasAffirmedAny(text, [
       /\b(?:queue|multiple|several|cases|requests|findings|workstreams|candidates|exceptions|alerts?|shipments?|loads?|deliveries?|sensors?|sensor readings?|visits|selected visit|route impact|decision state|handoff owner|next-action receipt|cohorts|playlists?|tracks?|songs?|sequence)\b/,
-    ]);
+    ]) || (inputContext.reviewed_work_objects ?? []).some((object) =>
+      hasAffirmedPattern(normalizeText(object), /\b(?:queue|cases|requests|findings|workstreams|candidates|visits|cohorts|work items)\b/));
   const hasGenericWorkbenchItems =
     hasAffirmedAny(text, [/\b(?:list|items|records)\b/]);
   const hasExplicitWorkbench =
@@ -2328,20 +2397,72 @@ function chooseSurfaceType(scores) {
   })[0];
 }
 
-function surfaceConfidence(activityReview, bestScore) {
-  if (activityReview?.review_status && activityReview.review_status !== "ready_for_review") {
-    return "low";
-  }
+const SURFACE_CONFIDENCE_REQUIREMENTS = {
+  marketing: [["persuade_or_convert"], ["public_audience"], ["offer_proof_action", "lead_capture_secondary_to_offer"]],
+  workbench: [["inspect_compare_decide_act"], ["repeated_work_items"]],
+  form_flow: [["collect_or_change_structured_information"], ["validation_or_required_inputs"]],
+  dashboard_monitor: [["monitor_status_or_trends"], ["passive_or_periodic_read", "status_awareness_with_followup"]],
+  content_report: [["read_understand_or_share"], ["linear_narrative"]],
+  setup_debug_tool: [["configure_inspect_test_or_troubleshoot"], ["implementation_terms_are_task_material", "machinery_setup_validation", "debugging_primary_mechanics"]],
+  conversation: [["thread_is_product_surface"], ["open_ended_exchange"]],
+};
 
-  if (bestScore >= 3) {
-    return "high";
-  }
+function surfaceConfidenceEvidence(score) {
+  const required = SURFACE_CONFIDENCE_REQUIREMENTS[score?.surface_type] ?? [];
+  const missing = required.filter((alternatives) =>
+    !alternatives.some((id) => score?.matched_triggers?.includes(id)));
+  const profileGrounded = score?.profile_status === "recommended";
+  return {
+    required_evidence: required,
+    missing_required_evidence: missing,
+    core_evidence_coverage: required.length > 0
+      ? (required.length - missing.length) / required.length
+      : profileGrounded ? 1 : 0,
+  };
+}
 
-  if (bestScore >= 1) {
-    return "medium";
-  }
+function surfaceConfidence(activityReview, selected, scores) {
+  const evidence = surfaceConfidenceEvidence(selected);
+  // Operator review and Artifact Inspector specialize a general Workbench;
+  // evidence for that parent activity is not an independent competing purpose.
+  const parentSurfaceTypes = ["operator_review", DEFAULT_ARTIFACT_INSPECTOR_SURFACE_TYPE_ID]
+    .includes(selected?.surface_type) ? ["workbench"] : [];
+  const competitors = scores.filter((entry) =>
+    entry.surface_type !== selected?.surface_type && entry.score > 0 &&
+    !parentSurfaceTypes.includes(entry.surface_type)).map((entry) => ({
+      surface_type: entry.surface_type,
+      score: entry.score,
+      core_evidence_coverage: surfaceConfidenceEvidence(entry).core_evidence_coverage,
+      matched_exclusions: entry.matched_exclusions,
+    })).sort((left, right) => right.score - left.score);
+  const ambiguous = competitors.some((entry) =>
+    entry.core_evidence_coverage === 1 &&
+    entry.matched_exclusions.length === 0);
+  const ready = activityReview?.review_status === "ready_for_review";
+  const confidence = !ready || !selected || selected.score <= 0 ? "low"
+    : evidence.core_evidence_coverage === 1 && selected.exclusion_match_count === 0 && !ambiguous
+      ? "high" : "medium";
+  return {
+    confidence,
+    confidence_evidence: {
+      ...evidence,
+      activity_review_status: activityReview?.review_status ?? null,
+      competing_surface_types: competitors,
+      score_margin: selected?.score > 0
+        ? selected.score - (competitors[0]?.score ?? 0) : null,
+      competing_complete_activity: ambiguous,
+    },
+  };
+}
 
-  return "low";
+export function resolveProvidedSurfaceSelectionOrigin(origin = "caller") {
+  if (!["caller", "user", "agent"].includes(origin)) {
+    throw new JudgmentKitInputError("Explicit surface selection origin must be caller, user, or agent.", {
+      code: "invalid_surface_selection_origin",
+      details: { selection_origin: origin },
+    });
+  }
+  return origin;
 }
 
 function buildSurfaceImplications(surfaceType) {
@@ -2641,10 +2762,10 @@ export function recommendSurfaceTypes(input, options = {}) {
       : scoredRecommendation;
   const recommendedSurfaceType = routingConflict
     ? null
-    : recommended.surface_type;
-  const confidence = routingConflict
-    ? "low"
-    : surfaceConfidence(activityReview, recommended.score);
+    : recommended.score > 0 ? recommended.surface_type : null;
+  const unresolvedSurface = !routingConflict && !recommendedSurfaceType;
+  const calibratedConfidence = surfaceConfidence(activityReview, recommended, scores);
+  const confidence = routingConflict ? "low" : calibratedConfidence.confidence;
   const blockedSurfaceTypes = scores
     .filter((entry) => entry.surface_type !== recommendedSurfaceType)
     .filter((entry) => entry.exclusion_match_count > 0 || entry.profile_status === "blocked")
@@ -2665,7 +2786,7 @@ export function recommendSurfaceTypes(input, options = {}) {
     version: contract.version,
     contract_id: contract.id,
     workflow_id: getContractWorkflowId(contract),
-    status: routingConflict
+    status: routingConflict || unresolvedSurface
       ? "review_required"
       : activityReview.review_status === "ready_for_review"
         ? "ready"
@@ -2689,7 +2810,15 @@ export function recommendSurfaceTypes(input, options = {}) {
       : {}),
     blocked_surface_types: unique(blockedSurfaceTypes),
     confidence,
+    selection_origin: "inferred",
+    confidence_evidence: calibratedConfidence.confidence_evidence,
     ...(routingConflict ? { routing_conflict: routingConflict } : {}),
+    ...(unresolvedSurface ? { routing_conflict: {
+      status: "review_required",
+      reason: "no_positive_surface_evidence",
+      question: "Which activity and completion outcome should determine the interface structure?",
+      competing_surface_types: [],
+    } } : {}),
     evidence: {
       activity_review_status: activityReview.review_status,
       input_excerpt: input.trim().slice(0, 240),
@@ -2754,6 +2883,10 @@ function summarizeSurfaceReview(surfaceReview, { includeFrontendPosture = false 
     recommended_surface_type: optionalString(surfaceReview.recommended_surface_type),
     blocked_surface_types: toStringArray(surfaceReview.blocked_surface_types),
     confidence: optionalString(surfaceReview.confidence),
+    ...(optionalString(surfaceReview.selection_origin)
+      ? { selection_origin: surfaceReview.selection_origin } : {}),
+    ...(isPlainObject(surfaceReview.confidence_evidence)
+      ? { confidence_evidence: cloneWorkflowStructuredValue(surfaceReview.confidence_evidence) } : {}),
     interaction_implications: isPlainObject(surfaceReview.interaction_implications)
       ? surfaceReview.interaction_implications
       : {},
@@ -4108,6 +4241,95 @@ const IRREVERSIBLE_ACTION_VERB_SOURCE = [
 const IRREVERSIBLE_ACTION_PATTERN = new RegExp(
   String.raw`\b(?:${IRREVERSIBLE_ACTION_VERB_SOURCE})\b`,
 );
+const IRREVERSIBLE_COMMIT_ACTION_PATTERN =
+  /\b(?:commit|commits|committed|committing|execute|executes|executed|executing|finalize|finalizes|finalized|finalizing|publish|publishes|published|publishing|release|releases|released|releasing)\b/;
+const PERSISTED_CHANGE_ACTION_PATTERN =
+  /\b(?:apply|applies|applying|adopt|adopts|adopting|revert|reverts|reverting)\s+(?:(?:the|a|an|any|selected|reviewed|existing|saved|artifact|new)\s+){0,3}(?:suggestions?|corrections?|proposals?|changes?|versions?)\b/;
+const EXECUTING_TASK_ACTION_PATTERN =
+  /\b(?:apply|applies|applying|adopt|adopts|adopting|revert|reverts|reverting)\b/;
+const PERSISTED_WRITE_ACTION_PATTERN =
+  /\b(?:sav(?:e|es|ing)|persist(?:s|ing)?|updat(?:e|es|ing)|replac(?:e|es|ing)|overwrit(?:e|es|ing)|writ(?:e|es|ing)|merg(?:e|es|ing)|modif(?:y|ies|ying)|chang(?:e|es|ing)|edit(?:s|ing)?|revis(?:e|es|ing))\b(?=(?:\s+[a-z0-9'-]+){0,8}\s+(?:artifact|original|correction|proposal|version)\b)/;
+const INSPECTION_ACTION_PATTERNS = [
+  /\bselect(?:s|ed|ing)?\b/,
+  /\binspect(?:s|ed|ing|ion)?\b/,
+  /\bread(?:s|ing)?\b/,
+  /\bpreview(?:s|ed|ing)?\b/,
+  /\bcompar(?:e|es|ed|ing)\b/,
+  /\bcancel(?:s|led|ing)?\b/,
+];
+
+function hasAffirmedIrreversibleAction(value) {
+  const text = stripRecommendationAuthorityLanguage(value);
+  return hasAffirmedPattern(text, IRREVERSIBLE_COMMIT_ACTION_PATTERN) ||
+    hasAffirmedPattern(text, IRREVERSIBLE_ACTION_PATTERN);
+}
+
+function activeCandidateActions(candidate) {
+  return {
+    ...protectedCandidateContextValue(candidate),
+    domain_vocabulary: undefined,
+    make_harder: undefined,
+    division_of_labor: candidate?.activity_model?.division_of_labor,
+    state_changes: candidate?.interaction_contract?.state_changes,
+  };
+}
+
+function hasAffirmedPassivePersistedEffect(clause) {
+  const patterns = [
+    /\b(?:records?|data|logs?|backups?|accounts?|contracts?|evidence)\b(?:\s+[a-z0-9'-]+){0,4}\s+(?:is|are|was|were|gets?|got|will be|has been|have been)\s+(?:[a-z0-9'-]+\s+){0,4}(deleted|wiped|erased|removed|destroyed)\b/g,
+    /\b(?:artifacts?|originals?|corrections?|proposals?|versions?)\b(?:\s+[a-z0-9'-]+){0,4}\s+(?:is|are|was|were|gets?|got|will be|has been|have been)\s+(?:[a-z0-9'-]+\s+){0,4}(saved|persisted|updated|replaced|overwritten|written|merged|modified|changed|edited|revised)\b/g,
+  ];
+  return patterns.some((pattern) => [...clause.matchAll(pattern)].some((match) => {
+    const start = match.index + match[0].lastIndexOf(match[1]);
+    return !isNegatedMatch(clause, start, start + match[1].length);
+  }));
+}
+
+const INSPECTION_TARGET_MODIFIER_TOKENS = new Set([
+  "itself", "them", "their", "this", "that", "those", "these", "only", "one",
+  "specific", "selected", "proposed", "saved", "original", "existing", "new",
+].map(normalizeActivityClaimToken));
+
+function inspectionOperationTargets(value, pattern) {
+  const text = normalizeText(value);
+  return [...text.matchAll(toGlobalPattern(pattern))]
+    .filter((match) => !isNegatedMatch(text, match.index, match.index + match[0].length))
+    .map((match) => {
+      const target = text.slice(match.index + match[0].length)
+        .split(/[.;!?,]|\b(?:and|but|then|when|while|whereas|however|without|with|by|after|before|is|are|was|were|will|must|can|may|does|do|leaves?|returns?|temporarily|commits?|saves?|deletes?|runs?)\b/, 1)[0];
+      return activityClaimTokens(target.split(/\s+/).slice(0, 8).join(" "))
+        .filter((token) => !INSPECTION_TARGET_MODIFIER_TOKENS.has(token));
+    });
+}
+
+function sourceRetainsInspectionOperation(clause, candidateActions, pattern) {
+  const sourceTargets = inspectionOperationTargets(clause, pattern);
+  const candidateTargets = candidateActions.flatMap((action) => inspectionOperationTargets(action, pattern));
+  if (!candidateTargets.length) return false;
+  const explicitCandidateTargets = new Set(candidateTargets.flat());
+  return sourceTargets.some((targets) =>
+    // Elided targets remain conservative; explicit different objects do not
+    // transfer effects just because they share an inspection verb.
+    !targets.length || !explicitCandidateTargets.size ||
+    targets.some((target) => explicitCandidateTargets.has(target)));
+}
+
+function sourceInspectionHasIrreversibleEffect(source, candidate, sourceBrief) {
+  const candidateActions = normalizedClaimStrings([sourceBrief, activeCandidateActions(candidate)]);
+  const sourceClauses = normalizeText(source).split(/[.;!?\n]|(?:,\s*|\s+)(?:and|but|then|whereas|while|however)[,\s]+(?=(?:apply|adopt|revert)(?:\s+(?:suggestions?|corrections?|proposals?|changes?|versions?))?\s+(?:commits|saves|updates|replaces|writes|merges|is|requires)\b)/);
+  return INSPECTION_ACTION_PATTERNS.some((pattern) =>
+    candidateActions.some((action) => hasAffirmedPattern(normalizeText(action), pattern)) &&
+    sourceClauses.some((clause) => {
+      if (!sourceRetainsInspectionOperation(clause, candidateActions, pattern)) return false;
+      // Effects can precede their operation, including passive descriptions.
+      // Keep independently described Apply clauses outside a preview-only task.
+      return hasAffirmedIrreversibleAction(clause) ||
+        hasAffirmedPassivePersistedEffect(clause) ||
+        hasAffirmedPattern(clause, PERSISTED_WRITE_ACTION_PATTERN) ||
+        hasAffirmedPattern(clause, PERSISTED_CHANGE_ACTION_PATTERN);
+    }),
+  );
+}
 
 const PROTECTED_CLAIM_ACTION_PATTERNS = [
   /\b(?:clear|clears|cleared|clearing)\b/,
@@ -4423,6 +4645,43 @@ function protectedCandidateContextValue(candidate) {
   };
 }
 
+function explicitlyNonExecutingActivity(sourceBrief, candidate) {
+  const brief = normalizeText(sourceBrief);
+  const inspectionTask =
+    /\b(?:inspect(?:s|ed|ing|ion)?|read(?:s|ing)?|read-only|review(?:s|ed|ing)?|preview(?:s|ed|ing)?|compar(?:e|es|ed|ing)|cancel(?:s|led|ing)?)\b/.test(brief);
+  const nonExecutionBoundary =
+    /\b(?:unchanged|read-only)\b/.test(brief) ||
+    /\bno\s+(?:applied|adopted|committed)\s+change\b/.test(brief) ||
+    /\bwithout\s+(?:adopting|applying|committing|executing|publishing|releasing)\b/.test(brief) ||
+    /\b(?:does?|must|will)\s+not\s+(?:apply|adopt|commit|execute|publish|release)\b/.test(brief);
+  const activeBrief = brief.split(/[.;!?]/).filter((clause) =>
+    !/\bis\s+(?:a\s+)?separate\s+(?:human\s+)?decision\b/.test(clause) &&
+    !/\boutside\s+(?:this|the current)\s+(?:[a-z-]+\s+){0,3}task\b/.test(clause),
+  ).join(". ");
+  const candidateActions = activeCandidateActions(candidate);
+  const candidateValues = normalizedClaimStrings(candidateActions).map(normalizeText);
+  const participants = toStringArray(candidate?.activity_model?.participants).map(normalizeText);
+  const nextActionsStayNonExecuting = toStringArray(candidate?.interaction_contract?.next_actions)
+    .every((action) => {
+      let text = normalizeText(action);
+      for (const participant of participants) {
+        for (const prefix of [`${participant} `, `the ${participant} `]) {
+          if (text.startsWith(prefix)) text = text.slice(prefix.length);
+        }
+      }
+      text = text.replace(/^(?:may|can|must|shall|will)\s+/, "");
+      return /^(?:select|read|view|inspect|open|browse|preview|compare|cancel|return|navigate|choose|review|check|understand|evaluate|explain|find|show|display)\b/.test(text);
+    });
+  return inspectionTask && nonExecutionBoundary &&
+    !hasAffirmedIrreversibleAction(sourceBrief) &&
+    !hasAffirmedIrreversibleAction(candidateActions) &&
+    !hasAffirmedPattern(activeBrief, EXECUTING_TASK_ACTION_PATTERN) &&
+    !candidateValues.some((value) =>
+      hasAffirmedPattern(value, EXECUTING_TASK_ACTION_PATTERN) ||
+      hasAffirmedPattern(value, PERSISTED_WRITE_ACTION_PATTERN)) &&
+    nextActionsStayNonExecuting;
+}
+
 function protectedSourceIsRelevant(
   entry,
   candidate,
@@ -4736,7 +4995,12 @@ function contextualProtectedRiskEvidence(
       });
       continue;
     }
-    if (sourceRisk === "authoritative_irreversible_action") {
+    // An excerpt can describe both inspection and a separate commitment.
+    // Sharing "read" or "inspect" with it does not make this claim executable.
+    if (
+      sourceRisk === "authoritative_irreversible_action" &&
+      hasAffirmedIrreversibleAction(value)
+    ) {
       evidence.push({
         risk_category: sourceRisk,
         context_boundary_expected: !boundaryCompatible,
@@ -5027,6 +5291,26 @@ function normalizeSuppliedActivityClaims(candidate) {
   });
 }
 
+function hasGoverningSafetyRule(value) {
+  const text = normalizeText(value);
+  const scopedText = text.replace(
+    /\b(?:safety|unsafe|hazard|emergency)\s+(?:claims?|verdicts?|advice|assurances?|recommendations?|rules?|constraints?|limits?|protocols?|requirements?)\b/g,
+    (match, offset) => {
+      const before = text.slice(Math.max(0, offset - 100), offset);
+      // A prohibition against ignoring guidance retains the safety boundary;
+      // an exclusion of advice from this product's task does not create one.
+      const after = text.slice(offset + match.length, offset + match.length + 100);
+      const restrictive = /\b(?:not|never)\s+(?:ignore|bypass|omit|disregard|remove)\s*$/.test(before) ||
+        /\bno\s*$/.test(before) && /^\s+(?:may|can|must|should|shall)\s+(?:ever\s+)?be\s+(?:ignored|bypassed|omitted|disregarded|removed)\b/.test(after);
+      return !restrictive && isNegatedMatch(text, offset, offset + match.length)
+        ? "" : match;
+    },
+  );
+  return scopedText.split(/[.;!?]/).flatMap(contrastAssertionSpans).some((span) =>
+    /\b(?:safety|unsafe|hazard|emergency)\b/.test(span) &&
+    /\b(?:rules?|constraints?|limits?|protocols?|require(?:ment|d)?|decision|must|shall|govern|governs|authoriz(?:e|es|ed|ing|ation)|permit|permits|permitted|prohibit|prohibits|prohibited|clear|clears|cleared|approv(?:e|es|ed|ing|al)|eligible|eligibility)\b/.test(span));
+}
+
 function activityClaimRiskCategory(claim) {
   if ([
     "participant_authority",
@@ -5101,9 +5385,7 @@ function activityClaimRiskCategory(claim) {
   if (passiveIrreversibleStatus && !explicitIrreversibleAction) {
     return null;
   }
-  const directSafetyRule =
-    /\b(?:safety|unsafe|hazard|emergency)\b/.test(claimValueText) &&
-    /\b(?:rule|require(?:ment|d)?|decision|must|shall|authoriz(?:e|es|ed|ing|ation)|permit|permits|permitted|prohibit|prohibits|prohibited|clear|clears|cleared|approv(?:e|es|ed|ing|al)|eligible|eligibility)\b/.test(claimValueText);
+  const directSafetyRule = hasGoverningSafetyRule(claimValueText);
   const highRiskAction =
     !nonExecutingProtectedArtifactReference &&
     (
@@ -5576,7 +5858,9 @@ function buildActivityCaseClaims({
     if (!protectedSourceIsRelevant(entry, normalizedCandidate, originalInput)) {
       continue;
     }
-    const riskCategory = protectedSourceRiskCategory(entry.text);
+    const inspectionEffect = sourceInspectionHasIrreversibleEffect(entry.text, normalizedCandidate, originalInput);
+    const riskCategory = protectedSourceRiskCategory(entry.text) ??
+      (inspectionEffect ? "authoritative_irreversible_action" : null);
     if (![
       "participant_authority",
       "authoritative_safety_rule",
@@ -5585,12 +5869,24 @@ function buildActivityCaseClaims({
     ].includes(riskCategory)) {
       continue;
     }
+    if (
+      riskCategory === "authoritative_irreversible_action" &&
+      explicitlyNonExecutingActivity(originalInput, normalizedCandidate) &&
+      !inspectionEffect
+    ) {
+      // Keep the source unchanged for continuity, but do not introduce an
+      // execution activity from background documentation. Checking the brief
+      // as well as the candidate prevents an omitted action from escaping review.
+      continue;
+    }
     const id = `context_${entry.id}_protected_boundary`;
     if (claims.some((claim) => claim.id === id)) continue;
     const candidateValues = normalizedClaimStrings(
       protectedCandidateContextValue(normalizedCandidate),
     );
     const retainedBoundaryValues = candidateValues.filter((candidateValue) =>
+      (riskCategory !== "authoritative_irreversible_action" ||
+        hasAffirmedIrreversibleAction(candidateValue)) &&
       protectedClaimBoundaryCompatibleForCandidate(
         entry.text,
         candidateValue,
@@ -5853,7 +6149,7 @@ function buildInferenceAwareActivityCase({
           },
         ]
       : [];
-  const unresolvedAmbiguities = orderActivityCaseAmbiguities([
+  let unresolvedAmbiguities = orderActivityCaseAmbiguities([
     ...missingCandidateAmbiguities(candidateGuardrails),
     ...missingSourceGrounding,
     ...inferredAmbiguities,
@@ -5866,6 +6162,17 @@ function buildInferenceAwareActivityCase({
     evidence.outcome &&
     !hasMissingCandidateField(candidateGuardrails.candidate_missing_fields) &&
     candidateGuardrails.candidate_primary_terms_detected.length === 0;
+  if (source.mode === "deterministic" && !deterministicReady && unresolvedAmbiguities.length === 0) {
+    unresolvedAmbiguities = [{
+      id: "ambiguity_source_activity_completion",
+      claim_id: "activity",
+      category: "missing_source_grounding",
+      materiality: "high",
+      resolution: "clarification",
+      alternatives: [],
+      question: "What should the person leave knowing or having done, and in what activity?",
+    }];
+  }
   const decision = unresolvedAmbiguities.some(
     (entry) => entry.resolution === "authoritative_source",
   )
@@ -9918,7 +10225,8 @@ function normalizeUiWorkflowCandidate(
   const workUnits = artifactInspectorSelected
     ? cloneWorkflowStructuredValue(toWorkflowWorkUnitArray(workflow.work_units))
     : sanitizeUiWorkflowList(
-        workflow.work_units,
+        toWorkflowWorkUnitArray(workflow.work_units).map((unit) =>
+          typeof unit === "string" ? unit : unit.label ?? unit.name ?? unit.purpose),
         candidatePrimaryTermsDetected,
       );
   const topology = artifactInspectorSelected
@@ -10245,8 +10553,11 @@ function buildUiWorkflowReviewPacket(
         guidanceProfile,
         resolvedSurfaceGuidance,
       ),
-      confidence: buildUiWorkflowConfidence(activityReview, candidateGuardrails),
-      targeted_questions: buildUiWorkflowQuestions(activityReview, candidateGuardrails),
+      confidence: resolvedSurfaceGuidance?.status === "review_required"
+        ? "low" : buildUiWorkflowConfidence(activityReview, candidateGuardrails),
+      targeted_questions: sourceReady && resolvedSurfaceGuidance?.routing_conflict?.question
+        ? [resolvedSurfaceGuidance.routing_conflict.question]
+        : buildUiWorkflowQuestions(activityReview, candidateGuardrails),
     },
     guardrails: {
       activity_review_status: activityReview.review_status,
@@ -11260,6 +11571,7 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
     profile_id: profileId,
     surface_review: providedSurfaceReview,
     surface_type: providedSurfaceType,
+    surface_selection_origin: providedSurfaceSelectionOrigin,
     context_items: rawContextItems,
     contextItems: rawContextItemsAlias,
     ...analysisOptions
@@ -11289,12 +11601,35 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
   const resolvedSurfaceType = providedSurfaceType
     ? resolveSurfaceType(contract, providedSurfaceType).surface_type
     : null;
+  const providedOrigin = resolvedSurfaceType
+    ? resolveProvidedSurfaceSelectionOrigin(providedSurfaceSelectionOrigin)
+    : null;
+  if (!resolvedSurfaceType && providedSurfaceSelectionOrigin !== undefined) {
+    throw new JudgmentKitInputError("Surface selection origin requires an explicit surface_type.", {
+      code: "invalid_surface_selection_origin",
+      details: { selection_origin: providedSurfaceSelectionOrigin },
+    });
+  }
+  if (resolvedSurfaceType && providedSurfaceReview?.recommended_surface_type &&
+      resolvedSurfaceType !== providedSurfaceReview.recommended_surface_type) {
+    throw new JudgmentKitInputError("Workflow review received conflicting surface selections.", {
+      code: "conflicting_surface_selection",
+      details: {
+        provided_surface_type: resolvedSurfaceType,
+        recommended_surface_type: providedSurfaceReview.recommended_surface_type,
+      },
+    });
+  }
   const surfaceReview = isPlainObject(providedSurfaceReview)
-    ? providedSurfaceReview
+    ? {
+        ...providedSurfaceReview,
+        ...(resolvedSurfaceType ? { confidence: "provided", selection_origin: providedOrigin } : {}),
+      }
     : resolvedSurfaceType
       ? {
           recommended_surface_type: resolvedSurfaceType,
-          confidence: "user_selected",
+          confidence: "provided",
+          selection_origin: providedOrigin,
           blocked_surface_types: [],
           ...buildSurfaceImplications(resolvedSurfaceType),
         }
@@ -16323,6 +16658,12 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
   const contract = options.contract ?? loadActivityContract(options.contractPath);
   const base = getContractUiImplementationContract(contract);
   const source = isPlainObject(input) ? input : {};
+  let chartReviewPolicy;
+  try {
+    chartReviewPolicy = normalizeChartReviewPolicy(source.chart_review_policy ?? source.chartReviewPolicy);
+  } catch (error) {
+    throw new JudgmentKitInputError(error.message, { code: error.code, details: error.details });
+  }
   if (
     optionalString(
       source.design_system_source?.mode ?? source.designSystemSource?.mode,
@@ -16392,6 +16733,13 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
   const artifactInspectorActive = Boolean(
     artifactInspectorFields.artifact_inspector,
   );
+  if (source.chart_review_required !== undefined && typeof source.chart_review_required !== "boolean") throw new JudgmentKitInputError("chart_review_required must be a boolean.", { code: "invalid_chart_review_requirement" });
+  const chartReviewRequired = !artifactInspectorActive && (source.chart_review_required === true || base.chart_review_required === true || Boolean(chartReviewPolicy));
+  if (chartReviewRequired && chartReviewPolicy) {
+    const missing = ["label_collision", "label_clipping", "selected_data_correspondence"].filter((check) => !chartReviewPolicy.required_checks.includes(check));
+    if (missing.length) throw new JudgmentKitInputError("An active owned-chart promise requires all three chart checks; the data oracle cannot suppress required coverage.", { code: "incomplete_chart_review_policy", details: { path: "chart_review_policy.required_checks", missing_checks: missing } });
+  }
+  if (artifactInspectorActive && chartReviewPolicy) throw new JudgmentKitInputError("Artifact Inspector primary artifacts remain external_not_reviewed; an owned-interface chart policy cannot govern that external artifact.", { code: "chart_policy_external_artifact_not_owned" });
   const canonicalArtifactInspectorDesignSystem = artifactInspectorActive
     ? canonicalJudgmentKitDesignSystemAuthority()
     : null;
@@ -16476,6 +16824,16 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
       canonicalArtifactInspectorDesignSystem?.designSystemSource ??
       designSystemSource,
     ...artifactInspectorFields,
+    ...(chartReviewRequired ? {
+      chart_review_required: true,
+      chart_review_obligation: {
+        required: true, scope: "owned_interface", status: chartReviewPolicy ? "data_oracle_declared" : "data_oracle_required",
+        reason: source.chart_review_obligation?.reason === "owned_chart_activity_promise" ? "owned_chart_activity_promise" : "explicit_chart_review_requirement",
+        source_paths: toStringArray(source.chart_review_obligation?.source_paths),
+        required_checks: ["label_collision", "label_clipping", "selected_data_correspondence"],
+      },
+    } : {}),
+    ...(chartReviewPolicy ? { chart_review_policy: chartReviewPolicy } : {}),
     ...(designSystemAdapter
       ? { design_system_adapter: designSystemAdapter }
       : {}),
@@ -16606,6 +16964,9 @@ export function createUiImplementationContract(input = {}, options = {}) {
           ...(normalized.visual_composition_policy
             ? ["visual composition evidence"]
             : []),
+          ...(normalized.chart_review_policy
+            ? ["trusted chart observations for source data and required snapshots"]
+            : []),
           "accessibility evidence",
           "local component authority",
         ],
@@ -16639,6 +17000,14 @@ export function createUiImplementationContract(input = {}, options = {}) {
             },
           ]
         : []),
+      ...(normalized.chart_review_required ? [{
+        id: "chart_promise_gate",
+        status: normalized.chart_review_policy ? "required_for_candidate_acceptance" : "data_oracle_required_before_candidate_review",
+        checks: normalized.chart_review_obligation.required_checks,
+        required_viewports: normalized.chart_review_policy?.required_viewports ?? [],
+        required_states: normalized.chart_review_policy?.data_cases.map(({ state_id }) => state_id) ?? [],
+        requirement: "The contract owns source data and required states; candidate selectors and snapshots cannot redefine expected truth or prove interactive transitions.",
+      }] : []),
     ],
   };
 
@@ -21017,6 +21386,16 @@ function reviewEvidenceFieldMapping(
           },
         }
       : {}),
+    ...(sourceContract.chart_review_policy ? {
+      chart_review_manifest: {
+        field: "chart_review_manifest",
+        reviewed_by: "checks.chart_review",
+        source_path: "implementation_contract.chart_review_policy",
+        accepts: "Chart, series, optional plot, and selected-control selectors plus every required rendered snapshot. The trusted static browser compares geometry with contract-owned data at required viewports.",
+        candidate_authored_evidence_accepted: false,
+        not_for: "Candidate claims, live transitions, usability, WCAG certification, and Artifact Inspector interactive attestation.",
+      },
+    } : {}),
   };
 }
 
@@ -22559,6 +22938,10 @@ function findingContractArea(check) {
     return "visual_composition";
   }
 
+  if (check === "chart_review") {
+    return "chart_review";
+  }
+
   if (String(check).startsWith("artifact_inspector")) {
     return "artifact_inspector_authority";
   }
@@ -22678,6 +23061,10 @@ function repairInstructionForFinding(finding, implementationContract) {
     return "Repair only the declared rendered relationships, rerender at the required viewports after fonts are ready, and resubmit a candidate-scoped visual_composition_evidence receipt under the active policy.";
   }
 
+  if (check === "chart_review") {
+    return "Repair the failed chart relationship or data correspondence, then provide each contract-required snapshot and rerun trusted browser observation. Keep expected points, domains, plot coordinates, and selections in the implementation contract; snapshots do not prove live interaction transitions.";
+  }
+
   return "Repair the failed implementation contract evidence before resubmitting.";
 }
 
@@ -22727,8 +23114,70 @@ function buildAutofixLoop(
     remaining_attempts: remainingAttempts,
     loop: iterationPolicy.loop,
     judgmentkit_role: iterationPolicy.judgmentkit_role,
+    attempt_consumed: true,
   };
 }
+
+function implementationContractForCandidateReview(options, contract) {
+  const frontend = options.frontend_generation_context ?? options.frontendGenerationContext;
+  const frontendContract = isPlainObject(frontend?.implementation_contract) ? frontend.implementation_contract : {};
+  const source = options.implementation_contract ?? options.ui_implementation_contract
+    ?? (isPlainObject(frontend?.implementation_contract) ? frontendContract : contract.implementation_contract);
+  const obligation = isPlainObject(frontend) ? deriveOwnedChartReviewObligation({
+    activity_review: { review_status: "ready_for_review", candidate: { activity_model: frontend.activity_model, interaction_contract: frontend.interaction_contract } },
+    workflow_review: { review_status: "ready_for_review", candidate: { workflow: frontend.workflow } },
+    surface_type: frontend.surface_type ?? frontend.surface_guidance?.recommended_surface_type,
+  }) : null;
+  const required = Boolean(obligation || frontendContract.chart_review_required || frontend?.implementation_guidance?.chart_review_required);
+  const sourcePolicy = source?.chart_review_policy ?? source?.chartReviewPolicy;
+  const frontendPolicy = frontendContract.chart_review_policy;
+  if (sourcePolicy && frontendPolicy && chartEvidenceDigest(normalizeChartReviewPolicy(sourcePolicy)) !== chartEvidenceDigest(normalizeChartReviewPolicy(frontendPolicy))) throw new JudgmentKitInputError("Implementation review received a chart oracle that conflicts with the supplied frontend contract.", { code: "conflicting_chart_review_policy" });
+  return normalizeUiImplementationContract({ ...(isPlainObject(source) ? source : contract.implementation_contract), ...(required ? { chart_review_required: true, chart_review_obligation: obligation ?? frontendContract.chart_review_obligation } : {}), ...(!sourcePolicy && frontendPolicy ? { chart_review_policy: frontendPolicy } : {}) }, { contract });
+}
+
+export function preflightUiImplementationCandidate(candidate, options = {}) {
+  const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const implementationContract = implementationContractForCandidateReview(options, contract);
+  const shape = inspectImplementationEvidenceShape(candidate, { implementationContract });
+  return { version: contract.version, contract_id: contract.id, ...evidenceAdmissionPacket([...shape.diagnostics, ...inspectChartManifest(candidate, implementationContract.chart_review_policy)]), implementation_contract_id: implementationContract.id };
+}
+
+export async function preflightUiImplementationCandidateWithBrowserRuntime(candidate, options = {}) {
+  const packet = preflightUiImplementationCandidate(candidate, options);
+  if (packet.admission_status !== "ready_for_review" || !isPlainObject(candidate)) return packet;
+  const manifest = candidateCompositionManifestForPreflight(candidate);
+  const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const implementationContract = implementationContractForCandidateReview(options, contract);
+  const chartPolicy = implementationContract.chart_review_policy;
+  const hasCompositionSelectors = manifest && Array.isArray(manifest.samples ?? manifest.relationships) && (manifest.samples ?? manifest.relationships).length > 0;
+  if (!hasCompositionSelectors && !chartPolicy) return packet;
+  const { candidateHtml, observeStaticDocumentsInBrowser } = await import("./visual-composition-browser-runtime.mjs");
+  const html = candidateHtml(candidate);
+  const measurements = [];
+  if (chartPolicy) measurements.push(await observeStaticDocumentsInBrowser({
+    documents: chartPolicy.data_cases.map(({ state_id }) => ({ id: state_id, html: candidate.chart_review_manifest.states.find((state) => state.state_id === state_id).rendered_html ?? html })),
+    viewports: chartPolicy.required_viewports,
+    expressionForDocument: (document, viewport) => chartObservationExpression(candidate.chart_review_manifest, chartPolicy.data_cases.find((entry) => entry.state_id === document.id), chartPolicy, viewport, { admissionOnly: true }),
+  }));
+  if (hasCompositionSelectors && html) measurements.push(await observeStaticDocumentsInBrowser({ documents: [{ id: "candidate", html }], expressionForDocument: (_document, viewport) => selectorAdmissionExpression(candidate).replace(JSON.stringify("__VIEWPORT_ID__"), JSON.stringify(viewport.id)) }));
+  if (measurements.length === 0) return { ...packet, selector_observation_status: "not_observed", verification_limits: ["no_safe_self_contained_candidate_html"] };
+  const unavailable = measurements.find((measurement) => !measurement.observations);
+  if (unavailable) return { ...packet, ...(unavailable.reason === "visual_composition_browser_runtime_unavailable" ? retryEvidenceAdmission(unavailable.reason) : evidenceAdmissionPacket([{ code: unavailable.reason, path: "candidate.rendered_html", message: "Provide bounded, safe, self-contained HTML for selector admission." }])), selector_observation_status: "unavailable", verification_limits: [unavailable.reason] };
+  const diagnostics = measurements.flatMap((measured) => measured.observations.flatMap((entry) => entry.observation.diagnostics.map((diagnostic) => ({ ...diagnostic, state_id: entry.state_id, viewport_id: entry.viewport.id }))));
+  return { ...packet, ...evidenceAdmissionPacket(diagnostics), selector_observation_status: "observed" };
+}
+
+function candidateCompositionManifestForPreflight(candidate) {
+  const qa = candidate.browser_qa ?? candidate.browserQa ?? {};
+  return candidate.visual_composition_manifest ?? candidate.visualCompositionManifest ?? qa.visual_composition_manifest ?? qa.visualCompositionManifest ?? null;
+}
+
+function implementationAdmissionFailure(packet, implementationContract, options = {}) {
+  const context = normalizeIterationContext(options.iteration_context ?? options.iterationContext, implementationContract.iteration_policy);
+  return { ...packet, implementation_review_status: "not_reviewed", candidate_artifact_status: "not_an_artifact", design_system_acceptance_status: "not_reviewed", autofix_loop: { owner: "agent", status: "not_started", current_attempt: context.current_attempt, max_attempts: context.max_attempts, remaining_attempts: Math.max(0, context.max_attempts - context.current_attempt + 1), attempt_consumed: false }, findings: packet.diagnostics.map((diagnostic) => ({ severity: "invalid_input", check: "evidence_admission", ...diagnostic })), implementation_contract: implementationContract };
+}
+
+const trustedChartReviewEvidence = new WeakMap();
 
 export function reviewUiImplementationCandidate(candidate, options = {}) {
   if (
@@ -22741,12 +23190,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
   }
 
   const contract = options.contract ?? loadActivityContract(options.contractPath);
-  const implementationContract = normalizeUiImplementationContract(
-    options.implementation_contract ??
-      options.ui_implementation_contract ??
-      contract.implementation_contract,
-    { contract },
-  );
+  const implementationContract = implementationContractForCandidateReview(options, contract);
   if (
     !hasCompleteExternalImplementationAuthority({
       designSystemSource: implementationContract.design_system_source,
@@ -22763,46 +23207,32 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       contract,
       candidate,
     );
+  const artifactInspectorReview = reviewArtifactInspectorAuthorityEvidence(implementationContract);
+  if (selectedSurfaceType === getArtifactInspectorIdentifiers(contract).surface_type && !artifactInspectorReview.applicable) {
+    throw new JudgmentKitInputError("Artifact Inspector implementation review requires the scoped authority contract returned by create_ui_implementation_contract.", { code: "invalid_artifact_inspector_authority_contract", details: { selected_surface_type: selectedSurfaceType, required_fields: ["design_system_scopes", "boundary_contracts", "artifact_inspector"] } });
+  }
+  const admission = preflightUiImplementationCandidate(candidate, { ...options, contract, implementation_contract: implementationContract });
+  if (admission.admission_status !== "ready_for_review") return implementationAdmissionFailure(admission, implementationContract, options);
   const checks = buildImplementationCandidateChecks(
     candidate,
     implementationContract,
     { selectedSurfaceType },
   );
-  const artifactInspectorReview = reviewArtifactInspectorAuthorityEvidence(
-    implementationContract,
-  );
-  if (
-    selectedSurfaceType === getArtifactInspectorIdentifiers(contract).surface_type &&
-    !artifactInspectorReview.applicable
-  ) {
-    throw new JudgmentKitInputError(
-      "Artifact Inspector implementation review requires the scoped authority contract returned by create_ui_implementation_contract.",
-      {
-        code: "invalid_artifact_inspector_authority_contract",
-        details: {
-          selected_surface_type: selectedSurfaceType,
-          required_fields: [
-            "design_system_scopes",
-            "boundary_contracts",
-            "artifact_inspector",
-          ],
-        },
-      },
-    );
-  }
+  const trustedChart = trustedChartReviewEvidence.get(candidate);
+  const chartEvidence = trustedChart && trustedChart.reviewed_candidate_sha256 === chartReviewCandidateDigest(candidate) && trustedChart.receipt.contract_sha256 === chartEvidenceDigest(implementationContract) ? trustedChart.receipt : undefined;
+  const chartActive = Boolean(implementationContract.chart_review_policy);
+  const chartChecks = chartActive ? chartEvidence ?? { applicable: true, outcome: "review_required", coverage: { declared: implementationContract.chart_review_policy.required_checks, observed: [], untested: implementationContract.chart_review_policy.required_checks }, findings: [{ severity: "review_required", check: "chart_review", code: "trusted_chart_observation_required", message: "The active chart policy requires an independent browser observation; candidate-authored chart claims cannot satisfy it." }] } : { applicable: false, outcome: "not_applicable", coverage: { declared: [], observed: [], untested: [] }, findings: [] };
   const artifactInspectorApplicable = artifactInspectorReview.applicable;
   const artifactInspectorFailed = artifactInspectorReview.status === "fail";
   const artifactInspectorReviewRequired =
     artifactInspectorReview.status === "review_required";
-  const combinedFindings = artifactInspectorApplicable
-    ? [...checks.findings, ...artifactInspectorReview.findings]
-    : checks.findings;
+  const combinedFindings = [...checks.findings, ...(artifactInspectorApplicable ? artifactInspectorReview.findings : []), ...chartChecks.findings];
   const designSystemFailed =
     designSystemGateFailed(checks) || artifactInspectorFailed;
   const failed =
     checks.findings.some((finding) => finding.severity === "fail") ||
-    artifactInspectorFailed;
-  const reviewRequired = !failed && artifactInspectorReviewRequired;
+    artifactInspectorFailed || chartChecks.outcome === "fail";
+  const reviewRequired = !failed && (artifactInspectorReviewRequired || chartChecks.outcome === "review_required");
   const iterationPolicy = implementationContract.iteration_policy;
   const iterationContext = normalizeIterationContext(
     options.iteration_context ?? options.iterationContext,
@@ -22814,7 +23244,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
     iterationPolicy,
   );
   const nextAgentAction = reviewRequired
-    ? "none"
+    ? chartChecks.outcome === "review_required" && !artifactInspectorReviewRequired ? "complete_chart_verification" : "none"
     : failed
     ? autofixLoop.status === "stopped"
       ? "stop_for_human"
@@ -22842,10 +23272,13 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
         : "accepted_artifact",
     design_system_acceptance_status: designSystemAcceptanceStatus,
     implementation_contract_id: implementationContract.id,
+    admission_status: "ready_for_review",
+    substantive_review_performed: true,
+    attempt_consumed: true,
     next_agent_action: nextAgentAction,
     autofix_loop: autofixLoop,
     repair_instructions: buildRepairInstructions(
-      failed ? combinedFindings : [],
+      failed ? combinedFindings : chartChecks.outcome === "review_required" ? chartChecks.findings : [],
       implementationContract,
     ),
     generation_gates: [
@@ -22867,6 +23300,11 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
         requirement:
           "Generated UI must prove active design-system provenance for visual tokens, typography, icon assets, renderer components, component contracts, and pattern contracts before it can count as an artifact.",
       },
+      ...(chartActive ? [{
+        id: "chart_promise_gate",
+        status: chartChecks.outcome === "pass" ? "passed" : chartChecks.outcome === "fail" ? "failed" : "review_required",
+        requirement: "Observe every contract-required chart snapshot and viewport for label geometry and correspondence to contract-owned source data. Static snapshots do not prove live selection transitions or interactive attestation.",
+      }] : []),
       ...(artifactInspectorApplicable
         ? [
             {
@@ -22894,6 +23332,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       component_contracts: checks.component_contracts,
       pattern_contracts: checks.pattern_contracts,
       visual_composition: checks.visual_composition,
+      chart_review: chartChecks,
       ...(artifactInspectorApplicable
         ? { artifact_inspector: artifactInspectorReview }
         : {}),
@@ -22913,6 +23352,7 @@ function withoutCallerVisualCompositionEvidence(candidate) {
   const nextCandidate = structuredClone(candidate);
   delete nextCandidate.visual_composition_evidence;
   delete nextCandidate.visualCompositionEvidence;
+  delete nextCandidate.chart_review_evidence;
 
   if (isPlainObject(nextCandidate.browser_qa)) {
     delete nextCandidate.browser_qa.visual_composition;
@@ -22941,20 +23381,26 @@ export async function reviewUiImplementationCandidateWithBrowserRuntime(
   }
 
   const contract = options.contract ?? loadActivityContract(options.contractPath);
-  const implementationContract = normalizeUiImplementationContract(
-    options.implementation_contract ??
-      options.ui_implementation_contract ??
-      contract.implementation_contract,
-    { contract },
-  );
+  const implementationContract = implementationContractForCandidateReview(options, contract);
   const reviewOptions = {
     ...options,
     contract,
     implementation_contract: implementationContract,
   };
 
+  const admission = await preflightUiImplementationCandidateWithBrowserRuntime(sanitizedCandidate, reviewOptions);
+  if (admission.admission_status !== "ready_for_review") return implementationAdmissionFailure(admission, implementationContract, reviewOptions);
+  const chartEvidence = await observeChartInBrowser({ candidate: sanitizedCandidate, implementationContract });
+  if (chartEvidence.reason === "visual_composition_browser_runtime_unavailable") return implementationAdmissionFailure({ ...admission, ...retryEvidenceAdmission(chartEvidence.reason) }, implementationContract, reviewOptions);
+  if (chartEvidence.diagnostics?.length) return implementationAdmissionFailure({ ...admission, ...evidenceAdmissionPacket(chartEvidence.diagnostics) }, implementationContract, reviewOptions);
+  const reviewWithChart = (nextCandidate) => {
+    trustedChartReviewEvidence.set(nextCandidate, { receipt: chartEvidence, reviewed_candidate_sha256: chartReviewCandidateDigest(nextCandidate) });
+    try { return reviewUiImplementationCandidate(nextCandidate, reviewOptions); }
+    finally { trustedChartReviewEvidence.delete(nextCandidate); }
+  };
+
   if (!isPlainObject(implementationContract.visual_composition_policy)) {
-    return reviewUiImplementationCandidate(sanitizedCandidate, reviewOptions);
+    return reviewWithChart(sanitizedCandidate);
   }
 
   const { measureVisualCompositionInBrowser } = await import(
@@ -22969,18 +23415,7 @@ export async function reviewUiImplementationCandidateWithBrowserRuntime(
     const reason =
       optionalString(measured?.reason) ||
       "visual_composition_browser_runtime_unavailable";
-    throw new JudgmentKitInputError(
-      reason === "visual_composition_candidate_not_renderable"
-        ? "The visual composition candidate is not safe, self-contained renderable HTML."
-        : "The trusted visual composition browser runtime is unavailable; retry the review.",
-      {
-        code: reason,
-        details: {
-          retryable:
-            reason === "visual_composition_browser_runtime_unavailable",
-        },
-      },
-    );
+    return implementationAdmissionFailure({ ...admission, ...(reason === "visual_composition_browser_runtime_unavailable" ? retryEvidenceAdmission(reason) : evidenceAdmissionPacket([{ code: reason, path: "candidate.rendered_html", message: "Provide safe, self-contained renderable HTML for the active visual composition policy." }])) }, implementationContract, reviewOptions);
   }
 
   const measuredCandidate = {
@@ -23017,7 +23452,7 @@ export async function reviewUiImplementationCandidateWithBrowserRuntime(
   });
 
   try {
-    return reviewUiImplementationCandidate(measuredCandidate, reviewOptions);
+    return reviewWithChart(measuredCandidate);
   } finally {
     trustedVisualCompositionEvidence.delete(measuredCandidate);
   }
@@ -23044,6 +23479,12 @@ function compactImplementationContractForHandoff(implementationContract) {
       : {}),
     ...(implementationContract.artifact_inspector
       ? { artifact_inspector: implementationContract.artifact_inspector }
+      : {}),
+    ...(implementationContract.chart_review_policy
+      ? { chart_review_policy: implementationContract.chart_review_policy }
+      : {}),
+    ...(implementationContract.chart_review_required
+      ? { chart_review_required: true, chart_review_obligation: implementationContract.chart_review_obligation }
       : {}),
     ...(implementationContract.design_system_adapter
       ? { design_system_adapter: implementationContract.design_system_adapter }
@@ -23235,6 +23676,7 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
   const handoffActiveStateGroups = ARTIFACT_INSPECTOR_STATE_GROUP_IDS.filter(
     (groupId) => reviewedArtifactInspectorStateGroups.includes(groupId),
   );
+  const chartReviewObligation = deriveOwnedChartReviewObligation({ activity_review: workflowReview.activity_review, workflow_review: workflowReview, surface_type: handoffSurfaceType });
   const implementationContract = normalizeUiImplementationContract(
     handoffSurfaceType === identifiers.surface_type
       ? {
@@ -23247,7 +23689,7 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
             active_state_groups: handoffActiveStateGroups,
           },
         }
-      : implementationContractInput,
+      : { ...implementationContractInput, ...(chartReviewObligation ? { chart_review_required: true, chart_review_obligation: chartReviewObligation } : {}) },
     { contract },
   );
   assertArtifactInspectorBoundaryConsistency({
@@ -23320,6 +23762,7 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
     version: workflowReview.version,
     contract_id: workflowReview.contract_id,
     handoff_status: "ready_for_generation",
+    ...(chartReviewObligation ? { chart_review_obligation: implementationContract.chart_review_obligation } : {}),
     source: {
       mode: workflowReview.source?.mode,
       proposer: workflowReview.source?.proposer,
@@ -24199,6 +24642,7 @@ export function createFrontendGenerationContext({
   contextItems: activityContextItemsAlias,
   surface_review: surfaceReview,
   surface_type: surfaceType,
+  surface_selection_origin: surfaceSelectionOrigin,
   surface_profile: surfaceProfile,
   supported_surface_profiles: supportedSurfaceProfiles,
   frontend_context: frontendContext,
@@ -24235,6 +24679,15 @@ export function createFrontendGenerationContext({
     ? artifactIdentifiers.surface_type
     : null;
   const providedSurfaceType = normalizeOptionalSurfaceType(surfaceType);
+  const providedOrigin = providedSurfaceType
+    ? resolveProvidedSurfaceSelectionOrigin(surfaceSelectionOrigin)
+    : null;
+  if (!providedSurfaceType && surfaceSelectionOrigin !== undefined) {
+    throw new JudgmentKitInputError("Surface selection origin requires an explicit surface_type.", {
+      code: "invalid_surface_selection_origin",
+      details: { selection_origin: surfaceSelectionOrigin },
+    });
+  }
   const handoffSurfaceType = normalizeOptionalSurfaceType(
     uiGenerationHandoff.surface_type,
   );
@@ -24242,6 +24695,18 @@ export function createFrontendGenerationContext({
     uiGenerationHandoff.surface_guidance,
     { includeFrontendPosture: true },
   );
+  for (const [field, guidance] of [
+    ["surface_review", surfaceReview],
+    ["ui_generation_handoff.surface_guidance", handoffSurfaceGuidance],
+  ]) {
+    if (guidance?.status === "review_required" ||
+        guidance?.routing_conflict?.status === "review_required") {
+      throw new JudgmentKitInputError("Frontend generation requires every inherited surface selection to be resolved.", {
+        code: "frontend_context_blocked",
+        details: { field, routing_conflict: guidance.routing_conflict ?? null },
+      });
+    }
+  }
   const handoffGuidanceSurfaceType = normalizeOptionalSurfaceType(
     handoffSurfaceGuidance?.recommended_surface_type,
   );
@@ -24272,6 +24737,7 @@ export function createFrontendGenerationContext({
     throw new JudgmentKitInputError(
       "Frontend generation context received conflicting surface type selections.",
       {
+        code: "conflicting_surface_selection",
         details: {
           selected_surface_type: selectedSurfaceType,
           surface_type_candidates: Object.fromEntries(surfaceTypeCandidates),
@@ -24309,6 +24775,7 @@ export function createFrontendGenerationContext({
               selectedSurfaceType,
             ).surface_type,
             confidence: "provided",
+            selection_origin: providedOrigin ?? "caller",
             blocked_surface_types: [],
             ...buildSurfaceImplications(selectedSurfaceType),
           }
@@ -24325,9 +24792,18 @@ export function createFrontendGenerationContext({
               },
             },
           });
+  if (inferredSurfaceReview.status === "review_required") {
+    throw new JudgmentKitInputError("Frontend generation requires a resolved surface selection.", {
+      code: "frontend_context_blocked",
+      details: { routing_conflict: inferredSurfaceReview.routing_conflict ?? null },
+    });
+  }
   let surfaceGuidance = summarizeSurfaceReview(inferredSurfaceReview, {
     includeFrontendPosture: true,
   });
+  if (providedSurfaceType) {
+    surfaceGuidance = { ...surfaceGuidance, confidence: "provided", selection_origin: providedOrigin };
+  }
   const artifactInspectorSelected =
     handoffArtifactTopologySelected ||
     surfaceGuidance.recommended_surface_type === artifactIdentifiers.surface_type;
@@ -24519,6 +24995,12 @@ export function createFrontendGenerationContext({
     );
   }
   const normalizedFrontendContext = normalizeFrontendContext(frontendContext);
+  const frontendChartObligation = deriveOwnedChartReviewObligation({
+    activity_review: { review_status: "ready_for_review", candidate: { activity_model: uiGenerationHandoff.activity_model, interaction_contract: uiGenerationHandoff.interaction_contract } },
+    workflow_review: { review_status: "ready_for_review", candidate: { workflow: uiGenerationHandoff.workflow } },
+    surface_type: surfaceGuidance.recommended_surface_type,
+  });
+  if (frontendChartObligation) effectiveImplementationContract = normalizeUiImplementationContract({ ...effectiveImplementationContract, chart_review_required: true, chart_review_obligation: frontendChartObligation }, { contract: resolvedContract });
   const normalizedVerification = normalizeVerificationContext(verification);
   const requiredSurfaces = toSurfaceSetArray(uiGenerationHandoff.surface_set);
   const requiredSurfaceAggregate = aggregateSurfaceSet(requiredSurfaces);
@@ -24766,11 +25248,15 @@ export function createFrontendGenerationContext({
       disclosure_implications: surfaceGuidance.disclosure_implications,
       frontend_posture: surfaceGuidance.frontend_posture,
       implementation_contract: effectiveImplementationContract,
+      ...(effectiveImplementationContract.chart_review_required ? { chart_review_required: true, chart_review_obligation: effectiveImplementationContract.chart_review_obligation } : {}),
       design_system_source: designSystemSource,
       local_component_authority:
         localComponentAuthority,
       ...(visualCompositionPolicy
         ? { visual_composition_policy: visualCompositionPolicy }
+        : {}),
+      ...(effectiveImplementationContract.chart_review_policy
+        ? { chart_review_policy: effectiveImplementationContract.chart_review_policy }
         : {}),
       visual_asset_policy:
         effectiveImplementationContract.visual_asset_policy ??
@@ -25020,6 +25506,11 @@ function buildFrontendImplementationInstructionMarkdown({
     "- For text over substantive visuals or rendered backgrounds, verify WCAG AA contrast from browser-rendered output, not screenshots alone.",
     "- Verify required states, static checks, browser checks, accessibility evidence, and disclosure boundaries.",
     "- Review generated code or evidence with review_ui_implementation_candidate before final handoff.",
+    ...(implementationGuidance.chart_review_required ? [
+      "- Prepare implementation_contract.chart_review_policy from attributed source data before candidate review. Include every required state and viewport, selected values, expected data points/domains, and expected labels when their presence matters; never infer the oracle from the candidate chart.",
+      "- Submit chart_review_manifest with the actual chart, series, plot or source-owned plot geometry, and selected-control selectors plus the required self-contained snapshots. Trusted browser observation checks visible SVG text geometry and rendered series correspondence; source authenticity, live transitions, axis semantics, accessibility compliance, and Inspector attestation remain separate.",
+      "- Run evidence preflight before substantive review. Repair evidence packets without advancing the implementation attempt; retry runtime admission when unavailable.",
+    ] : []),
     "",
     "## Review Evidence Fields",
     `- ${primitiveEvidenceMapping.field || "primitives_used"}: only implementation_contract.approved_primitives. Allowed values: ${toStringArray(primitiveEvidenceMapping.allowed_values).join("; ") || "none supplied"}`,
@@ -25855,6 +26346,10 @@ export function createFrontendImplementationSkillContext({
       "Check text over substantive visuals against the accessibility policy with browser-rendered contrast evidence before accepting screenshots.",
       "Verify required states, static checks, browser checks, accessibility evidence, and disclosure boundaries.",
       "Call review_ui_implementation_candidate with generated code or evidence before final handoff.",
+      ...(implementationContract.chart_review_required ? [
+        "Prepare the attributed chart data oracle and required snapshot matrix in implementation_contract.chart_review_policy; submit chart_review_manifest selectors and snapshots for trusted browser observations before acceptance.",
+        "Run evidence admission before substantive review; packet repairs and browser-runtime retries do not consume implementation attempts. Static chart snapshots do not prove live transitions, source authenticity, accessibility compliance, axis semantics, or Inspector attestation.",
+      ] : []),
     ],
     surface_type_guidance: {
       surface_type: frontendGenerationContext.surface_type,
@@ -25919,6 +26414,7 @@ export function createFrontendImplementationSkillContext({
       frontendContext.approved_visual_asset_sources,
     ),
     visual_asset_policy: visualAssetPolicy,
+    ...(implementationContract.chart_review_required ? { chart_review_required: true, chart_review_obligation: implementationContract.chart_review_obligation, ...(implementationContract.chart_review_policy ? { chart_review_policy: implementationContract.chart_review_policy } : {}) } : {}),
     accessibility_policy: accessibilityPolicy,
     local_component_authority: localComponentAuthority,
     ...(visualCompositionPolicy

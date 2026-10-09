@@ -1,0 +1,80 @@
+{
+  "scope": "System Map diagram and fallback rendering",
+  "target": "http://127.0.0.1:50858/docs/#system-map",
+  "captured_at": "2026-10-08T15:55:51.180Z",
+  "owner_storage": "not_used",
+  "mcp_calls": "not_run",
+  "cases": [
+    {
+      "id": "desktop-light",
+      "status": "pass",
+      "nodes": 20,
+      "edges": 23,
+      "layout": {
+        "pageOverflow": false,
+        "sectionOverflow": false,
+        "clippedCards": []
+      },
+      "controls": "zoom_and_fit_pass"
+    },
+    {
+      "id": "desktop-dark",
+      "status": "pass",
+      "nodes": 20,
+      "edges": 23,
+      "layout": {
+        "pageOverflow": false,
+        "sectionOverflow": false,
+        "clippedCards": []
+      },
+      "controls": "zoom_and_fit_pass"
+    },
+    {
+      "id": "mobile-light",
+      "status": "pass",
+      "nodes": 20,
+      "edges": 23,
+      "layout": {
+        "pageOverflow": false,
+        "sectionOverflow": false,
+        "clippedCards": []
+      },
+      "controls": "zoom_and_fit_pass"
+    },
+    {
+      "id": "mobile-dark",
+      "status": "pass",
+      "nodes": 20,
+      "edges": 23,
+      "layout": {
+        "pageOverflow": false,
+        "sectionOverflow": false,
+        "clippedCards": []
+      },
+      "controls": "zoom_and_fit_pass"
+    },
+    {
+      "id": "fallback-desktop",
+      "status": "pass",
+      "nodes": 20,
+      "edges": 23,
+      "layout": {
+        "pageOverflow": false,
+        "sectionOverflow": false,
+        "clippedCards": []
+      }
+    },
+    {
+      "id": "fallback-mobile",
+      "status": "pass",
+      "nodes": 20,
+      "edges": 23,
+      "layout": {
+        "pageOverflow": false,
+        "sectionOverflow": false,
+        "clippedCards": []
+      }
+    }
+  ],
+  "status": "pass"
+}

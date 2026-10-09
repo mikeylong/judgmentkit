@@ -1,0 +1,57 @@
+{
+  "status": "pass",
+  "recorded_at_utc": "2026-10-09T04:13:03.377222+00:00",
+  "checks": [
+    {
+      "name": "system-map",
+      "argv": [
+        "node",
+        "tests/system-map.test.mjs"
+      ],
+      "cwd": "/Users/mike/.codex/worktrees/mcp-improvements/JudgmentKit2",
+      "exit_code": 0,
+      "elapsed_seconds": 0.638,
+      "log": "system-map.log",
+      "log_sha256": "e8cfe7155ffb7daeff5349ea0468e7c2be450d0d2634d110c64f0264727d2ad3"
+    },
+    {
+      "name": "site",
+      "argv": [
+        "node",
+        "tests/site.test.mjs"
+      ],
+      "cwd": "/Users/mike/.codex/worktrees/mcp-improvements/JudgmentKit2",
+      "exit_code": 0,
+      "elapsed_seconds": 3.824,
+      "log": "site.log",
+      "log_sha256": "725fb921ec13121f87455af21dfdac4383ec93b76e6db79bf8847f98dab05607"
+    },
+    {
+      "name": "site-build",
+      "argv": [
+        "node",
+        "site/build-site.mjs",
+        "--out",
+        "/private/tmp/judgmentkit-system-map-followup/final-checks-10hlik_q/built-site"
+      ],
+      "cwd": "/Users/mike/.codex/worktrees/mcp-improvements/JudgmentKit2",
+      "exit_code": 0,
+      "elapsed_seconds": 0.629,
+      "log": "site-build.log",
+      "log_sha256": "68c75ccaaef4a5420db0f2a53b4edf0560c97575b0121faf5f88a2f05ff6d59c"
+    },
+    {
+      "name": "whitespace",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/Users/mike/.codex/worktrees/mcp-improvements/JudgmentKit2",
+      "exit_code": 0,
+      "elapsed_seconds": 0.066,
+      "log": "whitespace.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -67,3 +67,49 @@ Participant action authority may come only from direct affirmative language in t
 None of these states authorizes approval policy, safety rules, sensitive disclosure, release, or irreversible external action. Those remain explicit human or authoritative-source boundaries.
 
 Implementation vocabulary remains hidden from ordinary product UI. When setup, debugging, auditing, or integration machinery is itself the user activity, relevant server, endpoint, schema, trace, or connection terms remain available as domain vocabulary rather than being stripped as leakage.
+
+## Interpretation and routing consistency
+
+Excluded safety claims and unrelated design decisions must not create a safety rule.
+Paragraph and sentence attribution of the same source should preserve readiness.
+An `ask` result always names an unresolved ambiguity and a material question.
+
+No positive surface evidence leaves routing unresolved, with no Workbench fallback
+contract. Resolve it before handoff or frontend generation. An explicit caller
+selection is not a human selection or an authorization credential. Conflicting
+explicit and recommended selections are rejected instead of silently choosing one.
+
+Provided selections use `surface_selection_origin: "caller" | "user" | "agent"`,
+with `caller` as the default. Recommendations report `selection_origin: "inferred"`
+and `confidence_evidence` for required signals and competing activities. An origin
+label is provenance metadata, not an action credential.
+
+See `specs/activity-routing-reliability.md` for the Tide regression contract.
+
+## Implementation evidence
+
+The stateless admission validator checks evidence structure and selectors before
+substantive review. Malformed submissions return `repair_evidence_packet`; an
+unavailable observer returns `retry_evidence_preflight`. Both perform no substantive
+review and consume no implementation attempt. The client retains its attempt records.
+Valid evidence describing absent or failed behavior still produces an
+implementation failure.
+
+Owned chart promises propagate from the reviewed activity into the
+handoff/frontend implementation contract. That contract owns attributed expected
+data and required states/viewports. The candidate supplies exact rendered HTML
+and selectors. Trusted static browser observations bind measurements to that
+candidate and contract; candidate-authored claims cannot supply them. Source
+authenticity, live transitions, human task completion, and Inspector attestation
+remain separate or unavailable evidence.
+
+## Packet transport
+
+Full packets remain the default. Compact output carries readable active guidance
+and focused repairs alongside a bounded, lossless continuation of the complete
+packet. Downstream MCP calls decode that continuation before ordinary validation;
+direct library callers first use `expandCompactPacket` from `judgmentkit/packets`.
+Both paths still require exact current raw source. Digests prove content continuity, never
+authority. The transport does not add conversational state or relax an acceptance
+gate. See `specs/mcp-evidence-and-packets.md` for admission, chart observation, and
+compact-envelope contracts.

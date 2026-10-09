@@ -1,0 +1,3049 @@
+{
+  "status": "pass",
+  "presentations": [
+    {
+      "viewport": "desktop",
+      "appearance": "light",
+      "mounted": {
+        "nodes": [
+          {
+            "id": "zone-client"
+          },
+          {
+            "id": "zone-kernel"
+          },
+          {
+            "id": "zone-generation"
+          },
+          {
+            "id": "agent-client"
+          },
+          {
+            "id": "source-context"
+          },
+          {
+            "id": "access"
+          },
+          {
+            "id": "proposals"
+          },
+          {
+            "id": "repair"
+          },
+          {
+            "id": "activity-review"
+          },
+          {
+            "id": "surface"
+          },
+          {
+            "id": "workflow-review"
+          },
+          {
+            "id": "implementation-contract"
+          },
+          {
+            "id": "handoff"
+          },
+          {
+            "id": "frontend"
+          },
+          {
+            "id": "ui-pass"
+          },
+          {
+            "id": "evidence"
+          },
+          {
+            "id": "preflight"
+          },
+          {
+            "id": "implementation-review"
+          },
+          {
+            "id": "verdict"
+          },
+          {
+            "id": "limits"
+          },
+          {
+            "id": "human-task"
+          }
+        ],
+        "edges": [
+          {
+            "id": "client-to-source",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "source-to-access",
+            "length": 52,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "access-to-activity",
+            "length": 462,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "activity-to-surface",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "surface-to-workflow",
+            "length": 68,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-contract",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "contract-to-handoff",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-handoff",
+            "length": 318,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-frontend",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "frontend-to-ui",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "ui-to-evidence",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-preflight",
+            "length": 144,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-review",
+            "length": 70,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-repair",
+            "length": 934,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "review-to-verdict",
+            "length": 50.35871505737305,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "client-to-proposals",
+            "length": 623,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-activity",
+            "length": 605,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-workflow",
+            "length": 1455,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-repair",
+            "length": 971,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-limits",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-repair",
+            "length": 443,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-source",
+            "length": 1172,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-ui",
+            "length": 2518,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-human",
+            "length": 380,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "human-to-repair",
+            "length": 1074,
+            "painted": true,
+            "arrow": true
+          }
+        ],
+        "fallbackHidden": true,
+        "colors": {
+          "background": "rgb(251, 250, 246)",
+          "text": "rgb(23, 23, 23)"
+        },
+        "dark": false
+      },
+      "readable": {
+        "transform": {
+          "x": -550.861,
+          "y": -537.377,
+          "zoom": 1.07936
+        },
+        "cards": [
+          {
+            "id": "zone-client",
+            "width": 356.18902587890625,
+            "height": 1694.59619140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-kernel",
+            "width": 755.552490234375,
+            "height": 1694.59619140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-generation",
+            "width": 539.680419921875,
+            "height": 1694.59619140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "agent-client",
+            "width": 304.37969970703125,
+            "height": 118.72967529296875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "source-context",
+            "width": 304.37969970703125,
+            "height": 148.9517822265625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "access",
+            "width": 304.37969970703125,
+            "height": 194.284912109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "proposals",
+            "width": 304.37969970703125,
+            "height": 179.17388916015625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "repair",
+            "width": 304.37969970703125,
+            "height": 183.4912109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "activity-review",
+            "width": 315.1733703613281,
+            "height": 194.284912109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "surface",
+            "width": 315.17333984375,
+            "height": 194.284912109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "workflow-review",
+            "width": 315.17333984375,
+            "height": 183.4913330078125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-contract",
+            "width": 315.1733703613281,
+            "height": 183.4913330078125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "handoff",
+            "width": 315.1733703613281,
+            "height": 170.53900146484375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "frontend",
+            "width": 315.17333984375,
+            "height": 215.87213134765625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "ui-pass",
+            "width": 468.4425048828125,
+            "height": 170.53900146484375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "evidence",
+            "width": 468.4425048828125,
+            "height": 205.07855224609375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "preflight",
+            "width": 315.17333984375,
+            "height": 205.07855224609375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-review",
+            "width": 315.17333984375,
+            "height": 183.4912109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "verdict",
+            "width": 315.1733703613281,
+            "height": 170.5389404296875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "limits",
+            "width": 684.314697265625,
+            "height": 168.380126953125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "human-task",
+            "width": 468.4425048828125,
+            "height": 168.380126953125,
+            "clipped": [],
+            "scrollOverflow": false
+          }
+        ]
+      },
+      "fallback": {
+        "nodes": [
+          {
+            "id": "zone-client"
+          },
+          {
+            "id": "zone-kernel"
+          },
+          {
+            "id": "zone-generation"
+          },
+          {
+            "id": "agent-client"
+          },
+          {
+            "id": "source-context"
+          },
+          {
+            "id": "access"
+          },
+          {
+            "id": "proposals"
+          },
+          {
+            "id": "repair"
+          },
+          {
+            "id": "activity-review"
+          },
+          {
+            "id": "surface"
+          },
+          {
+            "id": "workflow-review"
+          },
+          {
+            "id": "implementation-contract"
+          },
+          {
+            "id": "handoff"
+          },
+          {
+            "id": "frontend"
+          },
+          {
+            "id": "ui-pass"
+          },
+          {
+            "id": "evidence"
+          },
+          {
+            "id": "preflight"
+          },
+          {
+            "id": "implementation-review"
+          },
+          {
+            "id": "verdict"
+          },
+          {
+            "id": "limits"
+          },
+          {
+            "id": "human-task"
+          }
+        ],
+        "edges": [
+          {
+            "id": "client-to-source",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "source-to-access",
+            "length": 52,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "access-to-activity",
+            "length": 462,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "activity-to-surface",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "surface-to-workflow",
+            "length": 68,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-contract",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "contract-to-handoff",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-handoff",
+            "length": 318,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-frontend",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "frontend-to-ui",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "ui-to-evidence",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-preflight",
+            "length": 144,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-review",
+            "length": 70,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-repair",
+            "length": 934,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "review-to-verdict",
+            "length": 50.35871505737305,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "client-to-proposals",
+            "length": 623,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-activity",
+            "length": 605,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-workflow",
+            "length": 1455,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-repair",
+            "length": 971,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-limits",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-repair",
+            "length": 443,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-source",
+            "length": 1172,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-ui",
+            "length": 2518,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-human",
+            "length": 380,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "human-to-repair",
+            "length": 1074,
+            "painted": true,
+            "arrow": true
+          }
+        ],
+        "visible": true,
+        "applicationMounted": false,
+        "accessibleName": "JudgmentKit system design map",
+        "colors": {
+          "background": "rgb(251, 250, 246)",
+          "text": "rgb(23, 23, 23)"
+        },
+        "dark": false,
+        "cards": [
+          {
+            "id": "zone-client",
+            "width": 147.13815307617188,
+            "height": 700.0208740234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-kernel",
+            "width": 312.1112060546875,
+            "height": 700.0208740234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-generation",
+            "width": 222.93658447265625,
+            "height": 700.0208740234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "agent-client",
+            "width": 125.73623657226562,
+            "height": 49.046051025390625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "source-context",
+            "width": 125.73623657226562,
+            "height": 61.530517578125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "access",
+            "width": 125.73623657226562,
+            "height": 80.25714111328125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "proposals",
+            "width": 125.73623657226562,
+            "height": 74.014892578125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "repair",
+            "width": 125.73623657226562,
+            "height": 75.79840087890625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "activity-review",
+            "width": 130.1949462890625,
+            "height": 80.25717163085938,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "surface",
+            "width": 130.1949462890625,
+            "height": 80.25717163085938,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "workflow-review",
+            "width": 130.1949462890625,
+            "height": 75.7984619140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-contract",
+            "width": 130.1949462890625,
+            "height": 75.7984619140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "handoff",
+            "width": 130.1949462890625,
+            "height": 70.44793701171875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "frontend",
+            "width": 130.1949462890625,
+            "height": 89.17462158203125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "ui-pass",
+            "width": 193.50897216796875,
+            "height": 70.44793701171875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "evidence",
+            "width": 193.50897216796875,
+            "height": 84.71588134765625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "preflight",
+            "width": 130.1949462890625,
+            "height": 84.71588134765625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-review",
+            "width": 130.1949462890625,
+            "height": 75.79840087890625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "verdict",
+            "width": 130.1949462890625,
+            "height": 70.44793701171875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "limits",
+            "width": 282.68359375,
+            "height": 69.55621337890625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "human-task",
+            "width": 193.50897216796875,
+            "height": 69.55621337890625,
+            "clipped": [],
+            "scrollOverflow": false
+          }
+        ]
+      }
+    },
+    {
+      "viewport": "desktop",
+      "appearance": "dark",
+      "mounted": {
+        "nodes": [
+          {
+            "id": "zone-client"
+          },
+          {
+            "id": "zone-kernel"
+          },
+          {
+            "id": "zone-generation"
+          },
+          {
+            "id": "agent-client"
+          },
+          {
+            "id": "source-context"
+          },
+          {
+            "id": "access"
+          },
+          {
+            "id": "proposals"
+          },
+          {
+            "id": "repair"
+          },
+          {
+            "id": "activity-review"
+          },
+          {
+            "id": "surface"
+          },
+          {
+            "id": "workflow-review"
+          },
+          {
+            "id": "implementation-contract"
+          },
+          {
+            "id": "handoff"
+          },
+          {
+            "id": "frontend"
+          },
+          {
+            "id": "ui-pass"
+          },
+          {
+            "id": "evidence"
+          },
+          {
+            "id": "preflight"
+          },
+          {
+            "id": "implementation-review"
+          },
+          {
+            "id": "verdict"
+          },
+          {
+            "id": "limits"
+          },
+          {
+            "id": "human-task"
+          }
+        ],
+        "edges": [
+          {
+            "id": "client-to-source",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "source-to-access",
+            "length": 52,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "access-to-activity",
+            "length": 462,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "activity-to-surface",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "surface-to-workflow",
+            "length": 68,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-contract",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "contract-to-handoff",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-handoff",
+            "length": 318,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-frontend",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "frontend-to-ui",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "ui-to-evidence",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-preflight",
+            "length": 144,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-review",
+            "length": 70,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-repair",
+            "length": 934,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "review-to-verdict",
+            "length": 50.35871505737305,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "client-to-proposals",
+            "length": 623,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-activity",
+            "length": 605,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-workflow",
+            "length": 1455,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-repair",
+            "length": 971,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-limits",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-repair",
+            "length": 443,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-source",
+            "length": 1172,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-ui",
+            "length": 2518,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-human",
+            "length": 380,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "human-to-repair",
+            "length": 1074,
+            "painted": true,
+            "arrow": true
+          }
+        ],
+        "fallbackHidden": true,
+        "colors": {
+          "background": "rgb(21, 26, 24)",
+          "text": "rgb(242, 244, 239)"
+        },
+        "dark": true
+      },
+      "readable": {
+        "transform": {
+          "x": -550.861,
+          "y": -537.377,
+          "zoom": 1.07936
+        },
+        "cards": [
+          {
+            "id": "zone-client",
+            "width": 356.18902587890625,
+            "height": 1694.59619140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-kernel",
+            "width": 755.552490234375,
+            "height": 1694.59619140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-generation",
+            "width": 539.680419921875,
+            "height": 1694.59619140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "agent-client",
+            "width": 304.37969970703125,
+            "height": 118.72967529296875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "source-context",
+            "width": 304.37969970703125,
+            "height": 148.9517822265625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "access",
+            "width": 304.37969970703125,
+            "height": 194.284912109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "proposals",
+            "width": 304.37969970703125,
+            "height": 179.17388916015625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "repair",
+            "width": 304.37969970703125,
+            "height": 183.4912109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "activity-review",
+            "width": 315.1733703613281,
+            "height": 194.284912109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "surface",
+            "width": 315.17333984375,
+            "height": 194.284912109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "workflow-review",
+            "width": 315.17333984375,
+            "height": 183.4913330078125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-contract",
+            "width": 315.1733703613281,
+            "height": 183.4913330078125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "handoff",
+            "width": 315.1733703613281,
+            "height": 170.53900146484375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "frontend",
+            "width": 315.17333984375,
+            "height": 215.87213134765625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "ui-pass",
+            "width": 468.4425048828125,
+            "height": 170.53900146484375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "evidence",
+            "width": 468.4425048828125,
+            "height": 205.07855224609375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "preflight",
+            "width": 315.17333984375,
+            "height": 205.07855224609375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-review",
+            "width": 315.17333984375,
+            "height": 183.4912109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "verdict",
+            "width": 315.1733703613281,
+            "height": 170.5389404296875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "limits",
+            "width": 684.314697265625,
+            "height": 168.380126953125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "human-task",
+            "width": 468.4425048828125,
+            "height": 168.380126953125,
+            "clipped": [],
+            "scrollOverflow": false
+          }
+        ]
+      },
+      "fallback": {
+        "nodes": [
+          {
+            "id": "zone-client"
+          },
+          {
+            "id": "zone-kernel"
+          },
+          {
+            "id": "zone-generation"
+          },
+          {
+            "id": "agent-client"
+          },
+          {
+            "id": "source-context"
+          },
+          {
+            "id": "access"
+          },
+          {
+            "id": "proposals"
+          },
+          {
+            "id": "repair"
+          },
+          {
+            "id": "activity-review"
+          },
+          {
+            "id": "surface"
+          },
+          {
+            "id": "workflow-review"
+          },
+          {
+            "id": "implementation-contract"
+          },
+          {
+            "id": "handoff"
+          },
+          {
+            "id": "frontend"
+          },
+          {
+            "id": "ui-pass"
+          },
+          {
+            "id": "evidence"
+          },
+          {
+            "id": "preflight"
+          },
+          {
+            "id": "implementation-review"
+          },
+          {
+            "id": "verdict"
+          },
+          {
+            "id": "limits"
+          },
+          {
+            "id": "human-task"
+          }
+        ],
+        "edges": [
+          {
+            "id": "client-to-source",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "source-to-access",
+            "length": 52,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "access-to-activity",
+            "length": 462,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "activity-to-surface",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "surface-to-workflow",
+            "length": 68,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-contract",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "contract-to-handoff",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-handoff",
+            "length": 318,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-frontend",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "frontend-to-ui",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "ui-to-evidence",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-preflight",
+            "length": 144,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-review",
+            "length": 70,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-repair",
+            "length": 934,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "review-to-verdict",
+            "length": 50.35871505737305,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "client-to-proposals",
+            "length": 623,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-activity",
+            "length": 605,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-workflow",
+            "length": 1455,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-repair",
+            "length": 971,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-limits",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-repair",
+            "length": 443,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-source",
+            "length": 1172,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-ui",
+            "length": 2518,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-human",
+            "length": 380,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "human-to-repair",
+            "length": 1074,
+            "painted": true,
+            "arrow": true
+          }
+        ],
+        "visible": true,
+        "applicationMounted": false,
+        "accessibleName": "JudgmentKit system design map",
+        "colors": {
+          "background": "rgb(21, 26, 24)",
+          "text": "rgb(242, 244, 239)"
+        },
+        "dark": true,
+        "cards": [
+          {
+            "id": "zone-client",
+            "width": 147.13815307617188,
+            "height": 700.0208740234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-kernel",
+            "width": 312.1112060546875,
+            "height": 700.0208740234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-generation",
+            "width": 222.93658447265625,
+            "height": 700.0208740234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "agent-client",
+            "width": 125.73623657226562,
+            "height": 49.046051025390625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "source-context",
+            "width": 125.73623657226562,
+            "height": 61.530517578125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "access",
+            "width": 125.73623657226562,
+            "height": 80.25714111328125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "proposals",
+            "width": 125.73623657226562,
+            "height": 74.014892578125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "repair",
+            "width": 125.73623657226562,
+            "height": 75.79840087890625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "activity-review",
+            "width": 130.1949462890625,
+            "height": 80.25717163085938,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "surface",
+            "width": 130.1949462890625,
+            "height": 80.25717163085938,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "workflow-review",
+            "width": 130.1949462890625,
+            "height": 75.7984619140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-contract",
+            "width": 130.1949462890625,
+            "height": 75.7984619140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "handoff",
+            "width": 130.1949462890625,
+            "height": 70.44793701171875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "frontend",
+            "width": 130.1949462890625,
+            "height": 89.17462158203125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "ui-pass",
+            "width": 193.50897216796875,
+            "height": 70.44793701171875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "evidence",
+            "width": 193.50897216796875,
+            "height": 84.71588134765625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "preflight",
+            "width": 130.1949462890625,
+            "height": 84.71588134765625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-review",
+            "width": 130.1949462890625,
+            "height": 75.79840087890625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "verdict",
+            "width": 130.1949462890625,
+            "height": 70.44793701171875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "limits",
+            "width": 282.68359375,
+            "height": 69.55621337890625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "human-task",
+            "width": 193.50897216796875,
+            "height": 69.55621337890625,
+            "clipped": [],
+            "scrollOverflow": false
+          }
+        ]
+      }
+    },
+    {
+      "viewport": "mobile",
+      "appearance": "light",
+      "mounted": {
+        "nodes": [
+          {
+            "id": "zone-client"
+          },
+          {
+            "id": "zone-kernel"
+          },
+          {
+            "id": "zone-generation"
+          },
+          {
+            "id": "agent-client"
+          },
+          {
+            "id": "source-context"
+          },
+          {
+            "id": "access"
+          },
+          {
+            "id": "proposals"
+          },
+          {
+            "id": "repair"
+          },
+          {
+            "id": "activity-review"
+          },
+          {
+            "id": "surface"
+          },
+          {
+            "id": "workflow-review"
+          },
+          {
+            "id": "implementation-contract"
+          },
+          {
+            "id": "handoff"
+          },
+          {
+            "id": "frontend"
+          },
+          {
+            "id": "ui-pass"
+          },
+          {
+            "id": "evidence"
+          },
+          {
+            "id": "preflight"
+          },
+          {
+            "id": "implementation-review"
+          },
+          {
+            "id": "verdict"
+          },
+          {
+            "id": "limits"
+          },
+          {
+            "id": "human-task"
+          }
+        ],
+        "edges": [
+          {
+            "id": "client-to-source",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "source-to-access",
+            "length": 52,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "access-to-activity",
+            "length": 462,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "activity-to-surface",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "surface-to-workflow",
+            "length": 68,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-contract",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "contract-to-handoff",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-handoff",
+            "length": 318,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-frontend",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "frontend-to-ui",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "ui-to-evidence",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-preflight",
+            "length": 144,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-review",
+            "length": 70,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-repair",
+            "length": 934,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "review-to-verdict",
+            "length": 50.35871505737305,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "client-to-proposals",
+            "length": 623,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-activity",
+            "length": 605,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-workflow",
+            "length": 1455,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-repair",
+            "length": 971,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-limits",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-repair",
+            "length": 443,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-source",
+            "length": 1172,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-ui",
+            "length": 2518,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-human",
+            "length": 380,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "human-to-repair",
+            "length": 1074,
+            "painted": true,
+            "arrow": true
+          }
+        ],
+        "fallbackHidden": true,
+        "colors": {
+          "background": "rgb(251, 250, 246)",
+          "text": "rgb(23, 23, 23)"
+        },
+        "dark": false
+      },
+      "readable": {
+        "transform": {
+          "x": -844.272,
+          "y": -825.896,
+          "zoom": 1.16736
+        },
+        "cards": [
+          {
+            "id": "zone-client",
+            "width": 385.22857666015625,
+            "height": 1832.75390625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-kernel",
+            "width": 817.1514892578125,
+            "height": 1832.75390625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-generation",
+            "width": 583.6796875,
+            "height": 1832.75390625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "agent-client",
+            "width": 329.1952819824219,
+            "height": 128.4095458984375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "source-context",
+            "width": 329.1952819824219,
+            "height": 161.09555053710938,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "access",
+            "width": 329.1952819824219,
+            "height": 210.12469482421875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "proposals",
+            "width": 329.1952819824219,
+            "height": 193.7816162109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "repair",
+            "width": 329.1952819824219,
+            "height": 198.4510498046875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "activity-review",
+            "width": 340.868896484375,
+            "height": 210.12469482421875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "surface",
+            "width": 340.86883544921875,
+            "height": 210.12469482421875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "workflow-review",
+            "width": 340.86883544921875,
+            "height": 198.45108032226562,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-contract",
+            "width": 340.868896484375,
+            "height": 198.45108032226562,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "handoff",
+            "width": 340.868896484375,
+            "height": 184.4427490234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "frontend",
+            "width": 340.86883544921875,
+            "height": 233.47186279296875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "ui-pass",
+            "width": 506.6339111328125,
+            "height": 184.4427490234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "evidence",
+            "width": 506.6339111328125,
+            "height": 221.7982177734375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "preflight",
+            "width": 340.86883544921875,
+            "height": 221.7982177734375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-review",
+            "width": 340.86883544921875,
+            "height": 198.4510498046875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "verdict",
+            "width": 340.868896484375,
+            "height": 184.4427490234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "limits",
+            "width": 740.105712890625,
+            "height": 182.1080322265625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "human-task",
+            "width": 506.6339111328125,
+            "height": 182.1080322265625,
+            "clipped": [],
+            "scrollOverflow": false
+          }
+        ]
+      },
+      "fallback": {
+        "nodes": [
+          {
+            "id": "zone-client"
+          },
+          {
+            "id": "zone-kernel"
+          },
+          {
+            "id": "zone-generation"
+          },
+          {
+            "id": "agent-client"
+          },
+          {
+            "id": "source-context"
+          },
+          {
+            "id": "access"
+          },
+          {
+            "id": "proposals"
+          },
+          {
+            "id": "repair"
+          },
+          {
+            "id": "activity-review"
+          },
+          {
+            "id": "surface"
+          },
+          {
+            "id": "workflow-review"
+          },
+          {
+            "id": "implementation-contract"
+          },
+          {
+            "id": "handoff"
+          },
+          {
+            "id": "frontend"
+          },
+          {
+            "id": "ui-pass"
+          },
+          {
+            "id": "evidence"
+          },
+          {
+            "id": "preflight"
+          },
+          {
+            "id": "implementation-review"
+          },
+          {
+            "id": "verdict"
+          },
+          {
+            "id": "limits"
+          },
+          {
+            "id": "human-task"
+          }
+        ],
+        "edges": [
+          {
+            "id": "client-to-source",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "source-to-access",
+            "length": 52,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "access-to-activity",
+            "length": 462,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "activity-to-surface",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "surface-to-workflow",
+            "length": 68,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-contract",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "contract-to-handoff",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-handoff",
+            "length": 318,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-frontend",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "frontend-to-ui",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "ui-to-evidence",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-preflight",
+            "length": 144,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-review",
+            "length": 70,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-repair",
+            "length": 934,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "review-to-verdict",
+            "length": 50.35871505737305,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "client-to-proposals",
+            "length": 623,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-activity",
+            "length": 605,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-workflow",
+            "length": 1455,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-repair",
+            "length": 971,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-limits",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-repair",
+            "length": 443,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-source",
+            "length": 1172,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-ui",
+            "length": 2518,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-human",
+            "length": 380,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "human-to-repair",
+            "length": 1074,
+            "painted": true,
+            "arrow": true
+          }
+        ],
+        "visible": true,
+        "applicationMounted": false,
+        "accessibleName": "JudgmentKit system design map",
+        "colors": {
+          "background": "rgb(251, 250, 246)",
+          "text": "rgb(23, 23, 23)"
+        },
+        "dark": false,
+        "cards": [
+          {
+            "id": "zone-client",
+            "width": 61.72941589355469,
+            "height": 293.6823425292969,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-kernel",
+            "width": 130.94117736816406,
+            "height": 293.6823425292969,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-generation",
+            "width": 93.5294189453125,
+            "height": 293.6823425292969,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "agent-client",
+            "width": 52.750587463378906,
+            "height": 20.57647705078125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "source-context",
+            "width": 52.750587463378906,
+            "height": 25.814117431640625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "access",
+            "width": 52.750587463378906,
+            "height": 33.670562744140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "proposals",
+            "width": 52.750587463378906,
+            "height": 31.0517578125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "repair",
+            "width": 52.750587463378906,
+            "height": 31.79998779296875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "activity-review",
+            "width": 54.621177673339844,
+            "height": 33.67059326171875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "surface",
+            "width": 54.621185302734375,
+            "height": 33.67059326171875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "workflow-review",
+            "width": 54.621185302734375,
+            "height": 31.800018310546875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-contract",
+            "width": 54.621177673339844,
+            "height": 31.800018310546875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "handoff",
+            "width": 54.621177673339844,
+            "height": 29.5552978515625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "frontend",
+            "width": 54.621185302734375,
+            "height": 37.4117431640625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "ui-pass",
+            "width": 81.18353271484375,
+            "height": 29.5552978515625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "evidence",
+            "width": 81.18353271484375,
+            "height": 35.54119873046875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "preflight",
+            "width": 54.621185302734375,
+            "height": 35.54119873046875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-review",
+            "width": 54.621185302734375,
+            "height": 31.79998779296875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "verdict",
+            "width": 54.621177673339844,
+            "height": 29.5552978515625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "limits",
+            "width": 118.59529876708984,
+            "height": 29.18115234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "human-task",
+            "width": 81.18353271484375,
+            "height": 29.18115234375,
+            "clipped": [],
+            "scrollOverflow": false
+          }
+        ]
+      }
+    },
+    {
+      "viewport": "mobile",
+      "appearance": "dark",
+      "mounted": {
+        "nodes": [
+          {
+            "id": "zone-client"
+          },
+          {
+            "id": "zone-kernel"
+          },
+          {
+            "id": "zone-generation"
+          },
+          {
+            "id": "agent-client"
+          },
+          {
+            "id": "source-context"
+          },
+          {
+            "id": "access"
+          },
+          {
+            "id": "proposals"
+          },
+          {
+            "id": "repair"
+          },
+          {
+            "id": "activity-review"
+          },
+          {
+            "id": "surface"
+          },
+          {
+            "id": "workflow-review"
+          },
+          {
+            "id": "implementation-contract"
+          },
+          {
+            "id": "handoff"
+          },
+          {
+            "id": "frontend"
+          },
+          {
+            "id": "ui-pass"
+          },
+          {
+            "id": "evidence"
+          },
+          {
+            "id": "preflight"
+          },
+          {
+            "id": "implementation-review"
+          },
+          {
+            "id": "verdict"
+          },
+          {
+            "id": "limits"
+          },
+          {
+            "id": "human-task"
+          }
+        ],
+        "edges": [
+          {
+            "id": "client-to-source",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "source-to-access",
+            "length": 52,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "access-to-activity",
+            "length": 462,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "activity-to-surface",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "surface-to-workflow",
+            "length": 68,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-contract",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "contract-to-handoff",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-handoff",
+            "length": 318,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-frontend",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "frontend-to-ui",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "ui-to-evidence",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-preflight",
+            "length": 144,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-review",
+            "length": 70,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-repair",
+            "length": 934,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "review-to-verdict",
+            "length": 50.35871505737305,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "client-to-proposals",
+            "length": 623,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-activity",
+            "length": 605,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-workflow",
+            "length": 1455,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-repair",
+            "length": 971,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-limits",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-repair",
+            "length": 443,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-source",
+            "length": 1172,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-ui",
+            "length": 2518,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-human",
+            "length": 380,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "human-to-repair",
+            "length": 1074,
+            "painted": true,
+            "arrow": true
+          }
+        ],
+        "fallbackHidden": true,
+        "colors": {
+          "background": "rgb(21, 26, 24)",
+          "text": "rgb(242, 244, 239)"
+        },
+        "dark": true
+      },
+      "readable": {
+        "transform": {
+          "x": -844.272,
+          "y": -825.896,
+          "zoom": 1.16736
+        },
+        "cards": [
+          {
+            "id": "zone-client",
+            "width": 385.22857666015625,
+            "height": 1832.75390625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-kernel",
+            "width": 817.1514892578125,
+            "height": 1832.75390625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-generation",
+            "width": 583.6796875,
+            "height": 1832.75390625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "agent-client",
+            "width": 329.1952819824219,
+            "height": 128.4095458984375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "source-context",
+            "width": 329.1952819824219,
+            "height": 161.09555053710938,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "access",
+            "width": 329.1952819824219,
+            "height": 210.12469482421875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "proposals",
+            "width": 329.1952819824219,
+            "height": 193.7816162109375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "repair",
+            "width": 329.1952819824219,
+            "height": 198.4510498046875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "activity-review",
+            "width": 340.868896484375,
+            "height": 210.12469482421875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "surface",
+            "width": 340.86883544921875,
+            "height": 210.12469482421875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "workflow-review",
+            "width": 340.86883544921875,
+            "height": 198.45108032226562,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-contract",
+            "width": 340.868896484375,
+            "height": 198.45108032226562,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "handoff",
+            "width": 340.868896484375,
+            "height": 184.4427490234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "frontend",
+            "width": 340.86883544921875,
+            "height": 233.47186279296875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "ui-pass",
+            "width": 506.6339111328125,
+            "height": 184.4427490234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "evidence",
+            "width": 506.6339111328125,
+            "height": 221.7982177734375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "preflight",
+            "width": 340.86883544921875,
+            "height": 221.7982177734375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-review",
+            "width": 340.86883544921875,
+            "height": 198.4510498046875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "verdict",
+            "width": 340.868896484375,
+            "height": 184.4427490234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "limits",
+            "width": 740.105712890625,
+            "height": 182.1080322265625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "human-task",
+            "width": 506.6339111328125,
+            "height": 182.1080322265625,
+            "clipped": [],
+            "scrollOverflow": false
+          }
+        ]
+      },
+      "fallback": {
+        "nodes": [
+          {
+            "id": "zone-client"
+          },
+          {
+            "id": "zone-kernel"
+          },
+          {
+            "id": "zone-generation"
+          },
+          {
+            "id": "agent-client"
+          },
+          {
+            "id": "source-context"
+          },
+          {
+            "id": "access"
+          },
+          {
+            "id": "proposals"
+          },
+          {
+            "id": "repair"
+          },
+          {
+            "id": "activity-review"
+          },
+          {
+            "id": "surface"
+          },
+          {
+            "id": "workflow-review"
+          },
+          {
+            "id": "implementation-contract"
+          },
+          {
+            "id": "handoff"
+          },
+          {
+            "id": "frontend"
+          },
+          {
+            "id": "ui-pass"
+          },
+          {
+            "id": "evidence"
+          },
+          {
+            "id": "preflight"
+          },
+          {
+            "id": "implementation-review"
+          },
+          {
+            "id": "verdict"
+          },
+          {
+            "id": "limits"
+          },
+          {
+            "id": "human-task"
+          }
+        ],
+        "edges": [
+          {
+            "id": "client-to-source",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "source-to-access",
+            "length": 52,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "access-to-activity",
+            "length": 462,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "activity-to-surface",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "surface-to-workflow",
+            "length": 68,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-contract",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "contract-to-handoff",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "workflow-to-handoff",
+            "length": 318,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-frontend",
+            "length": 50,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "frontend-to-ui",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "ui-to-evidence",
+            "length": 82,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-preflight",
+            "length": 144,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-review",
+            "length": 70,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "preflight-to-repair",
+            "length": 934,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "review-to-verdict",
+            "length": 50.35871505737305,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "client-to-proposals",
+            "length": 623,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-activity",
+            "length": 605,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "proposal-to-workflow",
+            "length": 1455,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "handoff-to-repair",
+            "length": 971,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-limits",
+            "length": 152,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "verdict-to-repair",
+            "length": 443,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-source",
+            "length": 1172,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "repair-to-ui",
+            "length": 2518,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "evidence-to-human",
+            "length": 380,
+            "painted": true,
+            "arrow": true
+          },
+          {
+            "id": "human-to-repair",
+            "length": 1074,
+            "painted": true,
+            "arrow": true
+          }
+        ],
+        "visible": true,
+        "applicationMounted": false,
+        "accessibleName": "JudgmentKit system design map",
+        "colors": {
+          "background": "rgb(21, 26, 24)",
+          "text": "rgb(242, 244, 239)"
+        },
+        "dark": true,
+        "cards": [
+          {
+            "id": "zone-client",
+            "width": 61.72941589355469,
+            "height": 293.6823425292969,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-kernel",
+            "width": 130.94117736816406,
+            "height": 293.6823425292969,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "zone-generation",
+            "width": 93.5294189453125,
+            "height": 293.6823425292969,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "agent-client",
+            "width": 52.750587463378906,
+            "height": 20.57647705078125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "source-context",
+            "width": 52.750587463378906,
+            "height": 25.814117431640625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "access",
+            "width": 52.750587463378906,
+            "height": 33.670562744140625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "proposals",
+            "width": 52.750587463378906,
+            "height": 31.0517578125,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "repair",
+            "width": 52.750587463378906,
+            "height": 31.79998779296875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "activity-review",
+            "width": 54.621177673339844,
+            "height": 33.67059326171875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "surface",
+            "width": 54.621185302734375,
+            "height": 33.67059326171875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "workflow-review",
+            "width": 54.621185302734375,
+            "height": 31.800018310546875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-contract",
+            "width": 54.621177673339844,
+            "height": 31.800018310546875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "handoff",
+            "width": 54.621177673339844,
+            "height": 29.5552978515625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "frontend",
+            "width": 54.621185302734375,
+            "height": 37.4117431640625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "ui-pass",
+            "width": 81.18353271484375,
+            "height": 29.5552978515625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "evidence",
+            "width": 81.18353271484375,
+            "height": 35.54119873046875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "preflight",
+            "width": 54.621185302734375,
+            "height": 35.54119873046875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "implementation-review",
+            "width": 54.621185302734375,
+            "height": 31.79998779296875,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "verdict",
+            "width": 54.621177673339844,
+            "height": 29.5552978515625,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "limits",
+            "width": 118.59529876708984,
+            "height": 29.18115234375,
+            "clipped": [],
+            "scrollOverflow": false
+          },
+          {
+            "id": "human-task",
+            "width": 81.18353271484375,
+            "height": 29.18115234375,
+            "clipped": [],
+            "scrollOverflow": false
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -616,6 +616,7 @@ assert.deepEqual(
   Object.keys(packageJson.exports).sort(),
   [
     ".",
+    "./packets",
     "./presentation-theme",
     "./providers/openai-responses",
     "./react",
@@ -630,7 +631,7 @@ assert.deepEqual(
 );
 assert.deepEqual(
   packageJson.files,
-  ["bin/", "contracts/", "examples/ai-native-design-system/", "src/", "README.md", "DESIGN.md"],
+  ["bin/", "contracts/", "examples/ai-native-design-system/", "src/", "README.md", "DESIGN.md", "VISION.md"],
   "The package file allowlist should keep generated outputs out of npm tarballs.",
 );
 assert.equal(

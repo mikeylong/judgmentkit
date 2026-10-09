@@ -1,0 +1,3117 @@
+{
+  "source_sha256": {
+    "src/chart-review.mjs": "3fc675a29c1b68b02bdcd58e1de937472fd22ad0a97612119c866db414f2d6e5",
+    "tests/chart-review-browser.test.mjs": "7d233c3973dfeb3a9b1b0ec3fa6d2fcd169ab87866387628d149a7257192644a"
+  },
+  "implementation_contract": {
+    "id": "judgmentkit.ui-implementation-contract.portable",
+    "purpose": "Give agents an enforceable implementation gate after activity/workflow judgment, so generated UI uses approved project primitives instead of ad hoc controls",
+    "authority_order": [
+      "repo-local interface contract and helper primitives",
+      "external product UI system evidence when explicitly provided",
+      "JudgmentKit portable no-system constraint pack"
+    ],
+    "approved_primitives": [
+      "FormField",
+      "TextField",
+      "TextArea",
+      "SelectField",
+      "CheckboxGroup",
+      "CheckboxOption",
+      "FieldGrid",
+      "ModalActions"
+    ],
+    "primitive_rules": [
+      {
+        "primitive": "FormField",
+        "required": [
+          "programmatic label",
+          "help or error text slot",
+          "disabled and invalid affordances"
+        ]
+      },
+      {
+        "primitive": "CheckboxGroup",
+        "required": [
+          "fieldset and legend semantics",
+          "16px checkbox control",
+          "8px label gap",
+          "top-aligned long labels",
+          "responsive wrapping without oversized gutters"
+        ]
+      },
+      {
+        "primitive": "SelectField",
+        "required": [
+          "native or approved select affordance",
+          "clear unassigned or empty option when optional",
+          "visible focus and disabled states"
+        ]
+      },
+      {
+        "primitive": "ModalActions",
+        "required": [
+          "secondary cancel or dismiss actions precede the primary completion action in non-destructive LTR dialogs",
+          "primary completion action is visually final in non-destructive LTR dialogs",
+          "form dialogs use the primary completion action as the submit or default Enter action",
+          "destructive dialogs are excluded from this ordering rule and require separate destructive-action review"
+        ]
+      }
+    ],
+    "state_coverage": {
+      "required_states": [
+        "empty",
+        "ready",
+        "loading",
+        "error",
+        "disabled",
+        "focus-visible"
+      ],
+      "required_evidence": [
+        "prose, field, and choice labels wrap without overlap while action-button labels remain concise, complete, and single-line",
+        "controls preserve target size and spacing",
+        "keyboard focus reveals equivalent information",
+        "validation and disabled reasons are readable"
+      ]
+    },
+    "static_enforcement": {
+      "default_rules": [
+        "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+        "new primitives or variants require updating the repo-local contract first",
+        "generated UI must include a local check command or equivalent static inspection"
+      ]
+    },
+    "browser_qa": {
+      "required": true,
+      "checks": [
+        "desktop viewport screenshot",
+        "mobile viewport screenshot",
+        "keyboard focus check for interactive controls",
+        "overflow check for long labels, descriptions, and values",
+        "action-button label check for complete, task-specific copy on one line without appended state metadata",
+        "modal or dialog footer order check when dialogs are present",
+        "disabled, empty, error, and ready state review"
+      ]
+    },
+    "default_ai_native_design_system": {
+      "id": "judgmentkit.ai-native-default.contract-v1",
+      "mode": "contract_defaults",
+      "purpose": "Govern agent-generated UI at the contract layer and expose runtime availability only through the canonical component registry.",
+      "primitive_defaults": [
+        "use only approved implementation primitives or documented repo-local equivalents",
+        "new primitives require contract evidence before use",
+        "raw controls stay behind approved helper primitives"
+      ],
+      "surface_patterns": [
+        "activity-first structure before renderer choices",
+        "workbench surfaces keep selection, evidence, decision, and completion state adjacent",
+        "operator review surfaces keep produced work, evidence, risk, bounded decision, and receipt together",
+        "form flows keep labels, validation, review, submit, and confirmation in task order",
+        "setup and debug surfaces may expose implementation detail only when that is the activity"
+      ],
+      "state_rules": [
+        "cover required states from implementation_contract.state_coverage.required_states",
+        "show disabled, error, loading, empty, ready, and focus-visible states with readable reasons",
+        "state names must describe user-visible work state instead of internal lifecycle mechanics"
+      ],
+      "action_boundaries": {
+        "required": [
+          "primary actions must come from the workflow, domain decision, or explicit handoff path",
+          "committing, destructive, financial, publishing, or external side-effect actions require an explicit approval boundary",
+          "diagnostic or setup actions stay secondary unless the activity is setup, debugging, auditing, or integration",
+          "completion actions leave a receipt, result, or handoff reason"
+        ],
+        "risky_action_terms": [
+          "approve",
+          "auto approve",
+          "charge",
+          "delete",
+          "deploy",
+          "execute",
+          "issue refund",
+          "pay",
+          "publish",
+          "refund",
+          "release",
+          "submit order"
+        ],
+        "failure_signals": [
+          "a risky action is exposed without explicit user approval or confirmation evidence",
+          "an unauthorized action is listed in the generated UI candidate",
+          "a diagnostic action is promoted as a primary work action outside setup, debugging, auditing, or integration",
+          "completion can occur without a receipt, result, or handoff reason"
+        ]
+      },
+      "data_visibility": {
+        "primary_data_roles": [
+          "work item identity",
+          "domain evidence",
+          "decision options",
+          "validation and disabled reasons",
+          "completion result or handoff receipt"
+        ],
+        "diagnostic_only_terms": [
+          "MCP server",
+          "tool call",
+          "prompt template",
+          "JSON schema",
+          "resource id",
+          "trace",
+          "model configuration"
+        ],
+        "allowed_diagnostic_contexts": [
+          "setup",
+          "debugging",
+          "auditing",
+          "integration",
+          "explicit source inspection"
+        ],
+        "failure_signals": [
+          "product UI text exposes diagnostic-only terms outside an allowed diagnostic context",
+          "source identifiers, prompts, schemas, traces, or tool mechanics appear as user-facing work vocabulary",
+          "data fields are listed because they exist rather than because they support the activity"
+        ]
+      },
+      "accessibility": {
+        "baseline": "WCAG 2.2 AA",
+        "evidence_source": "implementation_contract.accessibility_policy"
+      },
+      "evidence_gates": [
+        "activity gate before implementation",
+        "workflow review before implementation",
+        "approved primitive evidence",
+        "state coverage evidence",
+        "action boundary evidence when risky actions are present",
+        "data visibility evidence when primary text or fields are supplied",
+        "static enforcement evidence",
+        "desktop and mobile browser QA evidence",
+        "accessibility evidence"
+      ],
+      "adapter_boundary": {
+        "visual_token_adapter": "boundary-only token, font, and icon metadata lives at implementation_contract.visual_token_adapter; it does not select the component runtime",
+        "renderer_package": "the optional JudgmentKit React pilot is exposed by implementation_contract.design_system_source; generic rendering and product state remain consumer-owned"
+      },
+      "component_contracts": [
+        {
+          "id": "action_button",
+          "label": "Action button",
+          "purpose": "Trigger one bounded user action",
+          "use_when": [
+            "the user can commit, cancel, navigate, disclose, or retry a clear action"
+          ],
+          "avoid_when": [
+            "the action is a passive label, status, or unsupported shortcut"
+          ],
+          "anatomy": [
+            "visible label",
+            "optional icon",
+            "state affordance",
+            "progress indicator"
+          ],
+          "required_states": [
+            "ready",
+            "disabled",
+            "focus-visible",
+            "loading"
+          ],
+          "token_bindings": [
+            "text",
+            "border",
+            "focus",
+            "decision",
+            "risk"
+          ],
+          "accessibility_checks": [
+            "accessible name",
+            "keyboard activation",
+            "focus visible",
+            "target size",
+            "loading exposes aria-busy",
+            "every state exposes a complete, task-specific accessible name"
+          ],
+          "review_checks": [
+            "action comes from the workflow",
+            "risky actions have approval-boundary evidence",
+            "the visible label is a complete, task-specific action phrase and remains on one line at every supported viewport",
+            "for English copy, prefer one to four words when clarity permits; localization may use the wording needed for an unambiguous action",
+            "responsive layout allocates enough width or uses shorter copy instead of wrapping, clipping, or truncating the action",
+            "ready, disabled, focus-visible, and loading use semantic state and visual treatment instead of appending state metadata to the visible label",
+            "loading pairs a progress indicator with a concise progress label, exposes aria-busy, and prevents repeat activation"
+          ],
+          "failure_signals": [
+            "icon-only button has no accessible name",
+            "destructive action appears without confirmation evidence",
+            "visible action label wraps onto multiple lines",
+            "state metadata is appended to the visible action label",
+            "a truncated or clipped label hides the complete action",
+            "button label overflows its container at a supported viewport"
+          ]
+        },
+        {
+          "id": "action_group",
+          "label": "Action group",
+          "purpose": "Group related actions with clear priority and boundaries",
+          "use_when": [
+            "several actions affect the same object or decision"
+          ],
+          "avoid_when": [
+            "unrelated actions compete for primary emphasis"
+          ],
+          "anatomy": [
+            "primary action",
+            "secondary actions",
+            "group label or context"
+          ],
+          "required_states": [
+            "ready",
+            "disabled",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "decision",
+            "risk",
+            "border",
+            "spacing"
+          ],
+          "accessibility_checks": [
+            "logical tab order",
+            "visible grouping",
+            "target size"
+          ],
+          "review_checks": [
+            "primary action is singular",
+            "secondary actions remain adjacent to their object"
+          ],
+          "failure_signals": [
+            "multiple primary actions compete",
+            "actions are detached from the evidence they affect"
+          ]
+        },
+        {
+          "id": "form_field",
+          "label": "Form field",
+          "purpose": "Collect one labeled value with help, error, and disabled affordances",
+          "use_when": [
+            "the user enters or changes structured information"
+          ],
+          "avoid_when": [
+            "the value is read-only evidence or status"
+          ],
+          "anatomy": [
+            "label",
+            "control",
+            "help text",
+            "error text"
+          ],
+          "required_states": [
+            "empty",
+            "ready",
+            "error",
+            "disabled",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "text",
+            "border",
+            "focus",
+            "status",
+            "disabled"
+          ],
+          "accessibility_checks": [
+            "programmatic label",
+            "error association",
+            "instructions available"
+          ],
+          "review_checks": [
+            "label uses domain vocabulary",
+            "disabled reason is readable"
+          ],
+          "failure_signals": [
+            "placeholder is the only label",
+            "error is color-only"
+          ]
+        },
+        {
+          "id": "text_field",
+          "label": "Text field",
+          "purpose": "Collect short text or numeric values",
+          "use_when": [
+            "the input is short, single-line, and directly editable"
+          ],
+          "avoid_when": [
+            "long-form text, selection, or multi-value choice is required"
+          ],
+          "anatomy": [
+            "label",
+            "input",
+            "help text",
+            "error text"
+          ],
+          "required_states": [
+            "empty",
+            "ready",
+            "error",
+            "disabled",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "text",
+            "border",
+            "focus",
+            "status"
+          ],
+          "accessibility_checks": [
+            "programmatic label",
+            "input purpose when known",
+            "error association"
+          ],
+          "review_checks": [
+            "input type matches the value",
+            "validation is visible and textual"
+          ],
+          "failure_signals": [
+            "raw input replaces approved primitive",
+            "invalid state lacks text feedback"
+          ]
+        },
+        {
+          "id": "text_area",
+          "label": "Text area",
+          "purpose": "Collect longer written input",
+          "use_when": [
+            "the user writes notes, reasons, instructions, or descriptions"
+          ],
+          "avoid_when": [
+            "a short value or fixed selection is enough"
+          ],
+          "anatomy": [
+            "label",
+            "multi-line control",
+            "help text",
+            "error text"
+          ],
+          "required_states": [
+            "empty",
+            "ready",
+            "error",
+            "disabled",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "text",
+            "border",
+            "focus",
+            "spacing"
+          ],
+          "accessibility_checks": [
+            "programmatic label",
+            "resize or stable height",
+            "error association"
+          ],
+          "review_checks": [
+            "expected content is clear",
+            "long content does not collapse nearby controls"
+          ],
+          "failure_signals": [
+            "text area is used for structured choices",
+            "long text overlaps following content"
+          ]
+        },
+        {
+          "id": "select_field",
+          "label": "Select field",
+          "purpose": "Choose one value from a bounded option set",
+          "use_when": [
+            "options are known and one option is selected"
+          ],
+          "avoid_when": [
+            "free text or multiple independent choices are needed"
+          ],
+          "anatomy": [
+            "label",
+            "trigger or native select",
+            "selected value",
+            "trailing indicator slot",
+            "indicator",
+            "options",
+            "help or error text"
+          ],
+          "required_states": [
+            "empty",
+            "ready",
+            "error",
+            "disabled",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "text",
+            "border",
+            "focus",
+            "surface",
+            "spacing",
+            "density"
+          ],
+          "accessibility_checks": [
+            "name role value",
+            "keyboard operation",
+            "error association"
+          ],
+          "review_checks": [
+            "empty option is clear when optional",
+            "selected value is visible, logical-start aligned, and truncates before the trailing indicator slot",
+            "custom field indicators are centered in a governed trailing slot while compact triggers use their declared compact composition",
+            "native select indicators remain browser-owned unless native appearance is replaced by a declared design-system indicator"
+          ],
+          "failure_signals": [
+            "custom select lacks keyboard evidence",
+            "unassigned state is ambiguous",
+            "custom field equates selected-value start padding with the chevron's physical end inset",
+            "selected value overlaps or enters the trailing indicator slot",
+            "field and compact select composition are conflated"
+          ]
+        },
+        {
+          "id": "checkbox_group",
+          "label": "Checkbox group",
+          "purpose": "Choose independent options from a set",
+          "use_when": [
+            "multiple options can be selected independently"
+          ],
+          "avoid_when": [
+            "the user must choose exactly one option"
+          ],
+          "anatomy": [
+            "legend",
+            "checkbox options",
+            "help or error text"
+          ],
+          "required_states": [
+            "ready",
+            "error",
+            "disabled",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "text",
+            "border",
+            "focus",
+            "spacing"
+          ],
+          "accessibility_checks": [
+            "fieldset and legend",
+            "checked state",
+            "keyboard operation"
+          ],
+          "review_checks": [
+            "long labels wrap cleanly",
+            "options remain independent"
+          ],
+          "failure_signals": [
+            "checkboxes behave like radios",
+            "group has no legend"
+          ]
+        },
+        {
+          "id": "radio_group",
+          "label": "Radio group",
+          "purpose": "Choose exactly one option from a set",
+          "use_when": [
+            "the options are mutually exclusive"
+          ],
+          "avoid_when": [
+            "multiple choices can be selected"
+          ],
+          "anatomy": [
+            "legend",
+            "radio options",
+            "help or error text"
+          ],
+          "required_states": [
+            "empty",
+            "ready",
+            "error",
+            "disabled",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "text",
+            "border",
+            "focus",
+            "spacing"
+          ],
+          "accessibility_checks": [
+            "fieldset and legend",
+            "selected state",
+            "arrow-key operation"
+          ],
+          "review_checks": [
+            "option labels are comparable",
+            "default selection is intentional"
+          ],
+          "failure_signals": [
+            "mutually exclusive options are shown as checkboxes",
+            "selected state is visual-only"
+          ]
+        },
+        {
+          "id": "toggle",
+          "label": "Toggle",
+          "purpose": "Switch a binary setting on or off",
+          "use_when": [
+            "the setting changes between two persistent states"
+          ],
+          "avoid_when": [
+            "the action is one-time, destructive, or requires explanation before commit"
+          ],
+          "anatomy": [
+            "visible label",
+            "switch control",
+            "current state text"
+          ],
+          "required_states": [
+            "ready",
+            "disabled",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "status",
+            "focus",
+            "disabled"
+          ],
+          "accessibility_checks": [
+            "name role value",
+            "keyboard operation",
+            "state text"
+          ],
+          "review_checks": [
+            "label names the setting",
+            "state change is reversible or bounded"
+          ],
+          "failure_signals": [
+            "toggle hides the current state",
+            "toggle performs a destructive action"
+          ]
+        },
+        {
+          "id": "tabs",
+          "label": "Tabs",
+          "purpose": "Switch between peer sections without changing the task object",
+          "use_when": [
+            "sections are peers and the user compares or switches views"
+          ],
+          "avoid_when": [
+            "the flow is ordered or requires completion before the next step"
+          ],
+          "anatomy": [
+            "tab list",
+            "tabs",
+            "active tab",
+            "tab panels"
+          ],
+          "required_states": [
+            "ready",
+            "disabled",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "surface",
+            "border",
+            "focus",
+            "text"
+          ],
+          "accessibility_checks": [
+            "tablist semantics",
+            "keyboard operation",
+            "active panel association"
+          ],
+          "review_checks": [
+            "tabs are peers",
+            "active state is visible"
+          ],
+          "failure_signals": [
+            "tabs are used as a wizard",
+            "inactive panels are unreachable by keyboard"
+          ]
+        },
+        {
+          "id": "menu",
+          "label": "Menu",
+          "purpose": "Reveal a compact set of contextual commands",
+          "use_when": [
+            "secondary commands need disclosure near their object"
+          ],
+          "avoid_when": [
+            "primary decisions or required information are hidden"
+          ],
+          "anatomy": [
+            "trigger",
+            "menu",
+            "menu items",
+            "dismiss behavior"
+          ],
+          "required_states": [
+            "ready",
+            "disabled",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "surface",
+            "border",
+            "focus",
+            "text"
+          ],
+          "accessibility_checks": [
+            "trigger name",
+            "keyboard operation",
+            "dismissal",
+            "focus return"
+          ],
+          "review_checks": [
+            "commands are contextual",
+            "primary path remains visible"
+          ],
+          "failure_signals": [
+            "required action is hidden in a menu",
+            "menu traps focus"
+          ]
+        },
+        {
+          "id": "dialog",
+          "label": "Dialog",
+          "purpose": "Interrupt the current surface for a bounded decision or focused form",
+          "use_when": [
+            "the user must confirm, complete, or inspect a focused task before returning"
+          ],
+          "avoid_when": [
+            "content can stay inline or the decision is not blocking"
+          ],
+          "anatomy": [
+            "title",
+            "body",
+            "dismiss action",
+            "primary action"
+          ],
+          "required_states": [
+            "ready",
+            "loading",
+            "error",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "surface",
+            "border",
+            "focus",
+            "decision",
+            "risk"
+          ],
+          "accessibility_checks": [
+            "dialog semantics",
+            "focus management",
+            "escape or dismiss",
+            "no keyboard trap"
+          ],
+          "review_checks": [
+            "primary action is visually final",
+            "cancel or dismiss precedes primary action"
+          ],
+          "failure_signals": [
+            "dialog lacks dismiss path",
+            "focus is not returned after close"
+          ]
+        },
+        {
+          "id": "alert",
+          "label": "Alert",
+          "purpose": "Call attention to important status, risk, or required action",
+          "use_when": [
+            "the user needs immediate status, warning, error, or success context"
+          ],
+          "avoid_when": [
+            "the message is ordinary helper text"
+          ],
+          "anatomy": [
+            "status indicator",
+            "message",
+            "optional action"
+          ],
+          "required_states": [
+            "ready",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "status",
+            "risk",
+            "receipt",
+            "text"
+          ],
+          "accessibility_checks": [
+            "status or alert semantics",
+            "non-color cue",
+            "readable message"
+          ],
+          "review_checks": [
+            "severity matches the action needed",
+            "message explains next step"
+          ],
+          "failure_signals": [
+            "color is the only severity cue",
+            "alert repeats unrelated information"
+          ]
+        },
+        {
+          "id": "table",
+          "label": "Table",
+          "purpose": "Compare structured rows and columns",
+          "use_when": [
+            "the user scans, compares, sorts, or verifies tabular records"
+          ],
+          "avoid_when": [
+            "cards or prose better support the activity"
+          ],
+          "anatomy": [
+            "caption or heading",
+            "headers",
+            "rows",
+            "cells",
+            "empty state"
+          ],
+          "required_states": [
+            "empty",
+            "ready",
+            "loading",
+            "error",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "surface",
+            "border",
+            "text",
+            "spacing"
+          ],
+          "accessibility_checks": [
+            "header associations",
+            "caption or label",
+            "keyboard reachable controls"
+          ],
+          "review_checks": [
+            "columns support decisions",
+            "empty and loading states are clear"
+          ],
+          "failure_signals": [
+            "fields are shown only because they exist",
+            "wide table overflows without review"
+          ]
+        },
+        {
+          "id": "panel",
+          "label": "Panel",
+          "purpose": "Group related work, evidence, or controls in a bounded region",
+          "use_when": [
+            "a region needs a readable boundary and heading"
+          ],
+          "avoid_when": [
+            "nested cards or decorative wrappers add noise"
+          ],
+          "anatomy": [
+            "heading",
+            "content region",
+            "optional actions"
+          ],
+          "required_states": [
+            "ready",
+            "loading",
+            "error"
+          ],
+          "token_bindings": [
+            "surface",
+            "border",
+            "spacing",
+            "text"
+          ],
+          "accessibility_checks": [
+            "heading hierarchy",
+            "region label when useful",
+            "responsive no overflow"
+          ],
+          "review_checks": [
+            "panel groups one coherent concern",
+            "actions are adjacent to content"
+          ],
+          "failure_signals": [
+            "card inside card nesting creates visual clutter",
+            "panel title is generic"
+          ]
+        },
+        {
+          "id": "card",
+          "label": "Card",
+          "purpose": "Summarize one repeated item or choice",
+          "use_when": [
+            "items repeat and each needs a compact summary"
+          ],
+          "avoid_when": [
+            "the layout becomes a decorative page section"
+          ],
+          "anatomy": [
+            "item title",
+            "summary",
+            "metadata",
+            "optional action"
+          ],
+          "required_states": [
+            "ready",
+            "disabled",
+            "focus-visible"
+          ],
+          "token_bindings": [
+            "surface",
+            "border",
+            "spacing",
+            "text"
+          ],
+          "accessibility_checks": [
+            "clear heading",
+            "focus target when clickable",
+            "non-text contrast"
+          ],
+          "review_checks": [
+            "card represents one object",
+            "interactive area is clear"
+          ],
+          "failure_signals": [
+            "page sections are styled as cards",
+            "clickable card lacks keyboard evidence"
+          ]
+        },
+        {
+          "id": "status_message",
+          "label": "Status message",
+          "purpose": "Report progress, result, validation, or completion",
+          "use_when": [
+            "the user needs to know what happened or what to do next"
+          ],
+          "avoid_when": [
+            "status is decorative or duplicates nearby text"
+          ],
+          "anatomy": [
+            "status text",
+            "severity or result",
+            "optional next action"
+          ],
+          "required_states": [
+            "ready",
+            "loading",
+            "error"
+          ],
+          "token_bindings": [
+            "status",
+            "risk",
+            "receipt",
+            "text"
+          ],
+          "accessibility_checks": [
+            "live-region behavior when async",
+            "non-color cue",
+            "plain-language message"
+          ],
+          "review_checks": [
+            "message names the user-relevant result",
+            "completion leaves a receipt"
+          ],
+          "failure_signals": [
+            "spinner has no status text",
+            "success state lacks receipt or next action"
+          ]
+        }
+      ],
+      "pattern_contracts": [
+        {
+          "id": "marketing",
+          "label": "Marketing surface",
+          "surface_type": "marketing",
+          "purpose": "Orient a visitor to an offer and move them to a clear next step",
+          "required_regions": [
+            "offer",
+            "proof",
+            "primary next step"
+          ],
+          "expected_controls": [
+            "primary call to action",
+            "secondary information path"
+          ],
+          "completion_or_handoff": "visitor understands the offer and can take the next step",
+          "disclosure_boundary": "implementation detail stays out of public persuasion copy",
+          "accessibility_expectations": [
+            "readable media text",
+            "semantic headings",
+            "keyboard reachable calls to action"
+          ],
+          "failure_signals": [
+            "decorative polish replaces proof",
+            "primary offer is unclear"
+          ]
+        },
+        {
+          "id": "workbench",
+          "label": "Workbench",
+          "surface_type": "workbench",
+          "purpose": "Help a user repeatedly inspect, compare, decide, and act",
+          "required_regions": [
+            "work queue",
+            "detail workspace",
+            "evidence",
+            "decision or handoff"
+          ],
+          "expected_controls": [
+            "selection",
+            "filter or sort",
+            "decision action",
+            "handoff action"
+          ],
+          "completion_or_handoff": "selected work item advances or leaves a clear handoff",
+          "disclosure_boundary": "diagnostics stay secondary unless the activity is inspection",
+          "accessibility_expectations": [
+            "selection state",
+            "focus order across regions",
+            "responsive no overflow"
+          ],
+          "failure_signals": [
+            "queue rows explain too much while detail lacks evidence",
+            "decision controls are detached from evidence"
+          ]
+        },
+        {
+          "id": "operator_review",
+          "label": "Operator review",
+          "surface_type": "operator_review",
+          "purpose": "Review produced work, evidence, risk, and a bounded next action",
+          "required_regions": [
+            "produced work",
+            "evidence",
+            "risk",
+            "decision",
+            "receipt"
+          ],
+          "expected_controls": [
+            "approve or accept",
+            "return or request changes",
+            "handoff action"
+          ],
+          "completion_or_handoff": "review produces a decision reason and receipt",
+          "disclosure_boundary": "raw system mechanics appear only as diagnostic evidence",
+          "accessibility_expectations": [
+            "risk is not color-only",
+            "decision controls have approval boundaries",
+            "receipt is textual"
+          ],
+          "failure_signals": [
+            "system output is trusted without evidence",
+            "risky action has no approval boundary"
+          ]
+        },
+        {
+          "id": "form_flow",
+          "label": "Form flow",
+          "surface_type": "form_flow",
+          "purpose": "Collect or change structured information with validation",
+          "required_regions": [
+            "inputs",
+            "validation",
+            "review or submit",
+            "confirmation"
+          ],
+          "expected_controls": [
+            "field controls",
+            "submit action",
+            "cancel or back action"
+          ],
+          "completion_or_handoff": "valid information is saved or submitted with confirmation",
+          "disclosure_boundary": "field labels use domain language instead of schema names",
+          "accessibility_expectations": [
+            "programmatic labels",
+            "text errors",
+            "status messages"
+          ],
+          "failure_signals": [
+            "validation is color-only",
+            "schema fields are exposed as product labels"
+          ]
+        },
+        {
+          "id": "dashboard_monitor",
+          "label": "Dashboard monitor",
+          "surface_type": "dashboard_monitor",
+          "purpose": "Track status, exceptions, trends, or operational health",
+          "required_regions": [
+            "status summary",
+            "exceptions",
+            "trend or comparison",
+            "follow-up path"
+          ],
+          "expected_controls": [
+            "filter",
+            "time range",
+            "drill in"
+          ],
+          "completion_or_handoff": "user knows current state and whether follow-up is needed",
+          "disclosure_boundary": "metrics explain operational meaning, not storage or API mechanics",
+          "accessibility_expectations": [
+            "chart alternatives",
+            "non-color status cues",
+            "keyboard reachable filters"
+          ],
+          "failure_signals": [
+            "metrics lack decision meaning",
+            "charts carry meaning without text fallback"
+          ]
+        },
+        {
+          "id": "content_report",
+          "label": "Content or report",
+          "surface_type": "content_report",
+          "purpose": "Help the user read, understand, cite, or share information",
+          "required_regions": [
+            "summary",
+            "sections",
+            "evidence or references",
+            "share or export"
+          ],
+          "expected_controls": [
+            "table of contents",
+            "copy or export",
+            "reference navigation"
+          ],
+          "completion_or_handoff": "reader understands, cites, exports, or shares the material",
+          "disclosure_boundary": "source mechanics appear only when provenance is part of the report",
+          "accessibility_expectations": [
+            "semantic headings",
+            "link purpose",
+            "readable long-form text"
+          ],
+          "failure_signals": [
+            "report is broken into app chrome without reading hierarchy",
+            "references are missing"
+          ]
+        },
+        {
+          "id": "setup_debug_tool",
+          "label": "Setup or debugging tool",
+          "surface_type": "setup_debug_tool",
+          "purpose": "Configure, inspect, test, or troubleshoot machinery",
+          "required_regions": [
+            "configuration",
+            "test result",
+            "diagnostic detail",
+            "next fix"
+          ],
+          "expected_controls": [
+            "run test",
+            "copy diagnostic",
+            "retry or repair"
+          ],
+          "completion_or_handoff": "setup is valid or failure has a cause and next fix",
+          "disclosure_boundary": "implementation detail is allowed because it is the work material",
+          "accessibility_expectations": [
+            "log text is readable",
+            "test status has text",
+            "keyboard reachable diagnostics"
+          ],
+          "failure_signals": [
+            "diagnostics appear without remediation",
+            "raw logs replace user-facing result"
+          ]
+        },
+        {
+          "id": "conversation",
+          "label": "Conversation",
+          "surface_type": "conversation",
+          "purpose": "Support open-ended exchange where the thread is the product surface",
+          "required_regions": [
+            "message history",
+            "composer",
+            "context or attachments",
+            "status"
+          ],
+          "expected_controls": [
+            "send",
+            "attach or reference",
+            "recover or retry"
+          ],
+          "completion_or_handoff": "conversation continues, recovers, or closes with context intact",
+          "disclosure_boundary": "system traces stay hidden unless explicitly requested",
+          "accessibility_expectations": [
+            "message order",
+            "composer label",
+            "status updates"
+          ],
+          "failure_signals": [
+            "message state is visual-only",
+            "composer lacks recovery after failure"
+          ]
+        }
+      ]
+    },
+    "iteration_policy": {
+      "owner": "agent",
+      "default_max_attempts": 3,
+      "loop": [
+        "generate",
+        "review",
+        "repair",
+        "resubmit"
+      ],
+      "pass_status": "accept",
+      "failure_statuses": [
+        "repair_and_resubmit",
+        "stop_for_human"
+      ],
+      "judgmentkit_role": "review generated UI evidence and return structured failures; do not mutate files or call a provider model"
+    },
+    "design_system_source": {
+      "id": "judgmentkit.design-system.source-v1",
+      "mode": "judgmentkit_default",
+      "name": "JudgmentKit",
+      "package": "judgmentkit",
+      "definition_point": "implementation_contract",
+      "required_authorities": [
+        "tokens",
+        "fonts",
+        "icons",
+        "components"
+      ],
+      "fallback_policy": "fail_incomplete",
+      "provenance_required": true,
+      "source_exports": {
+        "overview": "/design-system/",
+        "manifest": "/design-system/manifest.json",
+        "visual_token_adapter": "/design-system/visual-token-adapter.json",
+        "component_inventory": "/design-system/component-inventory.json",
+        "component_registry": "/design-system/component-registry.json",
+        "component_contracts": "/design-system/component-contracts.json",
+        "react_components": "judgmentkit/react",
+        "react_styles": "judgmentkit/react/styles.css",
+        "pattern_contracts": "/design-system/pattern-contracts.json",
+        "surface_presentation_profiles": "/design-system/surface-presentation-profiles.json",
+        "accessibility_policy": "/design-system/accessibility-policy.json",
+        "icon_catalog": "/design-system/icons/",
+        "icon_tools": [
+          "list_icon_catalog",
+          "search_icon_catalog",
+          "get_icon_svg"
+        ],
+        "visual_composition_policy": "/design-system/visual-composition-policy.json"
+      },
+      "token_prefixes": [
+        "--jk-"
+      ],
+      "icon_catalog": {
+        "source": "committed_generated_catalog",
+        "library": "lucide",
+        "package": "lucide-static",
+        "version": "1.21.0",
+        "icon_count": 1737,
+        "license": "ISC",
+        "notice": "Some Lucide icons are derived from Feather Icons and retain the Feather MIT notice; see THIRD_PARTY_NOTICES.md",
+        "style_system": "Lucide 24px outline icons with round caps and joins",
+        "style_attributes": {
+          "viewBox": "0 0 24 24",
+          "fill": "none",
+          "stroke": "currentColor",
+          "stroke_width": "2",
+          "stroke_linecap": "round",
+          "stroke_linejoin": "round",
+          "size": "24"
+        },
+        "mcp_tools": [
+          "list_icon_catalog",
+          "search_icon_catalog",
+          "get_icon_svg"
+        ],
+        "default_include_svg": false
+      },
+      "renderer_components": [
+        "action_button",
+        "action_group",
+        "form_field",
+        "text_field",
+        "text_area",
+        "select_field",
+        "checkbox_group",
+        "radio_group",
+        "toggle",
+        "tabs",
+        "menu",
+        "dialog",
+        "alert",
+        "table",
+        "panel",
+        "card",
+        "status_message"
+      ],
+      "component_contract_source": "implementation_contract.default_ai_native_design_system.component_contracts",
+      "provenance_rules": [
+        "visual tokens, fonts, icons, and renderer components must come from this active design-system source",
+        "local CSS may define layout and UI structure but must not become the source of visual tokens, typography, icon assets, or renderer components",
+        "external design systems must be supplied as complete contract-time adapters; missing authorities do not fall back to JudgmentKit defaults"
+      ]
+    },
+    "chart_review_required": true,
+    "chart_review_obligation": {
+      "required": true,
+      "scope": "owned_interface",
+      "status": "data_oracle_declared",
+      "reason": "explicit_chart_review_requirement",
+      "source_paths": [],
+      "required_checks": [
+        "label_collision",
+        "label_clipping",
+        "selected_data_correspondence"
+      ]
+    },
+    "chart_review_policy": {
+      "id": "judgmentkit.chart-review.v1",
+      "version": "1.0.0",
+      "required_checks": [
+        "label_collision",
+        "label_clipping",
+        "selected_data_correspondence"
+      ],
+      "required_viewports": [
+        {
+          "id": "desktop",
+          "width": 1280,
+          "height": 800
+        },
+        {
+          "id": "mobile",
+          "width": 390,
+          "height": 844
+        }
+      ],
+      "data_cases": [
+        {
+          "state_id": "outer-clipped",
+          "source_ref": "review:synthetic-known-line",
+          "selection": {},
+          "points": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 1,
+              "y": 1
+            }
+          ],
+          "x_domain": [
+            0,
+            1
+          ],
+          "y_domain": [
+            0,
+            1
+          ],
+          "required_labels": [
+            {
+              "text": "start",
+              "role": "x_axis"
+            },
+            {
+              "text": "end",
+              "role": "x_axis"
+            }
+          ],
+          "data_sha256": "1c7f0990340fcb6a969b2b1d97d01b48a5da27612b0cca64f5348c9211bc57dc"
+        }
+      ],
+      "max_series_delta_css_px": 1.5,
+      "evidence_authority": "trusted_static_browser_observation",
+      "unsupported_claims": [
+        "interactive_selection_transitions",
+        "canvas_or_webgl_data_correspondence",
+        "axis_label_unit_semantics",
+        "chart_accessibility_compliance",
+        "human_task_completion",
+        "artifact_inspector_interactive_attestation"
+      ]
+    },
+    "visual_composition_policy": {
+      "kind": "visual_composition_policy",
+      "id": "judgmentkit.visual-composition.adapter-v1",
+      "version": "1.1.0",
+      "layer": "implementation_adapter",
+      "enforcement": "required_when_applicable",
+      "authority": {
+        "presentation_owner": "implementation_contract.design_system_source or a declared repo-local component authority",
+        "runtime": {
+          "may": [
+            "resolve declared rules, component-family calibrations, presentation ownership, and canonical asset references",
+            "measure rendered DOM geometry after fonts are ready",
+            "compare observations with the named component-family calibration",
+            "emit pass, fail, pass_with_warning, review, or not_applicable evidence"
+          ],
+          "must_not": [
+            "infer an undeclared composition or presentation owner from appearance",
+            "invent or apply a universal optical-alignment threshold",
+            "manufacture a DOM rectangle for a browser-owned select indicator",
+            "mutate a protected atom or canonical lockup",
+            "treat this implementation-adapter policy as a JudgmentKit kernel judgment"
+          ]
+        }
+      },
+      "outcomes": {
+        "precedence": [
+          "fail",
+          "review",
+          "pass_with_warning",
+          "pass",
+          "not_applicable"
+        ],
+        "browser_owned_indicator": {
+          "outcome": "pass_with_warning",
+          "code": "browser_owned_indicator_unmeasured"
+        },
+        "missing_intent_or_authority": {
+          "outcome": "review"
+        },
+        "declared_relationship_inactive": {
+          "outcome": "not_applicable",
+          "code": "relationship_inactive_at_viewport"
+        },
+        "no_declared_relationships": {
+          "outcome": "not_applicable",
+          "code": "no_applicable_contract"
+        }
+      },
+      "receipt_contract": {
+        "kind": "visual_composition_evidence",
+        "version": "1.0.0",
+        "trusted_issuer": "judgmentkit_browser_runtime",
+        "required_fields": [
+          "kind",
+          "version",
+          "policy_ref",
+          "contract_ref",
+          "manifest_ref",
+          "candidate_ref",
+          "environment",
+          "documents",
+          "samples",
+          "outcome"
+        ],
+        "accepted_outcomes": [
+          "pass",
+          "fail",
+          "pass_with_warning",
+          "review",
+          "not_applicable"
+        ],
+        "accepted_codes": {
+          "pass": [
+            "inline_pair.box_center",
+            "shared_anchor.block_start",
+            "shared_anchor.inline_start",
+            "protected_atom.single_line",
+            "presentation_owner.select_indicator",
+            "canonical_lockup.asset"
+          ],
+          "fail": [
+            "inline_pair_box_center_delta_exceeded",
+            "shared_block_start_spread_exceeded",
+            "shared_inline_start_spread_exceeded",
+            "protected_atom_fragmented",
+            "owned_select_composition_mismatch",
+            "canonical_lockup_asset_mismatch",
+            "sample_root_missing",
+            "sample_root_not_rendered",
+            "relationship_members_missing",
+            "relationship_member_not_rendered",
+            "protected_atom_missing",
+            "protected_atom_not_rendered",
+            "select_control_missing",
+            "select_control_not_rendered",
+            "owned_select_parts_missing",
+            "owned_select_part_not_rendered",
+            "canonical_lockup_not_rendered",
+            "relationship_limit_exceeded"
+          ],
+          "pass_with_warning": [
+            "browser_owned_indicator_unmeasured"
+          ],
+          "review": [
+            "presentation_owner_undeclared",
+            "calibration_missing",
+            "canonical_lockup_undeclared",
+            "unsupported_rule_kind"
+          ],
+          "not_applicable": [
+            "relationship_inactive_at_viewport",
+            "no_applicable_contract"
+          ]
+        },
+        "warning_codes": [
+          "browser_owned_indicator_unmeasured"
+        ],
+        "review_codes": [
+          "presentation_owner_undeclared",
+          "calibration_missing",
+          "canonical_lockup_undeclared",
+          "unsupported_rule_kind"
+        ],
+        "not_applicable_codes": [
+          "relationship_inactive_at_viewport",
+          "no_applicable_contract"
+        ]
+      },
+      "rules": [
+        {
+          "id": "inline_pair.box_center",
+          "kind": "inline_pair",
+          "axis": "block",
+          "anchor": "box_center",
+          "measurement": "member_box_center_delta_css_px",
+          "failure_code": "inline_pair_box_center_delta_exceeded",
+          "message": "Declared inline peers do not share the governed box center."
+        },
+        {
+          "id": "shared_anchor.block_start",
+          "kind": "shared_anchor",
+          "axis": "block",
+          "anchor": "block_start",
+          "measurement": "member_start_edge_spread_css_px",
+          "failure_code": "shared_block_start_spread_exceeded",
+          "message": "Declared members do not share the governed block-start anchor."
+        },
+        {
+          "id": "shared_anchor.inline_start",
+          "kind": "shared_anchor",
+          "axis": "inline",
+          "anchor": "inline_start",
+          "measurement": "member_logical_start_edge_spread_css_px",
+          "failure_code": "shared_inline_start_spread_exceeded",
+          "message": "Declared members do not share the governed logical inline-start anchor."
+        },
+        {
+          "id": "protected_atom.single_line",
+          "kind": "protected_atom",
+          "measurement": "text_line_box_count",
+          "failure_code": "protected_atom_fragmented",
+          "message": "The declared semantic atom wrapped or escaped its containing composition."
+        },
+        {
+          "id": "presentation_owner.select_indicator",
+          "kind": "presentation_owner",
+          "part": "select_indicator",
+          "supported_owners": [
+            "browser",
+            "design_system"
+          ],
+          "design_system_measurement": "contract_declared_select_composition_variant_geometry_css_px",
+          "failure_code": "owned_select_composition_mismatch",
+          "warning_code": "browser_owned_indicator_unmeasured",
+          "message": "The design-system-owned select indicator does not satisfy its declared composition calibration."
+        },
+        {
+          "id": "canonical_lockup.asset",
+          "kind": "canonical_lockup",
+          "measurement": "single_declared_asset_reference",
+          "failure_code": "canonical_lockup_asset_mismatch",
+          "message": "The rendered lockup is not the declared canonical asset.",
+          "lockups": {}
+        }
+      ],
+      "calibrations": {
+        "judgmentkit.inline_pair.box_center": {
+          "component_family": "judgmentkit.inline_pair",
+          "rule_id": "inline_pair.box_center",
+          "max_box_center_delta_css_px": 1
+        },
+        "judgmentkit.shared_anchor.block_start": {
+          "component_family": "judgmentkit.shared_anchor.block_start",
+          "rule_id": "shared_anchor.block_start",
+          "max_spread_css_px": 1
+        },
+        "judgmentkit.shared_anchor.inline_start": {
+          "component_family": "judgmentkit.shared_anchor.inline_start",
+          "rule_id": "shared_anchor.inline_start",
+          "max_spread_css_px": 1
+        },
+        "judgmentkit.protected_atom.single_line": {
+          "component_family": "judgmentkit.protected_atom",
+          "rule_id": "protected_atom.single_line",
+          "max_text_line_boxes": 1
+        },
+        "judgmentkit.select_indicator.centered_label_symmetric_rails": {
+          "component_family": "judgmentkit.select_indicator",
+          "rule_id": "presentation_owner.select_indicator",
+          "composition_variant": "centered_label_symmetric_rails",
+          "accessory_rail_width_css_px": 36,
+          "max_label_center_delta_css_px": 1,
+          "max_logical_rail_delta_css_px": 2
+        },
+        "judgmentkit.select_indicator.field_value_trailing_indicator_slot": {
+          "component_family": "judgmentkit.select_indicator.field",
+          "rule_id": "presentation_owner.select_indicator",
+          "composition_variant": "field_value_trailing_indicator_slot",
+          "expected_value_start_inset_css_px": 16,
+          "expected_indicator_slot_width_css_px": 48,
+          "expected_indicator_inline_size_css_px": 16,
+          "minimum_value_indicator_gap_css_px": 16,
+          "max_geometry_delta_css_px": 2,
+          "max_indicator_slot_center_delta_css_px": 1
+        }
+      },
+      "sha256": "3b406d9d432007665b86a0623f1763b4e92b030b66b3f87d03881fe9bd351719"
+    },
+    "visual_composition_policy_authority": "judgmentkit_default_adapter",
+    "local_component_authority": {
+      "mode": "none",
+      "enforcement": "optional",
+      "families": [],
+      "selector_boundary": {
+        "allowed": [
+          "layout-only selectors may arrange approved primitives and repo-local components",
+          "component-specific selectors must not recreate visual identity"
+        ],
+        "component_selector_examples": [
+          ".card",
+          ".panel",
+          ".button",
+          "[data-component]"
+        ],
+        "layout_only_declarations": [
+          "display",
+          "grid",
+          "flex",
+          "gap",
+          "margin",
+          "width",
+          "height",
+          "position",
+          "overflow",
+          "align",
+          "justify"
+        ],
+        "blocked_visual_identity_declarations": [
+          "color",
+          "background",
+          "border",
+          "box-shadow",
+          "font",
+          "padding",
+          "text-transform",
+          "letter-spacing",
+          "outline",
+          "fill",
+          "stroke"
+        ]
+      },
+      "token_boundary": {
+        "direct_token_prefixes": [
+          "--jk-"
+        ],
+        "layout_token_exceptions": [
+          "--jk-space-"
+        ],
+        "rule": "One-off component selectors must not consume JudgmentKit visual tokens directly; use repo-local components or the active design-system source."
+      },
+      "computed_style_evidence": {
+        "required_when": "mode is repo_local or enforcement is required and component-specific visual styling changes",
+        "expectations": [
+          "name the local component family or selector being verified",
+          "include computed style evidence for visual identity supplied by repo-local authority",
+          "cover affected states and desktop/mobile viewports when selectors alter component presentation"
+        ]
+      }
+    },
+    "visual_token_adapter": {
+      "id": "judgmentkit.visual-token-adapter.boundary-v1",
+      "mode": "boundary_only",
+      "purpose": "Define semantic token, font, and icon evidence after contract governance without selecting or loading a component runtime",
+      "token_families": [
+        "color",
+        "type",
+        "spacing",
+        "radius",
+        "density",
+        "elevation",
+        "motion",
+        "semantic"
+      ],
+      "token_roles": [
+        {
+          "role": "surface",
+          "families": [
+            "color",
+            "elevation"
+          ],
+          "usage": "backgrounds, panels, overlays, and work-surface regions"
+        },
+        {
+          "role": "text",
+          "families": [
+            "color",
+            "type"
+          ],
+          "usage": "body copy, headings, labels, and dense operational text"
+        },
+        {
+          "role": "border",
+          "families": [
+            "color",
+            "radius"
+          ],
+          "usage": "control boundaries, dividers, panels, and grouped evidence"
+        },
+        {
+          "role": "focus",
+          "families": [
+            "color",
+            "motion"
+          ],
+          "usage": "visible focus indicators and keyboard navigation affordances"
+        },
+        {
+          "role": "status",
+          "families": [
+            "color",
+            "semantic"
+          ],
+          "usage": "success, warning, error, loading, and empty states"
+        },
+        {
+          "role": "decision",
+          "families": [
+            "color",
+            "density"
+          ],
+          "usage": "primary decision controls and bounded action groups"
+        },
+        {
+          "role": "risk",
+          "families": [
+            "color",
+            "semantic"
+          ],
+          "usage": "risk, escalation, destructive, or externally committing actions"
+        },
+        {
+          "role": "disabled",
+          "families": [
+            "color",
+            "semantic"
+          ],
+          "usage": "disabled controls and unavailable state reasons"
+        },
+        {
+          "role": "receipt",
+          "families": [
+            "color",
+            "semantic"
+          ],
+          "usage": "completion, confirmation, and handoff receipt states"
+        }
+      ],
+      "css_custom_properties": [
+        {
+          "name": "--jk-color-canvas",
+          "role": "surface",
+          "family": "color",
+          "value": "#f8f7f2",
+          "usage": "page canvas and application background"
+        },
+        {
+          "name": "--jk-color-surface",
+          "role": "surface",
+          "family": "color",
+          "value": "#ffffff",
+          "usage": "panels, cards, overlays, and work regions"
+        },
+        {
+          "name": "--jk-color-text",
+          "role": "text",
+          "family": "color",
+          "value": "#171717",
+          "usage": "primary readable text"
+        },
+        {
+          "name": "--jk-color-muted",
+          "role": "text",
+          "family": "color",
+          "value": "#61615c",
+          "usage": "secondary labels and supporting text"
+        },
+        {
+          "name": "--jk-color-border",
+          "role": "border",
+          "family": "color",
+          "value": "#d7d3c8",
+          "usage": "dividers, control outlines, and grouped evidence"
+        },
+        {
+          "name": "--jk-color-focus",
+          "role": "focus",
+          "family": "color",
+          "value": "#245f73",
+          "usage": "visible focus rings and active affordances"
+        },
+        {
+          "name": "--jk-color-success",
+          "role": "status",
+          "family": "color",
+          "value": "#2e6b48",
+          "usage": "approved, completed, and successful states"
+        },
+        {
+          "name": "--jk-color-warning",
+          "role": "status",
+          "family": "color",
+          "value": "#8a5a16",
+          "usage": "warning, waiting, and needs-attention states"
+        },
+        {
+          "name": "--jk-color-risk",
+          "role": "risk",
+          "family": "color",
+          "value": "#8f342f",
+          "usage": "risk, escalation, and destructive action states"
+        },
+        {
+          "name": "--jk-color-disabled",
+          "role": "disabled",
+          "family": "color",
+          "value": "#8a8f93",
+          "usage": "disabled controls with visible rationale"
+        },
+        {
+          "name": "--jk-color-receipt",
+          "role": "receipt",
+          "family": "color",
+          "value": "#23615f",
+          "usage": "handoff receipts and completion confirmation"
+        },
+        {
+          "name": "--jk-space-2",
+          "role": "surface",
+          "family": "spacing",
+          "value": "0.5rem",
+          "usage": "compact gaps inside dense controls"
+        },
+        {
+          "name": "--jk-space-3",
+          "role": "surface",
+          "family": "spacing",
+          "value": "0.75rem",
+          "usage": "row gaps and adjacent evidence spacing"
+        },
+        {
+          "name": "--jk-space-4",
+          "role": "surface",
+          "family": "spacing",
+          "value": "1rem",
+          "usage": "panel padding and section rhythm"
+        },
+        {
+          "name": "--jk-select-value-start-space",
+          "role": "surface",
+          "family": "spacing",
+          "value": "1rem",
+          "usage": "logical-start spacing for selected value text in a field select"
+        },
+        {
+          "name": "--jk-select-indicator-slot-width",
+          "role": "surface",
+          "family": "spacing",
+          "value": "3rem",
+          "usage": "reserved logical-end slot for a design-system-owned field-select indicator"
+        },
+        {
+          "name": "--jk-select-indicator-size",
+          "role": "surface",
+          "family": "density",
+          "value": "1rem",
+          "usage": "inline and block size of the field-select disclosure indicator"
+        },
+        {
+          "name": "--jk-radius-control",
+          "role": "border",
+          "family": "radius",
+          "value": "4px",
+          "usage": "buttons, inputs, and compact controls"
+        },
+        {
+          "name": "--jk-radius-panel",
+          "role": "surface",
+          "family": "radius",
+          "value": "8px",
+          "usage": "cards, panels, and bounded work areas"
+        },
+        {
+          "name": "--jk-focus-ring",
+          "role": "focus",
+          "family": "semantic",
+          "value": "0 0 0 3px rgba(36, 95, 115, 0.28)",
+          "usage": "focus-visible outline around interactive controls"
+        }
+      ],
+      "semantic_roles": [
+        "surface",
+        "text",
+        "border",
+        "focus",
+        "status",
+        "decision",
+        "risk",
+        "disabled",
+        "receipt"
+      ],
+      "font_roles": [
+        {
+          "role": "body",
+          "stack": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "usage": "primary product text and work-surface copy",
+          "feature_settings": []
+        },
+        {
+          "role": "heading",
+          "stack": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "usage": "section titles and hierarchy labels",
+          "feature_settings": []
+        },
+        {
+          "role": "label",
+          "stack": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "usage": "form labels, metadata labels, tabs, and compact control text",
+          "feature_settings": []
+        },
+        {
+          "role": "numeric",
+          "stack": "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "usage": "counts, prices, times, IDs, and values that need stable width",
+          "feature_settings": [
+            "font-variant-numeric: tabular-nums"
+          ]
+        },
+        {
+          "role": "diagnostic",
+          "stack": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", monospace",
+          "usage": "diagnostic-only identifiers, logs, code, and implementation details in allowed contexts",
+          "feature_settings": []
+        }
+      ],
+      "font_rules": [
+        "judgmentkit_design_system uses system font stacks and does not load remote font files",
+        "diagnostic font roles may appear only in setup, debugging, auditing, integration, or explicit source-inspection contexts",
+        "numeric font roles should preserve readable alignment with tabular numbers when supported"
+      ],
+      "icon_roles": [
+        "action",
+        "status",
+        "navigation",
+        "disclosure",
+        "decision",
+        "risk",
+        "receipt"
+      ],
+      "icon_catalog": {
+        "source": "committed_generated_catalog",
+        "library": "lucide",
+        "package": "lucide-static",
+        "version": "1.21.0",
+        "icon_count": 1737,
+        "license": "ISC",
+        "notice": "Some Lucide icons are derived from Feather Icons and retain the Feather MIT notice; see THIRD_PARTY_NOTICES.md",
+        "style_system": "Lucide 24px outline icons with round caps and joins",
+        "style_attributes": {
+          "viewBox": "0 0 24 24",
+          "fill": "none",
+          "stroke": "currentColor",
+          "stroke_width": "2",
+          "stroke_linecap": "round",
+          "stroke_linejoin": "round"
+        },
+        "mcp_tools": [
+          "list_icon_catalog",
+          "search_icon_catalog",
+          "get_icon_svg"
+        ],
+        "default_include_svg": false
+      },
+      "icon_selection_policy": {
+        "source_library": "lucide",
+        "selection_flow": [
+          "Use search_icon_catalog to find candidate Lucide icons by activity meaning, source icon name, alias, or tag",
+          "Use get_icon_svg for the selected canonical Lucide icon id before rendering inline SVG",
+          "Use list_icon_catalog for pagination or category browsing; existing context tools intentionally return only this catalog summary"
+        ],
+        "semantic_guidance": "JudgmentKit may recommend roles such as status icon, handoff icon, or risk icon; agents choose concrete Lucide icon ids through the catalog tools",
+        "accessibility_guidance": [
+          "Icon use never satisfies accessibility evidence by itself",
+          "Icon-only controls require accessible names plus target-size and keyboard/focus evidence",
+          "Meaningful icons require adjacent visible text when possible and non-text contrast evidence"
+        ],
+        "failure_signals": [
+          "selected icon ids are not canonical ids in the Lucide catalog",
+          "icons are used as a substitute for required labels, states, activity evidence, workflow evidence, accessibility evidence, or QA gates",
+          "icons are fetched from a runtime CDN or remote source instead of the committed MCP catalog"
+        ]
+      },
+      "icon_rules": [
+        "default icons come from the committed Lucide catalog exposed through MCP icon tools",
+        "normal implementation context includes catalog summary and policy only, not the full catalog payload",
+        "icons that convey meaning require adjacent text or an accessible name",
+        "icon-only controls require target-size and keyboard/focus evidence",
+        "meaningful icons require non-text contrast evidence"
+      ],
+      "adapter_rules": [
+        "visual token, font, and icon evidence describes semantic roles and constraints; it does not create approved primitives",
+        "visual token, font, and icon evidence cannot satisfy missing activity, primitive, state, action-boundary, data-visibility, accessibility, static-check, or browser-QA gates",
+        "token, font, and icon names stay adapter metadata and must not become product UI vocabulary",
+        "the token adapter does not select, import, verify, or provide renderer and component packages; runtime availability comes from the active design-system source"
+      ],
+      "evidence_expectations": [
+        "name visual token families used by the candidate",
+        "map token semantics to approved primitives, states, and surface patterns",
+        "name font roles and confirm system stacks or repo-approved font assets",
+        "name icon roles and selected canonical Lucide icon ids or repo-approved icon assets",
+        "include accessibility-relevant token evidence when color, motion, density, focus, or status roles affect readability or input"
+      ],
+      "deferred_renderer": {
+        "renderer_package": "not_selected_by_visual_token_adapter",
+        "component_package": "not_selected_by_visual_token_adapter",
+        "catalog_compiler": "deferred"
+      },
+      "failure_signals": [
+        "visual token, font, or icon evidence is used as a substitute for approved primitives or required states",
+        "visual token, font, or icon evidence claims to pass accessibility, action, data-visibility, static, or browser gates without the required evidence",
+        "unsupported token families, font roles, or icon roles are introduced without adapter evidence",
+        "renderer, component, catalog, compiler, or A2UI authority is incorrectly attributed to the boundary-only token adapter"
+      ],
+      "appearance_policy": {
+        "supported_modes": [
+          "light",
+          "dark",
+          "system"
+        ],
+        "default_mode": "system",
+        "visible_toggle_default": false,
+        "mode_resolution": "system follows the user's operating-system or browser color-scheme preference",
+        "visible_toggle_policy": "Do not show an appearance toggle by default; add one only when the product activity requires a persistent user preference",
+        "persistence_policy": "Do not store an appearance preference by default; system detection is the portable default",
+        "css_strategy": {
+          "default_selector": ":root",
+          "dark_query": "@media (prefers-color-scheme: dark)",
+          "dark_selector": ":root"
+        }
+      },
+      "appearance_token_sets": [
+        {
+          "mode": "light",
+          "color_scheme": "light",
+          "css_custom_properties": [
+            {
+              "name": "--jk-color-canvas",
+              "role": "surface",
+              "family": "color",
+              "value": "#f8f7f2",
+              "usage": "page canvas and application background"
+            },
+            {
+              "name": "--jk-color-surface",
+              "role": "surface",
+              "family": "color",
+              "value": "#ffffff",
+              "usage": "panels, cards, overlays, and work regions"
+            },
+            {
+              "name": "--jk-color-text",
+              "role": "text",
+              "family": "color",
+              "value": "#171717",
+              "usage": "primary readable text"
+            },
+            {
+              "name": "--jk-color-muted",
+              "role": "text",
+              "family": "color",
+              "value": "#61615c",
+              "usage": "secondary labels and supporting text"
+            },
+            {
+              "name": "--jk-color-border",
+              "role": "border",
+              "family": "color",
+              "value": "#d7d3c8",
+              "usage": "dividers, control outlines, and grouped evidence"
+            },
+            {
+              "name": "--jk-color-focus",
+              "role": "focus",
+              "family": "color",
+              "value": "#245f73",
+              "usage": "visible focus rings and active affordances"
+            },
+            {
+              "name": "--jk-color-success",
+              "role": "status",
+              "family": "color",
+              "value": "#2e6b48",
+              "usage": "approved, completed, and successful states"
+            },
+            {
+              "name": "--jk-color-warning",
+              "role": "status",
+              "family": "color",
+              "value": "#8a5a16",
+              "usage": "warning, waiting, and needs-attention states"
+            },
+            {
+              "name": "--jk-color-risk",
+              "role": "risk",
+              "family": "color",
+              "value": "#8f342f",
+              "usage": "risk, escalation, and destructive action states"
+            },
+            {
+              "name": "--jk-color-disabled",
+              "role": "disabled",
+              "family": "color",
+              "value": "#8a8f93",
+              "usage": "disabled controls with visible rationale"
+            },
+            {
+              "name": "--jk-color-receipt",
+              "role": "receipt",
+              "family": "color",
+              "value": "#23615f",
+              "usage": "handoff receipts and completion confirmation"
+            },
+            {
+              "name": "--jk-space-2",
+              "role": "surface",
+              "family": "spacing",
+              "value": "0.5rem",
+              "usage": "compact gaps inside dense controls"
+            },
+            {
+              "name": "--jk-space-3",
+              "role": "surface",
+              "family": "spacing",
+              "value": "0.75rem",
+              "usage": "row gaps and adjacent evidence spacing"
+            },
+            {
+              "name": "--jk-space-4",
+              "role": "surface",
+              "family": "spacing",
+              "value": "1rem",
+              "usage": "panel padding and section rhythm"
+            },
+            {
+              "name": "--jk-select-value-start-space",
+              "role": "surface",
+              "family": "spacing",
+              "value": "1rem",
+              "usage": "logical-start spacing for selected value text in a field select"
+            },
+            {
+              "name": "--jk-select-indicator-slot-width",
+              "role": "surface",
+              "family": "spacing",
+              "value": "3rem",
+              "usage": "reserved logical-end slot for a design-system-owned field-select indicator"
+            },
+            {
+              "name": "--jk-select-indicator-size",
+              "role": "surface",
+              "family": "density",
+              "value": "1rem",
+              "usage": "inline and block size of the field-select disclosure indicator"
+            },
+            {
+              "name": "--jk-radius-control",
+              "role": "border",
+              "family": "radius",
+              "value": "4px",
+              "usage": "buttons, inputs, and compact controls"
+            },
+            {
+              "name": "--jk-radius-panel",
+              "role": "surface",
+              "family": "radius",
+              "value": "8px",
+              "usage": "cards, panels, and bounded work areas"
+            },
+            {
+              "name": "--jk-focus-ring",
+              "role": "focus",
+              "family": "semantic",
+              "value": "0 0 0 3px rgba(36, 95, 115, 0.28)",
+              "usage": "focus-visible outline around interactive controls"
+            }
+          ]
+        },
+        {
+          "mode": "dark",
+          "color_scheme": "dark",
+          "css_custom_properties": [
+            {
+              "name": "--jk-color-canvas",
+              "role": "surface",
+              "family": "color",
+              "value": "#101312",
+              "usage": "page canvas and application background"
+            },
+            {
+              "name": "--jk-color-surface",
+              "role": "surface",
+              "family": "color",
+              "value": "#181d1b",
+              "usage": "panels, cards, overlays, and work regions"
+            },
+            {
+              "name": "--jk-color-text",
+              "role": "text",
+              "family": "color",
+              "value": "#f2f4ef",
+              "usage": "primary readable text"
+            },
+            {
+              "name": "--jk-color-muted",
+              "role": "text",
+              "family": "color",
+              "value": "#b8c0bb",
+              "usage": "secondary labels and supporting text"
+            },
+            {
+              "name": "--jk-color-border",
+              "role": "border",
+              "family": "color",
+              "value": "#39423f",
+              "usage": "dividers, control outlines, and grouped evidence"
+            },
+            {
+              "name": "--jk-color-focus",
+              "role": "focus",
+              "family": "color",
+              "value": "#7db6c7",
+              "usage": "visible focus rings and active affordances"
+            },
+            {
+              "name": "--jk-color-success",
+              "role": "status",
+              "family": "color",
+              "value": "#82c99a",
+              "usage": "approved, completed, and successful states"
+            },
+            {
+              "name": "--jk-color-warning",
+              "role": "status",
+              "family": "color",
+              "value": "#e0b15d",
+              "usage": "warning, waiting, and needs-attention states"
+            },
+            {
+              "name": "--jk-color-risk",
+              "role": "risk",
+              "family": "color",
+              "value": "#e37d76",
+              "usage": "risk, escalation, and destructive action states"
+            },
+            {
+              "name": "--jk-color-disabled",
+              "role": "disabled",
+              "family": "color",
+              "value": "#7d8580",
+              "usage": "disabled controls with visible rationale"
+            },
+            {
+              "name": "--jk-color-receipt",
+              "role": "receipt",
+              "family": "color",
+              "value": "#80cbc7",
+              "usage": "handoff receipts and completion confirmation"
+            },
+            {
+              "name": "--jk-space-2",
+              "role": "surface",
+              "family": "spacing",
+              "value": "0.5rem",
+              "usage": "compact gaps inside dense controls"
+            },
+            {
+              "name": "--jk-space-3",
+              "role": "surface",
+              "family": "spacing",
+              "value": "0.75rem",
+              "usage": "row gaps and adjacent evidence spacing"
+            },
+            {
+              "name": "--jk-space-4",
+              "role": "surface",
+              "family": "spacing",
+              "value": "1rem",
+              "usage": "panel padding and section rhythm"
+            },
+            {
+              "name": "--jk-select-value-start-space",
+              "role": "surface",
+              "family": "spacing",
+              "value": "1rem",
+              "usage": "logical-start spacing for selected value text in a field select"
+            },
+            {
+              "name": "--jk-select-indicator-slot-width",
+              "role": "surface",
+              "family": "spacing",
+              "value": "3rem",
+              "usage": "reserved logical-end slot for a design-system-owned field-select indicator"
+            },
+            {
+              "name": "--jk-select-indicator-size",
+              "role": "surface",
+              "family": "density",
+              "value": "1rem",
+              "usage": "inline and block size of the field-select disclosure indicator"
+            },
+            {
+              "name": "--jk-radius-control",
+              "role": "border",
+              "family": "radius",
+              "value": "4px",
+              "usage": "buttons, inputs, and compact controls"
+            },
+            {
+              "name": "--jk-radius-panel",
+              "role": "surface",
+              "family": "radius",
+              "value": "8px",
+              "usage": "cards, panels, and bounded work areas"
+            },
+            {
+              "name": "--jk-focus-ring",
+              "role": "focus",
+              "family": "semantic",
+              "value": "0 0 0 3px rgba(125, 182, 199, 0.38)",
+              "usage": "focus-visible outline around interactive controls"
+            }
+          ]
+        }
+      ]
+    },
+    "visual_asset_policy": {
+      "applies_when": [
+        "the UI or design spec calls for substantive visuals, imagery, media, domain scenes, product/place/object visuals, or spatial/data visualization where visual quality is part of the expected result"
+      ],
+      "preferred_paths": [
+        "use imagegen for substantive bitmap imagery, scenes, product/place/object visuals, and media assets",
+        "use premium Three.js or WebGL rendering when the visual is an interactive or spatial 3D experience",
+        "use D3 or an equivalent high-quality visualization renderer when the visual is data-driven and clarity depends on the visualization"
+      ],
+      "deterministic_safe_uses": [
+        "layout and responsive structure",
+        "text and exact typography",
+        "UI chrome, icons, controls, and state indicators",
+        "simple diagrams or charts where clarity is the goal",
+        "accessible fallback structure and alt text"
+      ],
+      "failure_signals": [
+        "rudimentary CSS, SVG, canvas, or JavaScript geometry is used as a final substitute for substantive imagery",
+        "decorative procedural blocks stand in for a real product, place, object, domain scene, or media asset",
+        "image generation or premium rendering is skipped without rationale when the spec calls for substantive visuals"
+      ]
+    },
+    "accessibility_policy": {
+      "standards_profile": {
+        "baseline": "WCAG 2.2 AA",
+        "evidence_model_version": "judgmentkit-accessibility-evidence-v1",
+        "sources": [
+          {
+            "id": "wcag-1.4.3",
+            "label": "Contrast (Minimum)",
+            "level": "AA",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
+          },
+          {
+            "id": "wcag-1.4.10",
+            "label": "Reflow",
+            "level": "AA",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/reflow.html"
+          },
+          {
+            "id": "wcag-1.4.11",
+            "label": "Non-text Contrast",
+            "level": "AA",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html"
+          },
+          {
+            "id": "wcag-2.1.1",
+            "label": "Keyboard",
+            "level": "A",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html"
+          },
+          {
+            "id": "wcag-2.4.7",
+            "label": "Focus Visible",
+            "level": "AA",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/focus-visible.html"
+          },
+          {
+            "id": "wcag-2.5.8",
+            "label": "Target Size (Minimum)",
+            "level": "AA",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html"
+          },
+          {
+            "id": "wcag-4.1.2",
+            "label": "Name, Role, Value",
+            "level": "A",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/name-role-value.html"
+          },
+          {
+            "id": "wai-aria-apg-keyboard",
+            "label": "WAI-ARIA APG Keyboard Interface",
+            "level": "practice",
+            "url": "https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/"
+          }
+        ]
+      },
+      "contrast_targets": {
+        "normal_text_min_ratio": 4.5,
+        "large_text_min_ratio": 3,
+        "non_text_min_ratio": 3
+      },
+      "rendered_background_readability": {
+        "applies_to": [
+          "images",
+          "canvas",
+          "WebGL or Three.js",
+          "video",
+          "gradients",
+          "generated visuals"
+        ],
+        "requirement": "Text over rendered visual backgrounds must provide browser-rendered contrast/readability evidence, not screenshots alone"
+      },
+      "required_evidence": [
+        "accessibility_evidence.semantic_content",
+        "accessibility_evidence.landmarks_headings",
+        "accessibility_evidence.name_role_value",
+        "accessibility_evidence.keyboard_navigation",
+        "accessibility_evidence.focus_order",
+        "accessibility_evidence.focus_visible",
+        "accessibility_evidence.responsive_no_overflow",
+        "accessibility_evidence.automated_checks"
+      ],
+      "conditional_evidence": {
+        "visual_background_contrast": {
+          "applies_when": [
+            "text appears over images, canvas, WebGL, video, gradients, generated visuals, or other rendered backgrounds"
+          ],
+          "wcag_criteria": [
+            "1.4.3",
+            "1.4.11"
+          ]
+        },
+        "non_text_contrast": {
+          "applies_when": [
+            "icons, charts, state indicators, custom control boundaries, or graphical objects convey meaning"
+          ],
+          "wcag_criteria": [
+            "1.4.11"
+          ]
+        },
+        "forced_colors": {
+          "applies_when": [
+            "custom colors, gradients, overlays, or authored focus indicators are used"
+          ],
+          "wcag_criteria": [
+            "1.4.3",
+            "1.4.11",
+            "2.4.7"
+          ]
+        },
+        "target_size": {
+          "applies_when": [
+            "dense controls, icon-only controls, touch targets, toolbar actions, or pointer targets are present"
+          ],
+          "wcag_criteria": [
+            "2.5.8"
+          ]
+        },
+        "focus_not_obscured": {
+          "applies_when": [
+            "sticky layers, overlays, dialogs, modals, popovers, or persistent disclosed panels can cover focusable content"
+          ],
+          "wcag_criteria": [
+            "2.4.11"
+          ]
+        },
+        "no_keyboard_trap": {
+          "applies_when": [
+            "custom widgets, dialogs, modals, canvas/WebGL interactions, rich editors, or embedded experiences can receive focus"
+          ],
+          "wcag_criteria": [
+            "2.1.2"
+          ]
+        },
+        "reduced_motion": {
+          "applies_when": [
+            "animation, reveal transitions, parallax, WebGL motion, canvas motion, or generated visual motion is present"
+          ],
+          "wcag_criteria": [
+            "2.3.3"
+          ]
+        },
+        "pause_stop_hide": {
+          "applies_when": [
+            "moving, blinking, scrolling, auto-updating, or auto-advancing content starts without direct user control"
+          ],
+          "wcag_criteria": [
+            "2.2.2"
+          ]
+        },
+        "content_on_hover_focus": {
+          "applies_when": [
+            "tooltips, popovers, hover cards, or focus-triggered content appears"
+          ],
+          "wcag_criteria": [
+            "1.4.13"
+          ]
+        },
+        "form_labels_instructions": {
+          "applies_when": [
+            "forms, data-entry controls, required fields, or validation constraints are present"
+          ],
+          "wcag_criteria": [
+            "3.3.2",
+            "4.1.2"
+          ]
+        },
+        "form_errors": {
+          "applies_when": [
+            "forms can reject input, show validation errors, or require correction"
+          ],
+          "wcag_criteria": [
+            "3.3.1",
+            "3.3.3"
+          ]
+        },
+        "status_messages": {
+          "applies_when": [
+            "success, error, loading, progress, results, or async updates are shown without moving focus"
+          ],
+          "wcag_criteria": [
+            "4.1.3"
+          ]
+        },
+        "media_alternatives": {
+          "applies_when": [
+            "audio, video, generated media, animated media, or time-based media appears"
+          ],
+          "wcag_criteria": [
+            "1.1.1",
+            "1.2.1",
+            "1.2.2",
+            "1.2.3"
+          ]
+        },
+        "semantic_fallbacks": {
+          "applies_when": [
+            "canvas, WebGL, Three.js, D3, generated imagery, charts, or custom-rendered visuals convey content or controls"
+          ],
+          "wcag_criteria": [
+            "1.1.1",
+            "1.3.1",
+            "4.1.2"
+          ]
+        }
+      },
+      "contracts": {
+        "readability_and_contrast": {
+          "requirements": [
+            "normal text meets 4.5:1 and large text meets 3:1 contrast targets",
+            "meaningful non-text visual information meets 3:1 contrast against adjacent colors",
+            "text over rendered visual backgrounds uses browser-rendered or computed evidence"
+          ],
+          "evidence": [
+            "accessibility_evidence.visual_background_contrast",
+            "accessibility_evidence.non_text_contrast",
+            "accessibility_evidence.forced_colors"
+          ]
+        },
+        "keyboard_and_focus": {
+          "requirements": [
+            "all functionality has a keyboard path",
+            "focus order preserves meaning and operation",
+            "custom widgets honor expected WAI-ARIA APG keyboard behavior"
+          ],
+          "evidence": [
+            "accessibility_evidence.keyboard_navigation",
+            "accessibility_evidence.focus_order",
+            "accessibility_evidence.focus_visible",
+            "accessibility_evidence.focus_not_obscured",
+            "accessibility_evidence.no_keyboard_trap"
+          ]
+        },
+        "semantics_and_structure": {
+          "requirements": [
+            "content structure uses semantic HTML or equivalent accessible structure",
+            "interactive controls expose accessible names, roles, states, and values"
+          ],
+          "evidence": [
+            "accessibility_evidence.semantic_content",
+            "accessibility_evidence.landmarks_headings",
+            "accessibility_evidence.name_role_value",
+            "accessibility_evidence.semantic_fallbacks"
+          ]
+        },
+        "forms_status_and_errors": {
+          "requirements": [
+            "inputs provide visible labels or instructions",
+            "detected input errors identify the field and describe the problem in text",
+            "status messages are programmatically determinable without requiring focus"
+          ],
+          "evidence": [
+            "accessibility_evidence.form_labels_instructions",
+            "accessibility_evidence.form_errors",
+            "accessibility_evidence.status_messages"
+          ]
+        },
+        "motion_media_and_timing": {
+          "requirements": [
+            "non-essential interaction-triggered animation can be disabled or follows reduced-motion preferences",
+            "auto-starting motion, blinking, scrolling, or updating content can be paused, stopped, hidden, or controlled",
+            "media includes captions, transcripts, audio descriptions, or equivalent alternatives when applicable"
+          ],
+          "evidence": [
+            "accessibility_evidence.reduced_motion",
+            "accessibility_evidence.pause_stop_hide",
+            "accessibility_evidence.media_alternatives"
+          ]
+        },
+        "responsive_and_input": {
+          "requirements": [
+            "content reflows without two-dimensional scrolling at narrow widths unless two-dimensional layout is essential",
+            "pointer targets meet minimum target size or valid spacing/equivalent-control exceptions"
+          ],
+          "evidence": [
+            "accessibility_evidence.responsive_no_overflow",
+            "accessibility_evidence.reflow_zoom",
+            "accessibility_evidence.target_size"
+          ]
+        }
+      },
+      "evidence_model": {
+        "entry_shape": [
+          "status",
+          "method",
+          "tool",
+          "viewports",
+          "states",
+          "artifacts",
+          "failures",
+          "notes"
+        ],
+        "accepted_statuses": [
+          "pass",
+          "passed",
+          "verified",
+          "not_applicable",
+          "fail",
+          "failed"
+        ],
+        "not_applicable_requires_rationale": true,
+        "automated_only_insufficient": true,
+        "core_required": [
+          "automated_checks",
+          "semantic_content",
+          "landmarks_headings",
+          "name_role_value",
+          "keyboard_navigation",
+          "focus_order",
+          "focus_visible",
+          "responsive_no_overflow"
+        ],
+        "conditional_required": [
+          "visual_background_contrast",
+          "non_text_contrast",
+          "forced_colors",
+          "target_size",
+          "focus_not_obscured",
+          "no_keyboard_trap",
+          "reduced_motion",
+          "pause_stop_hide",
+          "content_on_hover_focus",
+          "form_labels_instructions",
+          "form_errors",
+          "status_messages",
+          "media_alternatives",
+          "semantic_fallbacks"
+        ]
+      },
+      "failure_signals": [
+        "text over images, canvas, WebGL, video, gradients, or generated visuals is illegible",
+        "opacity-based reveal transitions pass through low-contrast states",
+        "browser-rendered contrast/readability evidence is skipped for text over visual backgrounds",
+        "automated accessibility scans are provided without browser-rendered or manual evidence for keyboard, focus, semantics, responsive behavior, or rendered backgrounds",
+        "forms or status messages rely on visual-only error or success cues",
+        "custom widgets expose roles without matching keyboard behavior, focus management, or state/value semantics"
+      ]
+    },
+    "repo_scaffold_outputs": [
+      "project contract doc",
+      "primitive/helper requirements",
+      "static check template",
+      "browser QA checklist",
+      "final response evidence requirements"
+    ],
+    "failure_signals": [
+      "raw form controls appear in feature render code",
+      "checkboxes or labels rely on browser defaults without approved spacing",
+      "a new variant is invented without contract evidence",
+      "non-destructive modal or dialog actions put cancel/dismiss after the primary completion action",
+      "focus, disabled, or error states are missing",
+      "browser QA is skipped after UI generation"
+    ]
+  },
+  "candidate": {
+    "chart_review_manifest": {
+      "chart_selector": "#chart",
+      "plot_selector": "#plot",
+      "series_selector": "#series",
+      "states": [
+        {
+          "state_id": "outer-clipped",
+          "rendered_html": "<!doctype html><html><body style=\"margin:0\"><div style=\"height:80px;width:300px;overflow:hidden\"><svg id=\"chart\" width=\"300\" height=\"180\" viewBox=\"0 0 300 180\"><rect id=\"plot\" x=\"30\" y=\"30\" width=\"240\" height=\"100\" fill=\"none\"/><path id=\"series\" d=\"M30 130 L270 30\" stroke=\"black\" fill=\"none\"/><text x=\"30\" y=\"160\">start</text><text x=\"240\" y=\"160\">end</text></svg></div></body></html>"
+        }
+      ]
+    }
+  },
+  "receipt": {
+    "applicable": true,
+    "kind": "chart_review_evidence",
+    "version": "1.0.0",
+    "candidate_sha256": "3c6aeaf9264cafe591a6a4c2c8422f8d0d90fbcb324ad44e9264db67b4aa9431",
+    "contract_sha256": "68361081caee21a162c137bef43c44015cda19c7cf59daecc507d51974c88ad9",
+    "policy_sha256": "d7e9ae659ed53029c5b4005aa698d2a553c3500258b42a7d22a7f17b1df0bf2b",
+    "manifest_sha256": "f150255580252d4b6d5eb75a119ff9d5304b431500062edae391d0bdeadadd75",
+    "environment": {
+      "issuer": "judgmentkit_browser_runtime",
+      "engine": "chromium",
+      "browser_product": "HeadlessChrome/153.0.8010.12",
+      "measurement": "static_dom_geometry",
+      "external_network": "blocked",
+      "scripts": "prohibited",
+      "fonts_ready": true
+    },
+    "outcome": "fail",
+    "diagnostics": [],
+    "coverage": {
+      "declared": [
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "desktop",
+          "check": "label_collision"
+        },
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "desktop",
+          "check": "label_clipping"
+        },
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "desktop",
+          "check": "selected_data_correspondence"
+        },
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "mobile",
+          "check": "label_collision"
+        },
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "mobile",
+          "check": "label_clipping"
+        },
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "mobile",
+          "check": "selected_data_correspondence"
+        }
+      ],
+      "observed": [
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "desktop",
+          "check": "label_collision",
+          "outcome": "pass"
+        },
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "desktop",
+          "check": "label_clipping",
+          "outcome": "fail"
+        },
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "desktop",
+          "check": "selected_data_correspondence",
+          "outcome": "pass"
+        },
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "mobile",
+          "check": "label_collision",
+          "outcome": "pass"
+        },
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "mobile",
+          "check": "label_clipping",
+          "outcome": "fail"
+        },
+        {
+          "state_id": "outer-clipped",
+          "viewport_id": "mobile",
+          "check": "selected_data_correspondence",
+          "outcome": "pass"
+        }
+      ],
+      "untested": [],
+      "unsupported": [
+        "interactive_selection_transitions",
+        "canvas_or_webgl_data_correspondence",
+        "axis_label_unit_semantics",
+        "chart_accessibility_compliance",
+        "human_task_completion",
+        "artifact_inspector_interactive_attestation"
+      ],
+      "source_authenticity": "attributed_contract_input_not_independently_verified",
+      "label_geometry_scope": "visible_svg_text_plus_contract_required_labels_when_supplied"
+    },
+    "observations": [
+      {
+        "document_id": "outer-clipped-desktop",
+        "state_id": "outer-clipped",
+        "viewport": {
+          "device_scale_factor": 1,
+          "mobile": false,
+          "id": "desktop",
+          "width": 1280,
+          "height": 800
+        },
+        "artifact_sha256": "02a57869d02b8ca6ef29355bf506e23a7adbe8a36ab6065731c0f4576e475ba7",
+        "observation": {
+          "diagnostics": [],
+          "checks": [
+            {
+              "id": "label_collision",
+              "status": "observed",
+              "outcome": "pass",
+              "label_count": 2,
+              "findings": [],
+              "missing_required_labels": []
+            },
+            {
+              "id": "label_clipping",
+              "status": "observed",
+              "outcome": "fail",
+              "label_count": 2,
+              "findings": [
+                {
+                  "text": "start",
+                  "rect": {
+                    "left": 30,
+                    "top": 146,
+                    "right": 57.5703125,
+                    "bottom": 163,
+                    "width": 27.5703125,
+                    "height": 17
+                  },
+                  "clip": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 300,
+                    "bottom": 80,
+                    "width": 300,
+                    "height": 180
+                  }
+                },
+                {
+                  "text": "end",
+                  "rect": {
+                    "left": 240,
+                    "top": 146,
+                    "right": 263.140625,
+                    "bottom": 163,
+                    "width": 23.140625,
+                    "height": 17
+                  },
+                  "clip": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 300,
+                    "bottom": 80,
+                    "width": 300,
+                    "height": 180
+                  }
+                }
+              ],
+              "missing_required_labels": []
+            },
+            {
+              "id": "selected_data_correspondence",
+              "status": "observed",
+              "outcome": "pass",
+              "selected_values": {},
+              "expected_selected_values": {},
+              "source_ref": "review:synthetic-known-line",
+              "data_sha256": "1c7f0990340fcb6a969b2b1d97d01b48a5da27612b0cca64f5348c9211bc57dc",
+              "max_series_delta_css_px": 0.000011737530048008602,
+              "endpoints_match": true,
+              "series_tag": "path",
+              "observed_geometry_points": 521
+            }
+          ],
+          "selected_values": {},
+          "chart_bounds": {
+            "left": 0,
+            "top": 0,
+            "right": 300,
+            "bottom": 180,
+            "width": 300,
+            "height": 180
+          },
+          "plot_bounds": {
+            "left": 30,
+            "top": 30,
+            "right": 270,
+            "bottom": 130,
+            "width": 240,
+            "height": 100
+          },
+          "label_geometry_scope": "contract_required_labels_and_visible_svg_text",
+          "label_visibility": "required_label_text_verified",
+          "plot_geometry_origin": "observed_plot_element"
+        }
+      },
+      {
+        "document_id": "outer-clipped-mobile",
+        "state_id": "outer-clipped",
+        "viewport": {
+          "device_scale_factor": 1,
+          "mobile": true,
+          "id": "mobile",
+          "width": 390,
+          "height": 844
+        },
+        "artifact_sha256": "3b3b22b88582f0a7e570adff4df77d3e32284853ca512af48d173e793bb725b5",
+        "observation": {
+          "diagnostics": [],
+          "checks": [
+            {
+              "id": "label_collision",
+              "status": "observed",
+              "outcome": "pass",
+              "label_count": 2,
+              "findings": [],
+              "missing_required_labels": []
+            },
+            {
+              "id": "label_clipping",
+              "status": "observed",
+              "outcome": "fail",
+              "label_count": 2,
+              "findings": [
+                {
+                  "text": "start",
+                  "rect": {
+                    "left": 30,
+                    "top": 146,
+                    "right": 57.5703125,
+                    "bottom": 163,
+                    "width": 27.5703125,
+                    "height": 17
+                  },
+                  "clip": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 300,
+                    "bottom": 80,
+                    "width": 300,
+                    "height": 180
+                  }
+                },
+                {
+                  "text": "end",
+                  "rect": {
+                    "left": 240,
+                    "top": 146,
+                    "right": 263.140625,
+                    "bottom": 163,
+                    "width": 23.140625,
+                    "height": 17
+                  },
+                  "clip": {
+                    "left": 0,
+                    "top": 0,
+                    "right": 300,
+                    "bottom": 80,
+                    "width": 300,
+                    "height": 180
+                  }
+                }
+              ],
+              "missing_required_labels": []
+            },
+            {
+              "id": "selected_data_correspondence",
+              "status": "observed",
+              "outcome": "pass",
+              "selected_values": {},
+              "expected_selected_values": {},
+              "source_ref": "review:synthetic-known-line",
+              "data_sha256": "1c7f0990340fcb6a969b2b1d97d01b48a5da27612b0cca64f5348c9211bc57dc",
+              "max_series_delta_css_px": 0.000011737530048008602,
+              "endpoints_match": true,
+              "series_tag": "path",
+              "observed_geometry_points": 521
+            }
+          ],
+          "selected_values": {},
+          "chart_bounds": {
+            "left": 0,
+            "top": 0,
+            "right": 300,
+            "bottom": 180,
+            "width": 300,
+            "height": 180
+          },
+          "plot_bounds": {
+            "left": 30,
+            "top": 30,
+            "right": 270,
+            "bottom": 130,
+            "width": 240,
+            "height": 100
+          },
+          "label_geometry_scope": "contract_required_labels_and_visible_svg_text",
+          "label_visibility": "required_label_text_verified",
+          "plot_geometry_origin": "observed_plot_element"
+        }
+      }
+    ],
+    "findings": [
+      {
+        "severity": "fail",
+        "check": "chart_review",
+        "code": "chart_label_clipping_fail",
+        "message": "label_clipping failed for outer-clipped at desktop.",
+        "state_id": "outer-clipped",
+        "viewport_id": "desktop",
+        "evidence": {
+          "id": "label_clipping",
+          "status": "observed",
+          "outcome": "fail",
+          "label_count": 2,
+          "findings": [
+            {
+              "text": "start",
+              "rect": {
+                "left": 30,
+                "top": 146,
+                "right": 57.5703125,
+                "bottom": 163,
+                "width": 27.5703125,
+                "height": 17
+              },
+              "clip": {
+                "left": 0,
+                "top": 0,
+                "right": 300,
+                "bottom": 80,
+                "width": 300,
+                "height": 180
+              }
+            },
+            {
+              "text": "end",
+              "rect": {
+                "left": 240,
+                "top": 146,
+                "right": 263.140625,
+                "bottom": 163,
+                "width": 23.140625,
+                "height": 17
+              },
+              "clip": {
+                "left": 0,
+                "top": 0,
+                "right": 300,
+                "bottom": 80,
+                "width": 300,
+                "height": 180
+              }
+            }
+          ],
+          "missing_required_labels": []
+        }
+      },
+      {
+        "severity": "fail",
+        "check": "chart_review",
+        "code": "chart_label_clipping_fail",
+        "message": "label_clipping failed for outer-clipped at mobile.",
+        "state_id": "outer-clipped",
+        "viewport_id": "mobile",
+        "evidence": {
+          "id": "label_clipping",
+          "status": "observed",
+          "outcome": "fail",
+          "label_count": 2,
+          "findings": [
+            {
+              "text": "start",
+              "rect": {
+                "left": 30,
+                "top": 146,
+                "right": 57.5703125,
+                "bottom": 163,
+                "width": 27.5703125,
+                "height": 17
+              },
+              "clip": {
+                "left": 0,
+                "top": 0,
+                "right": 300,
+                "bottom": 80,
+                "width": 300,
+                "height": 180
+              }
+            },
+            {
+              "text": "end",
+              "rect": {
+                "left": 240,
+                "top": 146,
+                "right": 263.140625,
+                "bottom": 163,
+                "width": 23.140625,
+                "height": 17
+              },
+              "clip": {
+                "left": 0,
+                "top": 0,
+                "right": 300,
+                "bottom": 80,
+                "width": 300,
+                "height": 180
+              }
+            }
+          ],
+          "missing_required_labels": []
+        }
+      }
+    ]
+  }
+}

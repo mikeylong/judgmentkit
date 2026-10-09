@@ -19,6 +19,24 @@ assert.equal(fs.existsSync(path.join(root, "bin/judgmentkit2.mjs")), false);
 assert.equal(fs.existsSync(path.join(root, "bin/judgmentkit2-mcp-stdio.mjs")), false);
 
 {
+  const result = spawnSync(process.execPath, [cliPath, "preflight-implementation"], {
+    input: JSON.stringify({ candidate: { primitives_used: 42, states_covered: "loading" }, implementation_contract: {} }),
+    encoding: "utf8",
+  });
+  assert.equal(result.status, 0, result.stderr);
+  const packet = JSON.parse(result.stdout);
+  assert.equal(packet.admission_status, "repair_evidence_packet");
+  assert.equal(packet.attempt_consumed, false);
+  assert.equal(packet.substantive_review_performed, false);
+  assert.ok(packet.repair_instructions.items.some((entry) => entry.path === "candidate.primitives_used"));
+  const invalid = spawnSync(process.execPath, [cliPath, "preflight-implementation"], {
+    input: "not JSON", encoding: "utf8",
+  });
+  assert.notEqual(invalid.status, 0);
+  assert.equal(JSON.parse(invalid.stderr).error.code, "invalid_input");
+}
+
+{
   const result = spawnSync(
     process.execPath,
     [cliPath, "analyze"],

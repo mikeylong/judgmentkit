@@ -242,6 +242,7 @@ assert.deepEqual(
     "review_ui_workflow_candidate",
     "review_cognitive_dimensions_candidate",
     "create_ui_implementation_contract",
+    "preflight_ui_implementation_candidate",
     "review_ui_implementation_candidate",
     "create_ui_generation_handoff",
     "create_frontend_generation_context",
@@ -378,6 +379,8 @@ assert.deepEqual(metadata.capabilities.prompts, []);
         implementation_contract: contractPacket.implementation_contract,
         candidate: {
           rendered_html: "<main>Renderable candidate</main>",
+          states_covered: [],
+          static_checks: [],
         },
       },
     );
@@ -390,12 +393,21 @@ assert.deepEqual(metadata.capabilities.prompts, []);
     }
   }
 
-  assert.deepEqual(unavailableReview.error, {
-    code: "visual_composition_browser_runtime_unavailable",
-    message:
-      "The trusted visual composition browser runtime is unavailable; retry the review.",
-    details: { retryable: true },
-  });
+  assert.equal(unavailableReview.error, undefined);
+  assert.equal(unavailableReview.admission_status, "retry_evidence_preflight");
+  assert.equal(unavailableReview.implementation_review_status, "not_reviewed");
+  assert.equal(unavailableReview.next_agent_action, "retry_preflight");
+  assert.equal(unavailableReview.code, "evidence_browser_runtime_unavailable");
+  assert.equal(unavailableReview.reason, "visual_composition_browser_runtime_unavailable");
+  assert.equal(unavailableReview.retryable, true);
+  assert.equal(unavailableReview.attempt_consumed, false);
+  assert.equal(unavailableReview.substantive_review_performed, false);
+  assert.equal(unavailableReview.autofix_loop.attempt_consumed, false);
+  const retryCard = formatPlanningCard(unavailableReview);
+  assert.match(retryCard, /Retry evidence preflight when the isolated browser runtime is available/);
+  assert.match(retryCard, /No implementation attempt was consumed/);
+  assert.doesNotMatch(retryCard, /Repair the named evidence fields or selectors/);
+  assert.deepEqual(unavailableReview.repair_instructions.items, []);
   assert.equal(
     JSON.stringify(unavailableReview).includes(
       "Configured Chrome executable is unavailable",
@@ -1877,6 +1889,8 @@ let inferredShortActivityReview;
     {
       implementation_contract: visualCompositionContract,
       candidate: {
+        states_covered: implementationContract.implementation_contract.state_coverage.required_states,
+        static_checks: ["npm test"],
         visual_composition_manifest: {
           samples: [
             {

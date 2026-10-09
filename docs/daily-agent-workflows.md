@@ -1,6 +1,43 @@
 # Daily Agent Workflows
 
-JudgmentKit should run before an agent turns a brief into UI, critiques an interface, or accepts model-proposed interaction logic.
+This checkout exposes 17 MCP tools, including evidence preflight. Inspect the
+active endpoint's `tools/list` and input schemas before using new capabilities,
+including preflight, `packet_format`, and `chart_review_policy`; these local changes
+do not establish hosted availability. If a required capability is unavailable,
+use an authorized matching local/self-hosted service or report the limitation.
+
+Planning and review calls support `packet_format: "compact"`. The response shows
+the current guidance and retains the full packet in a lossless continuation. Pass
+the complete envelope as `activity_review`, `surface_review`, `workflow_review`,
+`implementation_contract`, `ui_generation_handoff`, or
+`frontend_generation_context` in the next call. Exact raw brief and attributed
+context still accompany validating boundaries. Full output remains the default.
+
+For a JavaScript client, `expandCompactPacket` from `judgmentkit/packets` restores
+the complete packet before inspecting calibration details or catalogs.
+`compactImplementationCandidate` prepares the `candidate` argument for preflight or
+implementation review without losing exact HTML or chart snapshots.
+These helpers are available in this checkout; they do not imply a published npm
+package. Returned envelopes can be passed directly by MCP-only clients. The
+continuation's four-MiB expansion limit and the HTTP request's 128-KiB limit remain
+enforced; serialized bytes do not establish token or monetary savings.
+
+Before substantive review, call `preflight_ui_implementation_candidate` with the
+candidate, implementation contract from the handoff/frontend packet, and frontend
+generation context.
+Repair field and selector errors identified
+by `repair_evidence_packet` without advancing the implementation attempt counter.
+`retry_evidence_preflight` means the observer is unavailable; retry admission
+without changing the interface or claiming a pass.
+Then call `review_ui_implementation_candidate`. It also performs admission, so
+clients cannot accidentally turn a malformed packet into a failed implementation.
+The CLI equivalent is
+`judgmentkit preflight-implementation --input evidence-request.json`, where the JSON
+contains `candidate`, `implementation_contract`, and the applicable
+`frontend_generation_context`. See [the evidence and packet
+contract](../specs/mcp-evidence-and-packets.md).
+
+When the user requests JudgmentKit or the project opts in, run it before turning a brief into UI, critiquing an interface, or accepting model-proposed interaction logic.
 
 The daily path is MCP-first. Use the CLI when scripting, debugging, or checking a fixture from the terminal.
 
@@ -181,6 +218,7 @@ Use this to distinguish interaction purpose before any component or styling advi
 - `marketing`: persuade, orient, convert, or explain an offer
 - `workbench`: inspect, compare, decide, and act across work items
 - `operator_review`: review AI- or system-produced work, evidence, risk, and handoff
+- `artifact_inspector`: inspect one primary rendered artifact through semantic locus selection and locus-relative support
 - `form_flow`: collect or change structured information with validation
 - `dashboard_monitor`: track status, exceptions, trends, or operational health
 - `content_report`: read, understand, cite, or share information
@@ -188,6 +226,16 @@ Use this to distinguish interaction purpose before any component or styling advi
 - `conversation`: support open-ended exchange where the thread is primary
 
 Surface type is activity-purpose guidance, not a visual theme. Use `frontend_posture` only after the recommended surface type is grounded in activity, decision, outcome, and disclosure evidence.
+
+No positive evidence leaves `recommended_surface_type` unresolved and requires
+review before handoff or frontend guidance. `confidence_evidence` names the required
+signals, missing support, and competitors; confidence does not grant authority.
+For explicit `surface_type` inputs to workflow review or frontend-context creation,
+`surface_selection_origin` accepts `caller`, `user`, or `agent` and defaults to
+`caller`. Recommendations report `selection_origin: "inferred"`; do not label an
+agent choice as a user choice. Reconcile conflicting explicit and inherited
+selections by correcting the reviewed activity or choice, then refresh downstream
+packets with the same exact source.
 
 ### Designer Steering For Close Calls
 
@@ -209,7 +257,7 @@ MCP call:
 recommend_surface_types({ brief, activity_review })
 ```
 
-Use the returned `recommended_surface_type` as `surface_type` or pass the full `surface_review` when reviewing a workflow candidate or creating frontend context.
+Pass the full `surface_review` when reviewing a workflow candidate or creating frontend context. If supplying `surface_type` directly, keep its actual selection origin explicit; copying an inferred recommendation into that argument does not make it a user selection.
 
 ## Before Choosing Optional Workflow Guidance
 
@@ -347,7 +395,7 @@ create_frontend_generation_context({
 
 Use `surface_profile: "none"` when the product should use the JudgmentKit default design-system source without the Workbench presentation profile.
 
-The profile remains downstream presentation guidance. It does not classify the activity, replace the Workbench pattern, or supply a renderer or component package. A neutral low-confidence Workbench fallback cannot activate the profile, including after it passes through a ready handoff or receives an exact-id request. Under `external_design_system`, `auto` selects no JudgmentKit profile and an exact JudgmentKit profile request is rejected. Appearance defaults to `system`; light and dark are appearance modes of the same profile.
+The profile remains downstream presentation guidance. It does not classify the activity, replace the Workbench pattern, or supply a renderer or component package. Unresolved or unsupported routing supplies no interaction contract or presentation profile, including when an exact profile id is requested. Under `external_design_system`, `auto` selects no JudgmentKit profile and an exact JudgmentKit profile request is rejected. Appearance defaults to `system`; light and dark are appearance modes of the same profile.
 
 The canonical profile is published at `/design-system/surface-presentation-profiles.json`. The durable specimen, boundary notes, reproducible preview states, scoped human direction approval, final-token technical recheck, and remaining per-consumer QA are recorded in `experiments/workbench-surface-variant/README.md`.
 
@@ -376,16 +424,48 @@ Use `skills/frontend-ui-implementation/SKILL.md` directly only when the agent is
 
 ## Before Accepting Generated UI Implementation
 
-Call `review_ui_implementation_candidate` with the generated code or evidence and the active implementation contract.
+Use the implementation contract carried by the handoff/frontend packet.
+Call `preflight_ui_implementation_candidate`, then
+`review_ui_implementation_candidate` with the same evidence, contract, and frontend
+context. Both calls accept full or compact packets.
 
-The candidate should provide the primitives used, states covered, static checks run, browser QA evidence, and core plus condition-specific accessibility evidence. JudgmentKit accepts `states_covered` or `covered_states`, `static_checks` or `static_evidence`, and `accessibility_evidence.reflow_zoom` as an alias for responsive reflow/no-overflow evidence. JudgmentKit fails candidates that emit raw form controls outside approved helpers, invent unsupported primitives, omit required states, skip static enforcement, lack desktop and mobile browser QA evidence, omit required accessibility evidence, provide `not_applicable` without rationale, or report accessibility failures.
+The candidate should provide the primitives used, states covered, static checks run, browser QA evidence, and core plus condition-specific accessibility evidence. JudgmentKit accepts `states_covered` or `covered_states`, `static_checks` or `static_evidence`, and `accessibility_evidence.reflow_zoom` as an alias for responsive reflow/no-overflow evidence. Malformed fields/manifests, missing required state/static fields, and `not_applicable` declarations without a rationale receive admission repairs. A valid packet showing unsupported primitives, empty required coverage, skipped enforcement, or failed behavior receives a substantive failure.
 
 ```text
+preflight_ui_implementation_candidate({
+  candidate,
+  implementation_contract,
+  frontend_generation_context
+})
+
 review_ui_implementation_candidate({
   candidate,
-  implementation_contract
+  implementation_contract,
+  frontend_generation_context,
+  iteration_context
 })
 ```
+
+Read `admission_status`, `attempt_consumed`, `implementation_review_status`, and
+the focused repair instructions together. Admission readiness only permits review.
+Retain the default agent-owned repair limit and advance it only for a substantive
+implementation attempt.
+
+When the reviewed activity promises an owned chart, `chart_review_required` follows
+it into the handoff/frontend contract. Prepare `chart_review_policy` with attributed
+`data_cases` (source reference, selected values, expected points/domains, and any
+required label roles) and `required_viewports`. The candidate's
+`chart_review_manifest` supplies chart/plot/series selectors, selection-control
+selectors, and exact HTML snapshots for every required state. Missing expected
+data or selectors receives a precise admission repair; candidate values cannot
+replace the oracle or suppress required checks. See the [chart policy schema](../contracts/chart-review-policy.schema.json).
+
+Supported static SVG observations check visible collision/clipping and selected
+data correspondence at those states/viewports. Distinguish observed measurements
+from declarations and untested live transitions. Source attribution does not
+authenticate truth; Canvas/WebGL correspondence, axis/unit semantics, general
+usability/accessibility certification, and Inspector attestation remain outside
+these checks.
 
 Use this as the cleanup-prevention gate: fix the implementation before final handoff instead of relying on visual cleanup after the fact.
 
@@ -450,7 +530,7 @@ npm test
 npm run benchmark
 ```
 
-Run this after a production deploy to verify the public site, hosted `/mcp` Streamable HTTP endpoint, legacy redirects, hosted installer, and hosted MCP tool catalog:
+Run this after publishing the GitHub Release and completing the production deploy. It verifies that the package version has a published, non-draft, non-prerelease GitHub Release, then checks the public site, hosted `/mcp` Streamable HTTP endpoint, legacy redirects, hosted installer, and hosted MCP tool catalog:
 
 ```bash
 npm run release:verify

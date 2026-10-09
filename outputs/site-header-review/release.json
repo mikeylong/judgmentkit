@@ -1,0 +1,34 @@
+{
+  "pr": "https://github.com/mikeylong/judgmentkit/pull/60",
+  "mergeCommit": "4cbbed69c0c40ac10169c43eb942e7dff7bddf6b",
+  "deployment": {
+    "id": "dpl_8gZn9uLxndXW4ejRrLriSKUphDnr",
+    "url": "https://judgmentkit.ai/",
+    "target": "production",
+    "status": "READY",
+    "commit": "4cbbed69c0c40ac10169c43eb942e7dff7bddf6b",
+    "aliases": [
+      "judgmentkit.ai",
+      "judgmentkit.com",
+      "judgmentkit.design",
+      "www.judgmentkit.com",
+      "www.judgmentkit.design",
+      "judgmentkit-ai.vercel.app",
+      "judgmentkit-ai-surfaces-platform.vercel.app",
+      "judgmentkit-ai-git-main-surfaces-platform.vercel.app"
+    ],
+    "buildDurationMs": 23323
+  },
+  "checks": {
+    "pullRequestCI": "https://github.com/mikeylong/judgmentkit/actions/runs/36951079282",
+    "branchCI": "https://github.com/mikeylong/judgmentkit/actions/runs/36951075495",
+    "status": "passed"
+  },
+  "localMain": {
+    "head": "4cbbed69c0c40ac10169c43eb942e7dff7bddf6b",
+    "matchesOrigin": true,
+    "ahead": 0,
+    "behind": 0,
+    "existingEditsPreserved": true
+  }
+}

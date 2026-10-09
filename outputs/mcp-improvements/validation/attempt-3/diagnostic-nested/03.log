@@ -1,0 +1,5 @@
+
+> judgmentkit@0.8.0 test:components:browser
+> node tests/components/component-browser.test.mjs
+
+{"status":"pass","run_id":"component-adapter-browser-2026-10-09T03:24:58.053Z","browser":"Chrome/154.0.8037.98","components":17,"scenarios":65,"presentations":260,"axe":{"count_unit":"axe_result_node","scan_count":282,"violations_raw":0,"incomplete_raw":6,"incomplete_resolved":6,"incomplete_unresolved":0},"candidate_path":null,"reviewer_receipt":null}

@@ -1,0 +1,2058 @@
+{
+  "purpose": "Corrected System Map documentation preview",
+  "target": "preview",
+  "project": "judgmentkit-ai",
+  "team": "surfaces-platform",
+  "base_commit": "2e7fe8ef3e9888fe7d2e63d9cd6f051fcfd5a910",
+  "uncommitted_changes": true,
+  "upload_scope": "Static site/dist only; no repo, tests, or private workflow evidence",
+  "hosted_mcp_kernel_updated": false,
+  "static_tree_sha256": "0fd61868959fb6f451e095b415a14e3479aa89361e57077a9690a8c1bf8f5315",
+  "files": [
+    {
+      "path": "assets/component-specimens.css",
+      "sha256": "34e9c35930fe3a43d7b0ece21746ea122da14fbe15a7995ac34ad5c8c674467e",
+      "bytes": 27529
+    },
+    {
+      "path": "assets/component-specimens.js",
+      "sha256": "597bb5975556a5209ecf2e9007824d0ae8f96f5594c2a22b460503153b83274b",
+      "bytes": 255854
+    },
+    {
+      "path": "assets/fonts/OFL.txt",
+      "sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a",
+      "bytes": 4380
+    },
+    {
+      "path": "assets/fonts/inter-latin.woff2",
+      "sha256": "c940764593d0fe5d596be327ca7558855e018039fb78509aa21921fd3644c3e4",
+      "bytes": 48432
+    },
+    {
+      "path": "assets/judgment-lens-hero.webp",
+      "sha256": "becef95f1088efd5f0e01263bff7d5d74868fd523ba267da347ce722284e81f8",
+      "bytes": 176478
+    },
+    {
+      "path": "assets/judgmentkit-social-thumbnail-20260723-v2.png",
+      "sha256": "969df7ef71c748a151f58357b67d4100e3ee2dbf799da0cd22dbb3c5bc0375ea",
+      "bytes": 32665
+    },
+    {
+      "path": "assets/judgmentkit-social-thumbnail.png",
+      "sha256": "969df7ef71c748a151f58357b67d4100e3ee2dbf799da0cd22dbb3c5bc0375ea",
+      "bytes": 32665
+    },
+    {
+      "path": "assets/patterns/marketing-surface-weeknight-meal-plan.webp",
+      "sha256": "fe88ea62602e88d86bd6fb26c9fd71265344de45d569c47f695d8ce8ecc6efc2",
+      "bytes": 101406
+    },
+    {
+      "path": "assets/releases/judgmentkit-select-field-agent-demo-dark.mp4",
+      "sha256": "dbc267066bad6dbe1f90a914a52befd595d292a8ab8ab4f2ae3c78a74947df08",
+      "bytes": 2557239
+    },
+    {
+      "path": "assets/releases/judgmentkit-select-field-agent-demo-poster-dark.png",
+      "sha256": "25f9dff588f722a18d161d2aab7306b6ccf192802b2163e8afadf58152588a3d",
+      "bytes": 173425
+    },
+    {
+      "path": "assets/releases/judgmentkit-select-field-agent-demo-poster.png",
+      "sha256": "3721346a2451ca1218aa41cb91d7effa729b7cad594e37cfe7076c94f6cf3184",
+      "bytes": 190172
+    },
+    {
+      "path": "assets/releases/judgmentkit-select-field-agent-demo.mp4",
+      "sha256": "bd9ad7dacfb33c44c12bd4452bfafe05a54c0e8bebadddebf65168c31f6b0e5a",
+      "bytes": 2804978
+    },
+    {
+      "path": "assets/releases/visual-composition-runtime-demo.html",
+      "sha256": "7040e9c41a3ffbbc99eae46a5f4428a68a41a1b387559907edac0eb0222edabd",
+      "bytes": 115725
+    },
+    {
+      "path": "assets/site.css",
+      "sha256": "067bfa3500dd90b1d5ff817bbf1fc1fc74dd9158bffb5da3ed4c2fb90aefc3eb",
+      "bytes": 115181
+    },
+    {
+      "path": "assets/system-map-flow.css",
+      "sha256": "89da6dead8d560e7df30d869ccc7efadd8890cd221d353135bf0d06e5e9b3969",
+      "bytes": 20374
+    },
+    {
+      "path": "assets/system-map-flow.js",
+      "sha256": "9878773ce393b889517768f0d329a2930d7ed93dc56f2ae6e900e030c25ee0cb",
+      "bytes": 383983
+    },
+    {
+      "path": "design-system/accessibility/index.html",
+      "sha256": "3b00b3f40b0cc9d85d43abe31bb4e2e6a437d894f821e16a00496ea41b67cbe0",
+      "bytes": 21855
+    },
+    {
+      "path": "design-system/accessibility/index.html.md",
+      "sha256": "b6f351dac75c716dca1aee00fde176ea7f4af32f4535590afa3d6181a6889fb4",
+      "bytes": 2347
+    },
+    {
+      "path": "design-system/accessibility-policy.json",
+      "sha256": "df41b0b5544ebab37a85251f75adbcc362c09eb4a3ca3ceef6cd21b011f171e6",
+      "bytes": 10595
+    },
+    {
+      "path": "design-system/component-contracts.json",
+      "sha256": "34f92784a52a4700a2e703cd8a95f0eca5d359909011806a734f49d50968fa28",
+      "bytes": 19211
+    },
+    {
+      "path": "design-system/component-inventory.json",
+      "sha256": "eef5ea00a2730ffd28b3df962b9323db428d0a33fe752962a2e170c452a9c68b",
+      "bytes": 138457
+    },
+    {
+      "path": "design-system/component-registry.json",
+      "sha256": "90038f9708b4c5f57f810e449ebb6e291812990ca70da5e072be43769a106b9c",
+      "bytes": 46271
+    },
+    {
+      "path": "design-system/component-specimens.json",
+      "sha256": "889e52cacb09d30d9a9f89bc71430c544d9599c76f739541049d75c2062e82bd",
+      "bytes": 268306
+    },
+    {
+      "path": "design-system/components/index.html",
+      "sha256": "b47801ad8c965ef64abbe847c407e98fb8a152750d96fb66380e5085876e4f3a",
+      "bytes": 252734
+    },
+    {
+      "path": "design-system/components/index.html.md",
+      "sha256": "74365f23c9bec8737550b78a4e95acabbaf31288316df26d60a59efea8b8658e",
+      "bytes": 10897
+    },
+    {
+      "path": "design-system/fonts/index.html",
+      "sha256": "9b1e8d22f7c882e343f488cc0301d9167d6b6ff6d6a759371f72c673e3356ed2",
+      "bytes": 19303
+    },
+    {
+      "path": "design-system/fonts/index.html.md",
+      "sha256": "6ac0899a69f64dc53e538a870e80467e06c3200d45b6d67ea29be57ce6dbf33b",
+      "bytes": 1602
+    },
+    {
+      "path": "design-system/icon-scenarios.json",
+      "sha256": "8190625793a8c1952e6b855b1ba604c77a61b872d8b1311b481d96bcb60891e1",
+      "bytes": 4334
+    },
+    {
+      "path": "design-system/icons/index.html",
+      "sha256": "e903ca37e5fe4c251785a065529555d5615d02c9cac7a88d2ed0d0ffe55a2464",
+      "bytes": 1279715
+    },
+    {
+      "path": "design-system/icons/index.html.md",
+      "sha256": "952ceeb9155a898b3986fffe156f2cfde714284fc0d2bbf922a739f1076af592",
+      "bytes": 795
+    },
+    {
+      "path": "design-system/index.html",
+      "sha256": "23b7e36fdf2295dc78f760882347141fd78e53c2d1d084edf6baaeb5aa5b0842",
+      "bytes": 20030
+    },
+    {
+      "path": "design-system/index.html.md",
+      "sha256": "7ccc7edf2c448f7d07ff737d60929048df9c535eef9d8e60bbfeeda9d0ca79e6",
+      "bytes": 2544
+    },
+    {
+      "path": "design-system/llms-full.txt",
+      "sha256": "8fdfe828c55cc307f2c224afe85640e5a336ec0654f951a0bb6bd65599a2f8a5",
+      "bytes": 33714
+    },
+    {
+      "path": "design-system/llms.txt",
+      "sha256": "cec1e1efc380fe1530eb37a0130865693e1ad8d59e067df60d558600e87006a7",
+      "bytes": 1240
+    },
+    {
+      "path": "design-system/manifest.json",
+      "sha256": "f02ba8d0ede20eb1aeb7799925796ff08fe593f553a9c22ceda38a7fff3ee9b5",
+      "bytes": 3975
+    },
+    {
+      "path": "design-system/pattern-contracts.json",
+      "sha256": "a2684a7705e3e956192e61f518b640198444698d3df0853be39d6bccbb80620e",
+      "bytes": 7271
+    },
+    {
+      "path": "design-system/pattern-specimens.json",
+      "sha256": "e4d5da2a9d1233eb0cbe17c1cf8f15f7a2214c808d481cfdd105313dbf509fcf",
+      "bytes": 70924
+    },
+    {
+      "path": "design-system/patterns/index.html",
+      "sha256": "2249abec30a58626885aa9ef8092385000005d5e4cd2d3cad86b35381479664e",
+      "bytes": 87364
+    },
+    {
+      "path": "design-system/patterns/index.html.md",
+      "sha256": "c7574c5393370c47be3c77ae115333f7b0974d62840cabb18aa0d30dae9da8da",
+      "bytes": 7446
+    },
+    {
+      "path": "design-system/specimen-provenance.json",
+      "sha256": "8245590126beedf1f9fc6e8f2eac428ecffb0cc62001dda8c48223aea0365594",
+      "bytes": 16146
+    },
+    {
+      "path": "design-system/surface-presentation-profiles.json",
+      "sha256": "4e57055965637f52b6c8e28d94e6636b4fdc7dbbb1564230fb00bd438c993138",
+      "bytes": 20031
+    },
+    {
+      "path": "design-system/tokens/index.html",
+      "sha256": "4ba04ad0de59eefab1e9f290fe0168a8fa237758b10df7bbdeb62e3087140fa8",
+      "bytes": 31944
+    },
+    {
+      "path": "design-system/tokens/index.html.md",
+      "sha256": "a5c8299d519d1807dcfbbcff31339e6fde2e48e22a19be0c5d7bcfea826da437",
+      "bytes": 6409
+    },
+    {
+      "path": "design-system/visual-composition-policy.json",
+      "sha256": "759ff3aa05803c4f25f0df05700a69ea98625836fcdb3806f92a301d23f36b68",
+      "bytes": 7913
+    },
+    {
+      "path": "design-system/visual-token-adapter.json",
+      "sha256": "47e9a54cd21b4888335e01a5e0fcb51aa19d8cd0c79e931773c4c8c4f4a8f111",
+      "bytes": 21375
+    },
+    {
+      "path": "docs/index.html",
+      "sha256": "96f9dafd87a2417c8f178a4629e5de959599c7ae9fc5b8e7b6670c9893da1fce",
+      "bytes": 55216
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-001/ui-generation-report.html",
+      "sha256": "2dec82e3d811f1159ed051316abfd47d39102c9bead9db3c91ba22980a684df0",
+      "bytes": 18358
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-001/ui-generation-report.json",
+      "sha256": "147b3120f72ef6425378bf5089be90be4dab0307ccc8f9a7c2cd03e4e29479a8",
+      "bytes": 12474
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-002/ui-generation-report.html",
+      "sha256": "3145617d88dd57bd48b309dc96ab4f5cb373a00d21a3f45ce59c425a2a4b7a1f",
+      "bytes": 18358
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-002/ui-generation-report.json",
+      "sha256": "943f78d0554325205c27edbae677ecae092aadc53a59f2cd41584129570b83b6",
+      "bytes": 12474
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-003/ui-generation-report.html",
+      "sha256": "a6b9cfab226f59c4987a51ed32679046ee617acce5ae1e9547f35b30ed163e8c",
+      "bytes": 26119
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-003/ui-generation-report.json",
+      "sha256": "ee6da1c603ba50f75f80e2d2254c479b1b37a59eb7bc46627ab7ff271a2f5dfb",
+      "bytes": 12474
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-004/screenshots/dinner-playlist-standalone-v1/baseline-desktop.png",
+      "sha256": "84e16310409bc5e7b7f3396f175a6578e7fcedef5e3ff879f3986e2e83008a50",
+      "bytes": 142947
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-004/screenshots/dinner-playlist-standalone-v1/baseline-mobile.png",
+      "sha256": "bb42741d0700ed7be25a79801bdfe67ff13f0654e510005259084466c440a0f3",
+      "bytes": 62050
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-004/screenshots/dinner-playlist-standalone-v1/guided-desktop.png",
+      "sha256": "027c85c5db79f143a8e9d416de353c90658c4450403ecc1c108a0a2ddc696711",
+      "bytes": 172775
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-004/screenshots/dinner-playlist-standalone-v1/guided-mobile.png",
+      "sha256": "6169eeea5737d9e33b0b53203e9d55df3cda124350a75116b61e25d822c59777",
+      "bytes": 62167
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-004/screenshots/refund-triage-standalone-v1/baseline-desktop.png",
+      "sha256": "d2d53ed681a8a57056f1a563a9c7e475f2cae721b1585c12bb97a0c9fcc589aa",
+      "bytes": 99930
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-004/screenshots/refund-triage-standalone-v1/baseline-mobile.png",
+      "sha256": "1ca28d004afcc31c22d4393df75974c41e55d73325b1045665086ff5f80c89a9",
+      "bytes": 54146
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-004/screenshots/refund-triage-standalone-v1/guided-desktop.png",
+      "sha256": "fcfe98d5d172a33cd8a244c0b4599b96b3e04d7dc1a2e9f8e0db271559c1f09e",
+      "bytes": 110232
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-004/screenshots/refund-triage-standalone-v1/guided-mobile.png",
+      "sha256": "37ad85800f25d631369abcf2b96f42d3bac190fac8148d7e083e6248db20785d",
+      "bytes": 51511
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-004/ui-generation-report.html",
+      "sha256": "b80cd902745b8a56b1c19b7fd1eebbe6140282b89108d5e32a3ac9aea2e2d70d",
+      "bytes": 35408
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-004/ui-generation-report.json",
+      "sha256": "438cdb8da98195bb2ebbe0978b6a865fa21bb765fd170abcf90c9cc52d346a9d",
+      "bytes": 17565
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-005/screenshots/dinner-playlist-standalone-v1/baseline-desktop.png",
+      "sha256": "84e16310409bc5e7b7f3396f175a6578e7fcedef5e3ff879f3986e2e83008a50",
+      "bytes": 142947
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-005/screenshots/dinner-playlist-standalone-v1/baseline-mobile.png",
+      "sha256": "bb42741d0700ed7be25a79801bdfe67ff13f0654e510005259084466c440a0f3",
+      "bytes": 62050
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-005/screenshots/dinner-playlist-standalone-v1/guided-desktop.png",
+      "sha256": "027c85c5db79f143a8e9d416de353c90658c4450403ecc1c108a0a2ddc696711",
+      "bytes": 172775
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-005/screenshots/dinner-playlist-standalone-v1/guided-mobile.png",
+      "sha256": "6169eeea5737d9e33b0b53203e9d55df3cda124350a75116b61e25d822c59777",
+      "bytes": 62167
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-005/screenshots/refund-triage-standalone-v1/baseline-desktop.png",
+      "sha256": "d2d53ed681a8a57056f1a563a9c7e475f2cae721b1585c12bb97a0c9fcc589aa",
+      "bytes": 99930
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-005/screenshots/refund-triage-standalone-v1/baseline-mobile.png",
+      "sha256": "1ca28d004afcc31c22d4393df75974c41e55d73325b1045665086ff5f80c89a9",
+      "bytes": 54146
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-005/screenshots/refund-triage-standalone-v1/guided-desktop.png",
+      "sha256": "fcfe98d5d172a33cd8a244c0b4599b96b3e04d7dc1a2e9f8e0db271559c1f09e",
+      "bytes": 110232
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-005/screenshots/refund-triage-standalone-v1/guided-mobile.png",
+      "sha256": "37ad85800f25d631369abcf2b96f42d3bac190fac8148d7e083e6248db20785d",
+      "bytes": 51511
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-005/ui-generation-report.html",
+      "sha256": "1bb3a6cdabb9677432b406e21c5126cddf7a818bb6b16cb2330dafdf73d20b7d",
+      "bytes": 35416
+    },
+    {
+      "path": "evals/2026-05-12/mcp-0.1.0/run-005/ui-generation-report.json",
+      "sha256": "d309988d881ac45c9538d8e20a434f8f52fa868b6a5114b49e333c60baf8c48b",
+      "bytes": 17565
+    },
+    {
+      "path": "evals/2026-05-13/mcp-0.1.0/run-001/screenshots/dinner-playlist-standalone-v1/baseline-desktop.png",
+      "sha256": "84e16310409bc5e7b7f3396f175a6578e7fcedef5e3ff879f3986e2e83008a50",
+      "bytes": 142947
+    },
+    {
+      "path": "evals/2026-05-13/mcp-0.1.0/run-001/screenshots/dinner-playlist-standalone-v1/baseline-mobile.png",
+      "sha256": "bb42741d0700ed7be25a79801bdfe67ff13f0654e510005259084466c440a0f3",
+      "bytes": 62050
+    },
+    {
+      "path": "evals/2026-05-13/mcp-0.1.0/run-001/screenshots/dinner-playlist-standalone-v1/guided-desktop.png",
+      "sha256": "027c85c5db79f143a8e9d416de353c90658c4450403ecc1c108a0a2ddc696711",
+      "bytes": 172775
+    },
+    {
+      "path": "evals/2026-05-13/mcp-0.1.0/run-001/screenshots/dinner-playlist-standalone-v1/guided-mobile.png",
+      "sha256": "6169eeea5737d9e33b0b53203e9d55df3cda124350a75116b61e25d822c59777",
+      "bytes": 62167
+    },
+    {
+      "path": "evals/2026-05-13/mcp-0.1.0/run-001/screenshots/refund-triage-standalone-v1/baseline-desktop.png",
+      "sha256": "d2d53ed681a8a57056f1a563a9c7e475f2cae721b1585c12bb97a0c9fcc589aa",
+      "bytes": 99930
+    },
+    {
+      "path": "evals/2026-05-13/mcp-0.1.0/run-001/screenshots/refund-triage-standalone-v1/baseline-mobile.png",
+      "sha256": "1ca28d004afcc31c22d4393df75974c41e55d73325b1045665086ff5f80c89a9",
+      "bytes": 54146
+    },
+    {
+      "path": "evals/2026-05-13/mcp-0.1.0/run-001/screenshots/refund-triage-standalone-v1/guided-desktop.png",
+      "sha256": "fcfe98d5d172a33cd8a244c0b4599b96b3e04d7dc1a2e9f8e0db271559c1f09e",
+      "bytes": 110232
+    },
+    {
+      "path": "evals/2026-05-13/mcp-0.1.0/run-001/screenshots/refund-triage-standalone-v1/guided-mobile.png",
+      "sha256": "37ad85800f25d631369abcf2b96f42d3bac190fac8148d7e083e6248db20785d",
+      "bytes": 51511
+    },
+    {
+      "path": "evals/2026-05-13/mcp-0.1.0/run-001/ui-generation-report.html",
+      "sha256": "0e09674a6822b361464f3c4bbc80586d8782bf6db3137991ca97dac8e6fa8c93",
+      "bytes": 35416
+    },
+    {
+      "path": "evals/2026-05-13/mcp-0.1.0/run-001/ui-generation-report.json",
+      "sha256": "c049dcd81689998b123f205011d4edc0a4fe70d06a7d92bb5f9047f21eb47354",
+      "bytes": 17565
+    },
+    {
+      "path": "evals/2026-05-15/mcp-0.1.0/run-001/screenshots/dinner-playlist-standalone-v1/baseline-desktop.png",
+      "sha256": "84e16310409bc5e7b7f3396f175a6578e7fcedef5e3ff879f3986e2e83008a50",
+      "bytes": 142947
+    },
+    {
+      "path": "evals/2026-05-15/mcp-0.1.0/run-001/screenshots/dinner-playlist-standalone-v1/baseline-mobile.png",
+      "sha256": "bb42741d0700ed7be25a79801bdfe67ff13f0654e510005259084466c440a0f3",
+      "bytes": 62050
+    },
+    {
+      "path": "evals/2026-05-15/mcp-0.1.0/run-001/screenshots/dinner-playlist-standalone-v1/guided-desktop.png",
+      "sha256": "027c85c5db79f143a8e9d416de353c90658c4450403ecc1c108a0a2ddc696711",
+      "bytes": 172775
+    },
+    {
+      "path": "evals/2026-05-15/mcp-0.1.0/run-001/screenshots/dinner-playlist-standalone-v1/guided-mobile.png",
+      "sha256": "6169eeea5737d9e33b0b53203e9d55df3cda124350a75116b61e25d822c59777",
+      "bytes": 62167
+    },
+    {
+      "path": "evals/2026-05-15/mcp-0.1.0/run-001/screenshots/refund-triage-standalone-v1/baseline-desktop.png",
+      "sha256": "d2d53ed681a8a57056f1a563a9c7e475f2cae721b1585c12bb97a0c9fcc589aa",
+      "bytes": 99930
+    },
+    {
+      "path": "evals/2026-05-15/mcp-0.1.0/run-001/screenshots/refund-triage-standalone-v1/baseline-mobile.png",
+      "sha256": "1ca28d004afcc31c22d4393df75974c41e55d73325b1045665086ff5f80c89a9",
+      "bytes": 54146
+    },
+    {
+      "path": "evals/2026-05-15/mcp-0.1.0/run-001/screenshots/refund-triage-standalone-v1/guided-desktop.png",
+      "sha256": "fcfe98d5d172a33cd8a244c0b4599b96b3e04d7dc1a2e9f8e0db271559c1f09e",
+      "bytes": 110232
+    },
+    {
+      "path": "evals/2026-05-15/mcp-0.1.0/run-001/screenshots/refund-triage-standalone-v1/guided-mobile.png",
+      "sha256": "37ad85800f25d631369abcf2b96f42d3bac190fac8148d7e083e6248db20785d",
+      "bytes": 51511
+    },
+    {
+      "path": "evals/2026-05-15/mcp-0.1.0/run-001/ui-generation-report.html",
+      "sha256": "4f073ffcabaa550ea9473e3573cd095281acf1f3bc62de2e44f96733c26d61f2",
+      "bytes": 35416
+    },
+    {
+      "path": "evals/2026-05-15/mcp-0.1.0/run-001/ui-generation-report.json",
+      "sha256": "f844139d79d7511051f1f86f47ba3a23fa3d7ac621ecec771894d2eb005e92a1",
+      "bytes": 17565
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.3.0/run-001/release-review.html",
+      "sha256": "7a481efbd2830d09b98b8117d4b2e0947f6ea22ecc679477d6c22f269ff3d042",
+      "bytes": 5939
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.3.0/run-001/screenshots/dinner-playlist-standalone-v1/baseline-desktop.png",
+      "sha256": "84e16310409bc5e7b7f3396f175a6578e7fcedef5e3ff879f3986e2e83008a50",
+      "bytes": 142947
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.3.0/run-001/screenshots/dinner-playlist-standalone-v1/baseline-mobile.png",
+      "sha256": "bb42741d0700ed7be25a79801bdfe67ff13f0654e510005259084466c440a0f3",
+      "bytes": 62050
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.3.0/run-001/screenshots/dinner-playlist-standalone-v1/guided-desktop.png",
+      "sha256": "a72ca902d3f9c8d8faf1e603a2bdb69fc00923ce2dbb1314be27788e28c1af5f",
+      "bytes": 168053
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.3.0/run-001/screenshots/dinner-playlist-standalone-v1/guided-mobile.png",
+      "sha256": "412f20320c88fe59b91d8485722cd936c1dcbb480420d3432eba164856cd43dd",
+      "bytes": 59466
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.3.0/run-001/screenshots/refund-triage-standalone-v1/baseline-desktop.png",
+      "sha256": "d2d53ed681a8a57056f1a563a9c7e475f2cae721b1585c12bb97a0c9fcc589aa",
+      "bytes": 99930
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.3.0/run-001/screenshots/refund-triage-standalone-v1/baseline-mobile.png",
+      "sha256": "1ca28d004afcc31c22d4393df75974c41e55d73325b1045665086ff5f80c89a9",
+      "bytes": 54146
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.3.0/run-001/screenshots/refund-triage-standalone-v1/guided-desktop.png",
+      "sha256": "610284576f1ef861229256b8b127ca30d742469ad1b76f0d06e34b4f6c4c76e8",
+      "bytes": 108382
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.3.0/run-001/screenshots/refund-triage-standalone-v1/guided-mobile.png",
+      "sha256": "f18a4b553f4267c470b2a168ee51919b8f05daa32fffd152520df160fda995cc",
+      "bytes": 49119
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.3.0/run-001/ui-generation-report.html",
+      "sha256": "3da022eaa4ff12edcc38eaef480109c355c1b35b9fb09033ae524d3451c482a2",
+      "bytes": 35416
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.3.0/run-001/ui-generation-report.json",
+      "sha256": "c54d1d21547a555d488c050e2cef0e402719b9ce44f384c0b81964ddfa038f35",
+      "bytes": 17565
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.4.0/run-001/screenshots/dinner-playlist-standalone-v1/baseline-desktop.png",
+      "sha256": "84e16310409bc5e7b7f3396f175a6578e7fcedef5e3ff879f3986e2e83008a50",
+      "bytes": 142947
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.4.0/run-001/screenshots/dinner-playlist-standalone-v1/baseline-mobile.png",
+      "sha256": "bb42741d0700ed7be25a79801bdfe67ff13f0654e510005259084466c440a0f3",
+      "bytes": 62050
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.4.0/run-001/screenshots/dinner-playlist-standalone-v1/guided-desktop.png",
+      "sha256": "a72ca902d3f9c8d8faf1e603a2bdb69fc00923ce2dbb1314be27788e28c1af5f",
+      "bytes": 168053
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.4.0/run-001/screenshots/dinner-playlist-standalone-v1/guided-mobile.png",
+      "sha256": "412f20320c88fe59b91d8485722cd936c1dcbb480420d3432eba164856cd43dd",
+      "bytes": 59466
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.4.0/run-001/screenshots/refund-triage-standalone-v1/baseline-desktop.png",
+      "sha256": "d2d53ed681a8a57056f1a563a9c7e475f2cae721b1585c12bb97a0c9fcc589aa",
+      "bytes": 99930
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.4.0/run-001/screenshots/refund-triage-standalone-v1/baseline-mobile.png",
+      "sha256": "1ca28d004afcc31c22d4393df75974c41e55d73325b1045665086ff5f80c89a9",
+      "bytes": 54146
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.4.0/run-001/screenshots/refund-triage-standalone-v1/guided-desktop.png",
+      "sha256": "610284576f1ef861229256b8b127ca30d742469ad1b76f0d06e34b4f6c4c76e8",
+      "bytes": 108382
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.4.0/run-001/screenshots/refund-triage-standalone-v1/guided-mobile.png",
+      "sha256": "f18a4b553f4267c470b2a168ee51919b8f05daa32fffd152520df160fda995cc",
+      "bytes": 49119
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.4.0/run-001/ui-generation-report.html",
+      "sha256": "59d2840da3abd0f61d284050b3a474699872269abeda59a8f72daa2c191a15b6",
+      "bytes": 35416
+    },
+    {
+      "path": "evals/2026-06-18/mcp-0.4.0/run-001/ui-generation-report.json",
+      "sha256": "ee8379e16cc6052a81d8c811f519400b2860b7c7e0f0d7227d8553248908a625",
+      "bytes": 17565
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-001/screenshots/dinner-playlist-standalone-v1/baseline-desktop.png",
+      "sha256": "84e16310409bc5e7b7f3396f175a6578e7fcedef5e3ff879f3986e2e83008a50",
+      "bytes": 142947
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-001/screenshots/dinner-playlist-standalone-v1/baseline-mobile.png",
+      "sha256": "bb42741d0700ed7be25a79801bdfe67ff13f0654e510005259084466c440a0f3",
+      "bytes": 62050
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-001/screenshots/dinner-playlist-standalone-v1/guided-desktop.png",
+      "sha256": "a72ca902d3f9c8d8faf1e603a2bdb69fc00923ce2dbb1314be27788e28c1af5f",
+      "bytes": 168053
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-001/screenshots/dinner-playlist-standalone-v1/guided-mobile.png",
+      "sha256": "412f20320c88fe59b91d8485722cd936c1dcbb480420d3432eba164856cd43dd",
+      "bytes": 59466
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-001/screenshots/refund-triage-standalone-v1/baseline-desktop.png",
+      "sha256": "d2d53ed681a8a57056f1a563a9c7e475f2cae721b1585c12bb97a0c9fcc589aa",
+      "bytes": 99930
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-001/screenshots/refund-triage-standalone-v1/baseline-mobile.png",
+      "sha256": "1ca28d004afcc31c22d4393df75974c41e55d73325b1045665086ff5f80c89a9",
+      "bytes": 54146
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-001/screenshots/refund-triage-standalone-v1/guided-desktop.png",
+      "sha256": "610284576f1ef861229256b8b127ca30d742469ad1b76f0d06e34b4f6c4c76e8",
+      "bytes": 108382
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-001/screenshots/refund-triage-standalone-v1/guided-mobile.png",
+      "sha256": "f18a4b553f4267c470b2a168ee51919b8f05daa32fffd152520df160fda995cc",
+      "bytes": 49119
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-001/ui-generation-report.html",
+      "sha256": "ec3faeaa8d7ebed02525bde02cab146815d6f9d382c1823b8b7eac7f33a9bf4a",
+      "bytes": 35416
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-001/ui-generation-report.json",
+      "sha256": "118644d962fc604a8f84443ac866d5b027adf11907b8b4470ffea1bf8c5ac2b4",
+      "bytes": 17565
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-002/screenshots/dinner-playlist-standalone-v1/baseline-desktop.png",
+      "sha256": "d36ed6d55a5ec6293bc97a81cee420ab45769fb54c68a4a8d2b9eef97b679666",
+      "bytes": 185912
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-002/screenshots/dinner-playlist-standalone-v1/baseline-mobile.png",
+      "sha256": "0e662025bc3a817b31a3bb85280bfe9b22136f9cab189515348efeb33e59cb87",
+      "bytes": 56225
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-002/screenshots/dinner-playlist-standalone-v1/guided-desktop.png",
+      "sha256": "f0ef6580cbc7c1e582f3bd1aa4733d6cfd5cbd5d3969c2d9353b304448139dc5",
+      "bytes": 213020
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-002/screenshots/dinner-playlist-standalone-v1/guided-mobile.png",
+      "sha256": "dbc3314b53bc618796f64f52a4e92269544b22ea549aa191fa80a84b76a1dd2a",
+      "bytes": 63331
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-002/screenshots/refund-triage-standalone-v1/baseline-desktop.png",
+      "sha256": "886d5b8ac6312afa37f38d8b6a207b63558296ff696336a5496074f9d4d16afc",
+      "bytes": 154762
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-002/screenshots/refund-triage-standalone-v1/baseline-mobile.png",
+      "sha256": "3940f4d53d91059edaa67c8c6fc45401c1e1a09990d37116509a1da67e47a539",
+      "bytes": 60714
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-002/screenshots/refund-triage-standalone-v1/guided-desktop.png",
+      "sha256": "fe838f0d72d95877b014464c2a324229db54cf28ee134a517daf81adbd6dbca1",
+      "bytes": 208241
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-002/screenshots/refund-triage-standalone-v1/guided-mobile.png",
+      "sha256": "0819dfcd5feeef3e85c938c6ad11d2ef4d99e97f6b99ae756f057398cce475c0",
+      "bytes": 58364
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-002/ui-generation-report.html",
+      "sha256": "f629b087858781eb667157c12724eb55fa8761c3a6c32e4623254b2c8a1d1e2e",
+      "bytes": 39018
+    },
+    {
+      "path": "evals/2026-07-03/mcp-0.6.5/run-002/ui-generation-report.json",
+      "sha256": "65b211b8298eba6f5a21303991e282512e35aefcbcdc4f0a8492bf3d8ccd45ea",
+      "bytes": 34083
+    },
+    {
+      "path": "evals/2026-08-08/mcp-0.7.0/run-001/screenshots/dinner-playlist-standalone-v1/baseline-desktop.png",
+      "sha256": "84e16310409bc5e7b7f3396f175a6578e7fcedef5e3ff879f3986e2e83008a50",
+      "bytes": 142947
+    },
+    {
+      "path": "evals/2026-08-08/mcp-0.7.0/run-001/screenshots/dinner-playlist-standalone-v1/baseline-mobile.png",
+      "sha256": "bb42741d0700ed7be25a79801bdfe67ff13f0654e510005259084466c440a0f3",
+      "bytes": 62050
+    },
+    {
+      "path": "evals/2026-08-08/mcp-0.7.0/run-001/screenshots/dinner-playlist-standalone-v1/guided-desktop.png",
+      "sha256": "a72ca902d3f9c8d8faf1e603a2bdb69fc00923ce2dbb1314be27788e28c1af5f",
+      "bytes": 168053
+    },
+    {
+      "path": "evals/2026-08-08/mcp-0.7.0/run-001/screenshots/dinner-playlist-standalone-v1/guided-mobile.png",
+      "sha256": "412f20320c88fe59b91d8485722cd936c1dcbb480420d3432eba164856cd43dd",
+      "bytes": 59466
+    },
+    {
+      "path": "evals/2026-08-08/mcp-0.7.0/run-001/screenshots/refund-triage-standalone-v1/baseline-desktop.png",
+      "sha256": "d2d53ed681a8a57056f1a563a9c7e475f2cae721b1585c12bb97a0c9fcc589aa",
+      "bytes": 99930
+    },
+    {
+      "path": "evals/2026-08-08/mcp-0.7.0/run-001/screenshots/refund-triage-standalone-v1/baseline-mobile.png",
+      "sha256": "1ca28d004afcc31c22d4393df75974c41e55d73325b1045665086ff5f80c89a9",
+      "bytes": 54146
+    },
+    {
+      "path": "evals/2026-08-08/mcp-0.7.0/run-001/screenshots/refund-triage-standalone-v1/guided-desktop.png",
+      "sha256": "b034fb46d3e860eafffb8550f86e1e123c666098137545b866d86f692fbe552a",
+      "bytes": 108283
+    },
+    {
+      "path": "evals/2026-08-08/mcp-0.7.0/run-001/screenshots/refund-triage-standalone-v1/guided-mobile.png",
+      "sha256": "ebce77ad91705cf27c5a5d92bfe68961a89791e5eec190491a1a4b9c342ec318",
+      "bytes": 49015
+    },
+    {
+      "path": "evals/2026-08-08/mcp-0.7.0/run-001/ui-generation-report.html",
+      "sha256": "f7f7631035a81f41ec8f41c0c5b984f82440979b1e2e22b1899afaea9fc8f61f",
+      "bytes": 36904
+    },
+    {
+      "path": "evals/2026-08-08/mcp-0.7.0/run-001/ui-generation-report.json",
+      "sha256": "9a35b132b17eee45f0cd1c128fb67469ad242658cb413e8497800e15f5928a70",
+      "bytes": 17930
+    },
+    {
+      "path": "evals/index.html",
+      "sha256": "b857a830b086bcb2af4e0ca6b22ebe614c6030045a350a7de042650e2f181802",
+      "bytes": 17795
+    },
+    {
+      "path": "evals/index.json",
+      "sha256": "f688187abfe9eeb6c35f4d0a210141919f0721e38cd633957da32b1ba6b119e0",
+      "bytes": 8928
+    },
+    {
+      "path": "evals/judgmentkit-mcp/index.html",
+      "sha256": "2b5c50fc167b3f373e592c50891bbb88a4de246c008bb01d97fffd0c0a08dd71",
+      "bytes": 36924
+    },
+    {
+      "path": "evals/site-rebuild-log/index.html",
+      "sha256": "523f6a5c81d2cf5eaf89f42ad06fa417b4b66bea71f87aff680d361766a935e5",
+      "bytes": 19826
+    },
+    {
+      "path": "examples/ai-native-design-system/canonical-examples.json",
+      "sha256": "914d76a9ccad4feaa1abe8f25df68658887f20cbb4ddad0289aa720188bef2d7",
+      "bytes": 34495
+    },
+    {
+      "path": "examples/ai-native-design-system/first-use.json",
+      "sha256": "4614bd004b7ed491332808c97700aeafd4a32da64c3086ee903d32a2e0cb7a95",
+      "bytes": 12899
+    },
+    {
+      "path": "examples/comparison/music/facilitator-scorecard.md",
+      "sha256": "97c0f708c0f4a450f6ee7c56c273acc629a9a4664c6bb5dae4ee2696a31ad958",
+      "bytes": 2433
+    },
+    {
+      "path": "examples/comparison/music/version-a.html",
+      "sha256": "678572f75c3cac0a4a71b5879cbdac717415d7253ba264ecfa79193460e73d1d",
+      "bytes": 14020
+    },
+    {
+      "path": "examples/comparison/music/version-b.html",
+      "sha256": "a1fd4b3af5e17cce3a34bbfd92ca3fd5d86d0d32c7aa6673f1d0c7b0aa73d54d",
+      "bytes": 25623
+    },
+    {
+      "path": "examples/comparison/refund/version-a.html",
+      "sha256": "391fa9973bf6f336bfcb0c66010e8a3c935d86a9e07de376c291e7da4e553eb5",
+      "bytes": 9870
+    },
+    {
+      "path": "examples/comparison/refund/version-b.html",
+      "sha256": "2a9a63e5e2c1c0e08c24c3021a6238e6cd620531db1944b603c940b2ac95b2e7",
+      "bytes": 13991
+    },
+    {
+      "path": "examples/er-flow-dashboard/index.html",
+      "sha256": "d9c5a27afa7b01249ebc80264594633daa8bbedcd033e98a89ba898b2dae75ac",
+      "bytes": 41620
+    },
+    {
+      "path": "examples/index.html",
+      "sha256": "ab32c34330e99327de86a125944edba861ddc9b438b49e95da865c99a20da554",
+      "bytes": 176052
+    },
+    {
+      "path": "examples/lucide-icon-catalog-smoke.html",
+      "sha256": "5abf69d6f1bdad1c9e6a2d44f46d9e5c539dc8a480df2f9259ec107c2d7a9ff8",
+      "bytes": 795797
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/deterministic-judgmentkit-material-ui.html",
+      "sha256": "edab684f8ad5f4382c407dfd9931a992f1c0b3cef576179ffdcad3ee9f51eeac",
+      "bytes": 44364
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/deterministic-material-ui-only.html",
+      "sha256": "c12e73d531dabc3f500534b5488e4956671a497dd0b209d51e1f52b0d825c6f6",
+      "bytes": 40696
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/deterministic-no-judgmentkit.html",
+      "sha256": "6584402d9c21a95cb2cec10b2f29cf77ec340503b3577c95550fd7b0e598d946",
+      "bytes": 13651
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/deterministic-with-judgmentkit.html",
+      "sha256": "c8bb33285067e2027dc4fb9492c25c28bddd629caeba82f9be0dc788f69a882e",
+      "bytes": 18342
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gemma4-lms-judgmentkit-material-ui.html",
+      "sha256": "247125b5b14813a87332f7da72479c76f2b19bdb1a5ed231cc1d113b91fc71d2",
+      "bytes": 43839
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gemma4-lms-material-ui-only.html",
+      "sha256": "9e520f23e10d528ae9cbf024ddff1d829cbc23ac967050ee6e57222ef9eee226",
+      "bytes": 42253
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gemma4-lms-no-judgmentkit.html",
+      "sha256": "c4b0f2d9ff98a31662a99198722709dbc3328385e4f1bc417ab57b3bfee36b2a",
+      "bytes": 15213
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
+      "sha256": "5b34114ead9c9f0fd952099f210b339156323aacdd26b02d5fd10e9f149df3f4",
+      "bytes": 44936
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt55-xhigh-codex-material-ui-only.html",
+      "sha256": "3a6594c14bd912eb37dbaa21845929cfdcb7761119412110120b030308b4d0a4",
+      "bytes": 43389
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
+      "sha256": "e5724077830cadb20bb731ad06b4a73ed4a682e45bea7d722514414c8908a0ae",
+      "bytes": 20683
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html",
+      "sha256": "9596f9ce146ee52eed8f2208e643606246c8927b735fa042318968f2792d498a",
+      "bytes": 46123
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-low-codex-material-ui-only.html",
+      "sha256": "b23400784d58fc722cd1baebfb54c46c7d1c239c40d6bbc1183f50e4adfa7f4f",
+      "bytes": 42713
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-low-codex-no-judgmentkit.html",
+      "sha256": "3cf53afd203f57ee0080b2a8c4b7a915e6a4c315f5694e5de6bd1486ea4f2ff6",
+      "bytes": 31344
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-low-codex-with-judgmentkit.html",
+      "sha256": "0c06771fee0379fade978cfb710b4f8a80ffcc185f99ffc7e5905c4587ace199",
+      "bytes": 29779
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html",
+      "sha256": "f28697ae05c43f20d28aeef3fb2703fa073cc12852170d259ee1feeb5330ade6",
+      "bytes": 45814
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-ultra-codex-material-ui-only.html",
+      "sha256": "be9f1142cbc54af3c1965285257ed75cae80c944aff3c17b8f551d86e359e7e0",
+      "bytes": 42964
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-ultra-codex-no-judgmentkit.html",
+      "sha256": "94fc6a486549411b142829a998c7bc98e52a61138fcd2d8ec183342bc6ee9bc1",
+      "bytes": 37532
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+      "sha256": "cf40497f0c2fae1a5582aca251d0bda8b56fbdc1b5899b9794010be79ff92e4d",
+      "bytes": 35117
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gemma4-lms-judgmentkit-material-ui.json",
+      "sha256": "d197ca97610e4ab3caade709753e56e19614c509d041c8f39d0b8bcd4c7258fd",
+      "bytes": 9153
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gemma4-lms-material-ui-only.json",
+      "sha256": "668e6a18de93bc4f7952ae06f587a7698ec522cf1bb11c8146093c2146cd67c2",
+      "bytes": 7818
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gemma4-lms-no-judgmentkit.json",
+      "sha256": "eea285fa626af3394de8e7e05178ff931d50743a790454f960882de0063848e1",
+      "bytes": 10665
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+      "sha256": "4c8f98dcd9b1b9ce409883ff66d2f82f38f6bcba8ea9d2a23e1d9170b319b79d",
+      "bytes": 8821
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt55-xhigh-codex-material-ui-only.json",
+      "sha256": "83fa655d76c5d2f6bdf0801cb5253e28e94ae6bb053325c6fc838311dc57a5ea",
+      "bytes": 7699
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt55-xhigh-codex-no-judgmentkit.json",
+      "sha256": "cff98dc2fe4d81345e665713555f3bbbccf6a6475b99e821ade4b7637f0a96e7",
+      "bytes": 21969
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-low-codex-judgmentkit-material-ui.json",
+      "sha256": "2edf587b573190094bf8bc833ec2af4b491c2d2f232d226ba445c9dc59f10571",
+      "bytes": 10067
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-low-codex-material-ui-only.json",
+      "sha256": "1e219adf35f69270444423ac8f10da1c991e153a7b2f71c7bfb92f3eb7d0cb0e",
+      "bytes": 7239
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-low-codex-no-judgmentkit.json",
+      "sha256": "1c47d378383681084e8cec930054b9933318271a6c566895e2e3489bec815672",
+      "bytes": 32849
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-low-codex-with-judgmentkit.json",
+      "sha256": "ce44bf1277111d728e9bec50d9c03e170b4b09ca2a3fdfe1a6bf68fb027adf68",
+      "bytes": 31574
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-ultra-codex-judgmentkit-material-ui.json",
+      "sha256": "3d6ba564912712caa6591e8aa21ef4cba236906c4ca796da7ae2e918bf20256b",
+      "bytes": 10025
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-ultra-codex-material-ui-only.json",
+      "sha256": "ae7244f93c940055b35c877a13c17443dadf13f46bf3f48dd31166e43e65a5c9",
+      "bytes": 7258
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-ultra-codex-no-judgmentkit.json",
+      "sha256": "ec8ecb26e379e6f7a3def1bc4a6aaf735610cedefda24201dce4c2559d4b9006",
+      "bytes": 48044
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+      "sha256": "d0fdd5d6098bd50b3bf57d88fda8aa2cd3010fb1444120bcde9f6e16b0d30490",
+      "bytes": 44589
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/design-system-adapter.json",
+      "sha256": "153aae58a93a6d72dd087545fbd1bb88850d8747c11b3d74df58127a67e12082",
+      "bytes": 3692
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/index.html",
+      "sha256": "da33dcd84359dab7dab386ab4fd2a3447d04da775ac0afc462a4e1d8585462b9",
+      "bytes": 66084
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/manifest.json",
+      "sha256": "e5d2d6bd550c15b708d306917c66b2fb7536a507746b49367940537b0f3d47a5",
+      "bytes": 361802
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/reviewed-handoff.fixture.json",
+      "sha256": "6ea28039db80fac679cc2dcd668330565904541e222f659ad5f8f57dfdf077ea",
+      "bytes": 105595
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/deterministic-judgmentkit-material-ui.png",
+      "sha256": "6ac823d7f2a7be99246fd0c565166be8118dc55de5efed93e8ba9ac307980b06",
+      "bytes": 133665
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/deterministic-material-ui-only.png",
+      "sha256": "a7a9169d8583342251f7694131b3c51bed270e89f37fe8019e066f7624132256",
+      "bytes": 139201
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/deterministic-no-judgmentkit.png",
+      "sha256": "bdbda516465d2361a7caf32c29c1f44bb2a491cc86e1b9bafb711050720b7d72",
+      "bytes": 122565
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/deterministic-with-judgmentkit.png",
+      "sha256": "2744deb5df13836c05e32b3535ab6a09c7270de6aecd8f6483fd1933bf1fc53f",
+      "bytes": 109088
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gemma4-lms-judgmentkit-material-ui.png",
+      "sha256": "32cd98fec3fbe197df322d98cc2f37c4e8467d9510a5316abd0619db9b814400",
+      "bytes": 132944
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gemma4-lms-material-ui-only.png",
+      "sha256": "93935e2e60246d20259821bd9345f5ed1db96a9919c7771ae1d9401dc444fa1a",
+      "bytes": 151083
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gemma4-lms-no-judgmentkit.png",
+      "sha256": "1c2260078afd4964a8722bd1186ac3b5abb2e8c208df35f62ce93033c402be6e",
+      "bytes": 94363
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png",
+      "sha256": "3fe9332c6c3a6c6eacf8199055f9fcadcb06c6fcbba85ddfa807fde184101400",
+      "bytes": 131846
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gpt55-xhigh-codex-material-ui-only.png",
+      "sha256": "4519a0dec329fcc1a8d41af3625af9e8aedb6d5f3cbd029e15f38cb61abc941c",
+      "bytes": 116993
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
+      "sha256": "aff4594572707a43c2745c9cd378580d1e4764daaf8a8e219eb0bd3cd3203c99",
+      "bytes": 199029
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gpt56-sol-low-codex-judgmentkit-material-ui.png",
+      "sha256": "e6a2645361b38ec7c89f34a4dd306d7de5fecbe2476a487fe9f3470e218c2add",
+      "bytes": 125694
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gpt56-sol-low-codex-material-ui-only.png",
+      "sha256": "8ce7f998a66629a082b235cfc233efa9b6942c8b4374b3b98c4c60c79cbebe39",
+      "bytes": 138082
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gpt56-sol-low-codex-no-judgmentkit.png",
+      "sha256": "7a27fda8624d42f565c08021efdfcbf0d1e2fb7d76abab904c815faa64674181",
+      "bytes": 154177
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gpt56-sol-low-codex-with-judgmentkit.png",
+      "sha256": "2fd17f1d6541e253c3916f83fd91cc9d2e096465e373b47e8a245573bde00e61",
+      "bytes": 143066
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gpt56-sol-ultra-codex-judgmentkit-material-ui.png",
+      "sha256": "cd550e059c7b3291871c82bcfaac3e7d09f70cdb45e49f02dc7ae64c67f19491",
+      "bytes": 127618
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gpt56-sol-ultra-codex-material-ui-only.png",
+      "sha256": "f264d9fdd3622f64b57cb488da4a683e8400ae1ac3c15fc3042703c5f550bc1a",
+      "bytes": 133244
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gpt56-sol-ultra-codex-no-judgmentkit.png",
+      "sha256": "30e4ebefeedde04e8c95f2229008e0bbe2f6054c903df85c145ba043c3e8582f",
+      "bytes": 181744
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/screenshots/gpt56-sol-ultra-codex-with-judgmentkit.png",
+      "sha256": "0ebc37ad45e9ab67d1002c35901df6bc1863e5462e89649763544c28404ed041",
+      "bytes": 110839
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/source-brief.txt",
+      "sha256": "360360cba3dfc3de6643615f1819a7192dc31d357f8ca0032f7e20729001fa0d",
+      "bytes": 739
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/deterministic-judgmentkit-material-ui.html",
+      "sha256": "94c75e469ee582a7000397cd61cf7651c10ea3dd00a4344cf439e854da7b0d24",
+      "bytes": 44381
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/deterministic-material-ui-only.html",
+      "sha256": "23bd81cdde736767e73cd0802c20f73f79d556dc7e4c3dba2b61278b9cf4ae0a",
+      "bytes": 40747
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/deterministic-no-judgmentkit.html",
+      "sha256": "23a39f05b53268de18989209f1bda7c5d87d51ac951a7f0e406b63f4b4f35328",
+      "bytes": 13696
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/deterministic-with-judgmentkit.html",
+      "sha256": "fcda05053129babe98cb01ec6022682a9cb4029756e2fb624cb92c241f361f28",
+      "bytes": 18353
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gemma4-lms-judgmentkit-material-ui.html",
+      "sha256": "96057edda8e0ed86790986b8c32689b9c5a1f9da55c212c2bf2568942657b09a",
+      "bytes": 43908
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gemma4-lms-material-ui-only.html",
+      "sha256": "66aa1dfbd4b47c630bee67349831553b3870437a05fd2c8748a27bf63328b02b",
+      "bytes": 42304
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gemma4-lms-no-judgmentkit.html",
+      "sha256": "9e0e992c148c025517fda190ccfcc788570d8ec117dca7f20315a36c20130f4f",
+      "bytes": 15718
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
+      "sha256": "06d057c2476b9fa251286f38737737d46e7baaf0f45056ce60a0eb061ea8672f",
+      "bytes": 44964
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt55-xhigh-codex-material-ui-only.html",
+      "sha256": "ed20efe28b32f42f02c68bc19e2562d9f8b34421b491dc392d2ab82d026cc1b3",
+      "bytes": 42865
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
+      "sha256": "45a7185e14cac7baa2964408fbcd3008b58ae4d97741eb58357ad3a35592b223",
+      "bytes": 21404
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html",
+      "sha256": "1de0a58970a8ea703aab79f5a63044789c5688877c18485eb26ad08d71e418ee",
+      "bytes": 45798
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-low-codex-material-ui-only.html",
+      "sha256": "1bc29bb1335b9261fe2193e256a368d6f54a895d196fa5d1bff7c2e995487549",
+      "bytes": 42677
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-low-codex-no-judgmentkit.html",
+      "sha256": "9d2cbdfaa5fb2544ca05f91e748352c6666f5b1a299ff6376e465b876d33b047",
+      "bytes": 31899
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-low-codex-with-judgmentkit.html",
+      "sha256": "301778f36d53cf5753693105c7c095b2271e3ab943606368472611d7b9cef735",
+      "bytes": 30972
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html",
+      "sha256": "1b4c103d46875bbbc7c412c8148ad86316f22b038eb19ba98f68185406760ad5",
+      "bytes": 46612
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-ultra-codex-material-ui-only.html",
+      "sha256": "0336ff45de2b0071143388d6d1eb350caeaeaba84ab61c55e5eeaea0eb9c3a81",
+      "bytes": 42676
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+      "sha256": "d40d6ffcd381196b4a5ba598a3eaecc1dd4e27e1bbf9ceb8c029266b1830f746",
+      "bytes": 34463
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gemma4-lms-judgmentkit-material-ui.json",
+      "sha256": "a7506f687469e9758392b980fe3c052b539687c7e02e386a553dcd9d26a0957b",
+      "bytes": 9138
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gemma4-lms-material-ui-only.json",
+      "sha256": "44c7fa7a43c9cb6a5df44b6e5f2f9f4118b44a96a828c5a867e153a0a00e7d93",
+      "bytes": 7489
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gemma4-lms-no-judgmentkit.json",
+      "sha256": "fc9a8dc1d929d3bb9d27acdb0b7e8ad9eecb64bdc8989bc404497d145a4b2343",
+      "bytes": 11656
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+      "sha256": "c147104ebb75949bf08c389b7cd0082319ec781f32b457c8dcfc91f70656b1bb",
+      "bytes": 8617
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt55-xhigh-codex-material-ui-only.json",
+      "sha256": "c170d7d7776942fddf22097f29936c282dc7ff522dad879fc7fae0db66697500",
+      "bytes": 7128
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt55-xhigh-codex-no-judgmentkit.json",
+      "sha256": "a32ac2fa0835d913d9ccfa7ab1322fbe43f03f3d6d7ab5a39f10319e1fe741db",
+      "bytes": 22848
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt56-sol-low-codex-judgmentkit-material-ui.json",
+      "sha256": "75b62725bfc9195871045963eb6d8bfb5967344934cc4205e3f9ad3bb3a977d2",
+      "bytes": 9992
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt56-sol-low-codex-material-ui-only.json",
+      "sha256": "aa5a95231cf7288508fc3eae6a32ff03d116faefb09e7d384dee8903ac56c8da",
+      "bytes": 7040
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt56-sol-low-codex-no-judgmentkit.json",
+      "sha256": "3bc4d5ce84cb1b7a151c3eb20409eb215d3609f02aaac3ba333aa0dd53ceea57",
+      "bytes": 33103
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt56-sol-low-codex-with-judgmentkit.json",
+      "sha256": "53a1c7c9d60e403c0135c4fc3ad57eb9d4a843af0afd0de1316aeb521a626188",
+      "bytes": 35375
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt56-sol-ultra-codex-judgmentkit-material-ui.json",
+      "sha256": "9fdf0b69a03842860adad1910872f834c8b1e47cbabd9f28009158a99fe884b3",
+      "bytes": 10340
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt56-sol-ultra-codex-material-ui-only.json",
+      "sha256": "e14e8e0cffa64ba734d9dfc0b5392dec7686554ad9a7373f99e25c6dacdd8620",
+      "bytes": 7006
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+      "sha256": "0e53ede13d9a8d937f7545facbaea5af671d5426bfb85d5a0fae25983054e5de",
+      "bytes": 40159
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+      "sha256": "d0cccadaeb1598b0db0628172759eab4cf7a68460a3d87873786ebe6cc7524e8",
+      "bytes": 3697
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/index.html",
+      "sha256": "319ef5f5954e1d110b4e38bcdac815489b816e056f37ae0a7a834efa7726be3f",
+      "bytes": 64587
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/manifest.json",
+      "sha256": "404a80c73ff37fb24b2c9e2d3de1b2d78859639cc7b5c0c10de870e88aa3e89f",
+      "bytes": 314366
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+      "sha256": "8e4b2e6de5f26cd14ec7decc3791d1bb710b57d4e1025effe674e8b646845dc1",
+      "bytes": 105798
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/deterministic-judgmentkit-material-ui.png",
+      "sha256": "0a5977e3f213fea2f380c6dfa848f85ecf9dc0b02d59f63db37bdd5e21db95f0",
+      "bytes": 126489
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/deterministic-material-ui-only.png",
+      "sha256": "afed0d8835d9ad43b19bb927ac42d9c48c376c8bc10e851764c7597b5c334941",
+      "bytes": 135789
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/deterministic-no-judgmentkit.png",
+      "sha256": "ec4f3a60a35ed1240cef3b3ef4c70e7a513a5b64a2c1c172b99b2aca55014c84",
+      "bytes": 119390
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/deterministic-with-judgmentkit.png",
+      "sha256": "4dc9491ebb787d849be20ffa3ff83b42cd76a55051dc0cdf73628914d429233d",
+      "bytes": 104608
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gemma4-lms-judgmentkit-material-ui.png",
+      "sha256": "0a5977e3f213fea2f380c6dfa848f85ecf9dc0b02d59f63db37bdd5e21db95f0",
+      "bytes": 126489
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gemma4-lms-material-ui-only.png",
+      "sha256": "f2282ebc9a08225c503ffe941faf486536801fd7de3c23603e01764a88904dd7",
+      "bytes": 144522
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gemma4-lms-no-judgmentkit.png",
+      "sha256": "ff2b97df09e8721f336cb1a53d5789ff0f90be0ac1c63dcb480a8fde6089f25f",
+      "bytes": 118493
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png",
+      "sha256": "49d75235a1edc004339542bfebce407b62825907115578e2b7b01011c4162cdd",
+      "bytes": 110637
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gpt55-xhigh-codex-material-ui-only.png",
+      "sha256": "a477259e1b00d215aa8f4ff028b7eed704f6085071b7d5f0170fd92cca0ab571",
+      "bytes": 128481
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
+      "sha256": "6b7af01bf355982a68f6a42dd5e9a2c52a2c409a9e02a10a9b8fbe8c8d518f4b",
+      "bytes": 224182
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gpt56-sol-low-codex-judgmentkit-material-ui.png",
+      "sha256": "2025fe6a28ea51d8e42a7c2a3a17deb0d412e6e5650cc0f4c279c10b4824194d",
+      "bytes": 120987
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gpt56-sol-low-codex-material-ui-only.png",
+      "sha256": "c791812cf5d64f0bc2f950d9c3b73dbd87d7f10cf61389d1cd771ab00e7d393f",
+      "bytes": 129815
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gpt56-sol-low-codex-no-judgmentkit.png",
+      "sha256": "70206a82eb1116387cfc1c5ff3e8551cb49bb748fda1e417bed96166ee4e343d",
+      "bytes": 176991
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gpt56-sol-low-codex-with-judgmentkit.png",
+      "sha256": "d280b324010b64c958fbf968818befee649204ad5af1501b3d071a0c65ccfcbf",
+      "bytes": 156186
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gpt56-sol-ultra-codex-judgmentkit-material-ui.png",
+      "sha256": "5bffc49e40957ffd7b6d330a80c759253b10a4255d81548ad9c44f1f6c7f7e01",
+      "bytes": 107214
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gpt56-sol-ultra-codex-material-ui-only.png",
+      "sha256": "c5f07735da34cf81a8d15c62708c920da38d6655ad158cb4de7fcd4858b39555",
+      "bytes": 122315
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/screenshots/gpt56-sol-ultra-codex-with-judgmentkit.png",
+      "sha256": "fa836c0c698a9398d58f6fa8e4c72a986b7803771a5bc205e31f631fb3cd10f1",
+      "bytes": 165358
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "sha256": "0e588082074e41230ca64d04cc3f20b87848cf0d42a57c6f3ac3c9e2d58e006f",
+      "bytes": 780
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/deterministic-judgmentkit-material-ui.html",
+      "sha256": "69534dbacd738181678dfc1542bc12c13c47fa582ea8d5e1aeb7e7550695e466",
+      "bytes": 44358
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/deterministic-material-ui-only.html",
+      "sha256": "9e1ebea5f424b79fa7ca40ba8a55b4b3ca9cbb560a05af14bc59940234ba4679",
+      "bytes": 40733
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/deterministic-no-judgmentkit.html",
+      "sha256": "ec677541c2a62919a9e76226a4b32140b1e2041a6339514e35b8e834e0ac8403",
+      "bytes": 13682
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/deterministic-with-judgmentkit.html",
+      "sha256": "dd637cec253e4eec360049726f49f2060098a4d0bc08f0906e417f817f57723f",
+      "bytes": 18330
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gemma4-lms-judgmentkit-material-ui.html",
+      "sha256": "214c21457635da2a96803a80902d5c9172a7d165cff265f1262c902024ab4315",
+      "bytes": 43878
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gemma4-lms-material-ui-only.html",
+      "sha256": "3114382afcd81b666c416443b2f21f52bc378a93a08c38fed26cb942645a4843",
+      "bytes": 42295
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gemma4-lms-no-judgmentkit.html",
+      "sha256": "b073ddd632dae7bb2742561fe9d031bd466ffacf29745cb7b8b8f5f219dc9b82",
+      "bytes": 15354
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
+      "sha256": "5d3a6fb2516cd889f64ca88e68e94b5b408ffb24b6890f63f11e58ba4701f6c4",
+      "bytes": 45026
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt55-xhigh-codex-material-ui-only.html",
+      "sha256": "206fd25f02326429cba190c7e19ff975bda4794d674555fb4384478c3ec5154b",
+      "bytes": 42973
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
+      "sha256": "f169df2ccfddd0d25cfa054a1aa802eae92db691922043c79911c009dd9867ee",
+      "bytes": 21035
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html",
+      "sha256": "8726460da1527df3c3d1be45a7ee325fb82e24e0ac67813f40d7570a37159ecb",
+      "bytes": 46826
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-low-codex-material-ui-only.html",
+      "sha256": "ad2813dd722bc421d3a03a616f89a54774b7af0839db050bef5886e020b9ed29",
+      "bytes": 43475
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-low-codex-no-judgmentkit.html",
+      "sha256": "33e853904156d21fe064a3232d45d1028e1f0d45f36e0089ad5798ee60301f62",
+      "bytes": 32594
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-low-codex-with-judgmentkit.html",
+      "sha256": "a598ad824288318d84924cac72e331103cde11598451063738006ee0f71c7269",
+      "bytes": 28702
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html",
+      "sha256": "1c21082cc9ad9c35fff942118729d3aa49622ce6a56845f85bd5215b7ea01a2f",
+      "bytes": 46836
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-ultra-codex-material-ui-only.html",
+      "sha256": "ef7b0276dfde592f2cf5e9bb075758de5fa0dff500f936a2db92df9115dee794",
+      "bytes": 42852
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-ultra-codex-no-judgmentkit.html",
+      "sha256": "cd022c4ad523f9502667cdb368943e885c8bb7eee457537a89d810cf695454c7",
+      "bytes": 44820
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+      "sha256": "9ad0312caf3b99a058e4c42decadacdecdf06470741d6eb151fbd07b84d5a08f",
+      "bytes": 32538
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gemma4-lms-judgmentkit-material-ui.json",
+      "sha256": "428d2cfcf0b98ebcfe486bed67dfc9b4c764ffbfb1136616054f87e87395f31b",
+      "bytes": 9521
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gemma4-lms-material-ui-only.json",
+      "sha256": "5d32a587c8e8e532ca0cce351d3eca8481611270929da444be27f6b58ed76cdc",
+      "bytes": 8654
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gemma4-lms-no-judgmentkit.json",
+      "sha256": "dabce3109007840d55e549b8b1cc3131343cfc2513daaa7c6ab8d7af16869cbf",
+      "bytes": 11236
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+      "sha256": "2aef2ac01eea9428dec3e63ab5e3f33731b82a97b7fa2eb69aacebc76b7e0c5a",
+      "bytes": 8947
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt55-xhigh-codex-material-ui-only.json",
+      "sha256": "3152f419e3f63af62d9c60a323b57d824aab40d7fc44a1fadd3553f5fc310ad3",
+      "bytes": 7409
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt55-xhigh-codex-no-judgmentkit.json",
+      "sha256": "08040ecaa55761f7960fda584b7edebe02a55971b6b8f5d1815e7dd7fd34d146",
+      "bytes": 22817
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-low-codex-judgmentkit-material-ui.json",
+      "sha256": "b1f234e34cf92823c3a5f43a73ee77aa39d05805c05dae794653a9e55a7c2483",
+      "bytes": 10418
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-low-codex-material-ui-only.json",
+      "sha256": "b5c4ffe4fe5a9b7623313cde5cce9ce7e836f7e8c93f1031c956bfd5eb218dc4",
+      "bytes": 7457
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-low-codex-no-judgmentkit.json",
+      "sha256": "913ac67aa733a534b0964f1f9def9ab9ffb1563fab17aa836821df8d02206d66",
+      "bytes": 35867
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-low-codex-with-judgmentkit.json",
+      "sha256": "71acfb5e9f149b398bbcc800f207f97740f736bb39fda96cd8af64ea89d7f0e1",
+      "bytes": 29440
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-ultra-codex-judgmentkit-material-ui.json",
+      "sha256": "83f9f14c2634239d3a3bb3f0bb36cb5aceed41604e9d8f463c13ef332a07e3e0",
+      "bytes": 10368
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-ultra-codex-material-ui-only.json",
+      "sha256": "4f121764c09e90ced62d15743d3dbb18eebd7f98e9d3ec4251f16eb25a905232",
+      "bytes": 6974
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-ultra-codex-no-judgmentkit.json",
+      "sha256": "6c2f8a018da806377266863cf7f135f3b57760d3dc920a06ade46c76a28f00f7",
+      "bytes": 49976
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+      "sha256": "64d1dd5656c7fb1747614e5e6ef862345cc29c5f94733f0d5eeb237a9be640aa",
+      "bytes": 36340
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/design-system-adapter.json",
+      "sha256": "e2de9619f1a28a416a53271a497c8b269963707428c5221b2f82e83af29106d0",
+      "bytes": 3704
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/index.html",
+      "sha256": "963fd56db033191134063ba7f6bc4270557ae21b0b8d1c866059f55c7d16e9b7",
+      "bytes": 66085
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/manifest.json",
+      "sha256": "bb866d2fa45172f69614eb6a39a01327f458ac1355ff796c7264b026f58efb8b",
+      "bytes": 406740
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
+      "sha256": "b1cdadaacb96cf0f3464872dd8aaf133ee7ff03d8bdf984c603992ee0a583571",
+      "bytes": 106299
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/deterministic-judgmentkit-material-ui.png",
+      "sha256": "1e927e52b04e1b57518d4f8bc9d0576c0da7b8596b4ec7eaf6a1e3b42fcbddd7",
+      "bytes": 124618
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/deterministic-material-ui-only.png",
+      "sha256": "eb52663cd2e4768dcb6e6a5509f35a5d3dd80fd5504df5f1cf2289a8303271af",
+      "bytes": 133482
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/deterministic-no-judgmentkit.png",
+      "sha256": "16d765440904e22795cbe4e71ea296697eced6b2716f777561539a1e54653884",
+      "bytes": 122937
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/deterministic-with-judgmentkit.png",
+      "sha256": "6481de086c2770cf6113af40d33c1c92093e9d47abf85b2d6b3cb88899ced2c1",
+      "bytes": 107818
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gemma4-lms-judgmentkit-material-ui.png",
+      "sha256": "a13c1752a2edec36194d3386fcc61d0d68cb9c41f8c7420df352af85a6643399",
+      "bytes": 124390
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gemma4-lms-material-ui-only.png",
+      "sha256": "1aeb3530c54d7f5d3e662987be1e0e52bc982ce91be2af8d0897b1d6b94b92b5",
+      "bytes": 137795
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gemma4-lms-no-judgmentkit.png",
+      "sha256": "1c18c8d4d9c0cec6beabdc4cb581969ec1198a0302ab00e70903ce119c43ec00",
+      "bytes": 117979
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png",
+      "sha256": "a932a43206d9b81b178da9c7aebe6e1c62ec4efaa137891ff6d79c689b1a6533",
+      "bytes": 130311
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gpt55-xhigh-codex-material-ui-only.png",
+      "sha256": "ce1eaa6ee26c0fef597738def995c6ede9cc7013091a1f4ffd48d1cdcdf39e93",
+      "bytes": 127030
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
+      "sha256": "c5b63c298904847a68680ccfb95a797e714ec2dcd43c991aebb5060ceae21737",
+      "bytes": 193340
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gpt56-sol-low-codex-judgmentkit-material-ui.png",
+      "sha256": "e85e21e84a80cff7cd97dacc8c13fdcc670e981b303d17e8997b9564160bc6b1",
+      "bytes": 115230
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gpt56-sol-low-codex-material-ui-only.png",
+      "sha256": "2badb23a5ab4796245b08d14d2afbc7b3afa71675b7f65c08fdaa4c0e3c7b737",
+      "bytes": 123532
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gpt56-sol-low-codex-no-judgmentkit.png",
+      "sha256": "903f3ca661437aa549db5819d299b9a5c85a154104f3cd7781a3d1213993beca",
+      "bytes": 174949
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gpt56-sol-low-codex-with-judgmentkit.png",
+      "sha256": "fda146e00d4906adc2ca8442df042659fb4033f6cd0aa2d4eb34c3367f79f68c",
+      "bytes": 152653
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gpt56-sol-ultra-codex-judgmentkit-material-ui.png",
+      "sha256": "46a46d539ac1e215cb0f70b4d6e87b8462a9051ed19602cc488874254b7e5685",
+      "bytes": 118614
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gpt56-sol-ultra-codex-material-ui-only.png",
+      "sha256": "94b5d6c88483884ce369edb584f18146fc71c09badc13db94c2d4602749d40ca",
+      "bytes": 126975
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gpt56-sol-ultra-codex-no-judgmentkit.png",
+      "sha256": "8a25e62f3ccaa3c084517f95501213816eaafde92206f3877e65d544aa5d096d",
+      "bytes": 191505
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/screenshots/gpt56-sol-ultra-codex-with-judgmentkit.png",
+      "sha256": "6726d5e1964f357a4d2554be3481c0975040c35e43c17c64343331ee85ef16f2",
+      "bytes": 167948
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/source-brief.txt",
+      "sha256": "6bb7caee4198552b499c3128804040555ace0258b5c9ab52eeeac10eb52667cc",
+      "bytes": 770
+    },
+    {
+      "path": "examples/model-ui/index.json",
+      "sha256": "a61ab5439c7bc3b1382859fdca678422c413fb74b65663f2a443366ae146eb37",
+      "bytes": 1813
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/deterministic-judgmentkit-material-ui.html",
+      "sha256": "78879ca8ac07bc3c77cac94aa7bed233f981a2679a2bd83b6b505ef07133953d",
+      "bytes": 44301
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/deterministic-material-ui-only.html",
+      "sha256": "f70aba6fd2dae1627ef20825c5eda2df783ec17dcbe5aae84c98a32411d1d75b",
+      "bytes": 40632
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html",
+      "sha256": "08d125a1c19a738f51b01168b01ac006f488f69252fc36408f7f742aa23a936c",
+      "bytes": 13586
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/deterministic-with-judgmentkit.html",
+      "sha256": "d3e104605366ea3e2a571354251bdd230fd737d4188bcdff7ab9498c3b868df6",
+      "bytes": 18277
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gemma4-lms-judgmentkit-material-ui.html",
+      "sha256": "473dc5193978f2d64d29f0382ed30bf9386174c53583469411ce00525e95e3c7",
+      "bytes": 43828
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gemma4-lms-material-ui-only.html",
+      "sha256": "84aa2c264fd68b53eaea4ca2effedf3d4ed34da24e12e9a5765b8a2f5a46d339",
+      "bytes": 42427
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gemma4-lms-no-judgmentkit.html",
+      "sha256": "eaf0c062610fe5932cd5af3fc99a003196f47827b427ff88ffc18c5efd710d0c",
+      "bytes": 15392
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
+      "sha256": "49dc366320e7b4cc006979348eb5fd82800655baa8b6191bae08ba3056e0aa02",
+      "bytes": 44771
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-material-ui-only.html",
+      "sha256": "8b684789200f6e2e08e6fa7e5c0d1dd4b0079fe30b1659995293ff9a2767c190",
+      "bytes": 44168
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
+      "sha256": "ec7d8d4c99ca1c113bf04fb5093598083a789e9f530249ecbc9e152eb143ae60",
+      "bytes": 23050
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html",
+      "sha256": "e549ab09150788e8cdbb65788fb3dc8b6b21252f1bba7c0c37221211df65b761",
+      "bytes": 46071
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-low-codex-material-ui-only.html",
+      "sha256": "96405ccad0d7e0faca1b9d1073e56dbf1e0798893dd183e40c194451ba22e2d5",
+      "bytes": 42469
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-low-codex-no-judgmentkit.html",
+      "sha256": "9a7fe78a424c9b1405bc33604ad92b18d7426bbd0f3cbae9c6584b0a90788d6f",
+      "bytes": 33004
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-low-codex-with-judgmentkit.html",
+      "sha256": "03f2fea28b83399a2fd198267437a0b27461e85087464a888723a6d47c5dc6b0",
+      "bytes": 27741
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html",
+      "sha256": "ef6fc4e13978089549d2df82e24c4447be3e21bf567a8182c6143b06e68989d0",
+      "bytes": 45780
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-ultra-codex-material-ui-only.html",
+      "sha256": "48fe674f951a67b4e17f71ae6113e061f9da6f209f12ce272616e8eab5c9d557",
+      "bytes": 42188
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-ultra-codex-no-judgmentkit.html",
+      "sha256": "6cd756c6cf7e148e5ff396353252bdd482050724d07932cccab8415c1f496a32",
+      "bytes": 44745
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+      "sha256": "e136aa77dcdc81a885d46554d6311bf8941f3dcc23a9141e14d5881a50ae604a",
+      "bytes": 38899
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gemma4-lms-judgmentkit-material-ui.json",
+      "sha256": "272386441cb45bbb40b7ef117130f69a313bfc56e23854dac41e6d29726ed80a",
+      "bytes": 8997
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gemma4-lms-material-ui-only.json",
+      "sha256": "b5df01b25ef1eb21784c788ab24df809975f0bbe8891ad4d7ada976f8e48a67f",
+      "bytes": 8306
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gemma4-lms-no-judgmentkit.json",
+      "sha256": "efece89e2de8c4045116c8cf5ac3eb1b0ca5d52e7e7849711d8a46bb09ec0359",
+      "bytes": 11336
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+      "sha256": "38d35f699ed3802fa57b8d460bb2330a44363d43f8b8f0d175602f06e25f28ff",
+      "bytes": 8477
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt55-xhigh-codex-material-ui-only.json",
+      "sha256": "ac35eff088792d2a75ba68bd8065ebed9171f76a03f4891e4f1c1441ff961bed",
+      "bytes": 7571
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt55-xhigh-codex-no-judgmentkit.json",
+      "sha256": "b5ec9c07f6b1a2d0521243d348246b968c30d858d824b2b062b64afd3c876042",
+      "bytes": 26190
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-low-codex-judgmentkit-material-ui.json",
+      "sha256": "f89a1c933f79a42e4a294f40a0b800c767dbf08cd979f24faaf3a97f1e8c7e1b",
+      "bytes": 9943
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-low-codex-material-ui-only.json",
+      "sha256": "c033adfdc95dfc53c399186cdd937373848ac78c8e2773711e5c0891e76930c9",
+      "bytes": 6713
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-low-codex-no-judgmentkit.json",
+      "sha256": "110ad60572b7fbd807866691221057390d272d2895ca05917353902a668c50b9",
+      "bytes": 35418
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-low-codex-with-judgmentkit.json",
+      "sha256": "3d1406ad870e722ed5a341439e0404c91a4cf83241c93d8ef6b651568439e335",
+      "bytes": 27737
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-ultra-codex-judgmentkit-material-ui.json",
+      "sha256": "ded50df311cd39909409e18a44e6571dabb685fc71872d028fc9dd565f49e282",
+      "bytes": 9917
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-ultra-codex-material-ui-only.json",
+      "sha256": "d55420bcde6647f15d28919d422ef41a36730e4031736e44287303dd022f71e0",
+      "bytes": 6709
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-ultra-codex-no-judgmentkit.json",
+      "sha256": "e963926e7d36ad780cea986824e62e8da2f3043d1c5bc638a787a0e28459bd0d",
+      "bytes": 51070
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+      "sha256": "65471512e2c5101ad4d242fd3b4b8ddf3b870783d4f51002cc0b8954abfa8d1b",
+      "bytes": 52893
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/design-system-adapter.json",
+      "sha256": "06e793d07bd65e7e1d579fdb8e08f0d0b6fc7e0d856eca56c3e9914d7d4ea6d7",
+      "bytes": 3687
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/index.html",
+      "sha256": "6a994ced4cb32db3568a9606794185f44a96751fb6e6c481fe2d26e227504838",
+      "bytes": 66081
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/manifest.json",
+      "sha256": "a4caac837934ef609f41a7b78c892c6d35a17dfe93f978475bb6c9ef279575e5",
+      "bytes": 407664
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "sha256": "4be195ee4c288936eb71180e9f418f94bada3b8130a6dcedee3957cbd99a69aa",
+      "bytes": 106200
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/deterministic-judgmentkit-material-ui.png",
+      "sha256": "f55021fae689f9ec4e322498e351749f8d7ffe2e2f18c4b3be4302275ef79faa",
+      "bytes": 123405
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/deterministic-material-ui-only.png",
+      "sha256": "d27f6f3fe9cc3b73ede28cb69fe95249aba10b38619d5ad1f8f6bb7111825225",
+      "bytes": 129488
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png",
+      "sha256": "dd5f7f207110d2f2213050cb43efa3066147a481ee9d26f3d0f1c691939a6cad",
+      "bytes": 112085
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/deterministic-with-judgmentkit.png",
+      "sha256": "abda26706fdb11b81e41deb0721817fe0bb5b4aa5871f985d9450c16feb426ec",
+      "bytes": 106111
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gemma4-lms-judgmentkit-material-ui.png",
+      "sha256": "f55021fae689f9ec4e322498e351749f8d7ffe2e2f18c4b3be4302275ef79faa",
+      "bytes": 123405
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gemma4-lms-material-ui-only.png",
+      "sha256": "6bd0d0d1ea1c421cdec8eeca699a118f7c3bd245b424811d88caef6ab07bfb04",
+      "bytes": 119627
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gemma4-lms-no-judgmentkit.png",
+      "sha256": "35c009d932643126494b95e425ecfc0da5e5dfb5dc1b7a86c85b75e65bf59662",
+      "bytes": 122703
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png",
+      "sha256": "5428b16faf884554f2aab831f2c99a95e28504595c888847ee3d8538972d3312",
+      "bytes": 112870
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-material-ui-only.png",
+      "sha256": "5a20712ad01034b4c98834cd4fe792a5e5598085eaa7a611da0a6922c1c1ea22",
+      "bytes": 106603
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
+      "sha256": "d445a096eb99e6e144588d760e29bc36652cfa2045dd341770218a2851e4911a",
+      "bytes": 169083
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gpt56-sol-low-codex-judgmentkit-material-ui.png",
+      "sha256": "c84df8323b0e99935aba3006aeb982ccad4b6c1da52fd2aadbae3378f3750161",
+      "bytes": 112769
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gpt56-sol-low-codex-material-ui-only.png",
+      "sha256": "c1d60096819a2a0303ac013ad12b44dddd2ac27da5627b9db98f8eec40c9fc23",
+      "bytes": 115562
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gpt56-sol-low-codex-no-judgmentkit.png",
+      "sha256": "2d7d3f96e6807641fa109275915bcaa28c09c731959de8a61a42216e9e2c97eb",
+      "bytes": 131573
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gpt56-sol-low-codex-with-judgmentkit.png",
+      "sha256": "37d45a2acdf699ace89eac263a47d410825d3d76d3246fd8efc9981375c7bd7f",
+      "bytes": 132433
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gpt56-sol-ultra-codex-judgmentkit-material-ui.png",
+      "sha256": "c818b5ebee6f8af195530d0c446f0e36e355ca43f745498b8a41a7b80e526d43",
+      "bytes": 114227
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gpt56-sol-ultra-codex-material-ui-only.png",
+      "sha256": "c639cb9329be7bbfa549214f369ef4a56aaf0b8f3cb3113e5fe4b4a9036292de",
+      "bytes": 119041
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gpt56-sol-ultra-codex-no-judgmentkit.png",
+      "sha256": "38a66bbd821f7aa7e5c73d10e5bfbff3e584635db65e33db7edeec88fc544371",
+      "bytes": 115278
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/screenshots/gpt56-sol-ultra-codex-with-judgmentkit.png",
+      "sha256": "6dc0013011d3b9684402a90b0c620e819dcaaf848aee92036a4a0f9ece5209ee",
+      "bytes": 174883
+    },
+    {
+      "path": "examples/one-shot-demo.html",
+      "sha256": "187b3fef48e02e9340d9d712a52ee8471d7bd2f8a27aae77499b9105021c076a",
+      "bytes": 20845
+    },
+    {
+      "path": "experiments/netflix-library/baseline/README.md",
+      "sha256": "e5b5a5e6d32d8758539c44cd30c7627e97c787b42421145817afd44e35dda822",
+      "bytes": 235
+    },
+    {
+      "path": "experiments/netflix-library/baseline/app.js",
+      "sha256": "38131875d415447ebad8e01a96fa26bdd5c51edd7ba59c1b9be57be7d1bb2d51",
+      "bytes": 19915
+    },
+    {
+      "path": "experiments/netflix-library/baseline/index.html",
+      "sha256": "c28c02d8baac518be0189b5937490badd88c277a1a3c069b1454bf20a481064a",
+      "bytes": 7081
+    },
+    {
+      "path": "experiments/netflix-library/baseline/styles.css",
+      "sha256": "2a379576d5c78eb683612f6565e2bc5f214915130e5fc14dadc7cfee924f6135",
+      "bytes": 17434
+    },
+    {
+      "path": "experiments/netflix-library/index.html",
+      "sha256": "b5ab7d0aed147318db77aa333616dfdf929c3a29700c24b7a02daa720eb17fec",
+      "bytes": 5506
+    },
+    {
+      "path": "experiments/netflix-library/judgmentkit/app.js",
+      "sha256": "ef93b427a7b07136ecc59481d47aa7642fb6b010169c0d632ee1dde7a2d03cef",
+      "bytes": 27410
+    },
+    {
+      "path": "experiments/netflix-library/judgmentkit/index.html",
+      "sha256": "fe64ab839f3944bea48fee7435a367aef255ae57803d972807982c3ccda1061d",
+      "bytes": 5050
+    },
+    {
+      "path": "experiments/netflix-library/judgmentkit/styles.css",
+      "sha256": "87edb725eb8d1400328a0b9d5351bd8288a8da657dffc62dcc02e793880d9fa5",
+      "bytes": 14907
+    },
+    {
+      "path": "experiments/visual-composition-proof/README.md",
+      "sha256": "cd068802280e1c91236f8c7f81785cc7feb88c196156729dca12a8498b21b0f2",
+      "bytes": 5626
+    },
+    {
+      "path": "experiments/visual-composition-proof/acceptance-matrix.md",
+      "sha256": "beec61f609e246fc6fc2522b3b8fe8e11497ab59f7e85d3e5668780947032cf6",
+      "bytes": 10736
+    },
+    {
+      "path": "experiments/visual-composition-proof/browser-qa.md",
+      "sha256": "dfa04207d68110028f93ee5713ed276fa9dc2c45f8c3692f3f97ff2e59e7ebba",
+      "bytes": 3976
+    },
+    {
+      "path": "experiments/visual-composition-proof/checker.mjs",
+      "sha256": "aebb1213f8d9a2ec78c43e4a0b308a5b30c1f4fa0317bc45f4cde98607ecc414",
+      "bytes": 28741
+    },
+    {
+      "path": "experiments/visual-composition-proof/fixtures/assets/primary-brand-lockup.svg",
+      "sha256": "88f6073c7893d32a986b86b568f98b7ebbabc19769f7a21cd9eccf39408a9963",
+      "bytes": 1061
+    },
+    {
+      "path": "experiments/visual-composition-proof/fixtures/index.html",
+      "sha256": "d14c2382fcc423b3a0aae31fec7c10a5b135ae098ad197af1a223d702699bf97",
+      "bytes": 20099
+    },
+    {
+      "path": "experiments/visual-composition-proof/policy.json",
+      "sha256": "01050b50035627bb0d15894d3a3801973ff4c3713b54e26dfca1029080ac4d2b",
+      "bytes": 4980
+    },
+    {
+      "path": "experiments/visual-composition-proof/specimen.json",
+      "sha256": "48a4a680443c6c64c3c0ac92ca8745df70ddd3590dce6aa60cd461a616e510c4",
+      "bytes": 10195
+    },
+    {
+      "path": "experiments/workbench-surface-variant/README.md",
+      "sha256": "b5ed664ab40ee7b03d2e3c6cc129626088d617e2685a1d6bec0861ad93706ae0",
+      "bytes": 10118
+    },
+    {
+      "path": "experiments/workbench-surface-variant/app.js",
+      "sha256": "56d292ab633fe8ec437a9b6f8f67343a1cef99a4a7c48bb7a32ce8182c96f69d",
+      "bytes": 24672
+    },
+    {
+      "path": "experiments/workbench-surface-variant/browser-qa.md",
+      "sha256": "88dd43f4d0baea366ec135583f0d744e3b6f4a3eca2f1c6f151ba44b58c8b121",
+      "bytes": 4977
+    },
+    {
+      "path": "experiments/workbench-surface-variant/index.html",
+      "sha256": "ecfc9542c23541826cee45165342bf3ee7df66d169f7d4b1498d09bfa1faad21",
+      "bytes": 12226
+    },
+    {
+      "path": "experiments/workbench-surface-variant/specimen.json",
+      "sha256": "21c7db2d3a37e44ab59e8e5358851cfd2f598139e8aac5b18aa576653b71747c",
+      "bytes": 16154
+    },
+    {
+      "path": "experiments/workbench-surface-variant/styles.css",
+      "sha256": "0ee84dda39aee0cb53f2e893a55dbc23457fd71946043011b84b08abb5033a41",
+      "bytes": 24552
+    },
+    {
+      "path": "favicon.svg",
+      "sha256": "d6c85d9e3486c5c4674db771189817ef6e08e251ad489bc6d946ab04638ca396",
+      "bytes": 245
+    },
+    {
+      "path": "index.html",
+      "sha256": "21ab95dae6185312b59779299f30c40e75bd3c0970602e1d77a2578bfe0ec38e",
+      "bytes": 20403
+    },
+    {
+      "path": "install",
+      "sha256": "0f8c706019f0b984490d8f557e1d4820f1713fa1819c0c3f44287e280cd5a82f",
+      "bytes": 17344
+    },
+    {
+      "path": "llms.txt",
+      "sha256": "f7338c476882fb1dc3ec6fa26787ec3abc2b54ee368e390087ef78e0de5cfeb8",
+      "bytes": 737
+    },
+    {
+      "path": "robots.txt",
+      "sha256": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+      "bytes": 23
+    },
+    {
+      "path": "value/index.html",
+      "sha256": "61b4ae304bf660ec677cf592a5490bc997f270caa280384a9e8f6d7c49db57fe",
+      "bytes": 18061
+    }
+  ],
+  "sources": [
+    {
+      "path": "site/system-map-model.mjs",
+      "sha256": "b87881bcec98ca417b363e7501e44d0634be7ef6239e039260fd9047e977f4f8"
+    },
+    {
+      "path": "site/system-map-flow.jsx",
+      "sha256": "d2963f8fa945eb799fc161a3f4f1c641a92829ae399d9337919b2d83bdea9e7d"
+    },
+    {
+      "path": "site/system-map-flow.css",
+      "sha256": "b0d0c26ae269dac1f464fd89d07ad31b70c7c496f80601219d689ca7777a40b5"
+    },
+    {
+      "path": "site/build-site.mjs",
+      "sha256": "4d23d9b5eb04b8a286adce37194dcc062fa2ec67ed2fe044187c6466d17be167"
+    },
+    {
+      "path": "specs/system-map.md",
+      "sha256": "6808afd3ffc92ec47e22b53edd7b0234cf9aa34bd36c89365d361d7b63ae5c82"
+    },
+    {
+      "path": "tests/system-map.test.mjs",
+      "sha256": "942d59a14297b966941f48f04d6009bbdb1f56f23142f2303e89fe9dd4e5a4ab"
+    },
+    {
+      "path": "tests/site-first-use-browser.test.mjs",
+      "sha256": "8d27575057e81b63d613d2bb30e21b43e460173f6b6500faa6de86b3b9362b21"
+    }
+  ]
+}

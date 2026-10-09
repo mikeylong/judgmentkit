@@ -162,6 +162,19 @@ async function assertVerifyRejects(options, expectedChecks) {
   );
 }
 
+for (const phrase of [
+  "Do not accept, publish, or summarize a generated UI candidate as successful until `review_ui_implementation_candidate` passes against the active implementation contract.",
+  "Render privately to gather required verification evidence and retain failed candidates for focused repair.",
+]) {
+  const fixture = await createFixture({
+    uiReferenceText: canonicalUiReferenceText.replace(phrase, "UI candidate handling is optional."),
+  });
+  await assertVerifyRejects(
+    { sourceDir: fixture.sourceDir, packageJsonPath: fixture.packageJsonPath },
+    ["design_system_gate_wording", "canonical_skill_mirror"],
+  );
+}
+
 {
   const fixture = await createFixture();
   const result = await verifyCodexPlugin({

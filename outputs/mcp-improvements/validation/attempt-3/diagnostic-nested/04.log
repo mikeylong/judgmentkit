@@ -1,0 +1,68 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+... Skipped lines
+
+  [
+    'analyze_implementation_brief',
+    'create_activity_model_review',
+    'recommend_surface_types',
+    'recommend_ui_workflow_profiles',
+...
+    'create_ui_implementation_contract',
++   'preflight_ui_implementation_candidate',
+    'review_ui_implementation_candidate',
+    'create_ui_generation_handoff',
+    'create_frontend_generation_context',
+    'create_frontend_implementation_skill_context',
+    'create_slide_deck',
+
+    at assertPublicMcpMetadata (file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-3/source/tests/site-local-server.test.mjs:382:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-3/source/tests/site-local-server.test.mjs:943:5 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [
+    'analyze_implementation_brief',
+    'create_activity_model_review',
+    'recommend_surface_types',
+    'recommend_ui_workflow_profiles',
+    'review_activity_model_candidate',
+    'review_ui_workflow_candidate',
+    'review_cognitive_dimensions_candidate',
+    'create_ui_implementation_contract',
+    'preflight_ui_implementation_candidate',
+    'review_ui_implementation_candidate',
+    'create_ui_generation_handoff',
+    'create_frontend_generation_context',
+    'create_frontend_implementation_skill_context',
+    'create_slide_deck',
+    'list_icon_catalog',
+    'search_icon_catalog',
+    'get_icon_svg'
+  ],
+  expected: [
+    'analyze_implementation_brief',
+    'create_activity_model_review',
+    'recommend_surface_types',
+    'recommend_ui_workflow_profiles',
+    'review_activity_model_candidate',
+    'review_ui_workflow_candidate',
+    'review_cognitive_dimensions_candidate',
+    'create_ui_implementation_contract',
+    'review_ui_implementation_candidate',
+    'create_ui_generation_handoff',
+    'create_frontend_generation_context',
+    'create_frontend_implementation_skill_context',
+    'create_slide_deck',
+    'list_icon_catalog',
+    'search_icon_catalog',
+    'get_icon_svg'
+  ],
+  operator: 'deepStrictEqual'
+}
+
+Node.js v22.16.0

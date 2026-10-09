@@ -1,0 +1,29 @@
+{
+  "evidence_type": "preregistered_synthetic_task_criteria",
+  "tasks": [
+    {
+      "id": "workshop_registration",
+      "checks": [
+        { "id": "capacity_recovery", "instruction": "Choose Screen printing on November 12. Enter contact Sam Rivera, sam@example.test, and 3 places. Try to register, then correct to 2.", "expected": "Three places is rejected; contact and session remain. Two places can be submitted for USD 48." },
+        { "id": "receipt_and_stock", "instruction": "Complete the corrected registration. Try submitting twice. Return to the session list.", "expected": "Exactly one booking exists. Receipt names the session, date, 18:00–20:00, 2 places, Sam Rivera, email, and USD 48. November 12 has zero places; November 14 is unchanged." },
+        { "id": "keyboard_path", "instruction": "Using keyboard only, start another booking for one Clay handbuilding place on November 14 and complete it. Ask the participant what they booked.", "expected": "The participant reaches an accurate USD 29 confirmation without pointer use and can identify date, session, and quantity. Focus and error messages support completion." }
+      ]
+    },
+    {
+      "id": "supply_workbench",
+      "checks": [
+        { "id": "draft_preservation", "instruction": "For R-101, enter 4 markers with reason Only four in stock. Switch to R-102, then return before completing R-101.", "expected": "R-101 retains quantity 4 and its draft note. The coordinator can identify requester and requested quantity." },
+        { "id": "partial_and_stock", "instruction": "Try supplying 5 markers for R-101, then complete it with 4. Try completing the same request again.", "expected": "Five is rejected. R-101 is Partly filled with quantity 4 and the reason. Marker stock is 0. A second completion does not alter stock or add a decision." },
+        { "id": "zero_and_keyboard", "instruction": "Using keyboard only, complete R-103 with zero hubs and reason None in stock. Complete R-102 with 3 notebooks. Ask the participant to explain each result.", "expected": "R-103 is Unavailable with reason; R-102 is Filled. Notebook stock is 5. Recorded decisions and remaining stock match, and essential controls support keyboard use." }
+      ]
+    },
+    {
+      "id": "room_guide",
+      "checks": [
+        { "id": "fit_and_comprehension", "instruction": "Find a room on November 12, 14:00–15:00, for 8 people who need step-free access and a projector. Ask the participant which room fits and why.", "expected": "Cedar fits. Its noon booking ends at 14:00, capacity is 12, and both features are present. Maple lacks a projector and is booked; Loft lacks step-free access." },
+        { "id": "empty_and_recovery", "instruction": "Change the time to 13:00–14:00 with the same constraints. Then remove the projector requirement.", "expected": "Initially no room fits and the reasons are clear. Removing projector makes Maple suitable. Date, time, group size, and access requirement remain visible and retained." },
+        { "id": "readonly_and_keyboard", "instruction": "Using keyboard only, return to the first search. Ask whether a reservation was made and what the visitor should do next.", "expected": "The participant finds Cedar and understands no reservation was made. No booking action or schedule mutation exists. Essential controls work without a pointer." }
+      ]
+    }
+  ]
+}

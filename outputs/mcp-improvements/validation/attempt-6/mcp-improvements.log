@@ -1,0 +1,26 @@
+
+> judgmentkit@0.8.0 test:mcp-improvements
+> node tests/context-routing-reliability.test.mjs && node tests/evidence-admission.test.mjs && node tests/chart-review-browser.test.mjs && node tests/compact-packets.test.mjs
+
+Context and routing reliability checks passed.
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'retry_evidence_preflight'
+- 'repair_evidence_packet'
+     ^
+
+    at file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-6/source/tests/evidence-admission.test.mjs:61:8
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'retry_evidence_preflight',
+  expected: 'repair_evidence_packet',
+  operator: 'strictEqual'
+}
+
+Node.js v22.16.0

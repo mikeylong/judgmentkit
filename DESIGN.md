@@ -1,5 +1,7 @@
 # Activity-First Judgment Contract
 
+JudgmentKit helps people build useful interfaces with AI agents. The [vision](VISION.md) names the builder outcome; this contract defines the judgment that supports it. A reviewed case or passing requirement is an intermediate result. A build request needs a working interface for the agreed task and a clear account of what was checked. Observed human task completion remains separate evidence.
+
 ## Principles
 
 - Design from the activity, not from available data structures or implementation hooks.
@@ -27,7 +29,7 @@ The surface type classifies activity purpose before frontend implementation: mar
 
 A surface presentation profile applies governed design-system guidance after the surface type is grounded. It can shape density, type hierarchy, region hierarchy, action emphasis, status treatment, and responsive behavior without reclassifying the activity or replacing the interaction contract.
 
-The JudgmentKit default design system selects `judgmentkit.workbench.operational-v1` automatically for a Workbench supplied by the caller or recommended with medium or high confidence. It selects `judgmentkit.artifact-inspector.v1` for a grounded Artifact Inspector. `surface_profile: "none"` opts out, while an exact profile id locks that version. The neutral low-confidence Workbench fallback selects no profile. External design systems receive no JudgmentKit profile fallback.
+The JudgmentKit default design system selects `judgmentkit.workbench.operational-v1` automatically for a Workbench supplied by the caller or recommended with medium or high confidence. It selects `judgmentkit.artifact-inspector.v1` for a grounded Artifact Inspector. `surface_profile: "none"` opts out, while an exact profile id locks that version. No positive surface evidence returns an unresolved recommendation and supplies neither interaction guidance nor a presentation profile. External design systems receive no JudgmentKit profile fallback.
 
 Artifact Inspector has scoped visual authority rather than whole-surface JudgmentKit authority. JudgmentKit governs the inspector chrome and inspection overlay; the rendered artifact preserves its declared external authority. Reviews must report owned-scope, artifact-preservation, and boundary results separately and must not describe the external artifact as JudgmentKit-conformant. This contract release has no trusted interactive-attestation producer or verifier, so an otherwise valid implementation remains `review_required`.
 
@@ -41,6 +43,14 @@ Reference accounting, family disposition, variant-axis normalization, runtime av
 
 The disclosure policy controls vocabulary and visibility. It decides what becomes user-facing, what gets translated into domain language, and what remains diagnostic.
 
+### Implementation Evidence
+
+Evidence admission checks whether the submitted packet can be reviewed. Malformed fields or selectors receive precise repairs without consuming an implementation attempt. A valid packet describing failed behavior still fails implementation review. Admission readiness never grants acceptance or changes the active design-system authority.
+
+Acceptance should make the activity's primary promise verifiable. Supported chart checks measure visible label collisions, clipping, and plotted data against the contract's attributed expectations at required states and viewports. Report observed, declared, and untested coverage separately. Source attribution does not authenticate the data, and static snapshots cannot establish live transitions, human task completion, or general usability and accessibility compliance.
+
+Compact transport preserves the same full contract and raw-source requirements; its readable guidance does not become a new authority.
+
 ## Review Checklist
 
 - Is the activity named before the screen is named?
@@ -50,4 +60,6 @@ The disclosure policy controls vocabulary and visibility. It decides what become
 - Are domain terms preferred over implementation terms?
 - Are prompts, schemas, resource ids, tools, servers, and traces hidden unless the user is doing setup, debugging, auditing, or integration work?
 - Is the proposed UI succinct enough for the activity?
+- Is the activity's primary user-visible promise checked against the active contract, with unsupported behavior named?
+- Are evidence admission, implementation acceptance, and observed task completion reported separately?
 - Are aesthetics clearly secondary to activity fit and interaction quality?

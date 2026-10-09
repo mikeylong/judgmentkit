@@ -1204,6 +1204,8 @@ const defaultPolicy = defaultContract.visual_composition_policy;
       inlineSize: "104px",
       whiteSpace: "normal",
       visualCompositionManifest: {
+        /* The selector must target a real child before substantive geometry
+           review can test whether it suppresses the complete-label check. */
         samples: [
           {
             sample_id: "caller-short-atom",
@@ -1215,6 +1217,7 @@ const defaultPolicy = defaultContract.visual_composition_policy;
           },
         ],
       },
+      shortAtom: "OK",
     }),
     defaultContract,
   );
@@ -1687,16 +1690,14 @@ for (const [label, action] of [
 
 // An active policy still fails closed when there is no renderable browser input.
 {
-  await assert.rejects(
-    () =>
-      reviewCandidateInBrowser(
-        baseImplementationCandidate(defaultContract),
-        defaultContract,
-      ),
-    (error) =>
-      error?.code === "visual_composition_candidate_not_renderable" &&
-      error?.details?.retryable === false,
+  const nonRenderableReview = await reviewCandidateInBrowser(
+    baseImplementationCandidate(defaultContract),
+    defaultContract,
   );
+  assert.equal(nonRenderableReview.admission_status, "repair_evidence_packet");
+  assert.equal(nonRenderableReview.implementation_review_status, "not_reviewed");
+  assert.equal(nonRenderableReview.attempt_consumed, false);
+  assert.ok(nonRenderableReview.diagnostics.some(({ code }) => code === "visual_composition_candidate_not_renderable"));
 
   const priorChromePath =
     process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH;
@@ -1706,17 +1707,16 @@ for (const [label, action] of [
     "/judgmentkit-test/missing-chrome";
   console.error = (...parts) => runtimeDiagnostics.push(parts.join(" "));
   try {
-    await assert.rejects(
-      () =>
-        reviewCandidateInBrowser(
-          noApplicableCandidate(defaultContract),
-          defaultContract,
-        ),
-      (error) =>
-        error?.code === "visual_composition_browser_runtime_unavailable" &&
-        error?.details?.retryable === true &&
-        !String(error?.message).includes("missing manifest"),
+    const unavailableReview = await reviewCandidateInBrowser(
+      noApplicableCandidate(defaultContract),
+      defaultContract,
     );
+    assert.equal(unavailableReview.admission_status, "retry_evidence_preflight");
+    assert.equal(unavailableReview.implementation_review_status, "not_reviewed");
+    assert.equal(unavailableReview.reason, "visual_composition_browser_runtime_unavailable");
+    assert.equal(unavailableReview.retryable, true);
+    assert.equal(unavailableReview.attempt_consumed, false);
+    assert.equal(unavailableReview.next_agent_action, "retry_preflight");
   } finally {
     console.error = originalConsoleError;
     if (priorChromePath === undefined) {

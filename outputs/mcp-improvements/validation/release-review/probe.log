@@ -1,0 +1,1 @@
+{"source_sha256":{"src/chart-review.mjs":"3fc675a29c1b68b02bdcd58e1de937472fd22ad0a97612119c866db414f2d6e5","tests/chart-review-browser.test.mjs":"7d233c3973dfeb3a9b1b0ec3fa6d2fcd169ab87866387628d149a7257192644a"},"results":[{"state_id":"outer-clipped","outcome":"fail","observations":2},{"state_id":"outer-visible","outcome":"pass","observations":2}]}

@@ -1,0 +1,18 @@
+{
+  "base_commit": "2e7fe8ef3e9888fe7d2e63d9cd6f051fcfd5a910",
+  "source_state": "uncommitted local changes",
+  "sha256": {
+    "src/index.mjs": "92bb403d470995329a91473003d5a0697f440242f94b2e47124593b886cf1941",
+    "tests/fixtures/tide-workflow.json": "24f2a8703b4d22ccc9f7f4ac023c6026dd906f33d9eb453ade01261630805d20",
+    "tests/tide-workflow-regressions.test.mjs": "af8ed6157ad451f8fe4d7c94e986cd9e03b115420db1cecd53d00a23afbc67b6",
+    "outputs/activity-routing-review/replay.json": "3de0d91ced722e5ffbb2780a0cac4ccb4391090e989148ce93af18317e85ae37"
+  },
+  "checks": {
+    "npm test": "passed",
+    "activity-model-review": "passed",
+    "surface-types": "passed",
+    "ui-generation-handoff": "passed",
+    "tide-workflow-regressions": "passed"
+  },
+  "scope": "Saved-input local kernel replay; no new generation or implementation acceptance"
+}

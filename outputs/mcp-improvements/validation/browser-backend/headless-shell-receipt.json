@@ -1,0 +1,33 @@
+{
+  "status": "pass",
+  "source": "/private/tmp/judgmentkit-mcp-improvements-validation/attempt-4/source",
+  "source_byte_compared_files": 1760,
+  "source_edits": [],
+  "override": {
+    "JUDGMENTKIT_COMPONENT_CHROME_PATH": "/Users/mike/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+    "binary_sha256": "a0bfe7b4da4787b66058477d696cd1d09065d25f06a548947722b9af77ee8282"
+  },
+  "command": "node tests/components/component-browser.test.mjs",
+  "timeout_changes": false,
+  "coverage_skipped": false,
+  "receipt": {
+    "status": "pass",
+    "run_id": "component-adapter-browser-2026-10-09T03:45:52.134Z",
+    "browser": "HeadlessChrome/153.0.8010.12",
+    "components": 17,
+    "scenarios": 65,
+    "presentations": 260,
+    "axe": {
+      "count_unit": "axe_result_node",
+      "scan_count": 282,
+      "violations_raw": 0,
+      "incomplete_raw": 6,
+      "incomplete_resolved": 6,
+      "incomplete_unresolved": 0
+    },
+    "candidate_path": null,
+    "reviewer_receipt": null
+  },
+  "log_sha256": "1d41ac37b4d1247c647c842813ca27d0d6cbf8e75cdda96f1bbd3b762ffe9d1b",
+  "source_manifest_sha256": "70aeb898e2647b0505e64de0aa9236db425223412dc8374442ad60419befd494"
+}

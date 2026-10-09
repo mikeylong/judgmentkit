@@ -141,7 +141,7 @@ function unsafeHtml(source) {
   ].some((pattern) => pattern.test(source));
 }
 
-function candidateHtml(candidate) {
+export function candidateHtml(candidate) {
   if (typeof candidate === "string") {
     return htmlLike(candidate) && !unsafeHtml(candidate) ? candidate : null;
   }
@@ -1943,6 +1943,8 @@ async function measureViewport(
   policy,
   viewport,
   actionButtonContract,
+  expressionOverride,
+  documentIdOverride,
 ) {
   const target = await client.send("Target.createTarget", { url: "about:blank" });
   const attached = await client.send("Target.attachToTarget", {
@@ -1950,7 +1952,7 @@ async function measureViewport(
     flatten: true,
   });
   const sessionId = attached.sessionId;
-  const documentId = `candidate-${viewport.id}`;
+  const documentId = documentIdOverride ?? `candidate-${viewport.id}`;
 
   try {
     await client.send("Page.enable", {}, sessionId);
@@ -1988,7 +1990,7 @@ async function measureViewport(
     }
 
     const evaluated = await client.send("Runtime.evaluate", {
-      expression: measurementExpression({
+      expression: expressionOverride ?? measurementExpression({
         declarations,
         policy,
         viewport,
@@ -2022,9 +2024,38 @@ async function measureViewport(
       viewport,
       artifactSha256,
       samples,
+      observation: value,
     };
   } finally {
     await client.send("Target.closeTarget", { targetId: target.targetId }).catch(() => {});
+  }
+}
+
+/** Shared isolated static renderer for server-owned admission/chart observers.
+ * Expressions are internal JavaScript functions, never client-submitted code.
+ * Source scripts, external resources and network requests remain prohibited.
+ */
+export async function observeStaticDocumentsInBrowser({ documents, viewports = VIEWPORTS, expressionForDocument } = {}) {
+  if (!Array.isArray(documents) || documents.length === 0 || documents.length > 16 || !Array.isArray(viewports) || viewports.length === 0 || viewports.length > 4 || typeof expressionForDocument !== "function") return { reason: "static_observation_input_invalid" };
+  const sources = documents.map((entry) => candidateHtml({ rendered_html: entry.html }));
+  if (sources.some((source) => !source || Buffer.byteLength(source, "utf8") > MAX_HTML_BYTES)) return { reason: "visual_composition_candidate_not_renderable" };
+  try {
+    return await withBrowser(async (client, endpointVersion) => {
+      const observations = [];
+      for (const [index, document] of documents.entries()) {
+        for (const requested of viewports) {
+          const viewport = { device_scale_factor: 1, mobile: requested.width <= 600, ...requested };
+          const expression = expressionForDocument(document, viewport);
+          if (typeof expression !== "string") throw new Error("Static observer requires a server-owned expression.");
+          const result = await measureViewport(client, securedHtml(sources[index]), [], { rules: [] }, viewport, null, `(async () => { const value = await (${expression}); return {...value, dom: document.documentElement.outerHTML}; })()`, `${document.id}-${viewport.id}`);
+          const { dom: _dom, ...observation } = result.observation;
+          observations.push({ document_id: result.documentId, state_id: document.id, viewport, artifact_sha256: result.artifactSha256, observation });
+        }
+      }
+      return { observations, environment: { issuer: "judgmentkit_browser_runtime", engine: "chromium", browser_product: endpointVersion.Browser ?? null, measurement: "static_dom_geometry", external_network: "blocked", scripts: "prohibited", fonts_ready: true } };
+    });
+  } catch {
+    return { reason: "visual_composition_browser_runtime_unavailable" };
   }
 }
 
