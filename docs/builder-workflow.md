@@ -56,11 +56,17 @@ The builder should not have to assemble evidence packets or choose tool names. T
 | Infer and review the work | `create_activity_model_review`, then `review_activity_model_candidate` | Working premise, consequential assumptions, and one question if needed |
 | Ground the interface structure | `recommend_surface_types`, then `review_ui_workflow_candidate`; Cognitive Dimensions review when relevant | Why the proposed structure supports the task |
 | Bind implementation and prepare generation | `create_ui_implementation_contract`, `create_ui_generation_handoff`, `create_frontend_generation_context`, and portable skill context when needed | The first direction and the working result as the requested scope permits |
+| Prepare reviewable evidence | `preflight_ui_implementation_candidate` with the handoff/frontend contract and frontend context | The agent fixes evidence fields or retries an unavailable observer |
 | Review implementation evidence | `review_ui_implementation_candidate` against the active contract | The failing task, required repair, or accepted result with verification limits |
 
 The detailed calls, accepted fields, and packet requirements live in [daily agent workflows](daily-agent-workflows.md) and the portable [UI handoff and acceptance reference](../packages/agent-skill/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md). Use `structuredContent` for follow-up calls. Keep tool names and internal packet vocabulary out of the generated product UI and ordinary builder updates.
 
 Surface patterns guide activity purpose. If no pattern has positive evidence, resolve the activity before frontend guidance. If purposes combine, explain the primary completion state and supporting work instead of silently choosing a familiar layout. Reconcile conflicting selections; do not carry a stale surface recommendation into a new direction.
+
+The agent records whether a surface choice came from the caller, builder, agent,
+or inference. A supplied choice does not establish the builder's authority for
+protected actions. Keep that provenance and the competing activity signals with
+the reviewed case.
 
 The active implementation contract governs approved controls, states, static checks, browser QA, accessibility evidence, and visual authority. JudgmentKit defaults apply unless a complete intended external design-system adapter owns that authority. An incomplete adapter cannot silently fall back to JudgmentKit styling.
 
@@ -71,6 +77,19 @@ Implementation acceptance and task inspection serve different purposes. The agen
 Explain a repair through the observable failure and correction. For the reading-list example, an illustrative update is: “Keyboard reordering changed the book's position but lost focus. I kept focus on the moved book and checked undo restores the order.” Such an update is appropriate only after those behaviors were actually observed.
 
 Use JudgmentKit's returned constraints and repair instructions, then rerun the affected checks and implementation review. Keep unrelated behavior and user work intact. The iteration policy is agent-owned, with a default maximum of three attempts; follow the returned policy and pass accurate current-attempt context. JudgmentKit reviews submitted evidence and returns failures. The client owns attempt records, file changes, and any provider calls.
+
+Preflight separates an evidence preparation problem from a failed interface.
+Repair malformed fields/selectors or retry an unavailable observer without
+consuming an implementation attempt. A valid packet showing failed behavior still
+uses the substantive repair loop. Compact guidance can focus the agent on current
+repairs while retaining the full contract, raw source, and evidence in its
+continuation.
+
+For a promised chart, the contract supplies attributed expected data and required
+states/viewports. The agent checks visible collisions, clipping, and selected-data
+correspondence through supported browser observations, and names source
+authenticity, live transitions, or other behavior that remains untested. Static
+chart checks cannot establish that a person completed the task.
 
 A failed candidate remains private repair evidence. The agent cannot present the candidate as an accepted result, publish a failed screenshot as release proof, or use visual cleanup to bypass the design-system gate. A request for human input ends automatic repair until the required input arrives. Missing or unsupported verification remains unresolved.
 

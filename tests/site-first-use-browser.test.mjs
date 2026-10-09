@@ -5,8 +5,9 @@ import path from "node:path";
 
 import { buildSite } from "../site/build-site.mjs";
 import { listenSiteLocalServer } from "../scripts/site-local-server.mjs";
+import { SYSTEM_MAP_EDGES, SYSTEM_MAP_NODES } from "../site/system-map-model.mjs";
 import {
-  evaluate, openPage, pointerActivate, pressKey, tabUntil,
+  captureElementScreenshot, evaluate, openPage, pointerActivate, pressKey, tabUntil,
   waitForExpression, withChromium,
 } from "./components/support/chromium-harness.mjs";
 
@@ -16,6 +17,10 @@ const VIEWPORTS = [
   { id: "desktop", width: 1280, height: 900, mobile: false },
   { id: "mobile", width: 390, height: 844, mobile: true },
 ];
+const APPEARANCES = ["light", "dark"];
+const evidenceOut = process.env.JUDGMENTKIT_SYSTEM_MAP_EVIDENCE_OUT;
+const mapReceipts = [];
+if (evidenceOut) fs.mkdirSync(evidenceOut, { recursive: true });
 const SUMMARY = "#first-use details > summary";
 const MAP = "[data-system-map-flow-root]";
 const MAP_VIEWPORT = `${MAP} .react-flow__viewport`;
@@ -69,6 +74,134 @@ async function assertMapLayout(client, sid, label) {
   })()`);
   assert.deepEqual(layout, { summaryOverflow: false, clippedCards: [] },
     `${label}: System Map cards and supporting code terms must fit`);
+}
+
+function assertMapInventory(observed, label) {
+  assert.deepEqual(observed.nodes.map(node => node.id).sort(),
+    SYSTEM_MAP_NODES.map(node => node.id).sort(), `${label}: all model nodes must be rendered`);
+  assert.deepEqual(observed.edges.map(edge => edge.id).sort(),
+    SYSTEM_MAP_EDGES.map(edge => edge.id).sort(), `${label}: all model arrows must be rendered`);
+  assert.ok(observed.edges.every(edge => edge.length > 0 && edge.painted && edge.arrow),
+    `${label}: each arrow needs a painted path and a marker; ${JSON.stringify(observed.edges)}`);
+  const preflight = SYSTEM_MAP_NODES.filter(node =>
+    node.data.tools?.includes("preflight_ui_implementation_candidate"));
+  assert.equal(preflight.length, 1, `${label}: evidence preflight must be a distinct stage`);
+  for (const [source, target] of [["evidence", preflight[0].id], [preflight[0].id, "implementation-review"]]) {
+    const edge = SYSTEM_MAP_EDGES.find(edge => edge.source === source && edge.target === target);
+    assert.ok(edge && observed.edges.some(rendered => rendered.id === edge.id),
+      `${label}: the mounted route must connect ${source} to ${target}`);
+  }
+}
+
+async function assertMountedMapInventory(client, sid, label) {
+  const observed = await evaluate(client, sid, `(() => {
+    const root = document.querySelector('${MAP}');
+    return {
+      nodes: [...root.querySelectorAll('.react-flow__node')].map(node => ({ id: node.dataset.id })),
+      edges: [...root.querySelectorAll('.react-flow__edge')].map(edge => {
+        const path = edge.querySelector('.react-flow__edge-path');
+        const style = path && getComputedStyle(path);
+        return { id: edge.dataset.id, length: path?.getTotalLength() || 0,
+          painted: !!style && style.stroke !== 'none' && Number(style.strokeWidth.replace('px', '')) > 0,
+          arrow: !!path?.getAttribute('marker-end') };
+      }),
+      fallbackHidden: document.querySelector('[data-system-map-fallback]').hidden,
+      colors: { background: getComputedStyle(root.querySelector('.react-flow')).backgroundColor,
+        text: getComputedStyle(root.querySelector('.rf-map-node')).color },
+      dark: matchMedia('(prefers-color-scheme: dark)').matches,
+    };
+  })()`);
+  assertMapInventory(observed, label);
+  assert.equal(observed.fallbackHidden, true, `${label}: mounted map replaces its fallback`);
+  return observed;
+}
+
+const cardBoundsExpression = (selector, cardSelector, idExpression) => `(() => {
+  return [...document.querySelectorAll(${JSON.stringify(selector)})].map(wrapper => {
+    const card = wrapper.querySelector(${JSON.stringify(cardSelector)});
+    const bounds = card.getBoundingClientRect();
+    const textBounds = [...card.querySelectorAll('strong,code,span')].map(child => {
+      const range = document.createRange();
+      range.selectNodeContents(child);
+      const rect = range.getBoundingClientRect();
+      return { text: child.textContent.trim(), left: rect.left, top: rect.top,
+        right: rect.right, bottom: rect.bottom };
+    });
+    return { id: ${idExpression}, width: bounds.width, height: bounds.height,
+      clipped: textBounds.filter(rect => rect.left < bounds.left - 1 || rect.top < bounds.top - 1 ||
+        rect.right > bounds.right + 1 || rect.bottom > bounds.bottom + 1),
+      scrollOverflow: card.scrollWidth > card.clientWidth + 1 || card.scrollHeight > card.clientHeight + 1 };
+  });
+})()`;
+
+async function assertReadableCards(client, sid, label) {
+  for (let step = 0; step < 20; step += 1) {
+    if ((await evaluate(client, sid, transformExpression)).zoom >= 1) break;
+    const before = await evaluate(client, sid, transformExpression);
+    await pointerActivate(client, sid, `${MAP} .react-flow__controls-zoomin`);
+    await waitForExpression(client, sid, `(${transformExpression}).zoom > ${before.zoom + 0.001}`,
+      { label: `${label}: zoom to readable card size` });
+  }
+  const transform = await evaluate(client, sid, transformExpression);
+  assert.ok(transform.zoom >= 1, `${label}: card content must be checked at readable zoom`);
+  const cards = await evaluate(client, sid, cardBoundsExpression(
+    `${MAP} .react-flow__node`, '.rf-map-node,.rf-zone-node', 'wrapper.dataset.id'));
+  assert.deepEqual(cards.filter(card => card.clipped.length || card.scrollOverflow), [],
+    `${label}: card text must fit its bounds at readable zoom`);
+  assert.equal(cards.length, SYSTEM_MAP_NODES.length, `${label}: every card must be measured`);
+  await activateFitControl(client, sid, `${label}: fit after readable-card check`);
+  await waitForFittedMap(client, sid, `${label}: fit after readable-card check`);
+  return { transform, cards };
+}
+
+async function checkMapFallback(client, { url, viewport, appearance, label }) {
+  // Disable application scripts before this navigation. Reading the rendered
+  // fallback through CDP does not mount the React Flow application.
+  const page = await openPage(client, { url: new URL('/404.html', url).href, viewport, colorScheme: appearance });
+  const sid = page.sessionId;
+  try {
+    await client.send("Emulation.setScriptExecutionDisabled", { value: true }, sid);
+    const loaded = client.waitFor("Page.loadEventFired", sid);
+    await client.send("Page.navigate", { url }, sid);
+    await loaded;
+    await evaluate(client, sid, "document.fonts.ready");
+    const observed = await evaluate(client, sid, `(() => {
+      const fallback = document.querySelector('[data-system-map-fallback]');
+      return {
+        nodes: [...fallback.querySelectorAll('[data-node-id]')].map(node => ({ id: node.dataset.nodeId })),
+        edges: [...fallback.querySelectorAll('[data-edge-id]')].map(edge => {
+          const path = edge.querySelector('path');
+          const style = getComputedStyle(path);
+          return { id: edge.dataset.edgeId, length: path.getTotalLength(),
+            painted: style.stroke !== 'none' && Number(style.strokeWidth.replace('px', '')) > 0,
+            arrow: style.markerEnd !== 'none' };
+        }),
+        visible: fallback.checkVisibility(),
+        applicationMounted: document.querySelector('${MAP}').dataset.systemMapFlowMounted === 'true',
+        accessibleName: document.querySelector('[data-system-map-svg-fallback] title').textContent.trim(),
+        colors: { background: getComputedStyle(fallback.closest('[data-system-map-flow-viewer]')).backgroundColor,
+          text: getComputedStyle(fallback.querySelector('.map-node-text')).color },
+        dark: matchMedia('(prefers-color-scheme: dark)').matches,
+      };
+    })()`);
+    assertMapInventory(observed, `${label}: fallback`);
+    assert.equal(observed.visible, true, `${label}: fallback must be visible without application scripts`);
+    assert.equal(observed.applicationMounted, false, `${label}: this must exercise the actual fallback`);
+    assert.equal(observed.dark, appearance === 'dark', `${label}: fallback uses the requested appearance`);
+    assert.ok(observed.accessibleName, `${label}: fallback has an accessible name`);
+    const cards = await evaluate(client, sid, cardBoundsExpression(
+      '[data-system-map-fallback] [data-node-id]', '.map-node-content,.map-zone-content', 'wrapper.dataset.nodeId'));
+    assert.deepEqual(cards.filter(card => card.clipped.length || card.scrollOverflow), [],
+      `${label}: fallback text must fit its foreignObject bounds`);
+    assert.equal(cards.length, SYSTEM_MAP_NODES.length);
+    await assertNoOverflow(client, sid, `${label}: fallback`);
+    assert.deepEqual(page.runtimeExceptions, [], `${label}: fallback has no runtime exceptions`);
+    if (evidenceOut) await captureElementScreenshot(client, sid, '[data-system-map-fallback]',
+      path.join(evidenceOut, `${viewport.id}-${appearance}-fallback.png`));
+    return { ...observed, cards };
+  } finally {
+    await page.close();
+  }
 }
 
 const transformExpression = `(() => {
@@ -129,8 +262,10 @@ async function waitForFittedMap(client, sid, label) {
       measured: nodes.length > 0 && nodes.every(node => node.visible && node.width > 0 && node.height > 0),
       enclosed: bounds.left >= -1 && bounds.top >= -1
         && bounds.right <= width + 1 && bounds.bottom <= height + 1,
-      centeredX: Math.abs((bounds.left + bounds.right) / 2 - width / 2) < 1,
-      centeredY: Math.abs((bounds.top + bounds.bottom) / 2 - height / 2) < 1,
+      // React Flow floors applied padding, which can shift a centered fit by
+      // one CSS pixel. Retain that limit with a small measurement epsilon.
+      centeredX: Math.abs((bounds.left + bounds.right) / 2 - width / 2) <= 1.01,
+      centeredY: Math.abs((bounds.top + bounds.bottom) / 2 - height / 2) <= 1.01,
     };
     globalThis.__jkFirstUseFitObservation = { before, after, checks, deltas,
       click: { before: globalThis.__jkFirstUseBeforeFit, events: globalThis.__jkFirstUseFitClicks },
@@ -238,15 +373,18 @@ try {
   const local = await listenSiteLocalServer({ siteDir: outDir, host: "127.0.0.1", port: 0 });
   server = local.server;
 
-  // A fresh browser profile per viewport keeps this check independent of owner
-  // storage and of state left behind by the previous disclosure/map exercise.
+  // A fresh profile per presentation keeps this independent of owner storage
+  // and of state left behind by the previous disclosure/map exercise.
   for (const viewport of VIEWPORTS) {
-    await withChromium(async (client) => {
-      const page = await openPage(client, {
-        url: `${local.url}/docs/#first-use`, viewport, colorScheme: "light",
-      });
+    for (const appearance of APPEARANCES) {
+      await withChromium(async (client) => {
+        const page = await openPage(client, {
+          url: `${local.url}/docs/#first-use`, viewport, colorScheme: appearance,
+        });
       const sid = page.sessionId;
-      const label = `${viewport.id} ${viewport.width}px`;
+      const label = `${viewport.id} ${viewport.width}px ${appearance}`;
+      let mounted;
+      let readable;
       try {
         await waitForExpression(client, sid,
           `document.querySelector(${JSON.stringify(MAP)})?.dataset.systemMapFlowMounted === 'true'`,
@@ -277,15 +415,37 @@ try {
         await waitForReplay(client, sid, false, `${label}: pointer`);
 
         await checkMapControls(client, sid, label);
+        mounted = await assertMountedMapInventory(client, sid, label);
+        assert.equal(mounted.dark, appearance === 'dark', `${label}: mounted map uses the requested appearance`);
+        readable = await assertReadableCards(client, sid, label);
         await assertMapLayout(client, sid, label);
         await assertNoOverflow(client, sid, `${label}: after map controls`);
         assert.deepEqual(page.runtimeExceptions, [], `${label}: no runtime exceptions`);
+        if (evidenceOut) await captureElementScreenshot(client, sid, MAP,
+          path.join(evidenceOut, `${viewport.id}-${appearance}-mounted.png`));
       } finally {
         await page.close();
       }
+      const fallback = await checkMapFallback(client, {
+        url: `${local.url}/docs/#system-map`, viewport, appearance, label,
+      });
+      mapReceipts.push({ viewport: viewport.id, appearance, mounted, readable, fallback });
     });
+    }
   }
-  console.log("First-use browser checks passed: desktop/mobile prompt, collapsed replay, Tab/Enter/Space and pointer toggles, no overflow, mounted map zoom, pan, and fit view.");
+  for (const viewport of VIEWPORTS) {
+    const light = mapReceipts.find(receipt => receipt.viewport === viewport.id && receipt.appearance === 'light');
+    const dark = mapReceipts.find(receipt => receipt.viewport === viewport.id && receipt.appearance === 'dark');
+    for (const kind of ['mounted', 'fallback']) {
+      assert.notEqual(light[kind].colors.background, dark[kind].colors.background,
+        `${viewport.id}: ${kind} background responds to appearance`);
+      assert.notEqual(light[kind].colors.text, dark[kind].colors.text,
+        `${viewport.id}: ${kind} text responds to appearance`);
+    }
+  }
+  if (evidenceOut) fs.writeFileSync(path.join(evidenceOut, "system-map-browser-receipts.json"),
+    `${JSON.stringify({ status: "pass", presentations: mapReceipts }, null, 2)}\n`);
+  console.log("First-use browser checks passed: desktop/mobile Light/Dark prompt and disclosure, mounted map nodes/arrows/preflight route, readable card bounds, zoom/pan/fit, no-JavaScript fallback, no overflow or runtime exceptions.");
 } finally {
   if (server) await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
   fs.rmSync(outDir, { recursive: true, force: true });

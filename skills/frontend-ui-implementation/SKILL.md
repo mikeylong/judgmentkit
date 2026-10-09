@@ -17,7 +17,8 @@ Do not use this skill directly from a raw brief. Run the JudgmentKit flow first:
 6. `create_ui_generation_handoff`
 7. `create_frontend_generation_context`
 8. `create_frontend_implementation_skill_context` when the agent cannot read this local skill directly
-9. `review_ui_implementation_candidate` after implementation evidence exists
+9. `preflight_ui_implementation_candidate` after implementation evidence exists; repair malformed fields/selectors without advancing the implementation attempt
+10. `review_ui_implementation_candidate` after admission; it repeats admission before substantive review
 
 ## Workflow
 
@@ -40,6 +41,8 @@ Do not use this skill directly from a raw brief. Run the JudgmentKit flow first:
 9. Verify required states, responsive behavior, static enforcement, browser QA, accessibility evidence, visual asset handling, and disclosure boundaries.
 10. Provide core accessibility evidence for automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.
 11. Add conditional accessibility evidence for visual-background contrast, non-text contrast, forced-colors/high-contrast behavior, target size, focus-not-obscured, no keyboard trap, reduced-motion, pause/stop/hide, hover/focus content, form labels/errors/status, media alternatives, and semantic fallbacks when those patterns appear.
+12. Use the effective implementation contract carried by the handoff/frontend packet. For a required chart promise, prepare attributed expected data, selections, required labels, and snapshots before review. The static observer checks supported geometry and data correspondence; source authenticity, live transitions, general accessibility compliance, and Artifact Inspector attestation remain separate.
+13. Use compact returned packets for current guidance while retaining the complete continuation and exact raw brief/context. Request full packets or expand a continuation when exact calibration/catalog details are needed. `repair_evidence_packet` and `retry_evidence_preflight` consume no substantive implementation attempt; valid evidence describing missing behavior still fails the implementation review.
 
 ## Guardrails
 

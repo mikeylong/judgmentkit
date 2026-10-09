@@ -18,6 +18,10 @@ submission, or safety verdict.
   interaction choices. A caller's selection must not be attributed to a human.
 - Context remains attributed and byte-preserved. Negation and sentence scope must
   prevent unrelated design authorization from becoming a safety-policy claim.
+- Contrast clauses start a new assertion; comma-separated exclusions keep their
+  negation. Temporal "not yet" retains its negation. Excluding safety advice or
+  rules from a prototype does not authorize safety decisions, and prohibitions
+  against ignoring safety requirements remain gated.
 - Actual clinical, safety, disclosure, and irreversible boundaries remain gated.
 - A clarification names a material ambiguity and its question.
 - Surface patterns follow work and completion; available controls and layout
@@ -33,9 +37,25 @@ submission, or safety verdict.
 - Conflicting explicit and recommended surface choices fail with
   `conflicting_surface_selection`; the caller must reconcile the inputs.
 - A surface explicitly supplied by a caller uses confidence `provided` and
-  `selection_origin: "caller"`. These describe provenance, not action authority.
+  `selection_origin: "caller"` by default. The caller may declare
+  `surface_selection_origin: "user"` or `"agent"` with an explicit surface type;
+  a recommendation uses `selection_origin: "inferred"`. These describe declared
+  provenance, not evidence of permission or action authority.
+- Confidence follows each pattern's core activity evidence, not a global count
+  that prevents patterns with two rules from reaching high confidence. A
+  competing complete activity without exclusion evidence reduces confidence;
+  differing numbers of optional rules do not make that activity less credible.
+  `confidence_evidence` names missing core evidence, competitors, and the margin.
+- Reviewed actions, work objects, and completion participate in selection.
+  Existing tools or artifacts do not independently establish a primary activity.
+- Every inherited unresolved selection blocks frontend generation. A supplied
+  recommendation cannot conceal an unresolved selection inherited from handoff.
 - Valid object-form work units retain their domain labels through normalization,
   handoff, frontend context, and portable skill preparation.
+- `deriveOwnedChartReviewObligation` identifies affirmative chart-reading
+  promises in ready reviewed actions, work units, and completion. Background
+  artifacts and excluded charts do not establish the promise. Artifact Inspector
+  content remains external; its chart content cannot create an owned UI obligation.
 
 ## Verification
 
@@ -45,6 +65,12 @@ fresh current-kernel reviews, verify a read-only monitor workflow, and protect
 real safety stops, unresolved routing, conflict handling, selection provenance,
 and work-unit continuity through frontend skill preparation. Nearby cases cover
 sensor monitoring, report citation, and measurement editing.
+
+`tests/context-routing-reliability.test.mjs` adds generic clause and contrast
+scope, real safety restrictions, pattern-specific confidence, competing activity,
+reviewed work-object use, declared selection origins, and inherited conflict
+checks, plus scoped chart-promise derivation. All checks exercise kernel behavior
+without regenerating experiment apps.
 
 This scope does not add a chart-observation runtime or evidence preflight API.
 Replaying saved inputs is a deterministic workflow regression, not a fresh model

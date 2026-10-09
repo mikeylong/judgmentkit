@@ -1,0 +1,21 @@
+{
+  "out_dir": "/private/tmp/judgmentkit-system-map-followup/final-checks-10hlik_q/built-site",
+  "routes": [
+    "/",
+    "/value/",
+    "/docs/",
+    "/design-system/",
+    "/design-system/tokens/",
+    "/design-system/fonts/",
+    "/design-system/icons/",
+    "/design-system/components/",
+    "/design-system/patterns/",
+    "/design-system/accessibility/",
+    "/examples/",
+    "/evals/",
+    "/evals/judgmentkit-mcp/",
+    "/evals/site-rebuild-log/",
+    "/install",
+    "/mcp"
+  ]
+}

@@ -1,0 +1,258 @@
+{
+  "scope": "Current local source integration validation; no hosted CI, merge, publish, or fresh model generation.",
+  "source_manifest_sha256": "5d89fa255f3dd843ab236085c63939edbe24b907863b882cdb1b78b3e2ab39b9",
+  "full_snapshot_manifest_sha256": "a03320dec3157f7374f6bd07b791f7ba66fa85c218951bfd7053021a4fab18eb",
+  "copy_verified_equal": true,
+  "all_checks_passed": false,
+  "checks": [
+    {
+      "command": "npm test",
+      "exit_code": 1,
+      "duration_seconds": 343.56,
+      "log": "npm-test.log",
+      "log_sha256": "e578658ed07a8b6a4db3c9fb5bafcd24ab682e089741f1a28022130e466a41b1",
+      "source_unchanged": true,
+      "source_changed_paths": [],
+      "source_manifest_sha256": "5d89fa255f3dd843ab236085c63939edbe24b907863b882cdb1b78b3e2ab39b9",
+      "generated_proof_manifest_sha256_after": "eaf54caf6d0ce06c640e0f2d3c453790fa5a1a530ad7a569c675a75b4f95d2e0"
+    },
+    {
+      "command": "npm run site:build",
+      "exit_code": 0,
+      "duration_seconds": 0.85,
+      "log": "site-build.log",
+      "log_sha256": "f7027bbeb6a8f65ff4f49106ac45dd0553411dca7e3e8cfda2a70a8e8afdb928",
+      "source_unchanged": true,
+      "source_changed_paths": [],
+      "source_manifest_sha256": "5d89fa255f3dd843ab236085c63939edbe24b907863b882cdb1b78b3e2ab39b9",
+      "generated_proof_manifest_sha256_after": "eaf54caf6d0ce06c640e0f2d3c453790fa5a1a530ad7a569c675a75b4f95d2e0"
+    },
+    {
+      "command": "npm run benchmark",
+      "exit_code": 0,
+      "duration_seconds": 0.56,
+      "log": "benchmark.log",
+      "log_sha256": "6d97e56c8cb69383fac897f4072ea61d94b2a2492dd092f0ee1ad1ffe58fa160",
+      "source_unchanged": true,
+      "source_changed_paths": [],
+      "source_manifest_sha256": "5d89fa255f3dd843ab236085c63939edbe24b907863b882cdb1b78b3e2ab39b9",
+      "generated_proof_manifest_sha256_after": "eaf54caf6d0ce06c640e0f2d3c453790fa5a1a530ad7a569c675a75b4f95d2e0"
+    },
+    {
+      "command": "npm run mcp:smoke",
+      "exit_code": 0,
+      "duration_seconds": 5.64,
+      "log": "mcp-smoke.log",
+      "log_sha256": "9fb169982b8c45b54361062e051ed2681930b038dbee1bdbbd94d49e26930a19",
+      "source_unchanged": true,
+      "source_changed_paths": [],
+      "source_manifest_sha256": "5d89fa255f3dd843ab236085c63939edbe24b907863b882cdb1b78b3e2ab39b9",
+      "generated_proof_manifest_sha256_after": "eaf54caf6d0ce06c640e0f2d3c453790fa5a1a530ad7a569c675a75b4f95d2e0"
+    }
+  ],
+  "final_source_unchanged": true,
+  "generated_proof_updated_during_checks": false,
+  "excluded_validation_own_outputs": "outputs/mcp-improvements/validation/",
+  "omissions": [
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-1/benchmark.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-1/checks.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-1/mcp-smoke.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-1/npm-test.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-1/site-build.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-1/source-manifest.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-1/summary.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-2/benchmark.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-2/checks.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-2/mcp-smoke.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-2/npm-test.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-2/site-build.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-2/source-manifest.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-2/summary.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-2/validation-runner.py",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/benchmark.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/checks.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/33.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/34.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/35.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/36.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/37.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/38.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/39.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/40.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/41.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/42.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/43.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/44.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/45.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/checks.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/diagnostic-runner.py",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-downstream/summary.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-nested/00.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-nested/01.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-nested/02.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-nested/03.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-nested/04.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-nested/05.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-nested/06.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-nested/07.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-nested/checks.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-nested/diagnostic-runner.py",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/diagnostic-nested/summary.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/mcp-smoke.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/npm-test.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/site-build.log",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/source-manifest.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/summary.json",
+      "reason": "validation self output excluded from recursive identity"
+    },
+    {
+      "path": "outputs/mcp-improvements/validation/attempt-3/validation-runner.py",
+      "reason": "validation self output excluded from recursive identity"
+    }
+  ]
+}

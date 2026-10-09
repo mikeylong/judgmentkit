@@ -1,0 +1,8 @@
+
+> judgmentkit@0.8.0 test:mcp-improvements
+> node tests/context-routing-reliability.test.mjs && node tests/evidence-admission.test.mjs && node tests/chart-review-browser.test.mjs && node tests/compact-packets.test.mjs
+
+Context and routing reliability checks passed.
+Evidence admission tests passed.
+Trusted chart browser checks passed: 32 snapshots, geometry and data regressions, truthful unsupported coverage.
+Compact packet compatibility, exact-source continuity, bounded decode, and hosted-size regression tests passed.

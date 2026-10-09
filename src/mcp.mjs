@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { COMPACT_PACKET_SCHEMA, COMPACT_PACKET_TOOLS, compactPacket, expandToolContinuations } from "./portable-packets.mjs";
 
 import {
   JudgmentKitInputError,
@@ -21,6 +22,7 @@ import {
   recommendUiWorkflowProfiles,
   reviewCognitiveDimensionsCandidate,
   reviewActivityModelCandidate,
+  preflightUiImplementationCandidateWithBrowserRuntime,
   reviewUiImplementationCandidate,
   reviewUiImplementationCandidateWithBrowserRuntime,
   reviewUiWorkflowCandidate,
@@ -78,7 +80,7 @@ const APPROVED_PRIMITIVES_INPUT_DESCRIPTION =
 const VISUAL_COMPOSITION_POLICY_INPUT_DESCRIPTION =
   "Optional implementation-adapter policy for declared visual-composition relationships, presentation ownership, calibrated measurements, and browser-runtime enforcement. When active, submit self-contained HTML plus an explicit visual_composition_manifest. Each design-system-owned field select must declare field_value_trailing_indicator_slot with exact value_selector, indicator_slot_selector, and indicator_selector parts; compact triggers instead declare centered_label_symmetric_rails with label_selector and indicator_selector. Geometry is enforced against that contract-declared variant; the runtime does not infer user intent, and unclassified custom selects require review. Field validation measures value start spacing, the reserved trailing slot, indicator size and centering, containment, and collision-free truncation. It never treats content padding as the caret's painted-edge inset. The hosted MCP renders that artifact in its isolated browser runtime, discovers governed controls, measures the DOM after fonts are ready, and independently binds the result to the policy, contract, candidate, and rendered document. Candidate-authored visual_composition_evidence is claim-only and cannot satisfy acceptance.";
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION =
-  "Generated UI candidate as structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, optional visual_token_evidence metadata, component_contract_evidence, pattern_contract_evidence, required design_system_provenance for the active design-system source, and local_component_authority_evidence reviewed by checks.local_component_authority. When implementation_contract.visual_composition_policy applies, provide exact self-contained HTML in rendered_html, rendered_markup, markup, or HTML code, plus an explicit visual_composition_manifest for relationships that are not deterministically discoverable. Each custom select-like control must explicitly name its governed field or compact composition variant; unclassified controls require review rather than inheriting a compact default. The hosted MCP renders it at desktop and mobile sizes, blocks external requests and scripts, discovers icon-text and select-like controls, measures the DOM after fonts are ready, and attaches a server-trusted receipt. Candidate-authored visual_composition_evidence (or browser_qa.visual_composition) is claim-only and cannot pass. Detected controls cannot be hidden by omission or a false no-applicability claim. String-only snippets that cannot render are diagnostic and cannot pass. primitives_used may contain only implementation_contract.approved_primitives; place design-system component ids in component_contract_evidence.components[].id and pattern ids in pattern_contract_evidence.pattern_id. Candidates that fail the active design-system gate are failed candidates, not artifacts, and must be repaired and resubmitted.";
+  "Full evidence or a lossless ui_implementation_candidate continuation from compactImplementationCandidate in judgmentkit/packets. Generated UI candidate as structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, optional visual_token_evidence metadata, component_contract_evidence, pattern_contract_evidence, required design_system_provenance for the active design-system source, and local_component_authority_evidence reviewed by checks.local_component_authority. When implementation_contract.visual_composition_policy applies, provide exact self-contained HTML in rendered_html, rendered_markup, markup, or HTML code, plus an explicit visual_composition_manifest for relationships that are not deterministically discoverable. Each custom select-like control must explicitly name its governed field or compact composition variant; unclassified controls require review rather than inheriting a compact default. The hosted MCP renders it at desktop and mobile sizes, blocks external requests and scripts, discovers icon-text and select-like controls, measures the DOM after fonts are ready, and attaches a server-trusted receipt. Candidate-authored visual_composition_evidence (or browser_qa.visual_composition) is claim-only and cannot pass. Detected controls cannot be hidden by omission or a false no-applicability claim. String-only snippets that cannot render are diagnostic and cannot pass. primitives_used may contain only implementation_contract.approved_primitives; place design-system component ids in component_contract_evidence.components[].id and pattern ids in pattern_contract_evidence.pattern_id. Candidates that fail the active design-system gate are failed candidates, not artifacts, and must be repaired and resubmitted.";
 const ACTIVITY_CONTEXT_ITEM_KINDS = [
   "user_answer",
   "workspace_evidence",
@@ -310,6 +312,10 @@ const REVIEW_UI_WORKFLOW_CANDIDATE_TOOL = {
         description:
           "Optional surface recommendation packet returned by recommend_surface_types.",
       },
+      surface_selection_origin: {
+        type: "string", enum: ["caller", "user", "agent"], default: "caller",
+        description: "Origin of an explicit surface choice. Caller is the default; user and agent are caller-declared provenance, never action authority.",
+      },
       surface_type: {
         type: "string",
         description:
@@ -357,6 +363,8 @@ const REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL = {
     additionalProperties: false,
   },
 };
+
+
 
 const UI_GENERATION_HANDOFF_TOOL = {
   name: "create_ui_generation_handoff",
@@ -482,6 +490,10 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
         description:
           "Optional JudgmentKit-default token, font, and icon metadata. Ignored when design_system_adapter supplies complete external authority.",
       },
+      chart_review_policy: {
+        type: "object",
+        description: "Optional source-backed chart promise with data_cases, exact source_ref/expected points and domains, selected control values, required_viewports and checks. Candidate charts supply selectors and snapshots, never the expected data oracle. Trusted static observations cover SVG labels/series; transitions and Artifact Inspector attestation remain untested.",
+      },
       visual_composition_policy: {
         type: "object",
         description: VISUAL_COMPOSITION_POLICY_INPUT_DESCRIPTION,
@@ -547,6 +559,12 @@ const REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
   },
 };
 
+const PREFLIGHT_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
+  name: "preflight_ui_implementation_candidate",
+  description: "Validate an implementation evidence packet and declared rendered selectors before substantive review. Returns precise field/selector repairs without consuming an implementation attempt. Admission does not prove UI quality, source authority, or product acceptance.",
+  inputSchema: REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.inputSchema,
+};
+
 const FRONTEND_GENERATION_CONTEXT_TOOL = {
   name: "create_frontend_generation_context",
   description:
@@ -577,6 +595,10 @@ const FRONTEND_GENERATION_CONTEXT_TOOL = {
         type: "object",
         description:
           "Optional surface recommendation packet returned by recommend_surface_types.",
+      },
+      surface_selection_origin: {
+        type: "string", enum: ["caller", "user", "agent"], default: "caller",
+        description: "Origin of an explicit surface choice. Caller is the default; user and agent are caller-declared provenance, never action authority.",
       },
       surface_type: {
         type: "string",
@@ -3238,7 +3260,9 @@ function formatImplementationReviewCard(result) {
     result.implementation_review_status === "passed"
       ? "**Next step:** The candidate passed the implementation gate; use the evidence in the final handoff."
       : result.implementation_review_status === "review_required"
-          ? "**Next step:** Stop before acceptance. This release cannot produce the deferred Artifact Inspector interactive attestation; keep the external artifact external_not_reviewed and owned scopes review_required."
+          ? result.checks?.artifact_inspector
+            ? "**Next step:** Stop before acceptance. This release cannot produce the deferred Artifact Inspector interactive attestation; keep the external artifact external_not_reviewed and owned scopes review_required."
+            : "**Next step:** Collect the missing trusted observations before acceptance. Review the reported untested coverage."
           : "**Next step:** This is not an artifact. Repair the failed gates and resubmit before final UI handoff.";
   const lines = [
     "## JudgmentKit Implementation Review",
@@ -3257,6 +3281,9 @@ function formatImplementationReviewCard(result) {
     firstLine("Static enforcement", result.checks?.static_enforcement?.status),
     firstLine("Browser QA", result.checks?.browser_qa?.status),
     firstLine("Visual composition", result.checks?.visual_composition?.status),
+    firstLine("Chart observations", result.checks?.chart_review?.outcome),
+    listLine("Observed chart checks", result.checks?.chart_review?.coverage?.observed),
+    listLine("Untested chart checks", result.checks?.chart_review?.coverage?.untested),
     firstLine("Accessibility evidence", result.checks?.accessibility_evidence?.status),
     firstLine("Visual token evidence", result.checks?.visual_tokens?.status),
     firstLine(
@@ -3621,8 +3648,35 @@ function formatErrorCard(result) {
 }
 
 export function formatPlanningCard(result) {
+  if (result?.schema === COMPACT_PACKET_SCHEMA) {
+    const guidance = result.active_guidance;
+    const status = guidance.implementation_review_status ?? guidance.admission_status ?? guidance.evidence_preflight_status ??
+      guidance.skill_context_status ?? guidance.frontend_context_status ?? guidance.handoff_status ??
+      guidance.status ?? guidance.review?.status ?? "ready";
+    const lines = ["## JudgmentKit Active Guidance", `**Status:** ${status}`];
+    if (guidance.next_agent_action) lines.push(`**Next step:** ${guidance.next_agent_action}`);
+    if (guidance.readiness?.next_question) lines.push(guidance.readiness.next_question);
+    const repairs = Array.isArray(guidance.repair_instructions) ? guidance.repair_instructions
+      : guidance.repair_instructions?.items ?? Object.values(guidance.repair_instructions?.groups ?? {}).flat();
+    for (const repair of repairs) lines.push(`- ${typeof repair === "string" ? repair : repair.required_change ?? repair.instruction ?? repair.repair ?? repair.message ?? JSON.stringify(repair)}`);
+    lines.push("", "Use active_guidance for current instructions. Pass this complete compact packet in its named downstream field. Exact raw brief and attributed context remain required. Request packet_format full for the expanded packet.");
+    return lines.join("\n");
+  }
   if (result?.error) {
     return formatErrorCard(result);
+  }
+
+  if (result?.admission_status && !result.substantive_review_performed) {
+    const lines = ["## JudgmentKit Evidence Admission",
+      `**Status:** ${result.admission_status}`,
+      result.admission_status === "ready_for_review"
+        ? "**Next step:** Submit the admitted packet for implementation review. Admission does not establish acceptance."
+        : result.admission_status === "retry_evidence_preflight"
+          ? "**Next step:** Retry evidence preflight when the isolated browser runtime is available. No implementation attempt was consumed."
+          : "**Next step:** Repair the named evidence fields or selectors and resubmit. No implementation attempt was consumed."];
+    for (const item of result.repair_instructions?.items ?? []) lines.push(`- ${item.path}: ${item.required_change}`);
+    if (result.selector_observation_status) lines.push(`Selector observation: ${result.selector_observation_status}.`);
+    return lines.join("\n");
   }
 
   if (result?.deck_creation_status) {
@@ -3697,6 +3751,7 @@ export function listTools() {
     REVIEW_UI_WORKFLOW_CANDIDATE_TOOL,
     REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL,
     UI_IMPLEMENTATION_CONTRACT_TOOL,
+    PREFLIGHT_UI_IMPLEMENTATION_CANDIDATE_TOOL,
     REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL,
     UI_GENERATION_HANDOFF_TOOL,
     FRONTEND_GENERATION_CONTEXT_TOOL,
@@ -3705,7 +3760,17 @@ export function listTools() {
     LIST_ICON_CATALOG_TOOL,
     SEARCH_ICON_CATALOG_TOOL,
     GET_ICON_SVG_TOOL,
-  ];
+  ].map((tool) => COMPACT_PACKET_TOOLS.has(tool.name) ? {
+    ...tool,
+    inputSchema: {
+      ...tool.inputSchema,
+      properties: {
+        ...tool.inputSchema.properties,
+        packet_format: { type: "string", enum: ["full", "compact"], default: "full",
+          description: "Full preserves existing packets. Compact returns focused active guidance plus a lossless bounded continuation accepted in named downstream packet fields; raw brief and attributed context remain required." },
+      },
+    },
+  } : tool);
 }
 
 export function getMcpMetadata(transport = "stdio") {
@@ -3829,7 +3894,7 @@ export async function runVisualCompositionBrowserAdmission(
   }
 }
 
-export async function handleToolCall(name, args = {}) {
+async function handleFullToolCall(name, args = {}) {
   if (
     ![
       ANALYZE_TOOL.name,
@@ -3840,6 +3905,7 @@ export async function handleToolCall(name, args = {}) {
       REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name,
       REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL.name,
       UI_IMPLEMENTATION_CONTRACT_TOOL.name,
+      PREFLIGHT_UI_IMPLEMENTATION_CANDIDATE_TOOL.name,
       REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.name,
       UI_GENERATION_HANDOFF_TOOL.name,
       FRONTEND_GENERATION_CONTEXT_TOOL.name,
@@ -3900,6 +3966,7 @@ export async function handleToolCall(name, args = {}) {
         context_items: args.context_items,
         surface_review: args.surface_review,
         surface_type: args.surface_type,
+        surface_selection_origin: args.surface_selection_origin,
         surface_profile: args.surface_profile,
         supported_surface_profiles: args.supported_surface_profiles,
         frontend_context: args.frontend_context,
@@ -3924,7 +3991,7 @@ export async function handleToolCall(name, args = {}) {
       });
     }
 
-    if (name === REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.name) {
+    if (name === REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.name || name === PREFLIGHT_UI_IMPLEMENTATION_CANDIDATE_TOOL.name) {
       if (!isRecord(args.implementation_contract)) {
         throw new JudgmentKitInputError(
           "review_ui_implementation_candidate requires implementation_contract.",
@@ -3945,9 +4012,15 @@ export async function handleToolCall(name, args = {}) {
         iteration_context: args.iteration_context,
       };
 
+      if (name === PREFLIGHT_UI_IMPLEMENTATION_CANDIDATE_TOOL.name) {
+        return await runVisualCompositionBrowserAdmission(() =>
+          preflightUiImplementationCandidateWithBrowserRuntime(args.candidate, reviewOptions),
+        );
+      }
       if (
-        isRecord(implementationContract.visual_composition_policy) &&
-        candidateQualifiesForBrowserReview(args.candidate)
+        isRecord(implementationContract.chart_review_policy) ||
+        (isRecord(implementationContract.visual_composition_policy) &&
+        candidateQualifiesForBrowserReview(args.candidate))
       ) {
         return await runVisualCompositionBrowserAdmission(() =>
           reviewUiImplementationCandidateWithBrowserRuntime(
@@ -3979,6 +4052,7 @@ export async function handleToolCall(name, args = {}) {
         profile_id: args.profile_id,
         surface_review: args.surface_review,
         surface_type: args.surface_type,
+        surface_selection_origin: args.surface_selection_origin,
       });
     }
 
@@ -4015,6 +4089,32 @@ export async function handleToolCall(name, args = {}) {
   }
 }
 
+export async function handleToolCall(name, args = {}) {
+  if (args.packet_format !== undefined && !["full", "compact"].includes(args.packet_format)) {
+    return createError("invalid_input", "packet_format must be full or compact.");
+  }
+  let expandedArgs;
+  try {
+    expandedArgs = expandToolContinuations(args, { toolName: name });
+  } catch (error) {
+    return createError("invalid_compact_continuation", error.message, {
+      repair: "Resupply the unchanged complete compact packet or request packet_format full. Resupply exact raw brief and context at validating boundaries.",
+      substantive_review_performed: false,
+      attempt_consumed: false,
+    });
+  }
+  const result = await handleFullToolCall(name, expandedArgs);
+  if (args.packet_format !== "compact") return result;
+  try {
+    return compactPacket(result, name);
+  } catch (error) {
+    if (!(error instanceof RangeError)) throw error;
+    return createError("compact_packet_size_limit", error.message, {
+      repair: "Request packet_format full for this unusually large packet.",
+    });
+  }
+}
+
 function createToolResult(result) {
   const isError = "error" in result;
 
@@ -4035,8 +4135,20 @@ export function createJudgmentKitMcpServer() {
     name: MCP_SERVER_NAME,
     version: MCP_SERVER_VERSION,
   });
+  const registerTool = (name, configuration, callback) => server.registerTool(name,
+    COMPACT_PACKET_TOOLS.has(name) ? {
+      ...configuration,
+      inputSchema: {
+        ...configuration.inputSchema,
+        packet_format: z.enum(["full", "compact"]).optional().describe(
+          "Focused active guidance and lossless continuation, or the compatible full packet (default). Raw brief/context requirements remain unchanged.",
+        ),
+      },
+    } : configuration,
+    callback,
+  );
 
-  server.registerTool(
+  registerTool(
     ANALYZE_TOOL.name,
     {
       description: ANALYZE_TOOL.description,
@@ -4047,7 +4159,7 @@ export function createJudgmentKitMcpServer() {
     async (args) => createToolResult(await handleToolCall(ANALYZE_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
     ACTIVITY_MODEL_REVIEW_TOOL.name,
     {
       description: ACTIVITY_MODEL_REVIEW_TOOL.description,
@@ -4063,7 +4175,7 @@ export function createJudgmentKitMcpServer() {
       createToolResult(await handleToolCall(ACTIVITY_MODEL_REVIEW_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
     RECOMMEND_SURFACE_TYPES_TOOL.name,
     {
       description: RECOMMEND_SURFACE_TYPES_TOOL.description,
@@ -4077,7 +4189,7 @@ export function createJudgmentKitMcpServer() {
       createToolResult(await handleToolCall(RECOMMEND_SURFACE_TYPES_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
     RECOMMEND_UI_WORKFLOW_PROFILES_TOOL.name,
     {
       description: RECOMMEND_UI_WORKFLOW_PROFILES_TOOL.description,
@@ -4089,7 +4201,7 @@ export function createJudgmentKitMcpServer() {
       createToolResult(await handleToolCall(RECOMMEND_UI_WORKFLOW_PROFILES_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
     REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name,
     {
       description: REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.description,
@@ -4106,7 +4218,7 @@ export function createJudgmentKitMcpServer() {
       createToolResult(await handleToolCall(REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
     REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name,
     {
       description: REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.description,
@@ -4121,13 +4233,14 @@ export function createJudgmentKitMcpServer() {
         profile_id: z.string().optional(),
         surface_review: z.record(z.any()).optional(),
         surface_type: z.string().optional(),
+        surface_selection_origin: z.enum(["caller", "user", "agent"]).optional(),
       },
     },
     async (args) =>
       createToolResult(await handleToolCall(REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
     REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL.name,
     {
       description: REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL.description,
@@ -4145,7 +4258,7 @@ export function createJudgmentKitMcpServer() {
       ),
   );
 
-  server.registerTool(
+  registerTool(
     UI_IMPLEMENTATION_CONTRACT_TOOL.name,
     {
       description: UI_IMPLEMENTATION_CONTRACT_TOOL.description,
@@ -4168,6 +4281,9 @@ export function createJudgmentKitMcpServer() {
         default_ai_native_design_system: z.record(z.any()).optional(),
         iteration_policy: z.record(z.any()).optional(),
         visual_token_adapter: z.record(z.any()).optional(),
+        chart_review_policy: z.record(z.any()).optional().describe(
+          "Contract-owned chart data oracle and required selected-state/viewport observations. Candidate-authored claims cannot satisfy the trusted runtime gate.",
+        ),
         visual_composition_policy: z
           .record(z.any())
           .optional()
@@ -4178,7 +4294,31 @@ export function createJudgmentKitMcpServer() {
       createToolResult(await handleToolCall(UI_IMPLEMENTATION_CONTRACT_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
+    PREFLIGHT_UI_IMPLEMENTATION_CANDIDATE_TOOL.name,
+    {
+      description: PREFLIGHT_UI_IMPLEMENTATION_CANDIDATE_TOOL.description,
+      inputSchema: {
+        candidate: z
+          .union([z.string(), z.record(z.any())])
+          .describe(REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION),
+        implementation_contract: z.record(z.any()),
+        surface_type: z.string().optional(),
+        surfaceType: z.string().optional(),
+        surface_review: z.record(z.any()).optional(),
+        surfaceReview: z.record(z.any()).optional(),
+        frontend_generation_context: z.record(z.any()).optional(),
+        frontendGenerationContext: z.record(z.any()).optional(),
+        iteration_context: z.record(z.any()).optional(),
+      },
+    },
+    async (args) =>
+      createToolResult(
+        await handleToolCall(PREFLIGHT_UI_IMPLEMENTATION_CANDIDATE_TOOL.name, args),
+      ),
+  );
+
+  registerTool(
     REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.name,
     {
       description: REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.description,
@@ -4202,7 +4342,7 @@ export function createJudgmentKitMcpServer() {
       ),
   );
 
-  server.registerTool(
+  registerTool(
     UI_GENERATION_HANDOFF_TOOL.name,
     {
       description: UI_GENERATION_HANDOFF_TOOL.description,
@@ -4221,7 +4361,7 @@ export function createJudgmentKitMcpServer() {
       createToolResult(await handleToolCall(UI_GENERATION_HANDOFF_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
     FRONTEND_GENERATION_CONTEXT_TOOL.name,
     {
       description: FRONTEND_GENERATION_CONTEXT_TOOL.description,
@@ -4234,6 +4374,7 @@ export function createJudgmentKitMcpServer() {
           .optional(),
         surface_review: z.record(z.any()).optional(),
         surface_type: z.string().optional(),
+        surface_selection_origin: z.enum(["caller", "user", "agent"]).optional(),
         surface_profile: z
           .enum([
             "auto",
@@ -4251,7 +4392,7 @@ export function createJudgmentKitMcpServer() {
       createToolResult(await handleToolCall(FRONTEND_GENERATION_CONTEXT_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
     FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.name,
     {
       description: FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.description,
@@ -4273,7 +4414,7 @@ export function createJudgmentKitMcpServer() {
       ),
   );
 
-  server.registerTool(
+  registerTool(
     CREATE_SLIDE_DECK_TOOL.name,
     {
       description: CREATE_SLIDE_DECK_TOOL.description,
@@ -4316,7 +4457,7 @@ export function createJudgmentKitMcpServer() {
       createToolResult(await handleToolCall(CREATE_SLIDE_DECK_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
     LIST_ICON_CATALOG_TOOL.name,
     {
       description: LIST_ICON_CATALOG_TOOL.description,
@@ -4331,7 +4472,7 @@ export function createJudgmentKitMcpServer() {
       createToolResult(await handleToolCall(LIST_ICON_CATALOG_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
     SEARCH_ICON_CATALOG_TOOL.name,
     {
       description: SEARCH_ICON_CATALOG_TOOL.description,
@@ -4345,7 +4486,7 @@ export function createJudgmentKitMcpServer() {
       createToolResult(await handleToolCall(SEARCH_ICON_CATALOG_TOOL.name, args)),
   );
 
-  server.registerTool(
+  registerTool(
     GET_ICON_SVG_TOOL.name,
     {
       description: GET_ICON_SVG_TOOL.description,

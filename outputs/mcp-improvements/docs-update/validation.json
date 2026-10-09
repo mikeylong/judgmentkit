@@ -1,0 +1,528 @@
+{
+  "status": "pass",
+  "recorded_at_utc": "2026-10-09T04:15:06.052298+00:00",
+  "scope": "Documentation, system map and agent workflow follow-up for general JudgmentKit MCP improvements",
+  "specs_followed": [
+    "specs/system-map.md",
+    "specs/mcp-evidence-and-packets.md",
+    "specs/activity-routing-reliability.md"
+  ],
+  "contracts_preserved": [
+    "contracts/judgmentkit-kernel.schema.json",
+    "contracts/chart-review-policy.schema.json",
+    "contracts/chart-review.policy-contract.json"
+  ],
+  "source_root": "/Users/mike/.codex/worktrees/mcp-improvements/JudgmentKit2",
+  "source_base_sha": "7fdbcdcfde0454c988a12bff229e5882b261ffeb",
+  "branch": "codex/mcp-improvements",
+  "current_source_manifest_sha256": "da2ad935fe8e3f5d93a8e55748481a42c75f00bb2dcf48e31607a7c9eab87b78",
+  "current_source_file_count": 1450,
+  "implementation_suite_source_manifest_sha256": "5d89fa255f3dd843ab236085c63939edbe24b907863b882cdb1b78b3e2ab39b9",
+  "implementation_suite_reference": "../validation/attempt-5/summary.json",
+  "historical_validation_preserved": true,
+  "full_suite_rerun_for_docs": false,
+  "runtime_unchanged_from_implementation_snapshot": {
+    "verified": true,
+    "file_count": 37,
+    "paths": [
+      "bin/judgmentkit-mcp-stdio.mjs",
+      "bin/judgmentkit.mjs",
+      "contracts/ai-ui-generation.activity-contract.json",
+      "contracts/chart-review-policy.schema.json",
+      "contracts/chart-review.policy-contract.json",
+      "contracts/judgmentkit-kernel.schema.json",
+      "contracts/simple-design-system.component-inventory.json",
+      "package-lock.json",
+      "package.json",
+      "src/analytics.mjs",
+      "src/artifact-inspector-authority.mjs",
+      "src/chart-review.mjs",
+      "src/component-reference-inventory.mjs",
+      "src/component-registry.mjs",
+      "src/implementation-evidence-preflight.mjs",
+      "src/index.mjs",
+      "src/lucide-icon-catalog.generated.mjs",
+      "src/mcp-http.mjs",
+      "src/mcp.mjs",
+      "src/portable-packets.mjs",
+      "src/presentation-theme/components.mjs",
+      "src/presentation-theme/index.mjs",
+      "src/presentation-theme/layout.mjs",
+      "src/presentation-theme/qa.mjs",
+      "src/presentation-theme/styles.mjs",
+      "src/presentation-theme/template-layout-data.mjs",
+      "src/presentation-theme/templates.mjs",
+      "src/presentation-theme/theme.mjs",
+      "src/presentation-theme/tokens.mjs",
+      "src/providers/openai-responses.mjs",
+      "src/react/index.mjs",
+      "src/react/interactive-components.mjs",
+      "src/react/native-components.mjs",
+      "src/react/styles.css",
+      "src/surface-presentation-profiles.mjs",
+      "src/visual-composition-browser-runtime.mjs",
+      "src/visual-composition-observation.mjs"
+    ]
+  },
+  "changed_source_files": [
+    {
+      "path": "DESIGN.md",
+      "bytes": 6479,
+      "sha256": "791828c0c73ae6d79663804dfc150f5f04278cb48dfa1e8854a3dbfca21c5b3d",
+      "implementation_snapshot_sha256": "66e06b2e9a18388a5178128a31d1260c0d13396c56a3ce5988571238a77c3a1f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 20612,
+      "sha256": "ee83bebf4ace23262235c0fd929c5cde384e406e00b393f3ef28bb3719bb4170",
+      "implementation_snapshot_sha256": "b7c3d557552a8636487657931a6ec8197884498059ea759fff787cbd1b9a7732"
+    },
+    {
+      "path": "docs/activity-case-architecture.md",
+      "bytes": 8044,
+      "sha256": "264904d07e8b89c46d758e5dc959c43937265a475828159c20fa6459e4805c76",
+      "implementation_snapshot_sha256": "1ba02436a8b3738e26c19dc9fba13de0d94bd9c7f6543932fbfa09f8e3d47c8f"
+    },
+    {
+      "path": "docs/agent-usage-contract.md",
+      "bytes": 14213,
+      "sha256": "f62b70ca88732fa32ca2fb3a954358ccb169bf1fa6c4116af18d92cb8070c690",
+      "implementation_snapshot_sha256": "323c678f3ae3b271568a7693f0032788c8d02b106131807178f85d63e4e7d964"
+    },
+    {
+      "path": "docs/builder-workflow.md",
+      "bytes": 11440,
+      "sha256": "bbeea6947cec065b0905991693c276d2c3eee659f032f7b050fb2d540f31a948",
+      "implementation_snapshot_sha256": "c821dcf76580efb1c737d6db54dd600acbccf28c17c64b7a7af17dd59a8d227c"
+    },
+    {
+      "path": "docs/daily-agent-workflows.md",
+      "bytes": 31440,
+      "sha256": "4128aa5eac9c0bd59c898a0465dc39a59fffd94e33a120695ce2e36efb204183",
+      "implementation_snapshot_sha256": "0b296137cc85b7adb62ac879c07d66239d750fc273686643d2100738fcccc03c"
+    },
+    {
+      "path": "packages/agent-skill/judgmentkit-hosted-mcp/SKILL.md",
+      "bytes": 12870,
+      "sha256": "54fa07a2a439a0f0043da74a8d007526a08413f448a73e70d39cbf1cddec8ec5",
+      "implementation_snapshot_sha256": "d310940c551592abb5a2ff40b8a401804cf70da551ad262fc3cb06d0ba696d2f"
+    },
+    {
+      "path": "packages/agent-skill/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md",
+      "bytes": 8517,
+      "sha256": "16f1fce48784439090bb5436833e3aadf97d6c4c9f2c275d9d65e2af0b30f7f0",
+      "implementation_snapshot_sha256": "a475489e5d6eca37d93c02db7d7bbc20044b104be210bd5c9ee5eb6863133ac3"
+    },
+    {
+      "path": "packages/claude-plugin/skills/judgmentkit-hosted-mcp/SKILL.md",
+      "bytes": 12870,
+      "sha256": "54fa07a2a439a0f0043da74a8d007526a08413f448a73e70d39cbf1cddec8ec5",
+      "implementation_snapshot_sha256": "d310940c551592abb5a2ff40b8a401804cf70da551ad262fc3cb06d0ba696d2f"
+    },
+    {
+      "path": "packages/claude-plugin/skills/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md",
+      "bytes": 8517,
+      "sha256": "16f1fce48784439090bb5436833e3aadf97d6c4c9f2c275d9d65e2af0b30f7f0",
+      "implementation_snapshot_sha256": "a475489e5d6eca37d93c02db7d7bbc20044b104be210bd5c9ee5eb6863133ac3"
+    },
+    {
+      "path": "packages/codex-plugin/README.md",
+      "bytes": 3177,
+      "sha256": "cd280e11bd6fd70bce5b5ca917983402a50d54850778e4f58145cc56f5cd75ae",
+      "implementation_snapshot_sha256": "efaea4ce20e59a2ed027794ae9ef306077073522f45daf2e15aaf8fc105f8f4b"
+    },
+    {
+      "path": "packages/codex-plugin/skills/judgmentkit-hosted-mcp/SKILL.md",
+      "bytes": 12870,
+      "sha256": "54fa07a2a439a0f0043da74a8d007526a08413f448a73e70d39cbf1cddec8ec5",
+      "implementation_snapshot_sha256": "d310940c551592abb5a2ff40b8a401804cf70da551ad262fc3cb06d0ba696d2f"
+    },
+    {
+      "path": "packages/codex-plugin/skills/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md",
+      "bytes": 8517,
+      "sha256": "16f1fce48784439090bb5436833e3aadf97d6c4c9f2c275d9d65e2af0b30f7f0",
+      "implementation_snapshot_sha256": "a475489e5d6eca37d93c02db7d7bbc20044b104be210bd5c9ee5eb6863133ac3"
+    },
+    {
+      "path": "site/build-site.mjs",
+      "bytes": 418878,
+      "sha256": "4641044a5b8d8383ca5017f94c99c19a899d0374a338a20381cecd4ece8de994",
+      "implementation_snapshot_sha256": "fa9ec46590638d3e267f5f6c3cfcffa9b7d84661c5d63d81a27434441c3b8ef5"
+    },
+    {
+      "path": "site/system-map-model.mjs",
+      "bytes": 10415,
+      "sha256": "fb75c87607b7f62e90f56c492e202a0962e26611c737c7cdfe0528133ef66e05",
+      "implementation_snapshot_sha256": "b87881bcec98ca417b363e7501e44d0634be7ef6239e039260fd9047e977f4f8"
+    },
+    {
+      "path": "specs/system-map.md",
+      "bytes": 4568,
+      "sha256": "58fc32472e22614ad62f875e4876424b757871d8bba314a3eb28c82d7278dea0",
+      "implementation_snapshot_sha256": "6808afd3ffc92ec47e22b53edd7b0234cf9aa34bd36c89365d361d7b63ae5c82"
+    },
+    {
+      "path": "tests/site-first-use-browser.test.mjs",
+      "bytes": 25913,
+      "sha256": "8c1387a9fc39161fc07e9a6fb645bfac6cacbd7d9d496604f6c27980d3d52dfc",
+      "implementation_snapshot_sha256": "6f964e2c95f1a1b931d6c4a8f4e9c63704f8ebe005e992c98bbe2aca234ba68a"
+    },
+    {
+      "path": "tests/site.test.mjs",
+      "bytes": 232844,
+      "sha256": "a42969089739ee8d51f58580822850924fef9e8943a93ebec3487e8354797b54",
+      "implementation_snapshot_sha256": "62617226dffe624df8486443f9184bea84f48619211c2fe89a2a802f2164bda2"
+    },
+    {
+      "path": "tests/system-map.test.mjs",
+      "bytes": 15045,
+      "sha256": "7738f0d87b1f80a3724bdab2571a49623326757d724d1363c8a01447f0b0b697",
+      "implementation_snapshot_sha256": "942d59a14297b966941f48f04d6009bbdb1f56f23142f2303e89fe9dd4e5a4ab"
+    }
+  ],
+  "new_source_files_not_in_historical_manifest": [],
+  "checks": [
+    {
+      "name": "system-map",
+      "argv": [
+        "node",
+        "tests/system-map.test.mjs"
+      ],
+      "cwd": "/Users/mike/.codex/worktrees/mcp-improvements/JudgmentKit2",
+      "exit_code": 0,
+      "elapsed_seconds": 0.638,
+      "log": "system-map.log",
+      "log_sha256": "e8cfe7155ffb7daeff5349ea0468e7c2be450d0d2634d110c64f0264727d2ad3"
+    },
+    {
+      "name": "site",
+      "argv": [
+        "node",
+        "tests/site.test.mjs"
+      ],
+      "cwd": "/Users/mike/.codex/worktrees/mcp-improvements/JudgmentKit2",
+      "exit_code": 0,
+      "elapsed_seconds": 3.824,
+      "log": "site.log",
+      "log_sha256": "725fb921ec13121f87455af21dfdac4383ec93b76e6db79bf8847f98dab05607"
+    },
+    {
+      "name": "site-build",
+      "argv": [
+        "node",
+        "site/build-site.mjs",
+        "--out",
+        "/private/tmp/judgmentkit-system-map-followup/final-checks-10hlik_q/built-site"
+      ],
+      "cwd": "/Users/mike/.codex/worktrees/mcp-improvements/JudgmentKit2",
+      "exit_code": 0,
+      "elapsed_seconds": 0.629,
+      "log": "site-build.log",
+      "log_sha256": "68c75ccaaef4a5420db0f2a53b4edf0560c97575b0121faf5f88a2f05ff6d59c"
+    },
+    {
+      "name": "whitespace",
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/Users/mike/.codex/worktrees/mcp-improvements/JudgmentKit2",
+      "exit_code": 0,
+      "elapsed_seconds": 0.066,
+      "log": "whitespace.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "coordinator_checks": {
+    "evidence_type": "Tool-transcript results reported by /root/mcp_improvements_coordinator after final documentation edit",
+    "cwd": "/Users/mike/.codex/worktrees/mcp-improvements/JudgmentKit2",
+    "checks": [
+      {
+        "command": "node tests/skills.test.mjs",
+        "exit_code": 0
+      },
+      {
+        "command": "node tests/agent-plugin-adapters.test.mjs",
+        "exit_code": 0
+      },
+      {
+        "command": "node tests/codex-plugin.test.mjs",
+        "exit_code": 0
+      },
+      {
+        "command": "npm run test:builder-workflow",
+        "exit_code": 0
+      },
+      {
+        "command": "node scripts/sync-agent-plugin-adapters.mjs --check --json",
+        "exit_code": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_code": 0
+      }
+    ],
+    "reported_canonical_adapter_sha256": "e8d1985060d3643c6de880031243854250e94d5f4c7d38488e59e638f846720e",
+    "independent_mirror_byte_comparison": [
+      {
+        "canonical": "packages/agent-skill/judgmentkit-hosted-mcp/SKILL.md",
+        "mirror": "packages/codex-plugin/skills/judgmentkit-hosted-mcp/SKILL.md",
+        "sha256": "54fa07a2a439a0f0043da74a8d007526a08413f448a73e70d39cbf1cddec8ec5"
+      },
+      {
+        "canonical": "packages/agent-skill/judgmentkit-hosted-mcp/SKILL.md",
+        "mirror": "packages/claude-plugin/skills/judgmentkit-hosted-mcp/SKILL.md",
+        "sha256": "54fa07a2a439a0f0043da74a8d007526a08413f448a73e70d39cbf1cddec8ec5"
+      },
+      {
+        "canonical": "packages/agent-skill/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md",
+        "mirror": "packages/codex-plugin/skills/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md",
+        "sha256": "16f1fce48784439090bb5436833e3aadf97d6c4c9f2c275d9d65e2af0b30f7f0"
+      },
+      {
+        "canonical": "packages/agent-skill/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md",
+        "mirror": "packages/claude-plugin/skills/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md",
+        "sha256": "16f1fce48784439090bb5436833e3aadf97d6c4c9f2c275d9d65e2af0b30f7f0"
+      }
+    ]
+  },
+  "browser_checks": {
+    "four_presentations": [
+      {
+        "viewport": "desktop",
+        "appearance": "light",
+        "mounted_nodes": 21,
+        "mounted_edges": 25,
+        "readable_zoom": 1.07936,
+        "clipped_cards": 0,
+        "fallback_nodes": 21,
+        "fallback_edges": 25,
+        "application_mounted_in_fallback": false
+      },
+      {
+        "viewport": "desktop",
+        "appearance": "dark",
+        "mounted_nodes": 21,
+        "mounted_edges": 25,
+        "readable_zoom": 1.07936,
+        "clipped_cards": 0,
+        "fallback_nodes": 21,
+        "fallback_edges": 25,
+        "application_mounted_in_fallback": false
+      },
+      {
+        "viewport": "mobile",
+        "appearance": "light",
+        "mounted_nodes": 21,
+        "mounted_edges": 25,
+        "readable_zoom": 1.16736,
+        "clipped_cards": 0,
+        "fallback_nodes": 21,
+        "fallback_edges": 25,
+        "application_mounted_in_fallback": false
+      },
+      {
+        "viewport": "mobile",
+        "appearance": "dark",
+        "mounted_nodes": 21,
+        "mounted_edges": 25,
+        "readable_zoom": 1.16736,
+        "clipped_cards": 0,
+        "fallback_nodes": 21,
+        "fallback_edges": 25,
+        "application_mounted_in_fallback": false
+      }
+    ],
+    "summary": "browser/four-presentations/summary.json",
+    "final_v2_asset_loader": "browser/final-v2-loader/summary.json",
+    "loaded_assets": [
+      {
+        "url": "/assets/system-map-flow.css?v=judgmentkit-flow-evidence-admission-v2",
+        "status": 200,
+        "mime_type": "text/css",
+        "from_disk_cache": false
+      },
+      {
+        "url": "/assets/system-map-flow.js?v=judgmentkit-flow-evidence-admission-v2",
+        "status": 200,
+        "mime_type": "application/javascript",
+        "from_disk_cache": false
+      }
+    ],
+    "mounted_nodes": 21,
+    "mounted_arrows": 25,
+    "retained_failed_attempt": "browser/attempt-1-rounding/summary.json",
+    "centering_assertion_change": "Allow the public React Flow applied-padding floor shift of one CSS pixel plus 0.01 measurement epsilon; enclosure and text-clipping assertions retained",
+    "limit": "At mobile fit overview, the existing controls overlay part of the lower-left repair card. Internal card text bounds pass at readable zoom; overview occlusion is not asserted."
+  },
+  "external_scope": {
+    "source_app_changes": false,
+    "hosted_service_changes": false,
+    "publication_performed": false
+  },
+  "local_state": {
+    "primary": {
+      "branch": "main",
+      "head": "7fdbcdcfde0454c988a12bff229e5882b261ffeb",
+      "upstream": "origin/main",
+      "locally_resolved_origin_main": "7fdbcdcfde0454c988a12bff229e5882b261ffeb",
+      "ahead_behind": "0\t0",
+      "porcelain": ""
+    },
+    "managed_worktree_changes": "unstaged and uncommitted",
+    "staged_files": []
+  },
+  "preserved_evidence": [
+    {
+      "path": "browser/attempt-1-rounding/browser.log",
+      "sha256": "f7b983104af4a61a372afd05197821043b45c5bc7fceacc4599f5c2c4d7fa290",
+      "bytes": 19084
+    },
+    {
+      "path": "browser/attempt-1-rounding/evidence/desktop-dark-fallback.png",
+      "sha256": "91deecccd0923fe838c0a12a1a2b16c9cd70171bcc7da50b791d3884fa314cec",
+      "bytes": 151785
+    },
+    {
+      "path": "browser/attempt-1-rounding/evidence/desktop-dark-mounted.png",
+      "sha256": "57be83728712b374def2f5794d62d43f31461be6fe44f9671417088b4c37d877",
+      "bytes": 149760
+    },
+    {
+      "path": "browser/attempt-1-rounding/evidence/desktop-light-fallback.png",
+      "sha256": "dfd0b3e4c3c4a51029cc5adf2439651a11295026c0cd0c0e97ba6fab9b7c82a1",
+      "bytes": 148510
+    },
+    {
+      "path": "browser/attempt-1-rounding/evidence/desktop-light-mounted.png",
+      "sha256": "9233b581e5494db5355c5ee6d82f6b5a09fd705bf47d13e8cf0d9d720f6742ab",
+      "bytes": 145365
+    },
+    {
+      "path": "browser/attempt-1-rounding/source-files.json",
+      "sha256": "79cc0ba3ee0d52979663cc366fa0b9e8e3cfa0261aa61567b3ccd9dbe6da7eb1",
+      "bytes": 283106
+    },
+    {
+      "path": "browser/attempt-1-rounding/summary.json",
+      "sha256": "024691c2c7bb4c9fe544bb7e5727d880e09c805bea3ed68bfdbc8237bd7ef2bc",
+      "bytes": 430
+    },
+    {
+      "path": "browser/four-presentations/browser.log",
+      "sha256": "bd05df04663d8f9f0fcc55b6509f8b70a198615480d42b69cde6c499b39c1ddb",
+      "bytes": 219
+    },
+    {
+      "path": "browser/four-presentations/evidence/desktop-dark-fallback.png",
+      "sha256": "91deecccd0923fe838c0a12a1a2b16c9cd70171bcc7da50b791d3884fa314cec",
+      "bytes": 151785
+    },
+    {
+      "path": "browser/four-presentations/evidence/desktop-dark-mounted.png",
+      "sha256": "57be83728712b374def2f5794d62d43f31461be6fe44f9671417088b4c37d877",
+      "bytes": 149760
+    },
+    {
+      "path": "browser/four-presentations/evidence/desktop-light-fallback.png",
+      "sha256": "dfd0b3e4c3c4a51029cc5adf2439651a11295026c0cd0c0e97ba6fab9b7c82a1",
+      "bytes": 148510
+    },
+    {
+      "path": "browser/four-presentations/evidence/desktop-light-mounted.png",
+      "sha256": "9233b581e5494db5355c5ee6d82f6b5a09fd705bf47d13e8cf0d9d720f6742ab",
+      "bytes": 145365
+    },
+    {
+      "path": "browser/four-presentations/evidence/mobile-dark-fallback.png",
+      "sha256": "af3a60cd23ac6617d72a6301fbd3f67fa415d0cb266adba079bcdaff40defa2b",
+      "bytes": 51189
+    },
+    {
+      "path": "browser/four-presentations/evidence/mobile-dark-mounted.png",
+      "sha256": "68ff5996b546393cdcf7db17cf9a0f16a3f63ab5ee37afde91c9d54521b2b096",
+      "bytes": 48452
+    },
+    {
+      "path": "browser/four-presentations/evidence/mobile-light-fallback.png",
+      "sha256": "3310d74e4e58f6059dbf4a15b91ec824ad7907183f17af3e34d86aaa49bca656",
+      "bytes": 49234
+    },
+    {
+      "path": "browser/four-presentations/evidence/mobile-light-mounted.png",
+      "sha256": "21b0c00057ceeaec7bdf43127790479c87ac5b7b770aa85b0dc998aa3904f91a",
+      "bytes": 48751
+    },
+    {
+      "path": "browser/four-presentations/evidence/system-map-browser-receipts.json",
+      "sha256": "4c6efb00a917a7996b7b12c680d460ad05950aaff493ddbe035bc2209d4feefe",
+      "bytes": 76282
+    },
+    {
+      "path": "browser/four-presentations/source-files.json",
+      "sha256": "2d80f202c5e8b7f8831ebe2a78510bea8256190566ed885cd24f757b80cb514f",
+      "bytes": 283106
+    },
+    {
+      "path": "browser/four-presentations/summary.json",
+      "sha256": "1104b18f18143483c98a896cd409e0437e61a9c055b9eb8bd429437e0139e69a",
+      "bytes": 3186
+    },
+    {
+      "path": "browser/final-v2-loader/browser.log",
+      "sha256": "227c353fef4894cf9c8233eca5cc19321cb0a4dca16832ba67f4051a34a4bcb8",
+      "bytes": 391
+    },
+    {
+      "path": "browser/final-v2-loader/loader-smoke.mjs",
+      "sha256": "e0eb1a0b0fb9abccafaec0f0e6800daa871fac0e66f9264ab298935e7b608b67",
+      "bytes": 4641
+    },
+    {
+      "path": "browser/final-v2-loader/receipt.json",
+      "sha256": "a70e7cb9dc5a3bf95ce31e5968dee9c7d38797c262866c77460657d060c80b30",
+      "bytes": 3772
+    },
+    {
+      "path": "browser/final-v2-loader/source-files.json",
+      "sha256": "23c1121d8b4b3fbc96afd28241fb2ba8fffeb932b2cd38120c8afd70756c29a1",
+      "bytes": 283106
+    },
+    {
+      "path": "browser/final-v2-loader/summary.json",
+      "sha256": "6aabc2325bc9e9a8fbf36df136fcb37afe183ee54167171d6d46591bdf8d74cb",
+      "bytes": 1721
+    },
+    {
+      "path": "checks/site-build.log",
+      "sha256": "68c75ccaaef4a5420db0f2a53b4edf0560c97575b0121faf5f88a2f05ff6d59c",
+      "bytes": 491
+    },
+    {
+      "path": "checks/site.log",
+      "sha256": "725fb921ec13121f87455af21dfdac4383ec93b76e6db79bf8847f98dab05607",
+      "bytes": 20
+    },
+    {
+      "path": "checks/summary.json",
+      "sha256": "a423b89a0994ae2289293dc611d3a93987ece381e684f35f0ebeb382d5be8b76",
+      "bytes": 1637
+    },
+    {
+      "path": "checks/system-map.log",
+      "sha256": "e8cfe7155ffb7daeff5349ea0468e7c2be450d0d2634d110c64f0264727d2ad3",
+      "bytes": 139
+    },
+    {
+      "path": "checks/whitespace.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "source-manifest.json",
+      "sha256": "d56d8e7f3b1716f97de6c0e74b20fe3f0ad8f2d16820895db8f23ea7f14d034a",
+      "bytes": 331661
+    }
+  ]
+}

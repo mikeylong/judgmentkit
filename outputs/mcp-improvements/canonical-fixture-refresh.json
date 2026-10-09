@@ -1,0 +1,540 @@
+{
+  "generator": "node scripts/demo-model-ui-matrix.mjs",
+  "check": "node scripts/demo-model-ui-matrix.mjs --check",
+  "focused_test": "node tests/demo-model-ui-matrix.test.mjs",
+  "check_and_focused_test_exit_code": 0,
+  "changed_files": 72,
+  "added_or_deleted_files": 0,
+  "historical_captures": {
+    "changed": 32,
+    "only_changed_field": "current_source_context_sha256",
+    "status": "legacy_accepted",
+    "original_source_prompt_and_raw_response_hashes_unchanged": true
+  },
+  "html_artifacts": {
+    "changed": 32,
+    "changes_only_sha256_values": true
+  },
+  "files": [
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/deterministic-judgmentkit-material-ui.html",
+      "before_sha256": "4179e8613397e79edd372abe82180588273eade683885a37109f2982fe384dc4",
+      "after_sha256": "bb64b03d1c3bad23239030ed2aaa264783deb67387f3fa7ddf0f6f397d45c703",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/deterministic-with-judgmentkit.html",
+      "before_sha256": "1548f23c71b862a1aa4fce893febb3dc85a1719c643fa7dbd884752c2904a9b2",
+      "after_sha256": "604704a416d875331f842fc69924506c5f5b3b9cd00696e1ece582f04e940325",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gemma4-lms-judgmentkit-material-ui.html",
+      "before_sha256": "c17aea4fa321db83dbbd74ab4e1113aecfab1b346777d15086daea272f64369b",
+      "after_sha256": "941654261a42d6d832ffa9a028240f7176834c1def416b29bbff2ba5065dbe7e",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
+      "before_sha256": "a95ab68d1fed1f7b4ef30f62f8ade23855bbc74089c3b4f1e99037f20618c3ea",
+      "after_sha256": "d051350bdb7bd6494e1bf00c7d7e1b63940a51b09e6c8e785b4729983e8a62f3",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html",
+      "before_sha256": "e39845a390b0b30cbe437489f7ae0e8a4835360619dbec265d9d55e577d60eee",
+      "after_sha256": "eb48c30abda3eacffc2a6b80f6723ac0ba9e1490ccf6f5945d584094a2a3a1cc",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-low-codex-with-judgmentkit.html",
+      "before_sha256": "90a688fc172a9e9555eb5f69f5f79d42830dfb211799b1a0bfdef25e71289cdd",
+      "after_sha256": "0c7c0ac2c9db78f4d4c897cb520d13067939b634231ba1149f87cfb4f7a93ce3",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html",
+      "before_sha256": "c4736bffc9608359be543f448b1a4cc040089c8d1d9e2873c65d3bc97f88a757",
+      "after_sha256": "320cad578b34db6c6721e09ca1155c83e96494500e302db1707706ff377bc544",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+      "before_sha256": "31d87b0681a289398c720f0fe86da8dbf21f6b1196f9a58701a12f2aeaa1f841",
+      "after_sha256": "2ef4b85351e686ee193f4530b284346eb463063bbc4f9d9237d60d1fe9fdfa69",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gemma4-lms-judgmentkit-material-ui.json",
+      "before_sha256": "d197ca97610e4ab3caade709753e56e19614c509d041c8f39d0b8bcd4c7258fd",
+      "after_sha256": "66dcf458b8b45a80d798e253cd92501c6adc29a17f7323e9c21986fe10d4b3fb",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gemma4-lms-with-judgmentkit.json",
+      "before_sha256": "77d22419e4f7d246025592ab920c7b661193828236b9ac4d379774299e630f9e",
+      "after_sha256": "c7b3cdf012510f0272cda45f32482b0d35e53071c79cd8219d4f49929da0fc09",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+      "before_sha256": "4c8f98dcd9b1b9ce409883ff66d2f82f38f6bcba8ea9d2a23e1d9170b319b79d",
+      "after_sha256": "80f806d00d48e1b0e173f8231290709018d7f15997ce7aadc7ba3fd7d210be6e",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt55-xhigh-codex-with-judgmentkit.json",
+      "before_sha256": "dc59b7cf843ed171d85dbf1aad60908df9653d1add6e3c6b4a97ca256698177b",
+      "after_sha256": "9a96effbcdfbb47f7ba5b614957560f793441bc4718c251f5ce2017ef0fb1733",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-low-codex-judgmentkit-material-ui.json",
+      "before_sha256": "2edf587b573190094bf8bc833ec2af4b491c2d2f232d226ba445c9dc59f10571",
+      "after_sha256": "56f4cbff59e3457fff33f04f4423bb89716df749d01707093bd9bb5b98d2ee3c",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-low-codex-with-judgmentkit.json",
+      "before_sha256": "ce44bf1277111d728e9bec50d9c03e170b4b09ca2a3fdfe1a6bf68fb027adf68",
+      "after_sha256": "56ece0d30638f917d225751349107e6f57fba429d4cb56ceed15e1847f778f0f",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-ultra-codex-judgmentkit-material-ui.json",
+      "before_sha256": "3d6ba564912712caa6591e8aa21ef4cba236906c4ca796da7ae2e918bf20256b",
+      "after_sha256": "261eb62787ae1f227cfa746e944139f70df5e6095618173fac128be7671fdfe6",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+      "before_sha256": "d0fdd5d6098bd50b3bf57d88fda8aa2cd3010fb1444120bcde9f6e16b0d30490",
+      "after_sha256": "4526adbe29b4be2c9289fd4f60e641c833050066250d674fba65d6a788661efb",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/manifest.json",
+      "before_sha256": "dd4b99c669fb02aeed6fd8a8f12f6e6a1153fbb90e055230474a866753562b2f",
+      "after_sha256": "dcb7963cb75ba42ac7238efe9b16db0086deb680b76f369abc0e85402f3dd603"
+    },
+    {
+      "path": "examples/model-ui/b2b-renewal-risk/reviewed-handoff.fixture.json",
+      "before_sha256": "6ea28039db80fac679cc2dcd668330565904541e222f659ad5f8f57dfdf077ea",
+      "after_sha256": "fb041681313a7a8691ddedc41718007173a21a3772ba506bcdaa38ab9d31c8a6"
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/deterministic-judgmentkit-material-ui.html",
+      "before_sha256": "379d9afed69a13a44e9981727bbdbdfd95ac99f614950ce7c9620668dba985e8",
+      "after_sha256": "c2d397ac86250559606b35ad7b5150e68458b17c57ed2135c89a9e3b95b7a9ec",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/deterministic-with-judgmentkit.html",
+      "before_sha256": "cd83540db2d7299ed0e5476ad146eee6b1837497c006b18dbceb6a415b0c2a42",
+      "after_sha256": "0e43c9c7b5d658ed578c76fc097b4631042f23ac5173c40b54d31ddadc23132c",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gemma4-lms-judgmentkit-material-ui.html",
+      "before_sha256": "4c02e814795c748bf996be0f049523c5cc1e470e6444ff36b504f15e79088bdc",
+      "after_sha256": "da0e8d5284b68255487b9c88d78fc4d3dfbe5c7b18ef84fa84a677f96447b614",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
+      "before_sha256": "d4c1683cb0f9b78a93b5ff01b679091bc51b9c15678f16201cd6f8233df8ca3b",
+      "after_sha256": "c5fccefc67b4c10ef34ec1a4bd7f25ab066cccacb807bcd422b2d01cb9c02c91",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html",
+      "before_sha256": "1568184796ba0382c98eaaf3e1b1854155254c3aa9c8cb22e0be8037691f355c",
+      "after_sha256": "8afd34a5e6d0909b3e7da0afff0f82d0744cba60d68d2b995088c8bba6c6c842",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-low-codex-with-judgmentkit.html",
+      "before_sha256": "1474e908cf260e1e07a811bf2e21cfca391ee52aac515770c76bc8ffb1083b7f",
+      "after_sha256": "42d1191f3a73a3ead71be67d5815add16dc704e2f1864ec3dac488eff4f717d6",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html",
+      "before_sha256": "0dd099dac3197463a3750ab43d151763dbf39279b97686aa1b489b410063fdae",
+      "after_sha256": "466c6585d1557ca384e0863d350ed37521b38b632c876852888216cebd730412",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+      "before_sha256": "c563989d86e705d54a12b97c76a04952f4a58e32fc48d2be8336bd8e3d147394",
+      "after_sha256": "859864dbc4000417f507d5bba2b26dd39941eb841e14e7441adcd7c82b31ab14",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gemma4-lms-judgmentkit-material-ui.json",
+      "before_sha256": "a7506f687469e9758392b980fe3c052b539687c7e02e386a553dcd9d26a0957b",
+      "after_sha256": "6b53f4145afb8f44091cf96a70130cef003865d9d4fcc70eba258e9a64263025",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gemma4-lms-with-judgmentkit.json",
+      "before_sha256": "7b2c86dd480494f0dbba90c1104325de86daeb83fb1e908bb6869357b78ec323",
+      "after_sha256": "c097ebb02123e0b2dab80065ad4d648575d6fe58d4840d210444e4464461634b",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+      "before_sha256": "c147104ebb75949bf08c389b7cd0082319ec781f32b457c8dcfc91f70656b1bb",
+      "after_sha256": "5a0e7b4e703048ed646408db75341d9eabf5cf2fb95c2336369a9d2bc3ed2c68",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt55-xhigh-codex-with-judgmentkit.json",
+      "before_sha256": "67bd157666c0fe1c2301660fa1a806b4f8fe3cbd9e917d001885b2219b7e9c09",
+      "after_sha256": "a88c7fb317cd6677ae3125a3ef5d97dc390034c29b533195ff2c57aa7d7076c4",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt56-sol-low-codex-judgmentkit-material-ui.json",
+      "before_sha256": "75b62725bfc9195871045963eb6d8bfb5967344934cc4205e3f9ad3bb3a977d2",
+      "after_sha256": "a8c8dda55d6ef72314664152ccffed9354a7b77d204c0aab07624c2ee9696890",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt56-sol-low-codex-with-judgmentkit.json",
+      "before_sha256": "53a1c7c9d60e403c0135c4fc3ad57eb9d4a843af0afd0de1316aeb521a626188",
+      "after_sha256": "6c6247f22f33902d5894a9a83842739511a133ed27d8a873f30c2fa1e966a8f5",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt56-sol-ultra-codex-judgmentkit-material-ui.json",
+      "before_sha256": "9fdf0b69a03842860adad1910872f834c8b1e47cbabd9f28009158a99fe884b3",
+      "after_sha256": "29677ebe515c91551ddf8f551fa495bcf3d86dfcee25861049a9c996519d4ae6",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+      "before_sha256": "0e53ede13d9a8d937f7545facbaea5af671d5426bfb85d5a0fae25983054e5de",
+      "after_sha256": "736fe2e17685bb37cf0993397c99d44ece99d9895cea3a2835bd9c858532b228",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/manifest.json",
+      "before_sha256": "0ae938fb011b510ad0d7a209e696a02f5c4b30555d07b1141f27fc4933f56c54",
+      "after_sha256": "1dbb5362c3c2ad4510f6a85d7bd4574dd637fb3818db641e1fa421a90ccac449"
+    },
+    {
+      "path": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+      "before_sha256": "8e4b2e6de5f26cd14ec7decc3791d1bb710b57d4e1025effe674e8b646845dc1",
+      "after_sha256": "b9c728941f9919e221ed8da67d8826cd2cb8b6554fdd917852f58047e38380ee"
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/deterministic-judgmentkit-material-ui.html",
+      "before_sha256": "663e86ff7cc000848164048b377f11c3628a1acc2c85eb0bb9628d1545e059dd",
+      "after_sha256": "36d5c6fc4a63a0f83fea7d3cd6a9dc6be891227747907c269e0eddcbf27e5230",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/deterministic-with-judgmentkit.html",
+      "before_sha256": "cb74b36ca375bcaf227435ab5aa544c4424aa6238e97637c0eb209d63e449f5e",
+      "after_sha256": "0c7edba04e88e9e8624a2926b79294b454dab767be6ded05ffdebd06d1824173",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gemma4-lms-judgmentkit-material-ui.html",
+      "before_sha256": "6ff5829c4bbf8a270f48f48035afe250bed566cd64409a5ae2543a2ce10a0d9d",
+      "after_sha256": "b413c5c765d0852c4cd8d09b56d222af634d88a77e2d50050f3387f665d3e512",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
+      "before_sha256": "79c0f8f1b1a0a02e410de077c5da9505812ae879861136e87f4c1cb5e2a04d65",
+      "after_sha256": "7a3588bcc684ef1bf8835c4a1a944b38af31084f170e2ec7146ef22f25528fd2",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html",
+      "before_sha256": "ba8424b78d802dabe0164597c085131eb55a1fb3dc4073d22710c8051976ccc8",
+      "after_sha256": "b1a4ee06c994836f4f9bbf8ba55f3afe75d3d29c932bec6df1f9b245e926cbdb",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-low-codex-with-judgmentkit.html",
+      "before_sha256": "1151c0075b15027060f6c901693b81342447867c48d58cf241ac11d6ab54b39c",
+      "after_sha256": "ed9f9ad54f00c881e5a13c12cb0a585ac8275c783111e13be23d9c6bb4c9b573",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html",
+      "before_sha256": "2e8ebaa5f7deb0a56958ac7d7b3980c48451759d4633dfd5d7e8e77c93b514e3",
+      "after_sha256": "157bf698e6687b76eb8afea97feaa8e1d43f35742a6908d907351382cdc16bb8",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+      "before_sha256": "adf12c46a31d788fe1bf323c03e948edbe1267fd19fc04311391cd4b2fa2fcbc",
+      "after_sha256": "70ba13e68271119bfb18f0bcb143969562ed357a8094e676de8f458782bb623e",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gemma4-lms-judgmentkit-material-ui.json",
+      "before_sha256": "428d2cfcf0b98ebcfe486bed67dfc9b4c764ffbfb1136616054f87e87395f31b",
+      "after_sha256": "79126a17265e44e27d856f8d17bc3776763e9f1d68ccd5e8b347cefa33327469",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gemma4-lms-with-judgmentkit.json",
+      "before_sha256": "66144a1aca94b11236682b2fe2b1f90098ed6b92e47b9f51520f230b0381eb3b",
+      "after_sha256": "bd6a3fc75fcf6d629bc0efbe2317bfdc073a4032b284d1a987eb49a26ec3bcf5",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+      "before_sha256": "2aef2ac01eea9428dec3e63ab5e3f33731b82a97b7fa2eb69aacebc76b7e0c5a",
+      "after_sha256": "94764e69993538450cac413e1b87471fc0a6dfeb14ae7ec47c10520dec2ab7a9",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt55-xhigh-codex-with-judgmentkit.json",
+      "before_sha256": "ea373e7be5d7dfc96fc4168d88cc8aa06a9383a0ff8cafaa665d981d4c378159",
+      "after_sha256": "fc58dd72eb403906fe7bef96c5a1c61c968523bbb1826ea174456e611e8498d8",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-low-codex-judgmentkit-material-ui.json",
+      "before_sha256": "b1f234e34cf92823c3a5f43a73ee77aa39d05805c05dae794653a9e55a7c2483",
+      "after_sha256": "25bd9323271427e64acad7b7f90c35a412aa091cbd4fcee3b2988f63e8caaa6c",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-low-codex-with-judgmentkit.json",
+      "before_sha256": "71acfb5e9f149b398bbcc800f207f97740f736bb39fda96cd8af64ea89d7f0e1",
+      "after_sha256": "787127554d2418f6f8e719195cbd61178f4794716b7ef013242c41540e63ca38",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-ultra-codex-judgmentkit-material-ui.json",
+      "before_sha256": "83f9f14c2634239d3a3bb3f0bb36cb5aceed41604e9d8f463c13ef332a07e3e0",
+      "after_sha256": "005f637c244b735929f1f934dfa39f7814768222accdf507db5cc5b34c18389a",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+      "before_sha256": "64d1dd5656c7fb1747614e5e6ef862345cc29c5f94733f0d5eeb237a9be640aa",
+      "after_sha256": "e64889956d2e1afe8de09bc7545be43a5d3dcafe78302e976d7e01406bc20c4a",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/manifest.json",
+      "before_sha256": "0a748eb1e75f0c6946f31441d0c7e179e4cc2308ab8a0f5ae97606ececca707d",
+      "after_sha256": "a169f6e6bc09e02e16b891c802f4440e2fcf290918de28f2fb138df986e0e9f3"
+    },
+    {
+      "path": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
+      "before_sha256": "b1cdadaacb96cf0f3464872dd8aaf133ee7ff03d8bdf984c603992ee0a583571",
+      "after_sha256": "ffb42519a49b8cfdf497e97e5fe2a28b6b028b0d807398f4bfe1b755824f49c1"
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/deterministic-judgmentkit-material-ui.html",
+      "before_sha256": "eef4309f0f7a1059d26d3d9bf3ea58289a71e066c63dea56d0282cb2cea33e44",
+      "after_sha256": "b587ca504a91dbba123e4afcb96104157a6a54c2c02b60b5752a0b59aa5e7cc9",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/deterministic-with-judgmentkit.html",
+      "before_sha256": "b42eac2d7a5e3e137518e328cf6e3d66a89a1395b5513e27589c2babaacaeef8",
+      "after_sha256": "d763a8f06c06348775bc3cbcf3e2a53a089e2da0343e1db35623c254f2f64be0",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gemma4-lms-judgmentkit-material-ui.html",
+      "before_sha256": "48daa5a0c2d4fd2be4588cae0cd99ef4579d202338c5f592271244f78de89d91",
+      "after_sha256": "23eec331e9fb9727b4cae9dafcf507963280014ae22c46a538bd0add37f355f6",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
+      "before_sha256": "1d2174edf94567ca9e5c9bf559a3b17fa9262484b659195d25799260dd63ca33",
+      "after_sha256": "fff382ba242650d55991309e06846659b4832abb5ee6c484939d3d7a887838f4",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html",
+      "before_sha256": "e980621830c9acbf9a2242f52acdf9c02cbdacfe54a55c75e5ff1ca70d6fdb77",
+      "after_sha256": "e366570ec9e2ec1c26acfbbfe025c6abddd8de76960ebae3010c6d70ece900a3",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-low-codex-with-judgmentkit.html",
+      "before_sha256": "3f37521f0a574b861df8f5a176ce1d17326774e40e51c0aff329c64a082bde7a",
+      "after_sha256": "76c6201a396be5e749123203520adc97ccb50a43522ba81e1ab22ab857fcc0ea",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html",
+      "before_sha256": "2744c7db99498a098bd5c09dd0515395f0d924bee7cbddd105fa78e701263724",
+      "after_sha256": "4772926764bf6a64c09de50c7748860fd56c1552492d0fe78611865507a36b71",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+      "before_sha256": "1032c99cb94bf3f8d31eeea6c4f0f28fd02515ea22550c45f8c8e11b561ca495",
+      "after_sha256": "38b59b520ed414aaab387d5b95133a8563759f41051c817caea8540d17412e2e",
+      "changes_only_sha256_values": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gemma4-lms-judgmentkit-material-ui.json",
+      "before_sha256": "272386441cb45bbb40b7ef117130f69a313bfc56e23854dac41e6d29726ed80a",
+      "after_sha256": "89d09ec1bce09f54adb1b47868a1655091e983c5ea1b0adf626151810c4a89cf",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gemma4-lms-with-judgmentkit.json",
+      "before_sha256": "6cf9a4c7d19df840b34d13b0d609372844d38382b504b3e6121af54f1a46ce5f",
+      "after_sha256": "17ab1a787b6a3e74c7e475f3e79068f4c3ccab5e9584d7bfd6c0be2924f77ee8",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+      "before_sha256": "38d35f699ed3802fa57b8d460bb2330a44363d43f8b8f0d175602f06e25f28ff",
+      "after_sha256": "30c003e349befaaf153feec3905bfaa2da3d0dd15fad9b8c9e84fac532b2bb4b",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt55-xhigh-codex-with-judgmentkit.json",
+      "before_sha256": "0261b37fa12387f2a85a37dada750b2cdfe072dc7373bbd65b762961b9a18bbf",
+      "after_sha256": "af711c5487ad085165c329f236e2abf04ac4456cfa6f43d1e61f8ee07c03b3fc",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-low-codex-judgmentkit-material-ui.json",
+      "before_sha256": "f89a1c933f79a42e4a294f40a0b800c767dbf08cd979f24faaf3a97f1e8c7e1b",
+      "after_sha256": "b12f96c694f6d165325bdce351f08434c4267d907175b0db04009657c7ece6b9",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-low-codex-with-judgmentkit.json",
+      "before_sha256": "3d1406ad870e722ed5a341439e0404c91a4cf83241c93d8ef6b651568439e335",
+      "after_sha256": "c027f80ee5dbd8f8bd4331825e9d2bbe27625d3def585e49fb9b640de796f8ac",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-ultra-codex-judgmentkit-material-ui.json",
+      "before_sha256": "ded50df311cd39909409e18a44e6571dabb685fc71872d028fc9dd565f49e282",
+      "after_sha256": "dad9993da83ac840f947dfa10382f9c9ccf740ebd2a89f57cd2f094c1246c0d7",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+      "before_sha256": "65471512e2c5101ad4d242fd3b4b8ddf3b870783d4f51002cc0b8954abfa8d1b",
+      "after_sha256": "08d175bc7e04d62995d3890442c793d3a5b407f3af7fda291844688a24e7450a",
+      "changed_fields": [
+        "current_source_context_sha256"
+      ],
+      "historical_capture_payload_unchanged": true
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/manifest.json",
+      "before_sha256": "6a0bdd2cc7917a645b787c7c1fe81e66be01b4ef054f0057085467c0966d274d",
+      "after_sha256": "dd937392d7763afefa48dfdea35f52fc95bfc59462428aa4be53c2e95ccc1e95"
+    },
+    {
+      "path": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "before_sha256": "4be195ee4c288936eb71180e9f418f94bada3b8130a6dcedee3957cbd99a69aa",
+      "after_sha256": "c65292b52fb855df7e95107f7d5fdbf312e087b195d8dd955c0f154c0ee248f9"
+    }
+  ]
+}

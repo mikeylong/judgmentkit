@@ -1,0 +1,17 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: An enclosing card can fully clip required labels inside the chart and outer border bounds.
+
+'pass' !== 'fail'
+
+    at file:///Users/mike/.codex/worktrees/mcp-improvements/JudgmentKit2/tests/chart-review-browser.test.mjs:80:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'pass',
+  expected: 'fail',
+  operator: 'strictEqual'
+}
+
+Node.js v22.16.0

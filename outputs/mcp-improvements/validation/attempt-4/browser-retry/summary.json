@@ -1,0 +1,9 @@
+{
+  "command": "npm run test:components:browser",
+  "exit_code": 1,
+  "duration_seconds": 93.82,
+  "log": "component-browser.log",
+  "log_sha256": "25a373e31c4932948aaf8dbcd586e9e5185cefafccb8f7b28978826b315a59b9",
+  "source_manifest_sha256": "5d89fa255f3dd843ab236085c63939edbe24b907863b882cdb1b78b3e2ab39b9",
+  "scope": "One focused retry after unchanged Chrome Runtime.evaluate timeout; source and harness timeout remain unchanged. Not a full-suite pass."
+}

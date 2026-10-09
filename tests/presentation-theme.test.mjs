@@ -616,6 +616,7 @@ assert.deepEqual(
   Object.keys(packageJson.exports).sort(),
   [
     ".",
+    "./packets",
     "./presentation-theme",
     "./providers/openai-responses",
     "./react",

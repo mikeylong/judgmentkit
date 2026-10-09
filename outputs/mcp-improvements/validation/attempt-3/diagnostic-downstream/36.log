@@ -1,0 +1,18 @@
+file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-3/source/scripts/verify-codex-plugin.mjs:527
+    throw new CodexPluginVerificationError(failures);
+          ^
+
+CodexPluginVerificationError: Codex plugin verification failed with 1 issue.
+    at assertNoFailures (file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-3/source/scripts/verify-codex-plugin.mjs:527:11)
+    at verifyCodexPlugin (file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-3/source/scripts/verify-codex-plugin.mjs:677:3)
+    at async file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-3/source/tests/codex-plugin.test.mjs:167:18 {
+  failures: [
+    {
+      check: 'design_system_gate_wording',
+      file: 'skills/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md',
+      message: 'Missing required design-system gate wording from UI handoff reference: Do not accept, render, publish, summarize as successful, or preserve a generated UI candidate until `review_ui_implementation_candidate` passes against the active implementation contract.'
+    }
+  ]
+}
+
+Node.js v22.16.0

@@ -1,0 +1,6 @@
+
+> judgmentkit@0.8.0 test:builder-workflow
+> node tests/builder-usefulness.test.mjs && node tests/inspector-builder-workflow.test.mjs
+
+builder usefulness: balanced coverage, honest missing evidence, retained failures, candidate binding, capability limits, configuration, and non-overwriting CLI pass
+Synthetic Inspector builder workflow tests passed.

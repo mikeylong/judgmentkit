@@ -1,0 +1,95 @@
+{
+  "status": "pass",
+  "scope": "Focused system-map documentation/browser followup; historical runtime validation unchanged",
+  "command": "node tests/site-first-use-browser.test.mjs",
+  "backend_override": {
+    "JUDGMENTKIT_COMPONENT_CHROME_PATH": "/Users/mike/Library/Caches/ms-playwright/chromium_headless_shell-1243/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+    "binary_sha256": "a0bfe7b4da4787b66058477d696cd1d09065d25f06a548947722b9af77ee8282"
+  },
+  "source_manifest_sha256": "2d80f202c5e8b7f8831ebe2a78510bea8256190566ed885cd24f757b80cb514f",
+  "browser_log_sha256": "bd05df04663d8f9f0fcc55b6509f8b70a198615480d42b69cde6c499b39c1ddb",
+  "presentations": [
+    {
+      "viewport": "desktop",
+      "appearance": "light",
+      "mounted_nodes": 21,
+      "mounted_edges": 25,
+      "readable_zoom": 1.07936,
+      "clipped_cards": 0,
+      "fallback_nodes": 21,
+      "fallback_edges": 25,
+      "application_mounted_in_fallback": false
+    },
+    {
+      "viewport": "desktop",
+      "appearance": "dark",
+      "mounted_nodes": 21,
+      "mounted_edges": 25,
+      "readable_zoom": 1.07936,
+      "clipped_cards": 0,
+      "fallback_nodes": 21,
+      "fallback_edges": 25,
+      "application_mounted_in_fallback": false
+    },
+    {
+      "viewport": "mobile",
+      "appearance": "light",
+      "mounted_nodes": 21,
+      "mounted_edges": 25,
+      "readable_zoom": 1.16736,
+      "clipped_cards": 0,
+      "fallback_nodes": 21,
+      "fallback_edges": 25,
+      "application_mounted_in_fallback": false
+    },
+    {
+      "viewport": "mobile",
+      "appearance": "dark",
+      "mounted_nodes": 21,
+      "mounted_edges": 25,
+      "readable_zoom": 1.16736,
+      "clipped_cards": 0,
+      "fallback_nodes": 21,
+      "fallback_edges": 25,
+      "application_mounted_in_fallback": false
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "evidence/desktop-dark-fallback.png",
+      "sha256": "91deecccd0923fe838c0a12a1a2b16c9cd70171bcc7da50b791d3884fa314cec"
+    },
+    {
+      "path": "evidence/desktop-dark-mounted.png",
+      "sha256": "57be83728712b374def2f5794d62d43f31461be6fe44f9671417088b4c37d877"
+    },
+    {
+      "path": "evidence/desktop-light-fallback.png",
+      "sha256": "dfd0b3e4c3c4a51029cc5adf2439651a11295026c0cd0c0e97ba6fab9b7c82a1"
+    },
+    {
+      "path": "evidence/desktop-light-mounted.png",
+      "sha256": "9233b581e5494db5355c5ee6d82f6b5a09fd705bf47d13e8cf0d9d720f6742ab"
+    },
+    {
+      "path": "evidence/mobile-dark-fallback.png",
+      "sha256": "af3a60cd23ac6617d72a6301fbd3f67fa415d0cb266adba079bcdaff40defa2b"
+    },
+    {
+      "path": "evidence/mobile-dark-mounted.png",
+      "sha256": "68ff5996b546393cdcf7db17cf9a0f16a3f63ab5ee37afde91c9d54521b2b096"
+    },
+    {
+      "path": "evidence/mobile-light-fallback.png",
+      "sha256": "3310d74e4e58f6059dbf4a15b91ec824ad7907183f17af3e34d86aaa49bca656"
+    },
+    {
+      "path": "evidence/mobile-light-mounted.png",
+      "sha256": "21b0c00057ceeaec7bdf43127790479c87ac5b7b770aa85b0dc998aa3904f91a"
+    },
+    {
+      "path": "evidence/system-map-browser-receipts.json",
+      "sha256": "4c6efb00a917a7996b7b12c680d460ad05950aaff493ddbe035bc2209d4feefe"
+    }
+  ]
+}

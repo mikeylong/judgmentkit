@@ -1,0 +1,20 @@
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ undefined
+- 'pass'
+
+    at file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-6/source/scripts/verify-mcp-improvements.mjs:112:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: 'pass',
+  operator: 'strictEqual'
+}
+
+Node.js v22.16.0

@@ -1,0 +1,113 @@
+{
+  "kind": "current_local_stdio_regression_verification",
+  "fresh_model_generation": false,
+  "hosted_acceptance": false,
+  "tool_count": 17,
+  "packet_sizes": [
+    {
+      "label": "full_activity",
+      "request_bytes": 3835,
+      "response_bytes": 9918,
+      "elapsed_ms": 77.87
+    },
+    {
+      "label": "compact_activity",
+      "request_bytes": 3861,
+      "response_bytes": 6290,
+      "elapsed_ms": 25.56
+    },
+    {
+      "label": "compact_surface",
+      "request_bytes": 6286,
+      "response_bytes": 3680,
+      "elapsed_ms": 31.07
+    },
+    {
+      "label": "compact_workflow",
+      "request_bytes": 15026,
+      "response_bytes": 9731,
+      "elapsed_ms": 77.12
+    },
+    {
+      "label": "missing_raw_context",
+      "request_bytes": 13154,
+      "response_bytes": 646,
+      "elapsed_ms": 1.61
+    },
+    {
+      "label": "conflicting_selection",
+      "request_bytes": 15053,
+      "response_bytes": 557,
+      "elapsed_ms": 22.62
+    },
+    {
+      "label": "agent_selection_origin",
+      "request_bytes": 11729,
+      "response_bytes": 9053,
+      "elapsed_ms": 67.24
+    },
+    {
+      "label": "compact_contract",
+      "request_bytes": 84,
+      "response_bytes": 28196,
+      "elapsed_ms": 41.91
+    },
+    {
+      "label": "compact_handoff",
+      "request_bytes": 39515,
+      "response_bytes": 34918,
+      "elapsed_ms": 66.05
+    },
+    {
+      "label": "compact_frontend",
+      "request_bytes": 36807,
+      "response_bytes": 49678,
+      "elapsed_ms": 83.56
+    },
+    {
+      "label": "compact_skill",
+      "request_bytes": 51570,
+      "response_bytes": 76185,
+      "elapsed_ms": 86.78
+    },
+    {
+      "label": "preflight_malformed_evidence",
+      "request_bytes": 28042,
+      "response_bytes": 3130,
+      "elapsed_ms": 3.26
+    },
+    {
+      "label": "review_malformed_admission",
+      "request_bytes": 28073,
+      "response_bytes": 31262,
+      "elapsed_ms": 5.89
+    },
+    {
+      "label": "chart_contract",
+      "request_bytes": 3683,
+      "response_bytes": 34625,
+      "elapsed_ms": 3.9
+    },
+    {
+      "label": "compact_chart_runtime",
+      "request_bytes": 37458,
+      "response_bytes": 51529,
+      "elapsed_ms": 6430.37
+    }
+  ],
+  "historical_inspector": null,
+  "chart_transport": {
+    "full_request_bytes": 761520,
+    "compact_request_bytes": 37400,
+    "snapshot_observations": 28,
+    "chart_outcome": "pass",
+    "overall_review": "failed",
+    "scope": "Synthetic chart transport/runtime regression; absent UI behavior evidence deliberately remains a substantive failure."
+  },
+  "transcript_sha256": "513650792eab2df6d095049b20478bc4f9a3fd420139d84d0abbc89adf604e14",
+  "provider_usage": {
+    "tokens": "unavailable; no model generation was performed",
+    "monetary_cost": "unavailable"
+  },
+  "stderr": ""
+}

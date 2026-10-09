@@ -1,0 +1,35 @@
+[
+  {
+    "command": "npm run test:mcp-improvements",
+    "exit_code": 1,
+    "duration_seconds": 3.72,
+    "log": "mcp-improvements.log",
+    "log_sha256": "7bda7f1035cfd173380a5c915b914948164ab1c72984b352c56c43565f7c6be8",
+    "source_unchanged": true,
+    "source_changed_paths": [],
+    "source_manifest_sha256": "da0eb7c9ecd2793ca7ed01f1a76a2dc3ea6f3e60618b667787f9839a39127138",
+    "generated_proof_manifest_sha256_after": "5c57ef7a032def3b3555ac573b57a69c3d6faf4fb29a586f8296cbf37e767d97"
+  },
+  {
+    "command": "node tests/mcp.test.mjs",
+    "exit_code": 0,
+    "duration_seconds": 3.53,
+    "log": "mcp.log",
+    "log_sha256": "a6656aae2932f41a7c1fbc2a14a0e0da6a183af203feb5b8dd3ae2c4aaa7e7f3",
+    "source_unchanged": true,
+    "source_changed_paths": [],
+    "source_manifest_sha256": "da0eb7c9ecd2793ca7ed01f1a76a2dc3ea6f3e60618b667787f9839a39127138",
+    "generated_proof_manifest_sha256_after": "5c57ef7a032def3b3555ac573b57a69c3d6faf4fb29a586f8296cbf37e767d97"
+  },
+  {
+    "command": "node scripts/verify-mcp-improvements.mjs",
+    "exit_code": 0,
+    "duration_seconds": 8.39,
+    "log": "stdio-regression.log",
+    "log_sha256": "1316668eee8e277d4f844abee567dd3cdc2a6581da090cc41894d319530a6bea",
+    "source_unchanged": true,
+    "source_changed_paths": [],
+    "source_manifest_sha256": "da0eb7c9ecd2793ca7ed01f1a76a2dc3ea6f3e60618b667787f9839a39127138",
+    "generated_proof_manifest_sha256_after": "5c57ef7a032def3b3555ac573b57a69c3d6faf4fb29a586f8296cbf37e767d97"
+  }
+]

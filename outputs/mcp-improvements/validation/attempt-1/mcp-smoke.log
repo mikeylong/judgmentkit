@@ -1,0 +1,29 @@
+
+> judgmentkit@0.8.0 mcp:smoke
+> node scripts/mcp-smoke.mjs
+
+{
+  "ok": true,
+  "tools": [
+    "analyze_implementation_brief",
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles",
+    "review_activity_model_candidate",
+    "review_ui_workflow_candidate",
+    "review_cognitive_dimensions_candidate",
+    "create_ui_implementation_contract",
+    "preflight_ui_implementation_candidate",
+    "review_ui_implementation_candidate",
+    "create_ui_generation_handoff",
+    "create_frontend_generation_context",
+    "create_frontend_implementation_skill_context",
+    "create_slide_deck",
+    "list_icon_catalog",
+    "search_icon_catalog",
+    "get_icon_svg"
+  ],
+  "deck_status": "planned",
+  "icon_search_first_match": "receipt-text",
+  "review_status": "ready_for_review"
+}

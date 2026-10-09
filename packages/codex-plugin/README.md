@@ -22,7 +22,7 @@ Current committed plugin version: `0.2.0`.
 
 ## Discoverable Triggers
 
-Use the hosted skill when a user or agent asks JudgmentKit to review UI activity fit, set design-system acceptance gates, prepare handoff criteria, or create a slide deck, presentation, PowerPoint, or PPTX from an allowed brief, review packet, handoff, or implementation evidence.
+Use the hosted skill when the user explicitly requests JudgmentKit or current project instructions opt in to review UI activity fit, set design-system acceptance gates, prepare handoff criteria, or create a slide deck, presentation, PowerPoint, or PPTX from allowed source material.
 
 Visible trigger examples:
 
@@ -31,6 +31,13 @@ Visible trigger examples:
 - "Turn this handoff into a PPTX deck."
 
 If the active JudgmentKit MCP server does not expose a deck creation tool yet, report that the current endpoint cannot create the deck and collect the deck audience, purpose, source material, confidentiality boundary, and desired output format without fabricating an MCP result.
+
+The shared [UI reference](skills/judgmentkit-hosted-mcp/references/ui-handoff-and-acceptance.md)
+describes evidence preflight, attempt accounting, compact/full packets, chart
+observations, and selection provenance. The current local service exposes 17 tools.
+Inspect the active endpoint's `tools/list` and input schemas; source updates do not establish hosted
+availability. Missing capabilities remain explicit, and static chart evidence
+cannot satisfy Artifact Inspector's deferred attestation gate.
 
 ## Hosted Privacy Boundary
 

@@ -1,0 +1,31 @@
+{
+  "review_path": "One independent focused review by /root/mcp_full_validation with same-path fix rechecks",
+  "source_manifest_sha256": "1ced5f482247126465b62469fd27c13a5057066f9661e3224a08ce6d0192c796",
+  "findings": [
+    {
+      "severity": "Medium",
+      "issue": "Chart clipping observer ignored enclosing cards",
+      "resolution": "Observe overflow through all ancestors per axis using inner client bounds; clipped/visible/card-border regressions pass"
+    },
+    {
+      "severity": "Medium",
+      "issue": "Default source ignored custom governing implementation contract",
+      "resolution": "Restore governing fallback and verify all four review/admission entry points, compatible oracle precedence and required-chart downgrade refusal"
+    },
+    {
+      "severity": "Low",
+      "issue": "Runtime-retry card instructed packet repair",
+      "resolution": "Return distinct browser-runtime retry guidance without consumed attempt or invented field repair"
+    }
+  ],
+  "final_actionable_findings": [],
+  "affected_checks": "../attempt-8/summary.json",
+  "older_full_suite": "../attempt-5/summary.json",
+  "documentation_and_map_checks": "../../docs-update/validation.json",
+  "hosted_ci": "Pending exact-head PR checks; local results do not establish hosted completion",
+  "failure_history": {
+    "attempt-6": "Sandbox prevented loopback bind; browser runtime unavailable",
+    "attempt-7": "New regression incorrectly permitted weaker governing-chart override; implementation/MCP/stdio checks passed except that assertion",
+    "attempt-8": "Corrected test keeps governing obligation and proves compatible oracle precedence; all grouped/MCP/stdio checks passed"
+  }
+}

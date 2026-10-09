@@ -1,0 +1,10 @@
+
+> judgmentkit@0.8.0 test:site
+> node tests/system-map.test.mjs && node tests/site.test.mjs && node tests/site-local-server.test.mjs && node tests/site-header-browser.test.mjs && node tests/site-first-use-browser.test.mjs && node tests/patterns-browser.test.mjs
+
+System Map: public tools, ownership, dependencies, source continuity, authority, bounded repair, and Inspector limits passed.
+Site checks passed.
+Local site server checks passed.
+Header browser checks passed: 14 viewport/appearance cases, navigation, font loading, keyboard menu, dismissal, sticky positioning, and Back restoration.
+First-use browser checks passed: desktop/mobile prompt, collapsed replay, Tab/Enter/Space and pointer toggles, no overflow, mounted map zoom, pan, and fit view.
+{"status":"pass","scope":"patterns_browser","browser":"Chrome/154.0.8037.98","presentations":[{"viewport":"desktop","patterns":8,"jump_links":8,"axe_violations":0,"page_overflow":0},{"viewport":"mobile","patterns":8,"jump_links":8,"axe_violations":0,"page_overflow":0}]}

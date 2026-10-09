@@ -1,0 +1,124 @@
+{
+  "scope": "diagnostic logging only; unchanged original 15-second timeout and full coverage",
+  "source": "/private/tmp/judgmentkit-mcp-improvements-validation/attempt-4/source",
+  "backend": {
+    "path": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "version": "154.0.8037.98"
+  },
+  "exit_code": 1,
+  "failure": "Timed out sending Chrome command Target.createTarget.",
+  "slow_commands": [
+    {
+      "time": "2026-10-09T03:43:39.586Z",
+      "id": 2194,
+      "status": "cdp_finish",
+      "elapsed_ms": 1673,
+      "method": "Runtime.evaluate",
+      "sessionId": "3DAE86A924692BBF36CFB9F1F969DD99",
+      "expression": "(() => {\n        const element = document.querySelector(\"[data-scenario-id=\\\"dialog.loading\\\"] [data-scenario-dialog-trigger='true']\");\n        if (!element) return null;\n        const rect = element.getBoundingClientRect();\n        return {\n          x: rect.left + rect.width / 2,\n          y: rect.top + rect.height / 2,\n          width: rect.width,\n          height: rect.height\n        };\n      })()",
+      "stack": "Error\n    at Object.send (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:290:33)\n    at evaluate (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:508:33)\n    at pointerActivate (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:730:26)\n    at async assertDialogInteractions (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2323:3)\n    at async assertInteractionsIsolated (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2434:7)\n    at async file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3683:11\n    at async withBrowserAttempt (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:472:12)\n    at async withChromium (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:489:14)\n    at async main (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3569:27)\n    at async file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3891:1",
+      "params": null
+    },
+    {
+      "time": "2026-10-09T03:43:41.563Z",
+      "id": 2215,
+      "status": "cdp_finish",
+      "elapsed_ms": 2674,
+      "method": "DOM.scrollIntoViewIfNeeded",
+      "sessionId": "3DAE86A924692BBF36CFB9F1F969DD99",
+      "expression": null,
+      "stack": "Error\n    at Object.send (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:290:33)\n    at pointerActivate (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:729:18)\n    at async assertDialogInteractions (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2332:3)\n    at async assertInteractionsIsolated (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2434:7)\n    at async file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3683:11\n    at async withBrowserAttempt (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:472:12)\n    at async withChromium (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:489:14)\n    at async main (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3569:27)\n    at async file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3891:1",
+      "params": {
+        "objectId": "-1565709003771266223.2.16"
+      }
+    },
+    {
+      "time": "2026-10-09T03:43:55.819Z",
+      "id": 4444,
+      "status": "cdp_finish",
+      "elapsed_ms": 1887,
+      "method": "Runtime.evaluate",
+      "sessionId": "91B39DE010F8172B34925FA2F0CD3468",
+      "expression": "document.activeElement === document.querySelector(\"[data-scenario-id=\\\"dialog.focus-visible\\\"] [data-scenario-dialog-trigger='true']\")",
+      "stack": "Error\n    at Object.send (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:290:33)\n    at evaluate (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:508:33)\n    at waitForExpression (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:538:23)\n    at assertDialogFocusReturned (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2120:9)\n    at assertDialogInteractions (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2320:9)\n    at async assertInteractionsIsolated (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2434:7)\n    at async file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3683:11\n    at async withBrowserAttempt (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:472:12)\n    at async withChromium (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:489:14)\n    at async main (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3569:27)",
+      "params": null
+    },
+    {
+      "time": "2026-10-09T03:43:58.703Z",
+      "id": 4465,
+      "status": "cdp_finish",
+      "elapsed_ms": 2394,
+      "method": "Runtime.evaluate",
+      "sessionId": "91B39DE010F8172B34925FA2F0CD3468",
+      "expression": "(() => {\n      const dialog = document.querySelector(\"[data-scenario-id=\\\"dialog.loading\\\"] .jk-dialog[data-jk-component='dialog']\");\n      return dialog?.open === false &&\n        dialog.getAttribute(\"data-jk-open\") === \"false\";\n    })()",
+      "stack": "Error\n    at Object.send (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:290:33)\n    at evaluate (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:508:33)\n    at waitForExpression (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:538:23)\n    at waitForDialogOpen (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2107:9)\n    at assertDialogInteractions (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2329:9)\n    at async assertInteractionsIsolated (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2434:7)\n    at async file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3683:11\n    at async withBrowserAttempt (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:472:12)\n    at async withChromium (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:489:14)\n    at async main (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3569:27)",
+      "params": null
+    },
+    {
+      "time": "2026-10-09T03:44:03.853Z",
+      "id": 4503,
+      "status": "cdp_finish",
+      "elapsed_ms": 8216,
+      "method": "Runtime.evaluate",
+      "sessionId": "91B39DE010F8172B34925FA2F0CD3468",
+      "expression": "document.documentElement.scrollWidth - document.documentElement.clientWidth <= 1",
+      "stack": "Error\n    at Object.send (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:290:33)\n    at evaluate (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:508:33)\n    at assertInteractionsIsolated (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2445:15)\n    at async file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3683:11\n    at async withBrowserAttempt (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:472:12)\n    at async withChromium (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:489:14)\n    at async main (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3569:27)\n    at async file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3891:1",
+      "params": null
+    },
+    {
+      "time": "2026-10-09T03:44:12.121Z",
+      "id": 4504,
+      "status": "cdp_timeout",
+      "elapsed_ms": 15002,
+      "method": "Target.closeTarget",
+      "sessionId": null,
+      "expression": null,
+      "stack": "Error\n    at Object.send (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:290:33)\n    at Object.close (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:654:20)\n    at assertInteractionsIsolated (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:2454:18)\n    at async file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3683:11\n    at async withBrowserAttempt (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:472:12)\n    at async withChromium (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:489:14)\n    at async main (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3569:27)\n    at async file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3891:1",
+      "params": {
+        "targetId": "35899EAB9EA61AE88530C68F78290B1E"
+      }
+    },
+    {
+      "time": "2026-10-09T03:44:27.123Z",
+      "id": 4505,
+      "status": "cdp_timeout",
+      "elapsed_ms": 15001,
+      "method": "Target.createTarget",
+      "sessionId": null,
+      "expression": null,
+      "stack": "Error\n    at Object.send (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:290:33)\n    at openPage (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:579:37)\n    at file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3574:30\n    at async withBrowserAttempt (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:472:12)\n    at async withChromium (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/support/chromium-harness.mjs:489:14)\n    at async main (file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3569:27)\n    at async file:///private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/source/tests/components/component-browser.test.mjs:3891:1",
+      "params": {
+        "url": "about:blank"
+      }
+    }
+  ],
+  "dialog_settlements": [
+    {
+      "id": 2171,
+      "time": "2026-10-09T03:43:38.397Z",
+      "sessionId": "3DAE86A924692BBF36CFB9F1F969DD99",
+      "end": {
+        "time": "2026-10-09T03:43:38.436Z",
+        "kind": "cdp_finish",
+        "id": 2171,
+        "method": "Runtime.evaluate",
+        "sessionId": "3DAE86A924692BBF36CFB9F1F969DD99",
+        "elapsed_ms": 39
+      }
+    },
+    {
+      "id": 4421,
+      "time": "2026-10-09T03:43:55.509Z",
+      "sessionId": "91B39DE010F8172B34925FA2F0CD3468",
+      "end": {
+        "time": "2026-10-09T03:43:55.535Z",
+        "kind": "cdp_finish",
+        "id": 4421,
+        "method": "Runtime.evaluate",
+        "sessionId": "91B39DE010F8172B34925FA2F0CD3468",
+        "elapsed_ms": 26
+      }
+    }
+  ],
+  "cdp_log_sha256": "4da9adfc42b3268bdb4e9644f0e44b816f002092c2ec8e4e33b98a6971e30007"
+}

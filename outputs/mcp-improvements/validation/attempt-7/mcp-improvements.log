@@ -1,0 +1,25 @@
+
+> judgmentkit@0.8.0 test:mcp-improvements
+> node tests/context-routing-reliability.test.mjs && node tests/evidence-admission.test.mjs && node tests/chart-review-browser.test.mjs && node tests/compact-packets.test.mjs
+
+Context and routing reliability checks passed.
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: A supplied contract keeps precedence over governing defaults.
++ actual - expected
+
++ 'repair_evidence_packet'
+- 'ready_for_review'
+     ^
+
+    at file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-7/source/tests/evidence-admission.test.mjs:125:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'repair_evidence_packet',
+  expected: 'ready_for_review',
+  operator: 'strictEqual'
+}
+
+Node.js v22.16.0

@@ -1,0 +1,42 @@
+
+> judgmentkit@0.8.0 test:presentation-theme
+> node tests/presentation-theme.test.mjs && npm run presentation-theme:actual:evidence && npm run presentation-theme:pack:smoke
+
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Package export keys should contain only the approved public subpaths.
++ actual - expected
+
+  [
+    '.',
++   './packets',
+    './presentation-theme',
+    './providers/openai-responses',
+    './react',
+    './react/styles.css'
+  ]
+
+    at file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-3/source/tests/presentation-theme.test.mjs:615:8 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    '.',
+    './packets',
+    './presentation-theme',
+    './providers/openai-responses',
+    './react',
+    './react/styles.css'
+  ],
+  expected: [
+    '.',
+    './presentation-theme',
+    './providers/openai-responses',
+    './react',
+    './react/styles.css'
+  ],
+  operator: 'deepStrictEqual'
+}
+
+Node.js v22.16.0

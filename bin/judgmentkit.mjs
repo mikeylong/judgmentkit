@@ -16,6 +16,7 @@ function printUsage() {
       "  judgmentkit analyze [--input <file>]",
       "  judgmentkit review [--input <file>]",
       "  judgmentkit review-candidate [--input <file>] --candidate <file>",
+      "  judgmentkit preflight-implementation [--input <evidence-request.json>]",
       "",
     ].join("\n"),
   );
@@ -38,7 +39,7 @@ function parseArgs(argv) {
     return { command: "help" };
   }
 
-  if (!["analyze", "review", "review-candidate"].includes(command)) {
+  if (!["analyze", "review", "review-candidate", "preflight-implementation"].includes(command)) {
     return { command: "unknown" };
   }
 
@@ -116,7 +117,17 @@ async function main() {
   const input = await readInput(args.inputPath);
   let result;
 
-  if (args.command === "review") {
+  if (args.command === "preflight-implementation") {
+    const { handleToolCall } = await import("../src/mcp.mjs");
+    let request;
+    try { request = JSON.parse(input); }
+    catch { throw new JudgmentKitInputError("preflight-implementation requires a JSON request with candidate and implementation_contract."); }
+    if (!request || typeof request !== "object" || Array.isArray(request)) {
+      throw new JudgmentKitInputError("preflight-implementation requires a JSON request object.");
+    }
+    result = await handleToolCall("preflight_ui_implementation_candidate", request);
+    if (result.error) process.exitCode = 1;
+  } else if (args.command === "review") {
     result = createActivityModelReview(input);
   } else if (args.command === "review-candidate") {
     result = reviewActivityModelCandidate(input, await readCandidate(args.candidatePath));
