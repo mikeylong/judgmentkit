@@ -569,8 +569,9 @@ const ICON_PAGE_SCENARIOS = [
 function renderPlatformHeader(pathName = "/") {
   const links = primaryNavLinks.map((link) => {
     const current = isPrimaryNavCurrent(link, pathName) ? ' aria-current="page"' : "";
-    const newTab = link.newTab ? ' target="_blank" rel="noopener noreferrer"' : "";
-    return `<a href="${escapeHtml(link.href)}"${current}${newTab}>${escapeHtml(link.label)}</a>`;
+    const newTab = link.newTab ? ' target="_blank" rel="noopener noreferrer" title="Opens in a new tab"' : "";
+    const externalIcon = link.newTab ? '<svg class="header-external-link-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7M21 3l-10 10"/><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/></svg>' : '';
+    return `<a href="${escapeHtml(link.href)}"${current}${newTab}>${escapeHtml(link.label)}${externalIcon}</a>`;
   }).join("\n            ");
 
   return `    <nav class="surfaces-navigation" aria-label="Primary navigation" data-surfaces-navigation>
@@ -1157,6 +1158,10 @@ a {
   line-height: 1.45;
   white-space: nowrap;
   text-decoration: none;
+}
+.header-external-link-icon {
+  margin-left: 6px;
+  flex: 0 0 auto;
 }
 .surfaces-navigation-sections a:hover,
 .surfaces-navigation-sections a:focus-visible,

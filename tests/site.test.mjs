@@ -443,7 +443,7 @@ assert.ok(platformNavMarkup.includes('class="surfaces-brand-mark"'));
 assert.ok(platformNavMarkup.includes('<img class="surfaces-brand-mark" src="/favicon.svg" width="32" height="32" alt="">'));
 assert.equal(platformNavMarkup.includes("<polygon"), false, "JudgmentKit must use its own favicon mark");
 assert.ok(platformNavMarkup.includes('<span>JudgmentKit</span>'));
-assert.ok(platformNavMarkup.includes('href="https://handbooks.surfaces.systems/" target="_blank" rel="noopener noreferrer">Handbooks</a>'));
+assert.ok(platformNavMarkup.includes('href="https://handbooks.surfaces.systems/" target="_blank" rel="noopener noreferrer" title="Opens in a new tab">Handbooks<svg'));
 assert.ok(platformNavMarkup.includes('href="https://surfaces.systems/">surfaces.systems</a>'));
 for (const removed of ["surfaces-system-switch", "data-surfaces-system-menu", "surfaceops.ai", "interfacectl.com", "surfaces.dev"]) {
   assert.equal(platformNavMarkup.includes(removed), false, `${removed} must not return to the header`);
