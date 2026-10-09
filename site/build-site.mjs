@@ -430,6 +430,7 @@ const primaryNavLinks = [
   { label: "Examples", href: "/examples/" },
   { label: "Evals", href: "/evals/" },
   { label: "MCP", href: "/mcp" },
+  { label: "Handbooks", href: "https://handbooks.surfaces.systems/", newTab: true },
   { label: "surfaces.systems", href: "https://surfaces.systems/" },
 ];
 
@@ -568,7 +569,8 @@ const ICON_PAGE_SCENARIOS = [
 function renderPlatformHeader(pathName = "/") {
   const links = primaryNavLinks.map((link) => {
     const current = isPrimaryNavCurrent(link, pathName) ? ' aria-current="page"' : "";
-    return `<a href="${escapeHtml(link.href)}"${current}>${escapeHtml(link.label)}</a>`;
+    const newTab = link.newTab ? ' target="_blank" rel="noopener noreferrer"' : "";
+    return `<a href="${escapeHtml(link.href)}"${current}${newTab}>${escapeHtml(link.label)}</a>`;
   }).join("\n            ");
 
   return `    <nav class="surfaces-navigation" aria-label="Primary navigation" data-surfaces-navigation>
@@ -760,7 +762,7 @@ function platformNavigationScript() {
           };
           window.addEventListener("pageshow", closePrimaryMenu);
           window.addEventListener("resize", () => {
-            if (window.matchMedia("(min-width: 961px)").matches) closePrimaryMenu();
+            if (window.matchMedia("(min-width: 1121px)").matches) closePrimaryMenu();
           });
         }
 
@@ -1240,7 +1242,7 @@ a {
   text-decoration: underline;
   text-underline-offset: 5px;
 }
-@media (max-width: 960px) {
+@media (max-width: 1120px) {
   .surfaces-navigation-sections {
     display: none;
   }

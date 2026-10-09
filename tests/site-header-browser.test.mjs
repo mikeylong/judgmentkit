@@ -14,8 +14,8 @@ import {
 // offline: a remote deployment changing must not silently redefine the contract.
 const CASES = [
   { width: 1280, gutter: 80, menu: false },
-  { width: 961, gutter: 24, menu: false },
-  { width: 960, gutter: 24, menu: true },
+  { width: 1121, gutter: 24, menu: false },
+  { width: 1120, gutter: 24, menu: true },
   { width: 821, gutter: 24, menu: true },
   { width: 820, gutter: 16, menu: true },
   { width: 390, gutter: 16, menu: true },
@@ -90,6 +90,7 @@ try {
           assert.equal(home.fontLoaded, true, label);
           assert.equal(home.background, "rgba(11, 13, 14, 0.98)", label);
           assert.equal(home.weight, "600", label);
+          assert.equal(home.links.at(-2).href, "https://handbooks.surfaces.systems/", label);
           assert.equal(home.links.at(-1).href, "https://surfaces.systems/", label);
           if (expected.menu) {
             assert.equal(home.button.y, 14, label);
@@ -104,7 +105,7 @@ try {
               const el = document.querySelector('[data-surfaces-primary-menu-list]');
               return { hidden: el.hidden, top: el.getBoundingClientRect().top, count: el.querySelectorAll('a').length, last: el.querySelector('a:last-child').href };
             })()`);
-            assert.deepEqual(menu, { hidden: false, top: 72, count: 7, last: "https://surfaces.systems/" });
+            assert.deepEqual(menu, { hidden: false, top: 72, count: 8, last: "https://surfaces.systems/" });
             await pressKey(client, sid, "Tab");
             await pressKey(client, sid, "Escape");
             assert.equal(await evaluate(client, sid, `document.activeElement.matches('[data-surfaces-primary-menu-button]') && document.querySelector('[data-surfaces-primary-menu-list]').hidden`), true);
