@@ -1,0 +1,182 @@
+{
+  "status": "pass",
+  "scope": "desktop_v2_system_map_loader_smoke",
+  "browser": "HeadlessChrome/153.0.8010.12",
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "appearance": "light",
+  "responses": [
+    {
+      "url": "/assets/system-map-flow.css?v=judgmentkit-flow-evidence-admission-v2",
+      "status": 200,
+      "mime_type": "text/css",
+      "from_disk_cache": false
+    },
+    {
+      "url": "/assets/system-map-flow.js?v=judgmentkit-flow-evidence-admission-v2",
+      "status": 200,
+      "mime_type": "application/javascript",
+      "from_disk_cache": false
+    }
+  ],
+  "observed": {
+    "assets": [
+      "/assets/system-map-flow.css?v=judgmentkit-flow-evidence-admission-v2",
+      "/assets/system-map-flow.js?v=judgmentkit-flow-evidence-admission-v2"
+    ],
+    "nodes": [
+      "access",
+      "activity-review",
+      "agent-client",
+      "evidence",
+      "frontend",
+      "handoff",
+      "human-task",
+      "implementation-contract",
+      "implementation-review",
+      "limits",
+      "preflight",
+      "proposals",
+      "repair",
+      "source-context",
+      "surface",
+      "ui-pass",
+      "verdict",
+      "workflow-review",
+      "zone-client",
+      "zone-generation",
+      "zone-kernel"
+    ],
+    "edges": [
+      {
+        "id": "access-to-activity",
+        "length": 462,
+        "arrow": true
+      },
+      {
+        "id": "activity-to-surface",
+        "length": 50,
+        "arrow": true
+      },
+      {
+        "id": "client-to-proposals",
+        "length": 623,
+        "arrow": true
+      },
+      {
+        "id": "client-to-source",
+        "length": 50,
+        "arrow": true
+      },
+      {
+        "id": "contract-to-handoff",
+        "length": 82,
+        "arrow": true
+      },
+      {
+        "id": "evidence-to-human",
+        "length": 380,
+        "arrow": true
+      },
+      {
+        "id": "evidence-to-preflight",
+        "length": 144,
+        "arrow": true
+      },
+      {
+        "id": "frontend-to-ui",
+        "length": 152,
+        "arrow": true
+      },
+      {
+        "id": "handoff-to-frontend",
+        "length": 50,
+        "arrow": true
+      },
+      {
+        "id": "handoff-to-repair",
+        "length": 971,
+        "arrow": true
+      },
+      {
+        "id": "human-to-repair",
+        "length": 1074,
+        "arrow": true
+      },
+      {
+        "id": "preflight-to-repair",
+        "length": 934,
+        "arrow": true
+      },
+      {
+        "id": "preflight-to-review",
+        "length": 70,
+        "arrow": true
+      },
+      {
+        "id": "proposal-to-activity",
+        "length": 605,
+        "arrow": true
+      },
+      {
+        "id": "proposal-to-workflow",
+        "length": 1455,
+        "arrow": true
+      },
+      {
+        "id": "repair-to-source",
+        "length": 1172,
+        "arrow": true
+      },
+      {
+        "id": "repair-to-ui",
+        "length": 2518,
+        "arrow": true
+      },
+      {
+        "id": "review-to-verdict",
+        "length": 50.35871505737305,
+        "arrow": true
+      },
+      {
+        "id": "source-to-access",
+        "length": 52,
+        "arrow": true
+      },
+      {
+        "id": "surface-to-workflow",
+        "length": 68,
+        "arrow": true
+      },
+      {
+        "id": "ui-to-evidence",
+        "length": 82,
+        "arrow": true
+      },
+      {
+        "id": "verdict-to-limits",
+        "length": 152,
+        "arrow": true
+      },
+      {
+        "id": "verdict-to-repair",
+        "length": 443,
+        "arrow": true
+      },
+      {
+        "id": "workflow-to-contract",
+        "length": 50,
+        "arrow": true
+      },
+      {
+        "id": "workflow-to-handoff",
+        "length": 318,
+        "arrow": true
+      }
+    ],
+    "mounted": "true",
+    "fallback_hidden": true
+  }
+}

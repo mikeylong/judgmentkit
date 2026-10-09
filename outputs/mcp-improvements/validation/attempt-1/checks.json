@@ -1,0 +1,46 @@
+[
+  {
+    "command": "npm test",
+    "exit_code": 1,
+    "duration_seconds": 51.37,
+    "log": "npm-test.log",
+    "log_sha256": "ab5dd313bffdeef4a40f9c67459909db2774c094ed039d6e6b0f0bc97daffc38",
+    "source_unchanged": true,
+    "source_changed_paths": [],
+    "source_manifest_sha256": "5e690839a205ba58e7738dcbd4546d2714f23a16f49bbdb7c20e90b8bc690140",
+    "generated_proof_manifest_sha256_after": "fdd4753ee25af295ad757b6b2223ea68be85cf899f8bc8fd5695a90a3c6523bb"
+  },
+  {
+    "command": "npm run site:build",
+    "exit_code": 0,
+    "duration_seconds": 0.88,
+    "log": "site-build.log",
+    "log_sha256": "402f15302bed7cdb4325829447cb042619b60551d50a726788c52eac672cfa01",
+    "source_unchanged": true,
+    "source_changed_paths": [],
+    "source_manifest_sha256": "5e690839a205ba58e7738dcbd4546d2714f23a16f49bbdb7c20e90b8bc690140",
+    "generated_proof_manifest_sha256_after": "fdd4753ee25af295ad757b6b2223ea68be85cf899f8bc8fd5695a90a3c6523bb"
+  },
+  {
+    "command": "npm run benchmark",
+    "exit_code": 0,
+    "duration_seconds": 0.51,
+    "log": "benchmark.log",
+    "log_sha256": "8ae10d9e31957f82cb17f12fd9f9cc4de225499334101c60f8fc6c8646f31a38",
+    "source_unchanged": true,
+    "source_changed_paths": [],
+    "source_manifest_sha256": "5e690839a205ba58e7738dcbd4546d2714f23a16f49bbdb7c20e90b8bc690140",
+    "generated_proof_manifest_sha256_after": "fdd4753ee25af295ad757b6b2223ea68be85cf899f8bc8fd5695a90a3c6523bb"
+  },
+  {
+    "command": "npm run mcp:smoke",
+    "exit_code": 0,
+    "duration_seconds": 5.58,
+    "log": "mcp-smoke.log",
+    "log_sha256": "9fb169982b8c45b54361062e051ed2681930b038dbee1bdbbd94d49e26930a19",
+    "source_unchanged": true,
+    "source_changed_paths": [],
+    "source_manifest_sha256": "5e690839a205ba58e7738dcbd4546d2714f23a16f49bbdb7c20e90b8bc690140",
+    "generated_proof_manifest_sha256_after": "fdd4753ee25af295ad757b6b2223ea68be85cf899f8bc8fd5695a90a3c6523bb"
+  }
+]

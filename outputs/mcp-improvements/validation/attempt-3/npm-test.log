@@ -1,0 +1,63 @@
+
+> judgmentkit@0.8.0 test
+> node tests/lucide-icon-catalog.test.mjs && node tests/lucide-icon-catalog-smoke.test.mjs && node tests/kernel-contract.test.mjs && node tests/analyze-implementation-brief.test.mjs && node tests/activity-model-review.test.mjs && node tests/protected-action-scope.test.mjs && node tests/surface-types.test.mjs && node tests/tide-workflow-regressions.test.mjs && node tests/context-routing-reliability.test.mjs && node tests/artifact-inspector-routing.test.mjs && node tests/artifact-inspector-workflow.test.mjs && node tests/workbench-surface-profile.test.mjs && node tests/artifact-inspector-surface-profile.test.mjs && node tests/artifact-inspector-authority.test.mjs && node tests/ui-generation-handoff.test.mjs && node tests/visual-composition-integration.test.mjs && node tests/visual-composition-browser-runtime.test.mjs && node tests/cognitive-dimensions-review.test.mjs && node tests/openai-responses-provider.test.mjs && node tests/cli.test.mjs && node tests/demo-one-shot.test.mjs && node tests/demo-modal-actions.test.mjs && node tests/demo-comparison.test.mjs && node tests/demo-music-comparison.test.mjs && node tests/demo-model-ui-matrix.test.mjs && node tests/ui-generation-evals.test.mjs && node tests/mcp-pilot-evals.test.mjs && node tests/mcp-pilot-llm-judge.test.mjs && node tests/eval-rerun-guardrails.test.mjs && node tests/evidence-admission.test.mjs && node tests/chart-review-browser.test.mjs && node tests/compact-packets.test.mjs && node tests/mcp.test.mjs && node tests/mcp-stdio.test.mjs && node tests/mcp-http.test.mjs && node tests/install-mcp.test.mjs && node tests/codex-plugin.test.mjs && node tests/agent-plugin-adapters.test.mjs && npm run test:builder-workflow && npm run test:presentation-theme && npm run test:components && node tests/ai-native-design-system-release.test.mjs && node tests/er-flow-dashboard.test.mjs && npm run test:site && node tests/skills.test.mjs && node evals/run-evals.mjs
+
+Lucide icon visual smoke checks passed.
+JudgmentKit kernel contract checks passed.
+analyzeImplementationBrief checks passed.
+createActivityModelReview checks passed.
+Protected action scope checks passed.
+surface type checks passed.
+Tide workflow regression tests passed.
+Context and routing reliability checks passed.
+artifact inspector routing checks passed.
+artifact inspector workflow checks passed.
+supported Workbench surface profile checks passed.
+artifact inspector surface profile checks passed.
+artifact inspector authority checks passed.
+UI generation handoff checks passed.
+Visual composition integration tests passed.
+Visual composition browser runtime checks passed.
+Cognitive Dimensions review checks passed.
+OpenAI Responses provider checks passed.
+CLI checks passed.
+one-shot demo checks passed.
+Modal action evidence demo checks passed.
+standalone comparison demo checks passed.
+music standalone comparison demo checks passed.
+model UI matrix checks passed.
+ui generation eval checks passed.
+MCP pilot eval checks passed.
+MCP pilot LLM judge checks passed.
+Evidence admission tests passed.
+Trusted chart browser checks passed: 28 snapshots, geometry and data regressions, truthful unsupported coverage.
+Compact packet compatibility, exact-source continuity, bounded decode, and hosted-size regression tests passed.
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ undefined
+- {
+-   code: 'visual_composition_browser_runtime_unavailable',
+-   details: {
+-     retryable: true
+-   },
+-   message: 'The trusted visual composition browser runtime is unavailable; retry the review.'
+- }
+
+    at file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-3/source/tests/mcp.test.mjs:394:10 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: undefined,
+  expected: {
+    code: 'visual_composition_browser_runtime_unavailable',
+    message: 'The trusted visual composition browser runtime is unavailable; retry the review.',
+    details: { retryable: true }
+  },
+  operator: 'deepStrictEqual'
+}
+
+Node.js v22.16.0

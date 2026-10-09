@@ -1,0 +1,84 @@
+
+> judgmentkit@0.8.0 presentation-theme:pack:smoke
+> node scripts/presentation-theme/package-surface-smoke.mjs
+
+node:internal/errors:983
+  const err = new Error(message);
+              ^
+
+Error: Command failed: /Users/mike/.nvm/versions/node/v22.16.0/bin/node /var/folders/gt/lzhcg8wj3f19j78b3g444s1c0000gn/T/judgmentkit-pack-smoke-LjyINw/node_modules/judgmentkit/bin/judgmentkit.mjs --help
+node:internal/modules/package_json_reader:256
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@modelcontextprotocol/sdk' imported from /private/var/folders/gt/lzhcg8wj3f19j78b3g444s1c0000gn/T/judgmentkit-pack-smoke-LjyINw/node_modules/judgmentkit/src/mcp.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:256:9)
+    at packageResolve (node:internal/modules/esm/resolve:768:81)
+    at moduleResolve (node:internal/modules/esm/resolve:854:18)
+    at defaultResolve (node:internal/modules/esm/resolve:984:11)
+    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+    at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+    at ModuleJob._link (node:internal/modules/esm/module_job:137:49) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v22.16.0
+
+    at genericNodeError (node:internal/errors:983:15)
+    at wrappedFn (node:internal/errors:537:14)
+    at checkExecSyncError (node:child_process:882:11)
+    at execFileSync (node:child_process:918:15)
+    at run (file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-3/source/scripts/presentation-theme/package-surface-smoke.mjs:13:10)
+    at file:///private/tmp/judgmentkit-mcp-improvements-validation/attempt-3/source/scripts/presentation-theme/package-surface-smoke.mjs:152:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:274:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:644:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5) {
+  status: 1,
+  signal: null,
+  output: [
+    null,
+    '',
+    'node:internal/modules/package_json_reader:256\n' +
+      '  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);\n' +
+      '        ^\n' +
+      '\n' +
+      "Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@modelcontextprotocol/sdk' imported from /private/var/folders/gt/lzhcg8wj3f19j78b3g444s1c0000gn/T/judgmentkit-pack-smoke-LjyINw/node_modules/judgmentkit/src/mcp.mjs\n" +
+      '    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:256:9)\n' +
+      '    at packageResolve (node:internal/modules/esm/resolve:768:81)\n' +
+      '    at moduleResolve (node:internal/modules/esm/resolve:854:18)\n' +
+      '    at defaultResolve (node:internal/modules/esm/resolve:984:11)\n' +
+      '    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)\n' +
+      '    at #cachedDefaultResolve (node:internal/modules/esm/loader:704:25)\n' +
+      '    at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)\n' +
+      '    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)\n' +
+      '    at ModuleJob._link (node:internal/modules/esm/module_job:137:49) {\n' +
+      "  code: 'ERR_MODULE_NOT_FOUND'\n" +
+      '}\n' +
+      '\n' +
+      'Node.js v22.16.0\n'
+  ],
+  pid: 1389,
+  stdout: '',
+  stderr: 'node:internal/modules/package_json_reader:256\n' +
+    '  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);\n' +
+    '        ^\n' +
+    '\n' +
+    "Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@modelcontextprotocol/sdk' imported from /private/var/folders/gt/lzhcg8wj3f19j78b3g444s1c0000gn/T/judgmentkit-pack-smoke-LjyINw/node_modules/judgmentkit/src/mcp.mjs\n" +
+    '    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:256:9)\n' +
+    '    at packageResolve (node:internal/modules/esm/resolve:768:81)\n' +
+    '    at moduleResolve (node:internal/modules/esm/resolve:854:18)\n' +
+    '    at defaultResolve (node:internal/modules/esm/resolve:984:11)\n' +
+    '    at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)\n' +
+    '    at #cachedDefaultResolve (node:internal/modules/esm/loader:704:25)\n' +
+    '    at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)\n' +
+    '    at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)\n' +
+    '    at ModuleJob._link (node:internal/modules/esm/module_job:137:49) {\n' +
+    "  code: 'ERR_MODULE_NOT_FOUND'\n" +
+    '}\n' +
+    '\n' +
+    'Node.js v22.16.0\n'
+}
+
+Node.js v22.16.0

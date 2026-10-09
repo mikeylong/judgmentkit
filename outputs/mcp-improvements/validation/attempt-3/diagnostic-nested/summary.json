@@ -1,0 +1,79 @@
+{
+  "scope": "Diagnostic nested npm-test stages only, no final source or full-suite acceptance.",
+  "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+  "checks": [
+    {
+      "command": "npm run presentation-theme:actual:evidence",
+      "exit_code": 0,
+      "duration_seconds": 0.27,
+      "log": "00.log",
+      "log_sha256": "0c8a1a27b48abb19cb9dec1639fac5ad1d889a9e8008c51db61ec2f6b3c69730",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic nested npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "npm run presentation-theme:pack:smoke",
+      "exit_code": 1,
+      "duration_seconds": 0.72,
+      "log": "01.log",
+      "log_sha256": "d7548c880935cc966e0abe0d074ef622fd2bad7d6f6b7eb2269716c34e3a3035",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic nested npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "npm run test:components:site",
+      "exit_code": 0,
+      "duration_seconds": 0.78,
+      "log": "02.log",
+      "log_sha256": "77dd33477572f9a4839f9e84d0206e7a18c92df3872ce92d976082926be83b3b",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic nested npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "npm run test:components:browser",
+      "exit_code": 0,
+      "duration_seconds": 72.23,
+      "log": "03.log",
+      "log_sha256": "850d76dd2e468a6c43dfb89bcbfb1dec5281bb01c84056755513f89e78ac0fe6",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic nested npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node tests/site-local-server.test.mjs",
+      "exit_code": 1,
+      "duration_seconds": 0.79,
+      "log": "04.log",
+      "log_sha256": "c704081170e04cb79989018202e989445d2b8e5f30a8d45036e2cf66bae2ec59",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic nested npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node tests/site-header-browser.test.mjs",
+      "exit_code": 0,
+      "duration_seconds": 5.07,
+      "log": "05.log",
+      "log_sha256": "41b500201de60acb0b38adf7d8bef5150b204cd887f01130d6d5dd14b9194298",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic nested npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node tests/site-first-use-browser.test.mjs",
+      "exit_code": 0,
+      "duration_seconds": 3.57,
+      "log": "06.log",
+      "log_sha256": "133a4d62cfd63f9108e1920b8f538dfb2f48109281fcf92507f64a2c7ecc51db",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic nested npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node tests/patterns-browser.test.mjs",
+      "exit_code": 0,
+      "duration_seconds": 2.89,
+      "log": "07.log",
+      "log_sha256": "912638fb0e8718f98cde51e687d81a850a3c0e2b73201f0604c8425f3228718b",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic nested npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    }
+  ],
+  "all_nested_stages_passed": false
+}

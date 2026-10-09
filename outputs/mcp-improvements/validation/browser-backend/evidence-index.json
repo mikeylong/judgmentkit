@@ -1,0 +1,19 @@
+{
+  "scope": "Component test backend evidence; diagnostic trace is not a passing acceptance receipt. Original source snapshot, test timeout, and coverage were preserved for the supported headless-shell run.",
+  "final_kernel_validation_source_manifest_sha256": "5d89fa255f3dd843ab236085c63939edbe24b907863b882cdb1b78b3e2ab39b9",
+  "receipts": [
+    {
+      "source_path": "/private/tmp/judgmentkit-component-browser-diagnostic/headless-shell-3yj9akaw/summary.json",
+      "preserved_file": "headless-shell-receipt.json",
+      "bytes": 1233,
+      "sha256": "ad2b9fbfa39cb1ccfdbd4337b3c12f3a9c78f5a6052389714a2336172e1194f8"
+    },
+    {
+      "source_path": "/private/tmp/judgmentkit-component-browser-diagnostic/run-5bdx1x7e/summary.json",
+      "preserved_file": "default-chrome-diagnostic.json",
+      "bytes": 14158,
+      "sha256": "ac7b9d8c189a12d3220def88625bbf1fddae0d165c34f204b4124e204e9b686a"
+    }
+  ],
+  "interpretation": "Default Chrome diagnostic shows broad CDP responsiveness degradation. Nested animation-frame dialog settlement completed; a specific cause of the prior Runtime.evaluate timeout is not established. HeadlessChrome153 passed the unchanged component suite with the existing browser-path override. This focused pass does not by itself establish that the full npm test command passed."
+}

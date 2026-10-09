@@ -1,0 +1,552 @@
+{
+  "summary": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0
+  },
+  "results": [
+    {
+      "id": "implementation-heavy-admin-surface",
+      "tags": [
+        "implementation-heavy",
+        "missing-source-context",
+        "disclosure-risk",
+        "expected-next-action:ask-targeted-questions"
+      ],
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "status": "needs_review",
+        "implementation_terms_detected": [
+          {
+            "term": "API endpoint",
+            "count": 1
+          },
+          {
+            "term": "CRUD",
+            "count": 1
+          },
+          {
+            "term": "data model",
+            "count": 1
+          },
+          {
+            "term": "database table",
+            "count": 1
+          },
+          {
+            "term": "field",
+            "count": 1
+          },
+          {
+            "term": "JSON schema",
+            "count": 1
+          },
+          {
+            "term": "prompt",
+            "count": 1
+          },
+          {
+            "term": "prompt template",
+            "count": 1
+          },
+          {
+            "term": "resource",
+            "count": 1
+          },
+          {
+            "term": "resource id",
+            "count": 1
+          },
+          {
+            "term": "schema",
+            "count": 1
+          },
+          {
+            "term": "tool call",
+            "count": 1
+          },
+          {
+            "term": "tools/list",
+            "count": 1
+          }
+        ],
+        "review_questions_count": 4,
+        "evidence": {
+          "activity": false,
+          "domain_vocabulary": true,
+          "decision": false,
+          "outcome": false,
+          "input_excerpt": "Build an admin screen from the customer data model. Show every database table field, the JSON schema, prompt template, tool call result, resource id, and API endpoint. Make it CRUD so the agent can expose tools/list diagnostics."
+        },
+        "observed": {
+          "activity": null,
+          "participants": [
+            "agent"
+          ],
+          "domain_terms": [
+            "agent"
+          ],
+          "primary_decisions": [],
+          "outcomes": []
+        },
+        "review": {
+          "status": "needs_source_context",
+          "confidence": "low",
+          "targeted_questions_count": 3,
+          "candidate_activity": "Clarify the activity before proposing a product surface."
+        },
+        "ui_workflow": {
+          "status": "needs_source_context",
+          "confidence": "low",
+          "targeted_questions_count": 3,
+          "surface_name": "Workflow review"
+        }
+      }
+    },
+    {
+      "id": "activity-rich-refund-triage",
+      "tags": [
+        "activity-rich",
+        "ready",
+        "model-candidate",
+        "expected-next-action:proceed-to-ui-concept"
+      ],
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "status": "ready",
+        "implementation_terms_detected": [],
+        "review_questions_count": 0,
+        "evidence": {
+          "activity": true,
+          "domain_vocabulary": true,
+          "decision": true,
+          "outcome": true,
+          "input_excerpt": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether to recommend support, send a case to policy review, or return it to the agent for missing evidence. The outcome is a clear handof"
+        },
+        "observed": {
+          "activity": "deciding whether to recommend support, send a case to policy review, or return it to the agent for missing evidence",
+          "participants": [
+            "support lead",
+            "agent"
+          ],
+          "domain_terms": [
+            "support lead",
+            "agent",
+            "refund requests",
+            "daily triage workflow",
+            "send a case",
+            "policy review",
+            "return it to the agent",
+            "missing evidence",
+            "handoff",
+            "next action"
+          ],
+          "primary_decisions": [
+            "whether to recommend support, send a case to policy review, or return it to the agent for missing evidence"
+          ],
+          "outcomes": [
+            "a clear handoff with the next action and the reason for the recommendation"
+          ]
+        },
+        "review": {
+          "status": "ready_for_review",
+          "confidence": "high",
+          "targeted_questions_count": 0,
+          "candidate_activity": "Support lead reviews refund requests during daily triage workflow."
+        },
+        "model_assisted": {
+          "status": "ready_for_review",
+          "confidence": "medium",
+          "targeted_questions_count": 0,
+          "candidate_activity": "Support lead reviews refund requests during daily triage workflow."
+        },
+        "model_proposer": {
+          "status": "ready_for_review",
+          "confidence": "medium",
+          "targeted_questions_count": 0,
+          "candidate_activity": "Support lead reviews refund requests during daily triage workflow."
+        },
+        "ui_workflow": {
+          "status": "ready_for_review",
+          "confidence": "high",
+          "targeted_questions_count": 0,
+          "surface_name": "Refund escalation queue"
+        }
+      }
+    },
+    {
+      "id": "vague-dashboard-request",
+      "tags": [
+        "vague-brief",
+        "missing-source-context",
+        "model-candidate-unsupported",
+        "expected-next-action:ask-targeted-questions"
+      ],
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "status": "needs_review",
+        "implementation_terms_detected": [],
+        "review_questions_count": 4,
+        "evidence": {
+          "activity": false,
+          "domain_vocabulary": false,
+          "decision": false,
+          "outcome": false,
+          "input_excerpt": "Make a dashboard for the system."
+        },
+        "observed": {
+          "activity": null,
+          "participants": [],
+          "domain_terms": [],
+          "primary_decisions": [],
+          "outcomes": []
+        },
+        "review": {
+          "status": "needs_source_context",
+          "confidence": "low",
+          "targeted_questions_count": 3,
+          "candidate_activity": "Clarify the activity before proposing a product surface."
+        },
+        "model_assisted": {
+          "status": "needs_source_context",
+          "confidence": "low",
+          "targeted_questions_count": 1,
+          "candidate_activity": "Support lead reviews refund requests during daily triage workflow."
+        },
+        "model_proposer": {
+          "status": "needs_source_context",
+          "confidence": "low",
+          "targeted_questions_count": 1,
+          "candidate_activity": "Support lead reviews refund requests during daily triage workflow."
+        },
+        "ui_workflow": {
+          "status": "needs_source_context",
+          "confidence": "low",
+          "targeted_questions_count": 3,
+          "surface_name": "Refund escalation queue"
+        }
+      }
+    },
+    {
+      "id": "diagnostic-integration-audit",
+      "tags": [
+        "diagnostic-audit",
+        "implementation-terms-allowed-in-setup-activity",
+        "model-candidate-setup-vocabulary",
+        "expected-next-action:preserve-task-machinery"
+      ],
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "status": "needs_review",
+        "implementation_terms_detected": [
+          {
+            "term": "JSON schema",
+            "count": 1
+          },
+          {
+            "term": "prompt",
+            "count": 1
+          },
+          {
+            "term": "prompt template",
+            "count": 1
+          },
+          {
+            "term": "schema",
+            "count": 1
+          }
+        ],
+        "review_questions_count": 1,
+        "evidence": {
+          "activity": true,
+          "domain_vocabulary": true,
+          "decision": true,
+          "outcome": true,
+          "input_excerpt": "A support operations manager is auditing an integration setup workflow. The activity is deciding whether a JSON schema change and prompt template update are safe to ship, then producing a handoff with the next action for the platform team."
+        },
+        "observed": {
+          "activity": "deciding whether a JSON schema change and prompt template update are safe to ship",
+          "participants": [
+            "support operations manager",
+            "platform team"
+          ],
+          "domain_terms": [
+            "support operations manager",
+            "platform team",
+            "integration setup workflow",
+            "handoff",
+            "next action"
+          ],
+          "primary_decisions": [
+            "whether a JSON schema change and prompt template update are safe to ship"
+          ],
+          "outcomes": [
+            "a handoff with the next action for the platform team"
+          ]
+        },
+        "review": {
+          "status": "ready_for_review",
+          "confidence": "medium",
+          "targeted_questions_count": 1,
+          "candidate_activity": "Support operations manager reviews handoff during integration setup workflow."
+        },
+        "model_assisted": {
+          "status": "ready_for_review",
+          "confidence": "medium",
+          "targeted_questions_count": 0,
+          "candidate_activity": "Support operations manager reviews JSON schema changes during integration setup workflow."
+        },
+        "model_proposer": {
+          "status": "ready_for_review",
+          "confidence": "medium",
+          "targeted_questions_count": 0,
+          "candidate_activity": "Support operations manager reviews JSON schema changes during integration setup workflow."
+        },
+        "ui_workflow": {
+          "status": "ready_for_review",
+          "confidence": "medium",
+          "targeted_questions_count": 1,
+          "surface_name": "Integration JSON schema audit"
+        }
+      }
+    },
+    {
+      "id": "field-operations-false-positive",
+      "tags": [
+        "false-positive-guard",
+        "field-operations",
+        "ready",
+        "expected-next-action:proceed-to-ui-concept"
+      ],
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "status": "ready",
+        "implementation_terms_detected": [],
+        "review_questions_count": 0,
+        "evidence": {
+          "activity": true,
+          "domain_vocabulary": true,
+          "decision": true,
+          "outcome": true,
+          "input_excerpt": "A field operations manager is reviewing repair visits. The activity is deciding which technician should handle the next job, comparing route constraints, recording the handoff recommendation, and leaving the dispatch team with a completed n"
+        },
+        "observed": {
+          "activity": "deciding which technician should handle the next job, comparing route constraints, recording the handoff recommendation, and leaving the dispatch team with a completed next action",
+          "participants": [
+            "field operations manager",
+            "dispatch team"
+          ],
+          "domain_terms": [
+            "field operations manager",
+            "dispatch team",
+            "repair visits",
+            "route constraints",
+            "technician",
+            "next job",
+            "recording the handoff",
+            "next action"
+          ],
+          "primary_decisions": [
+            "which technician should handle the next job, comparing route constraints, recording the handoff recommendation, and leaving the dispatch team with a completed next action"
+          ],
+          "outcomes": [
+            "a completed next action"
+          ]
+        },
+        "review": {
+          "status": "ready_for_review",
+          "confidence": "high",
+          "targeted_questions_count": 0,
+          "candidate_activity": "Field operations manager reviews repair visits."
+        },
+        "ui_workflow": {
+          "status": "ready_for_review",
+          "confidence": "high",
+          "targeted_questions_count": 0,
+          "surface_name": "Repair visit dispatch review"
+        }
+      }
+    },
+    {
+      "id": "ui-workflow-review-packet-leakage",
+      "tags": [
+        "activity-rich",
+        "ui-workflow-candidate",
+        "review-packet-leakage",
+        "expected-next-action:remove-meta-language"
+      ],
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "status": "ready",
+        "implementation_terms_detected": [],
+        "review_questions_count": 0,
+        "evidence": {
+          "activity": true,
+          "domain_vocabulary": true,
+          "decision": true,
+          "outcome": true,
+          "input_excerpt": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether to recommend support, send a case to policy review, or return it to the agent for missing evidence. The outcome is a clear handof"
+        },
+        "observed": {
+          "activity": "deciding whether to recommend support, send a case to policy review, or return it to the agent for missing evidence",
+          "participants": [
+            "support lead",
+            "agent"
+          ],
+          "domain_terms": [
+            "support lead",
+            "agent",
+            "refund requests",
+            "daily triage workflow",
+            "send a case",
+            "policy review",
+            "return it to the agent",
+            "missing evidence",
+            "handoff",
+            "next action"
+          ],
+          "primary_decisions": [
+            "whether to recommend support, send a case to policy review, or return it to the agent for missing evidence"
+          ],
+          "outcomes": [
+            "a clear handoff with the next action and the reason for the recommendation"
+          ]
+        },
+        "review": {
+          "status": "ready_for_review",
+          "confidence": "high",
+          "targeted_questions_count": 0,
+          "candidate_activity": "Support lead reviews refund requests during daily triage workflow."
+        },
+        "ui_workflow": {
+          "status": "needs_source_context",
+          "confidence": "low",
+          "targeted_questions_count": 1,
+          "surface_name": "Workflow review"
+        }
+      }
+    },
+    {
+      "id": "multi-surface-workbench-staged-flow-block",
+      "tags": [
+        "workflow-topology",
+        "stepper-eligibility",
+        "multi-surface",
+        "expected-next-action:block-staged-workbench"
+      ],
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "status": "ready",
+        "implementation_terms_detected": [],
+        "review_questions_count": 0,
+        "evidence": {
+          "activity": true,
+          "domain_vocabulary": true,
+          "decision": true,
+          "outcome": true,
+          "input_excerpt": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether to recommend support, send a case to policy review, or return it to the agent for missing evidence. The work moves between a case"
+        },
+        "observed": {
+          "activity": "deciding whether to recommend support, send a case to policy review, or return it to the agent for missing evidence",
+          "participants": [
+            "support lead",
+            "agent",
+            "lead"
+          ],
+          "domain_terms": [
+            "support lead",
+            "agent",
+            "lead",
+            "refund requests",
+            "daily triage workflow",
+            "send a case",
+            "policy review",
+            "return it to the agent",
+            "missing evidence",
+            "work moves between a case",
+            "handoff",
+            "but the lead"
+          ],
+          "primary_decisions": [
+            "whether to recommend support, send a case to policy review, or return it to the agent for missing evidence"
+          ],
+          "outcomes": [
+            "a clear handoff with the next action and the reason for the recommendation"
+          ]
+        },
+        "review": {
+          "status": "ready_for_review",
+          "confidence": "high",
+          "targeted_questions_count": 0,
+          "candidate_activity": "Support lead reviews refund requests during daily triage workflow."
+        },
+        "ui_workflow": {
+          "status": "needs_source_context",
+          "confidence": "low",
+          "targeted_questions_count": 1,
+          "surface_name": "Refund triage workspace"
+        }
+      }
+    },
+    {
+      "id": "staged-setup-form-eligible",
+      "tags": [
+        "workflow-topology",
+        "stepper-eligibility",
+        "form-flow",
+        "expected-next-action:allow-staged-flow"
+      ],
+      "passed": true,
+      "failures": [],
+      "observed": {
+        "status": "ready",
+        "implementation_terms_detected": [],
+        "review_questions_count": 0,
+        "evidence": {
+          "activity": true,
+          "domain_vocabulary": true,
+          "decision": true,
+          "outcome": true,
+          "input_excerpt": "A support manager updates an account settings form. The activity is entering required billing information, resolving validation errors, and deciding whether the account settings are complete enough to submit. The billing information review "
+        },
+        "observed": {
+          "activity": "entering required billing information, resolving validation errors, and deciding whether the account settings are complete enough to submit",
+          "participants": [
+            "support manager",
+            "confirmation for the support team"
+          ],
+          "domain_terms": [
+            "support manager",
+            "confirmation for the support team",
+            "billing information review"
+          ],
+          "primary_decisions": [
+            "whether the account settings are complete enough to submit"
+          ],
+          "outcomes": [
+            "saved settings and a confirmation for the support team"
+          ]
+        },
+        "review": {
+          "status": "ready_for_review",
+          "confidence": "medium",
+          "targeted_questions_count": 0,
+          "candidate_activity": "Support manager reviews billing information review."
+        },
+        "ui_workflow": {
+          "status": "ready_for_review",
+          "confidence": "high",
+          "targeted_questions_count": 0,
+          "surface_name": "Billing information update"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+First-use browser checks passed: desktop/mobile Light/Dark prompt and disclosure, mounted map nodes/arrows/preflight route, readable card bounds, zoom/pan/fit, no-JavaScript fallback, no overflow or runtime exceptions.

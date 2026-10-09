@@ -1,0 +1,29 @@
+[
+  {
+    "command": "npm run test:site",
+    "exit_code": 0,
+    "duration_seconds": 20.99,
+    "log": "00.log",
+    "log_sha256": "4c5571cd2ecb2c475ef1d45d55834695346c0385f861c125fb68f32c28abd8ce",
+    "source_manifest_sha256": "5d89fa255f3dd843ab236085c63939edbe24b907863b882cdb1b78b3e2ab39b9",
+    "scope": "Diagnostic still-unreached npm-test stage on attempt-4 final snapshot; not a full-suite pass."
+  },
+  {
+    "command": "node tests/skills.test.mjs",
+    "exit_code": 0,
+    "duration_seconds": 0.04,
+    "log": "01.log",
+    "log_sha256": "0a24ffca59b054e81142709a00276414a7a4fa406c71e97fdd7d330508d31ff0",
+    "source_manifest_sha256": "5d89fa255f3dd843ab236085c63939edbe24b907863b882cdb1b78b3e2ab39b9",
+    "scope": "Diagnostic still-unreached npm-test stage on attempt-4 final snapshot; not a full-suite pass."
+  },
+  {
+    "command": "node evals/run-evals.mjs",
+    "exit_code": 0,
+    "duration_seconds": 0.47,
+    "log": "02.log",
+    "log_sha256": "be36f7835f2a29ee00f86b52801b7d6b2703d849a667385aedf82c25bfae482a",
+    "source_manifest_sha256": "5d89fa255f3dd843ab236085c63939edbe24b907863b882cdb1b78b3e2ab39b9",
+    "scope": "Diagnostic still-unreached npm-test stage on attempt-4 final snapshot; not a full-suite pass."
+  }
+]

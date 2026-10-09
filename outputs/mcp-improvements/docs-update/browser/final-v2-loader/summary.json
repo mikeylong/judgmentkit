@@ -1,0 +1,37 @@
+{
+  "status": "pass",
+  "scope": "desktop_v2_system_map_loader_smoke",
+  "browser": "HeadlessChrome/153.0.8010.12",
+  "source_byte_compared_files": 1357,
+  "source_manifest_sha256": "23c1121d8b4b3fbc96afd28241fb2ba8fffeb932b2cd38120c8afd70756c29a1",
+  "source_hashes": {
+    "site/build-site.mjs": "4641044a5b8d8383ca5017f94c99c19a899d0374a338a20381cecd4ece8de994",
+    "site/system-map-model.mjs": "fb75c87607b7f62e90f56c492e202a0962e26611c737c7cdfe0528133ef66e05",
+    "site/system-map-flow.jsx": "d2963f8fa945eb799fc161a3f4f1c641a92829ae399d9337919b2d83bdea9e7d",
+    "site/system-map-flow.css": "b0d0c26ae269dac1f464fd89d07ad31b70c7c496f80601219d689ca7777a40b5"
+  },
+  "asset_hashes": {
+    "assets/system-map-flow.js": "f5b7ce5e38bfd1682693e0e6cc21499b7ad02f846ae45da5e78b6528b4300916",
+    "assets/system-map-flow.css": "89da6dead8d560e7df30d869ccc7efadd8890cd221d353135bf0d06e5e9b3969"
+  },
+  "receipt_sha256": "a70e7cb9dc5a3bf95ce31e5968dee9c7d38797c262866c77460657d060c80b30",
+  "browser_log_sha256": "227c353fef4894cf9c8233eca5cc19321cb0a4dca16832ba67f4051a34a4bcb8",
+  "loader_script_sha256": "e0eb1a0b0fb9abccafaec0f0e6800daa871fac0e66f9264ab298935e7b608b67",
+  "loaded_assets": [
+    {
+      "url": "/assets/system-map-flow.css?v=judgmentkit-flow-evidence-admission-v2",
+      "status": 200,
+      "mime_type": "text/css",
+      "from_disk_cache": false
+    },
+    {
+      "url": "/assets/system-map-flow.js?v=judgmentkit-flow-evidence-admission-v2",
+      "status": 200,
+      "mime_type": "application/javascript",
+      "from_disk_cache": false
+    }
+  ],
+  "mounted_nodes": 21,
+  "mounted_arrows": 25,
+  "preserved_four_mode_evidence": "/private/tmp/judgmentkit-system-map-followup/attempt-2-n09fkjpg"
+}

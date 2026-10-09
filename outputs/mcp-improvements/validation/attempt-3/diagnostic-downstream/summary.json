@@ -1,0 +1,124 @@
+{
+  "scope": "Diagnostic remaining npm-test stages only, no final source or full-suite acceptance.",
+  "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+  "checks": [
+    {
+      "command": "node tests/mcp-stdio.test.mjs",
+      "exit_code": 0,
+      "duration_seconds": 5.71,
+      "log": "33.log",
+      "log_sha256": "8a55a73b0e9cf704da99b93f2e635d7cf089f9f621b1347ad524fb3e7c62af54",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node tests/mcp-http.test.mjs",
+      "exit_code": 0,
+      "duration_seconds": 30.37,
+      "log": "34.log",
+      "log_sha256": "42781322cd8147a74f9d79c0e03fa3fc636a7a460e109295ff04e0e1dd8b453e",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node tests/install-mcp.test.mjs",
+      "exit_code": 0,
+      "duration_seconds": 0.11,
+      "log": "35.log",
+      "log_sha256": "2bc3f1d9db769c52d1418bd8b8463d34072b81858fabc39e239a2642adbe6d66",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node tests/codex-plugin.test.mjs",
+      "exit_code": 1,
+      "duration_seconds": 0.04,
+      "log": "36.log",
+      "log_sha256": "bb681bdfd75e065759daae7377c36fad7315ecc313f52ffae5b82409cc879036",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node tests/agent-plugin-adapters.test.mjs",
+      "exit_code": 0,
+      "duration_seconds": 0.06,
+      "log": "37.log",
+      "log_sha256": "ee41e4c281f4fe0ac9c2dcb5212a7591e2a1f55880c99aebe74e53851556706f",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "npm run test:builder-workflow",
+      "exit_code": 0,
+      "duration_seconds": 1.92,
+      "log": "38.log",
+      "log_sha256": "58831645bc50d32e28974967b9fec0bc4a707b8bf49157446978dfb8e23a3959",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "npm run test:presentation-theme",
+      "exit_code": 1,
+      "duration_seconds": 0.15,
+      "log": "39.log",
+      "log_sha256": "1fa2db554dc798b381ace5fcbe42932f0c8a4e3288582a29b5439929e479f244",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "npm run test:components",
+      "exit_code": 1,
+      "duration_seconds": 1.9,
+      "log": "40.log",
+      "log_sha256": "5af210a9c4b35fe8ec89a2fbdd302189ae9388eda9e06f30f51d15db0674abf9",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node tests/ai-native-design-system-release.test.mjs",
+      "exit_code": 0,
+      "duration_seconds": 17.2,
+      "log": "41.log",
+      "log_sha256": "89eb50db51075becc9da8af4972ee371b7562de97ece0d93f1b821467e0e7b9d",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node tests/er-flow-dashboard.test.mjs",
+      "exit_code": 0,
+      "duration_seconds": 0.03,
+      "log": "42.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "npm run test:site",
+      "exit_code": 1,
+      "duration_seconds": 4.14,
+      "log": "43.log",
+      "log_sha256": "663c167fc7ca7ef23b7aeb83e50cd998bd209f2ce8c3edb390759bf8d483d0c4",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node tests/skills.test.mjs",
+      "exit_code": 0,
+      "duration_seconds": 0.03,
+      "log": "44.log",
+      "log_sha256": "0a24ffca59b054e81142709a00276414a7a4fa406c71e97fdd7d330508d31ff0",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    },
+    {
+      "command": "node evals/run-evals.mjs",
+      "exit_code": 0,
+      "duration_seconds": 0.5,
+      "log": "45.log",
+      "log_sha256": "be36f7835f2a29ee00f86b52801b7d6b2703d849a667385aedf82c25bfae482a",
+      "source_manifest_sha256": "b2cc877f2683b2d1f1bff33133da1313f28fa6653e098976e504b16b8b2b5dc9",
+      "scope": "Diagnostic remaining npm-test stage on attempt-3 snapshot; not a full-suite pass."
+    }
+  ],
+  "all_remaining_stages_passed": false
+}
