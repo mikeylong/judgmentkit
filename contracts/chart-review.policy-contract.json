@@ -1,0 +1,67 @@
+{
+  "id": "judgmentkit.chart-review.v1",
+  "version": "1.0.0",
+  "required_checks": [
+    "label_collision",
+    "label_clipping",
+    "selected_data_correspondence"
+  ],
+  "required_viewports": [
+    {
+      "id": "desktop",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "id": "mobile",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "data_cases": [
+    {
+      "state_id": "example-today",
+      "source_ref": "fixture:documented-chart-data",
+      "selection": {
+        "period": "today"
+      },
+      "points": [
+        {
+          "x": 0,
+          "y": 0
+        },
+        {
+          "x": 1,
+          "y": 1
+        },
+        {
+          "x": 2,
+          "y": 0
+        }
+      ],
+      "x_domain": [
+        0,
+        2
+      ],
+      "y_domain": [
+        0,
+        1
+      ],
+      "plot_by_viewport": {
+        "desktop": {
+          "x": 30,
+          "y": 30,
+          "width": 240,
+          "height": 130
+        },
+        "mobile": {
+          "x": 30,
+          "y": 30,
+          "width": 240,
+          "height": 130
+        }
+      },
+      "plot_source_ref": "fixture:documented-svg-layout"
+    }
+  ]
+}

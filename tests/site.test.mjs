@@ -33,6 +33,7 @@ const EXPECTED_TOOL_NAMES = [
   "review_ui_workflow_candidate",
   "review_cognitive_dimensions_candidate",
   "create_ui_implementation_contract",
+  "preflight_ui_implementation_candidate",
   "review_ui_implementation_candidate",
   "create_ui_generation_handoff",
   "create_frontend_generation_context",
@@ -1978,7 +1979,10 @@ for (const node of SYSTEM_MAP_NODES) {
   }
 }
 for (const claim of [
-  "Caller-owned execution", "CLI supports activity analysis and review",
+  "Caller-owned execution", "CLI supports activity analysis and review", "preflight-implementation",
+  "Evidence admission before review", "preflight_ui_implementation_candidate",
+  "repair_evidence_packet", "retry_evidence_preflight", "consumes no implementation attempt",
+  "selected-data correspondence", "bounded lossless continuation", "capabilities available in their release",
   "deterministic kernel does not call a model", "no recommended surface",
   "Implementation contract before handoff", "Incomplete external adapters fail without falling back",
   "self-contained HTML", "repair_and_resubmit", "stop_for_human", "review_required",

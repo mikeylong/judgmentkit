@@ -36,10 +36,17 @@ for (const context_items of [fixture.paragraph_context, fixture.sentence_context
   const implementation = createUiImplementationContract();
   const handoff = createUiGenerationHandoff(workflow, { brief: fixture.brief, context_items, implementation_contract: implementation.implementation_contract });
   assert.equal(handoff.handoff_status, "ready_for_generation");
+  assert.equal(handoff.implementation_contract.chart_review_required, true);
+  assert.equal(handoff.implementation_contract.chart_review_obligation.status, "data_oracle_required");
   const frontend = createFrontendGenerationContext({ ui_generation_handoff: handoff, brief: fixture.brief, context_items });
   assert.equal(frontend.frontend_context_status, "ready_for_frontend_implementation");
+  assert.equal(frontend.implementation_guidance.chart_review_required, true);
+  assert.equal(frontend.implementation_contract.chart_review_required, true);
   const skill = createFrontendImplementationSkillContext({ frontend_generation_context: frontend, brief: fixture.brief, context_items });
   assert.equal(skill.skill_context_status, "ready");
+  assert.equal(skill.chart_review_required, true);
+  assert.ok(skill.instruction_markdown.includes("never infer the oracle from the candidate chart"));
+  assert.ok(skill.implementation_sequence.some((instruction) => instruction.includes("packet repairs") && instruction.includes("do not consume")));
   replay.push({
     attribution: context_items === fixture.paragraph_context ? "paragraph" : "sentences",
     baseline: baseline.activity_case.readiness,

@@ -31,7 +31,7 @@ for (const tool of [
   "recommend_surface_types", "review_ui_workflow_candidate",
   "create_ui_implementation_contract", "create_ui_generation_handoff",
   "create_frontend_generation_context", "create_frontend_implementation_skill_context",
-  "review_ui_implementation_candidate",
+  "preflight_ui_implementation_candidate", "review_ui_implementation_candidate",
 ]) assert.ok(depictedTools.has(tool), `The integration route must depict ${tool}.`);
 assert.equal(depictedTools.has("create_slide_deck"), false, "Presentation tools are a separate route.");
 
@@ -56,7 +56,8 @@ for (const [source, target] of [
   ["activity-review", "surface"], ["surface", "workflow-review"],
   ["workflow-review", "implementation-contract"], ["implementation-contract", "handoff"],
   ["workflow-review", "handoff"], ["handoff", "frontend"], ["frontend", "ui-pass"],
-  ["ui-pass", "evidence"], ["evidence", "implementation-review"],
+  ["ui-pass", "evidence"], ["evidence", "preflight"],
+  ["preflight", "implementation-review"], ["preflight", "repair"],
   ["implementation-review", "verdict"], ["evidence", "human-task"], ["human-task", "repair"],
   ["proposals", "activity-review"], ["proposals", "workflow-review"],
   ["repair", "source-context"], ["repair", "ui-pass"], ["verdict", "limits"],
@@ -64,6 +65,8 @@ for (const [source, target] of [
 assert.equal(SYSTEM_MAP_EDGES.some((edge) =>
   edge.target === "proposals" && insideZone(nodes.get(edge.source), "zone-kernel")), false,
 "A deterministic review must not request a provider candidate.");
+assert.equal(hasLink("evidence", "implementation-review"), false,
+  "The recommended route must distinguish admission from substantive judgment.");
 assert.equal(hasLink("verdict", "human-task"), false,
   "A human task observation must not depend on an acceptance verdict.");
 assert.equal(hasLink("limits", "repair"), false,
@@ -81,7 +84,7 @@ const cliHelp = spawnSync(process.execPath, ["bin/judgmentkit.mjs", "--help"], {
 });
 assert.equal(cliHelp.status, 0, cliHelp.stderr);
 const cliUsage = cliHelp.stdout + cliHelp.stderr;
-for (const command of ["analyze", "review", "review-candidate"]) {
+for (const command of ["analyze", "review", "review-candidate", "preflight-implementation"]) {
   assert.ok(cliUsage.includes(`judgmentkit ${command}`));
 }
 assert.equal(/judgmentkit (?:handoff|generate|build|implement)\b/.test(cliUsage), false,
@@ -168,6 +171,25 @@ assert.throws(() => kernel.createUiGenerationHandoff(unresolvedWorkflow, { brief
 const fixture = JSON.parse(fs.readFileSync(new URL("../examples/ai-native-design-system/first-use.json", import.meta.url), "utf8"));
 const implementationContract = kernel.createUiImplementationContract(fixture.implementation_contract_input).implementation_contract;
 const originalCandidate = structuredClone(fixture.failing_candidate);
+const admittedPacket = kernel.preflightUiImplementationCandidate(fixture.failing_candidate, {
+  implementation_contract: implementationContract,
+});
+assert.equal(admittedPacket.admission_status, "ready_for_review");
+assert.equal(admittedPacket.attempt_consumed, false);
+assert.equal(admittedPacket.substantive_review_performed, false);
+const malformedCandidate = { states_covered: "not an array", static_checks: [] };
+const packetRepair = kernel.reviewUiImplementationCandidate(malformedCandidate, {
+  implementation_contract: implementationContract,
+});
+assert.equal(packetRepair.admission_status, "repair_evidence_packet");
+assert.equal(packetRepair.implementation_review_status, "not_reviewed");
+assert.equal(packetRepair.attempt_consumed, false);
+assert.equal(packetRepair.substantive_review_performed, false);
+const preflightRoute = nodes.get("preflight");
+assert.ok(preflightRoute.data.tools.includes("preflight_ui_implementation_candidate"));
+assert.ok(SYSTEM_MAP_EDGES.find((edge) => edge.source === "preflight" &&
+  edge.target === "implementation-review").label.includes(admittedPacket.admission_status));
+
 const failedReview = kernel.reviewUiImplementationCandidate(fixture.failing_candidate, { implementation_contract: implementationContract });
 assert.equal(failedReview.next_agent_action, "repair_and_resubmit");
 assert.equal(failedReview.candidate_artifact_status, "not_an_artifact");
@@ -203,4 +225,4 @@ assert.equal(inspectorReview.checks.artifact_inspector.trusted_runtime_evidence.
 assert.equal(inspectorReview.checks.artifact_inspector.trusted_runtime_evidence.static_browser_evidence_accepted, false);
 assert.notEqual(inspectorReview.next_agent_action, "accept");
 
-console.log("System Map: public tools, ownership, dependencies, source continuity, authority, bounded repair, and Inspector limits passed.");
+console.log("System Map: public tools, ownership, admission before judgment, source continuity, authority, bounded repair, and Inspector limits passed.");

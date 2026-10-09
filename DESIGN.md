@@ -43,6 +43,14 @@ Reference accounting, family disposition, variant-axis normalization, runtime av
 
 The disclosure policy controls vocabulary and visibility. It decides what becomes user-facing, what gets translated into domain language, and what remains diagnostic.
 
+### Implementation Evidence
+
+Evidence admission checks whether the submitted packet can be reviewed. Malformed fields or selectors receive precise repairs without consuming an implementation attempt. A valid packet describing failed behavior still fails implementation review. Admission readiness never grants acceptance or changes the active design-system authority.
+
+Acceptance should make the activity's primary promise verifiable. Supported chart checks measure visible label collisions, clipping, and plotted data against the contract's attributed expectations at required states and viewports. Report observed, declared, and untested coverage separately. Source attribution does not authenticate the data, and static snapshots cannot establish live transitions, human task completion, or general usability and accessibility compliance.
+
+Compact transport preserves the same full contract and raw-source requirements; its readable guidance does not become a new authority.
+
 ## Review Checklist
 
 - Is the activity named before the screen is named?
@@ -52,4 +60,6 @@ The disclosure policy controls vocabulary and visibility. It decides what become
 - Are domain terms preferred over implementation terms?
 - Are prompts, schemas, resource ids, tools, servers, and traces hidden unless the user is doing setup, debugging, auditing, or integration work?
 - Is the proposed UI succinct enough for the activity?
+- Is the activity's primary user-visible promise checked against the active contract, with unsupported behavior named?
+- Are evidence admission, implementation acceptance, and observed task completion reported separately?
 - Are aesthetics clearly secondary to activity fit and interaction quality?

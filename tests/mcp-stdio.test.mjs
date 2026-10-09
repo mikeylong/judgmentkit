@@ -147,6 +147,7 @@ try {
       "review_ui_workflow_candidate",
       "review_cognitive_dimensions_candidate",
       "create_ui_implementation_contract",
+      "preflight_ui_implementation_candidate",
       "review_ui_implementation_candidate",
       "create_ui_generation_handoff",
       "create_frontend_generation_context",

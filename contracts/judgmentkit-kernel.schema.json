@@ -1925,6 +1925,204 @@
         }
       }
     },
+    "chartReviewPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data_cases"
+      ],
+      "properties": {
+        "id": {
+          "const": "judgmentkit.chart-review.v1"
+        },
+        "version": {
+          "const": "1.0.0"
+        },
+        "required_checks": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "label_collision",
+              "label_clipping",
+              "selected_data_correspondence"
+            ]
+          }
+        },
+        "required_viewports": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "width",
+              "height"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "width": {
+                "type": "integer",
+                "minimum": 200,
+                "maximum": 3840
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 200,
+                "maximum": 2160
+              }
+            }
+          }
+        },
+        "data_cases": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "state_id",
+              "source_ref",
+              "points",
+              "x_domain",
+              "y_domain"
+            ],
+            "properties": {
+              "state_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "selection": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "points": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 256,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "x",
+                    "y"
+                  ],
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "x_domain": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "y_domain": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {
+                  "type": "number"
+                }
+              },
+              "plot_by_viewport": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "x",
+                    "y",
+                    "width",
+                    "height"
+                  ],
+                  "properties": {
+                    "x": {
+                      "type": "number"
+                    },
+                    "y": {
+                      "type": "number"
+                    },
+                    "width": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    },
+                    "height": {
+                      "type": "number",
+                      "exclusiveMinimum": 0
+                    }
+                  }
+                }
+              },
+              "plot_source_ref": {
+                "type": "string",
+                "minLength": 1
+              },
+              "data_sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "required_labels": {
+                "type": "array",
+                "maxItems": 128,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["text", "role"],
+                  "properties": {
+                    "text": { "type": "string", "minLength": 1 },
+                    "role": { "type": "string", "minLength": 1 }
+                  }
+                }
+              }
+            },
+            "dependentRequired": {
+              "plot_by_viewport": [
+                "plot_source_ref"
+              ]
+            }
+          }
+        },
+        "max_series_delta_css_px": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "evidence_authority": {
+          "const": "trusted_static_browser_observation"
+        },
+        "unsupported_claims": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
     "implementationContract": {
       "type": "object",
       "additionalProperties": false,
@@ -2166,6 +2364,23 @@
         },
         "visual_composition_policy": {
           "$ref": "#/$defs/visualCompositionPolicy"
+        },
+        "chart_review_policy": {
+          "$ref": "#/$defs/chartReviewPolicy"
+        },
+        "chart_review_required": { "type": "boolean" },
+        "chart_review_obligation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required", "scope", "status", "reason", "source_paths", "required_checks"],
+          "properties": {
+            "required": { "const": true },
+            "scope": { "const": "owned_interface" },
+            "status": { "enum": ["data_oracle_required", "data_oracle_declared"] },
+            "reason": { "enum": ["owned_chart_activity_promise", "explicit_chart_review_requirement"] },
+            "source_paths": { "type": "array", "items": { "type": "string" } },
+            "required_checks": { "type": "array", "minItems": 3, "maxItems": 3, "uniqueItems": true, "items": { "enum": ["label_collision", "label_clipping", "selected_data_correspondence"] } }
+          }
         },
         "design_system_adapter": {
           "type": "object"

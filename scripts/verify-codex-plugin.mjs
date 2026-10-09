@@ -52,7 +52,8 @@ export const REQUIRED_PRIVACY_WORDING = [
 
 export const REQUIRED_DESIGN_SYSTEM_GATE_WORDING = [
   "A generated UI that does not pass the active design system is not an artifact. It is a failed candidate.",
-  "Do not accept, render, publish, summarize as successful, or preserve a generated UI candidate until `review_ui_implementation_candidate` passes against the active implementation contract.",
+  "Do not accept, publish, or summarize a generated UI candidate as successful until `review_ui_implementation_candidate` passes against the active implementation contract.",
+  "Render privately to gather required verification evidence and retain failed candidates for focused repair.",
   'Do not treat "mostly uses tokens", wrapper normalization, fallback styling, visual cleanup, or post-hoc token rewriting as design-system compliance.',
   "If the active design-system review fails, the next action is repair or regeneration against the MCP-returned constraints, not acceptance with caveats.",
 ];

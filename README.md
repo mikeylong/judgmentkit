@@ -34,6 +34,12 @@ Aesthetics are adapter-layer work. They should refine a relevant UI, not rescue 
 
 ## Architecture
 
+Evidence admission separates malformed submissions from implementation failures.
+Supported chart observations check the primary reading task against contract-attributed
+expected data, while untested behavior remains visible. MCP tools also offer compact active
+guidance with a lossless continuation; full packets remain the default. See the
+[MCP evidence and packet contract](specs/mcp-evidence-and-packets.md).
+
 JudgmentKit keeps the core deterministic and lets model assistance enter through explicit seams:
 
 1. Deterministic analyzer: extracts activity evidence, implementation terms, review questions, and disclosure risks from a brief.
@@ -47,7 +53,8 @@ JudgmentKit keeps the core deterministic and lets model assistance enter through
 8. UI generation handoff gate: turns only ready workflow reviews plus an implementation contract into compact handoffs for the next UI generation pass.
 9. Frontend generation context adapter: combines a ready handoff, selected surface type, frontend context, and verification expectations, then applies governed presentation guidance such as the supported default Workbench operational profile or the proposed Artifact Inspector profile contract without making styling or component inventory part of the kernel contract.
 10. Frontend implementation skill context: compiles repo-local frontend skill guidance into a gated MCP packet for agents that cannot read local skills directly, including the active `implementation_contract.design_system_source` for tokens, typography, icons, and component contracts.
-11. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
+11. Evidence preflight and implementation review: validate packet fields and selectors before assessing the interface, return focused repairs, and measure supported chart promises against contract-attributed expectations. Admission repairs consume no implementation attempt.
+12. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
 
 ## Structure
 
@@ -83,9 +90,9 @@ The portable path is the same across clients:
 2. Classify the surface and review the proposed workflow.
 3. Pass the exact brief and attributed context through handoff, frontend generation, and portable frontend skill compilation.
 4. Apply the selected design-system adapter and implementation contract.
-5. Review implementation evidence before acceptance.
+5. Preflight the implementation evidence, repair admission errors, then review the interface before acceptance.
 
-For direct MCP integrations, the corresponding sequence is `create_activity_model_review`, `review_activity_model_candidate`, `recommend_surface_types`, `review_ui_workflow_candidate`, `create_ui_implementation_contract`, `create_ui_generation_handoff`, `create_frontend_generation_context`, and `create_frontend_implementation_skill_context`; generate the UI in the client, then call `review_ui_implementation_candidate` before acceptance. Resupply the exact current `brief` and attributed `context_items` at every validating boundary; integrity receipts prove continuity, not action authority.
+For direct MCP integrations, the corresponding sequence is `create_activity_model_review`, `review_activity_model_candidate`, `recommend_surface_types`, `review_ui_workflow_candidate`, `create_ui_implementation_contract`, `create_ui_generation_handoff`, `create_frontend_generation_context`, and `create_frontend_implementation_skill_context`; generate the UI in the client, then call `preflight_ui_implementation_candidate` and `review_ui_implementation_candidate` before acceptance. Carry the implementation contract from the ready handoff/frontend packet and that frontend context into both evidence calls. Resupply the exact current `brief` and attributed `context_items` at every validating boundary; integrity receipts prove continuity, not action authority. This checkout exposes 17 MCP tools; inspect the active endpoint's `tools/list` and input schemas for preflight, `packet_format`, and `chart_review_policy` before relying on them. Local implementation does not establish hosted availability.
 
 Use the first-use fixture when you want to inspect the later implementation acceptance loop without reading an eval report:
 

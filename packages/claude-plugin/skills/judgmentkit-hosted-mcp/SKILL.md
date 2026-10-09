@@ -30,12 +30,18 @@ Keep the builder focused on the interface and consequential product choices. The
 1. **Start from the requested result.** For a new interface, read the brief and available project context. For an existing interface, inspect the supplied artifact or the code for the target task before proposing changes. Preserve current user work and useful existing behavior. Establish one representative task and its observable completion condition from the available source; do not invent a user study or require an intake form.
 2. **Show a short working premise.** Use the inference-first sequence below, then explain who is doing what, the intended result, and the design choices that matter. Keep reversible assumptions visible and proceed when ready. Ask one consequential question only when needed. The builder can correct the premise in ordinary language throughout the work.
 3. **Build or revise through the reviewed handoff.** Read the UI reference for the existing API sequence. Resolve an unresolved or conflicting surface recommendation before frontend guidance; explain a mixed activity in terms of its completion state. Keep the active implementation contract and design-system authority intact. Do not add a stateful orchestration service or invent an API to hide this sequence.
-4. **Inspect the important task and apply focused repairs.** Run the required implementation checks and, where the environment permits, exercise the representative task, relevant failure or recovery states, and required keyboard and viewport paths. Use returned repair instructions to fix the implementation. Name the user-visible failure, its consequence, and the correction. Follow the returned iteration policy and maintain the agent-owned attempt context accurately. Stop when the review requires human input; do not turn missing evidence into a pass.
+4. **Inspect the important task and apply focused repairs.** Prepare evidence and preflight its fields/selectors before substantive review. Repair admission mistakes or retry an unavailable observer without consuming an implementation attempt. Run the required implementation checks and, where the environment permits, exercise the representative task, relevant failure or recovery states, and required keyboard and viewport paths. Use returned repair instructions to fix the implementation. Name the user-visible failure, its consequence, and the correction. Follow the returned iteration policy and maintain the agent-owned attempt context accurately. Stop when the review requires human input; do not turn missing evidence into a pass.
 5. **Return the result with verification scope.** Link or open the accepted working interface when a build was requested. Explain the consequential structure and the task paths actually observed, distinguish JudgmentKit acceptance from observed user success, and name material checks still unavailable. If acceptance is blocked, return the blocker and repair status without presenting the candidate as complete. Publishing or releasing remains subject to the user's authorization.
 
 When feedback changes the premise, preserve the user's correction as attributed source context, revise the whole activity case, and rerun the validating sequence with the exact current brief and context. Refresh downstream packets derived from the changed case; never pair a new premise with stale workflow, handoff, frontend, or acceptance evidence. Keep unchanged protected boundaries and existing user work intact.
 
 These instructions define a builder-experience prototype. They do not establish reduced effort, improved task completion, or runtime coverage beyond the evidence actually collected. Artifact Inspector retains its current missing-attestation boundary: an otherwise valid implementation remains `review_required` because this release has no accepting interactive-attestation producer or verifier.
+
+Inspect the active endpoint's `tools/list` and input schemas before using new
+capabilities, including preflight, `packet_format`, and `chart_review_policy`. The current
+local service exposes 17 tools, including `preflight_ui_implementation_candidate`;
+local implementation does not establish hosted availability. Read the UI reference
+for compact/full compatibility, chart obligations, and admission status handling.
 
 ## Inference-First Activity Case
 
@@ -75,6 +81,11 @@ These modes change pacing, not inference depth, model capability, evidence requi
 Do not dump targeted questions or expose `activity_model`, `review_status`, `ready_for_review`, schemas, resource ids, tool names, traces, or model configuration. Use raw `content[0].text` only for explicit setup, audit, debugging, or integration work.
 
 During iteration, show the revised premise only when the intended work or a consequential design decision changes. For a repair, explain the failing task and the visible correction. At completion, name the result, the important paths checked, and the limits of verification. Guidance, declared-requirement checks, supported behavior verification, and observed human task completion are separate claims.
+
+For compact output, use `active_guidance` to focus current work and pass the complete
+continuation envelope downstream. Expand the full packet when a catalog or
+calibration is needed. Retain exact raw source and the active contract; readable
+guidance never becomes a replacement authority.
 
 ## Conditional Routes
 
