@@ -6,7 +6,7 @@ The primary decisions are where to learn about JudgmentKit and whether to visit 
 
 ## Interaction contract
 
-1. The top-left home link contains JudgmentKit's own logomark, using the same `/favicon.svg` asset as the browser favicon, followed by JudgmentKit. Treat the mark as decorative within the named home link. Preserve the 32 px mark slot and its alignment with Surfaces.
+1. The top-left home link contains the complete canonical JudgmentKit lockup from `brand/slab-j/lockups/horizontal-reversed.svg`. The header remains ink in both system appearances, so it uses the reversed asset in both modes. Keep the SVG canvas and its natural aspect ratio. The outlined Inter 780 wordmark and nickel return stay together. Name the link `JudgmentKit home` and treat its image as decorative.
 2. Desktop navigation sits on the right and retains all six JudgmentKit destinations, a Handbooks link to https://handbooks.surfaces.systems/ that opens in a new tab with a visible external-link icon and an “Opens in a new tab” tooltip, and a direct https://surfaces.systems/ link in the same tab.
 3. Current-page state is visible without changing font weight or link width. All links and controls have visible keyboard focus.
 4. The mobile menu exposes the same destinations, supports keyboard activation, closes on Escape with focus returned to its button, and closes after link selection or an outside click. Restored pages and desktop resize do not retain an open menu.
@@ -14,11 +14,17 @@ The primary decisions are where to learn about JudgmentKit and whether to visit 
 
 ## Cross-site alignment
 
-The live Surfaces header measured on 2026-10-01 is the reference: a 72 px sticky header, no bottom border, a centered 1120 px shell with 24 px minimum side gutters, and 16 px gutters at widths up to 820 px. The brand uses a 32 px mark, 10 px gap, 20 px Inter at weight 600 and line height 1.15. Navigation uses 14 px Inter at weight 500, line height 1.45, 28 px gaps, and 44 px targets.
+The live Surfaces header measured on 2026-10-01 is the reference: a 72 px sticky header, no bottom border, a centered 1120 px shell with 24 px minimum side gutters, and 16 px gutters at widths up to 820 px. The canonical outlined lockup is displayed at a 56 px canvas height, reduced to 48 px at widths up to 820 px. Preserve the source ratio of 425.013342449 × 109 and its built-in padding. Scale the whole image uniformly. Do not crop the canvas, filter its colors, or reconstruct the wordmark as live text. Navigation uses 14 px Inter at weight 500, line height 1.45, 28 px gaps, and 44 px targets.
 
-JudgmentKit retains more links, so its menu appears at widths up to 1120 px. The brand and menu remain aligned with Surfaces at shared mobile widths. Both headers retain their geometry on scroll and page navigation. Reserve classic scrollbar space to prevent shorter pages from shifting the header; measure the shell against available layout width when scrollbars consume space. Header fonts are local and preloaded; optional font display avoids a late font swap. The header font does not change JudgmentKit's framework-neutral design-system font contract.
+JudgmentKit retains more links, so its menu appears at widths up to 1120 px. Below 360 px, an 8 px minimum gap keeps the complete lockup and menu button inside the 16 px side gutters. The brand and menu remain aligned with Surfaces at shared mobile widths. Both headers retain their geometry on scroll and page navigation. Reserve classic scrollbar space to prevent shorter pages from shifting the header; measure the shell against available layout width when scrollbars consume space. Header fonts are local and preloaded; optional font display avoids a late font swap. The header font does not change JudgmentKit's framework-neutral design-system font contract.
 
-Validate header dimensions, gutters, mark placement, font loading, current-page width stability, menu operation, and horizontal overflow in light and dark modes across desktop, mobile, and breakpoint widths. Compare the local candidate with live Surfaces in both navigation directions, including Back/Forward. Full production round-trip verification requires the candidate to be released.
+Validate header dimensions, gutters, complete lockup bounds, asset loading, current-page width stability, menu operation, and horizontal overflow in light and dark modes across desktop, mobile, and breakpoint widths. Compare the local candidate with live Surfaces in both navigation directions, including Back/Forward. Full production round-trip verification requires the candidate to be released.
+
+## Shared footer and favicon
+
+Every shared footer links home with the complete canonical lockup. Use `brand/slab-j/lockups/horizontal.svg` on the light page surface and `horizontal-reversed.svg` when `prefers-color-scheme: dark` applies. A picture source selects the reversed file; the fallback image uses the light file. Both files retain nickel on the lower plane. The footer displays the full canvas at 44 px high, keeps a minimum 44 px link target, and wraps the release link when space is limited. Both home links have the accessible name `JudgmentKit home`.
+
+The site build copies both lockup files byte for byte to `/assets/brand/judgmentkit-lockup.svg` and `/assets/brand/judgmentkit-lockup-reversed.svg`. It copies the active responsive Slab J favicon from `brand/slab-j/favicon/favicon.svg` to `/favicon.svg`. The favicon keeps its documented 16 px optical correction and system appearance behavior. The public release verifier checks all three assets against their canonical source bytes.
 
 ## Links that open another tab or window
 

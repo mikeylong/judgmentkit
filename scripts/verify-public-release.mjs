@@ -1137,12 +1137,14 @@ export async function verifyDesignSystemSurfaceProfiles(baseUrl) {
   };
 }
 
-function assertReleaseFooter(html, expectedPackageVersion, label) {
+export function assertReleaseFooter(html, expectedPackageVersion, label) {
   assertIncludes(
     html,
     [
       '<footer class="site-footer">',
-      '<span class="site-footer-brand">JudgmentKit</span>',
+      '<a class="site-footer-brand" href="/" aria-label="JudgmentKit home">',
+      'srcset="/assets/brand/judgmentkit-lockup-reversed.svg" media="(prefers-color-scheme: dark)"',
+      'class="site-brand-lockup" src="/assets/brand/judgmentkit-lockup.svg"',
       `href="https://github.com/mikeylong/judgmentkit/releases/tag/v${expectedPackageVersion}"`,
       `aria-label="Release v${expectedPackageVersion} on GitHub"`,
       `<span>Release v${expectedPackageVersion}</span>`,
@@ -1323,7 +1325,14 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   const designSystemSurfaceProfiles =
     await verifyDesignSystemSurfaceProfiles(baseUrl);
 
-  await fetchText(baseUrl, "/favicon.svg");
+  for (const [route, source] of [
+    ["/favicon.svg", "brand/slab-j/favicon/favicon.svg"],
+    ["/assets/brand/judgmentkit-lockup.svg", "brand/slab-j/lockups/horizontal.svg"],
+    ["/assets/brand/judgmentkit-lockup-reversed.svg", "brand/slab-j/lockups/horizontal-reversed.svg"],
+  ]) {
+    const asset = await fetchText(baseUrl, route);
+    assert.equal(asset.text, await fs.readFile(path.join(PROJECT_ROOT, source), "utf8"), `${route} must preserve canonical source bytes`);
+  }
 
   for (const artifactRoute of [
     "/examples/one-shot-demo.html",
@@ -1567,6 +1576,8 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/docs/",
       "/examples/",
       "/favicon.svg",
+      "/assets/brand/judgmentkit-lockup.svg",
+      "/assets/brand/judgmentkit-lockup-reversed.svg",
       "/install",
       "/examples/one-shot-demo.html",
       "/examples/comparison/refund/version-a.html",
