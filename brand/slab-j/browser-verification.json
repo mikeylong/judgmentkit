@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "preview": "http://127.0.0.1:4393/",
+  "favicon_16": {
+    "viewport": [
+      16,
+      16
+    ],
+    "canonical_display": "none",
+    "optical_display": "inline"
+  },
+  "favicon_32": {
+    "viewport": [
+      32,
+      32
+    ],
+    "canonical_display": "inline",
+    "optical_display": "none"
+  },
+  "color_scheme": {
+    "light_foreground": "rgb(11, 13, 14)",
+    "dark_foreground": "rgb(247, 246, 242)",
+    "nickel": "#8B9096"
+  },
+  "gallery_images_loaded": 11,
+  "pixel_proof_css_width": 1100,
+  "emulation_reset": true,
+  "reduced_motion": "Static behavior declared in source; media emulation applied during browser check, no separate computed-style animation measurement"
+}

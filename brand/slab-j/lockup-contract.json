@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "authority": "Mike requested these Inter 780 lockups become canonical for all three brands on October 14, 2026.",
+  "selected_source": "/Users/mike/SurfacesBrand/output/brand-pull-2026-10-14/inter-780-consistent",
+  "font": {
+    "family": "Inter",
+    "weight_axis": 780,
+    "optical_size_axis": 32,
+    "source_sha256": "0be2399ea925f1f83ff974764761da9860ec50742ed29a5d4c1ffd0c5c7ac3a8",
+    "glyph_path_digest": "942064e7bde61c04bf9b184ca23be75632bb1ddaaa44bf6530c52df1750ea19e",
+    "runtime_font_required": false
+  },
+  "horizontal": {
+    "visible_mark_height": 60,
+    "cap_height": 38,
+    "ink_gap": 20,
+    "minimum_outer_padding": 24,
+    "baseline": 73,
+    "cap_center": 54,
+    "canvas_height": 109
+  },
+  "stacked": {
+    "status": "Derived from the approved horizontal typography and canonical Slab J geometry.",
+    "visible_mark_height": 60,
+    "cap_height": 38,
+    "vertical_ink_gap": 20,
+    "minimum_outer_padding": 24,
+    "alignment": "Mark and wordmark ink bounds centered on the canvas."
+  },
+  "approved_assets": [
+    {
+      "theme": "light",
+      "source": "/Users/mike/SurfacesBrand/output/brand-pull-2026-10-14/inter-780-consistent/lockups/judgmentkit-light.svg",
+      "immutable_reference": "source/approved-horizontal-light.svg",
+      "canonical_export": "lockups/horizontal.svg",
+      "sha256": "c3dd637eddba7584ec4ccc42775a7fb8fe24ec3d9bdc8df17a6c52e5a0250a86"
+    },
+    {
+      "theme": "light",
+      "source": "/Users/mike/SurfacesBrand/output/brand-pull-2026-10-14/inter-780-consistent/lockups/judgmentkit-light.png",
+      "immutable_reference": "source/approved-horizontal-light.png",
+      "canonical_export": "lockups/horizontal.png",
+      "sha256": "3c21e2c774effa3bbcfa329ac044139919c6e4ed352c3f0a9c65b1d00e6e1178"
+    },
+    {
+      "theme": "dark",
+      "source": "/Users/mike/SurfacesBrand/output/brand-pull-2026-10-14/inter-780-consistent/lockups/judgmentkit-dark.svg",
+      "immutable_reference": "source/approved-horizontal-dark.svg",
+      "canonical_export": "lockups/horizontal-reversed.svg",
+      "sha256": "bdeb284c4ae97572a16b28763ccd43a5b4a99d4930bf31902ea0a97fb5fe5f52"
+    },
+    {
+      "theme": "dark",
+      "source": "/Users/mike/SurfacesBrand/output/brand-pull-2026-10-14/inter-780-consistent/lockups/judgmentkit-dark.png",
+      "immutable_reference": "source/approved-horizontal-dark.png",
+      "canonical_export": "lockups/horizontal-reversed.png",
+      "sha256": "8265df9a4eb04ff25fa68c4324ec582429a170301b442770d8b04427abfac8ef"
+    }
+  ]
+}

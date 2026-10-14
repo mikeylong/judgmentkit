@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "archive": "judgmentkit-slab-j-assets.zip",
+  "files": 132,
+  "bytes": 662889,
+  "sha256": "a1b9a9361aebfa48c29f19a10089e88bf85d91e47fd068d989f568f1e7eee937",
+  "verification": "CRC passed; every archived byte matches source file"
+}

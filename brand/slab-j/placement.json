@@ -1,0 +1,25 @@
+{
+  "canonical_viewBox": [
+    0,
+    0,
+    64,
+    64
+  ],
+  "app_canvas": 1024,
+  "mark_viewport": 640,
+  "translation": [
+    192,
+    192
+  ],
+  "scale": 10,
+  "visible_bounds": [
+    332,
+    212,
+    692,
+    812
+  ],
+  "safe_zone_radius": 409.6,
+  "maximum_mark_vertex_radius": 349.85711369071805,
+  "safe_zone_margin": 59.74288630928197,
+  "app_geometry_changes": "none"
+}

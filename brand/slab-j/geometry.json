@@ -1,0 +1,24 @@
+{
+  "canonical": [
+    "14,12 50,2 50,12 14,22",
+    "38,21 50,18 50,40 38,44",
+    "14,42 24,42 24,52 50,44 50,54 24,62 14,58"
+  ],
+  "optical_16": [
+    "12,12 52,2 52,12 12,22",
+    "40,20 52,17 52,38 40,41",
+    "12,40 24,40 24,50 52,42 52,54 24,62 12,57"
+  ],
+  "viewBox": [
+    0,
+    0,
+    64,
+    64
+  ],
+  "primary_color_policy": [
+    "#0B0D0E",
+    "#0B0D0E",
+    "#8B9096"
+  ],
+  "optical_usage": "Designed for 16px; responsive favicon selects optical at viewport widths up to 20px. Canonical geometry recommended at 24px and above."
+}

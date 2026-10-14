@@ -1,0 +1,1382 @@
+{
+  "status": "passed",
+  "check_count": 311,
+  "checks": [
+    {
+      "check": "Master matches selected A source",
+      "passed": true
+    },
+    {
+      "check": "Master palette keeps nickel on return",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: judgmentkit.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: judgmentkit.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: judgmentkit.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: svg/mark-currentcolor.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: svg/mark-currentcolor.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: svg/mark-currentcolor.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: svg/mark-monochrome-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: svg/mark-monochrome-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: svg/mark-monochrome-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: svg/optical-16.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: svg/optical-16.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: svg/optical-16.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: svg/mark-monochrome.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: svg/mark-monochrome.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: svg/mark-monochrome.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: svg/mark-motion.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: svg/mark-motion.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: svg/mark-motion.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: svg/optical-16-monochrome-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: svg/optical-16-monochrome-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: svg/optical-16-monochrome-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: svg/mark-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: svg/mark-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: svg/mark-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: svg/optical-16-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: svg/optical-16-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: svg/optical-16-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: svg/optical-16-monochrome.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: svg/optical-16-monochrome.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: svg/optical-16-monochrome.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: app-icons/app-icon-light.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: app-icons/app-icon-light.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: app-icons/app-icon-light.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: app-icons/app-icon.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: app-icons/app-icon.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: app-icons/app-icon.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: references/surfaces.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: references/kanban.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: source/selected-a.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: source/selected-a.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: source/selected-a.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: source/approved-horizontal-dark.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: source/approved-horizontal-dark.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: source/approved-horizontal-dark.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: source/approved-horizontal-light.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: source/approved-horizontal-light.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: source/approved-horizontal-light.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: proofs/family-fit.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: proofs/lockups.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: proofs/asset-overview.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: favicon/source-48.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: favicon/source-48.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: favicon/source-48.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: favicon/safari-pinned-tab.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: favicon/safari-pinned-tab.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: favicon/safari-pinned-tab.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: favicon/source-64.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: favicon/source-64.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: favicon/source-64.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: favicon/source-16.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: favicon/source-16.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: favicon/source-16.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: favicon/favicon-dark.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: favicon/favicon-dark.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: favicon/favicon-dark.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: favicon/favicon-16-dark.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: favicon/favicon-16-dark.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: favicon/favicon-16-dark.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: favicon/source-32.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: favicon/source-32.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: favicon/source-32.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: favicon/favicon-16-light.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: favicon/favicon-16-light.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: favicon/favicon-16-light.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: favicon/favicon-light.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: favicon/favicon-light.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: favicon/favicon-light.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: favicon/favicon.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: favicon/favicon.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: favicon/favicon.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: lockups/horizontal.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: lockups/horizontal.svg",
+      "passed": true
+    },
+    {
+      "check": "Outlined wordmark: lockups/horizontal.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: lockups/horizontal.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: lockups/stacked-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: lockups/stacked-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "Outlined wordmark: lockups/stacked-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: lockups/stacked-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: lockups/horizontal-monochrome.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: lockups/horizontal-monochrome.svg",
+      "passed": true
+    },
+    {
+      "check": "Outlined wordmark: lockups/horizontal-monochrome.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: lockups/horizontal-monochrome.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: lockups/stacked.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: lockups/stacked.svg",
+      "passed": true
+    },
+    {
+      "check": "Outlined wordmark: lockups/stacked.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: lockups/stacked.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: lockups/horizontal-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: lockups/horizontal-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "Outlined wordmark: lockups/horizontal-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: lockups/horizontal-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: wordmark-source/judgmentkit-wordmark.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: app-icons/composer/background.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: app-icons/composer/background.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: app-icons/composer/background.svg",
+      "passed": true
+    },
+    {
+      "check": "SVG syntax: app-icons/composer/foreground.svg",
+      "passed": true
+    },
+    {
+      "check": "Geometry: app-icons/composer/foreground.svg",
+      "passed": true
+    },
+    {
+      "check": "No external dependencies: app-icons/composer/foreground.svg",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-reversed-96.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-reversed-96.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-reversed-48.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-reversed-48.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-primary-96.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-primary-96.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-48.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-48.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-reversed-16.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-reversed-16.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-16.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-16.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-reversed-24.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-reversed-24.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-primary-32.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-primary-32.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-primary-24.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-primary-24.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-reversed-32.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-reversed-32.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-512.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-512.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-reversed-512.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-reversed-512.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-reversed-16.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-reversed-16.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-24.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-24.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-32.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-32.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-primary-16.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-primary-16.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-reversed-512.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-reversed-512.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-reversed-32.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-reversed-32.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-reversed-24.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-reversed-24.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/optical-16-monochrome.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/optical-16-monochrome.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-reversed-48.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-reversed-48.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/optical-16-reversed.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/optical-16-reversed.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-reversed-96.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-reversed-96.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-primary-48.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-primary-48.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/optical-16-monochrome-reversed.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/optical-16-monochrome-reversed.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-primary-512.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-primary-512.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/optical-16.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/optical-16.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: png/mark-monochrome-96.png",
+      "passed": true
+    },
+    {
+      "check": "Transparent PNG: png/mark-monochrome-96.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/maskable-192.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/maskable-192.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-48.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-48.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-512.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-512.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-64.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-64.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/apple-touch-icon.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/apple-touch-icon.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-128.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-128.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-16.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-16.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-1024.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-1024.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-192.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-192.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-32.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-32.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-180.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-180.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-light-512.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-light-512.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/maskable-512.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/maskable-512.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-24.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-24.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-96.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-96.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-light-1024.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-light-1024.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/app-icon-256.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/app-icon-256.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/macos/judgmentkit.iconset/icon_32x32@2x.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/macos/judgmentkit.iconset/icon_32x32@2x.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/macos/judgmentkit.iconset/icon_128x128.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/macos/judgmentkit.iconset/icon_128x128.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/macos/judgmentkit.iconset/icon_256x256@2x.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/macos/judgmentkit.iconset/icon_256x256@2x.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/macos/judgmentkit.iconset/icon_32x32.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/macos/judgmentkit.iconset/icon_32x32.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/macos/judgmentkit.iconset/icon_512x512.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/macos/judgmentkit.iconset/icon_512x512.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/macos/judgmentkit.iconset/icon_16x16.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/macos/judgmentkit.iconset/icon_16x16.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/macos/judgmentkit.iconset/icon_16x16@2x.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/macos/judgmentkit.iconset/icon_16x16@2x.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/macos/judgmentkit.iconset/icon_128x128@2x.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/macos/judgmentkit.iconset/icon_128x128@2x.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/macos/judgmentkit.iconset/icon_512x512@2x.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/macos/judgmentkit.iconset/icon_512x512@2x.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/macos/judgmentkit.iconset/icon_256x256.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/macos/judgmentkit.iconset/icon_256x256.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: app-icons/apple/AppIcon.appiconset/AppIcon-1024.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: app-icons/apple/AppIcon.appiconset/AppIcon-1024.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: favicon/favicon-48.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: favicon/favicon-48.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: favicon/favicon-64.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: favicon/favicon-64.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: favicon/favicon-16.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: favicon/favicon-16.png",
+      "passed": true
+    },
+    {
+      "check": "PNG dimensions: favicon/favicon-32.png",
+      "passed": true
+    },
+    {
+      "check": "Opaque PNG: favicon/favicon-32.png",
+      "passed": true
+    },
+    {
+      "check": "ICO frame sizes",
+      "passed": true
+    },
+    {
+      "check": "ICO 16px exact pixels",
+      "passed": true
+    },
+    {
+      "check": "ICO 32px exact pixels",
+      "passed": true
+    },
+    {
+      "check": "ICO 48px exact pixels",
+      "passed": true
+    },
+    {
+      "check": "ICNS (512, 512, 2) exact pixels",
+      "passed": true
+    },
+    {
+      "check": "ICNS (512, 512, 1) exact pixels",
+      "passed": true
+    },
+    {
+      "check": "ICNS (256, 256, 2) exact pixels",
+      "passed": true
+    },
+    {
+      "check": "ICNS (256, 256, 1) exact pixels",
+      "passed": true
+    },
+    {
+      "check": "ICNS (128, 128, 2) exact pixels",
+      "passed": true
+    },
+    {
+      "check": "ICNS (128, 128, 1) exact pixels",
+      "passed": true
+    },
+    {
+      "check": "ICNS (32, 32, 2) exact pixels",
+      "passed": true
+    },
+    {
+      "check": "ICNS (16, 16, 2) exact pixels",
+      "passed": true
+    },
+    {
+      "check": "ICNS includes 1024px frame",
+      "passed": true
+    },
+    {
+      "check": "Apple catalog references source PNG",
+      "passed": true
+    },
+    {
+      "check": "Maskable safe circle",
+      "passed": true,
+      "detail": {
+        "canonical_viewBox": [
+          0,
+          0,
+          64,
+          64
+        ],
+        "app_canvas": 1024,
+        "mark_viewport": 640,
+        "translation": [
+          192,
+          192
+        ],
+        "scale": 10,
+        "visible_bounds": [
+          332,
+          212,
+          692,
+          812
+        ],
+        "safe_zone_radius": 409.6,
+        "maximum_mark_vertex_radius": 349.85711369071805,
+        "safe_zone_margin": 59.74288630928197,
+        "app_geometry_changes": "none"
+      }
+    },
+    {
+      "check": "Motion honors reduced motion",
+      "passed": true
+    },
+    {
+      "check": "Inter 780 / optical size 32 / no fallback",
+      "passed": true
+    },
+    {
+      "check": "Wordmark glyph outlines match approved fingerprint",
+      "passed": true
+    },
+    {
+      "check": "Actual glyph bounds match source metrics",
+      "passed": true,
+      "detail": [
+        1.672363,
+        -47.03125,
+        395.019304,
+        13.5
+      ]
+    },
+    {
+      "check": "Immutable approved bytes: source/approved-horizontal-light.svg",
+      "passed": true
+    },
+    {
+      "check": "Canonical approved bytes: lockups/horizontal.svg",
+      "passed": true
+    },
+    {
+      "check": "Immutable approved bytes: source/approved-horizontal-light.png",
+      "passed": true
+    },
+    {
+      "check": "Canonical approved bytes: lockups/horizontal.png",
+      "passed": true
+    },
+    {
+      "check": "Immutable approved bytes: source/approved-horizontal-dark.svg",
+      "passed": true
+    },
+    {
+      "check": "Canonical approved bytes: lockups/horizontal-reversed.svg",
+      "passed": true
+    },
+    {
+      "check": "Immutable approved bytes: source/approved-horizontal-dark.png",
+      "passed": true
+    },
+    {
+      "check": "Canonical approved bytes: lockups/horizontal-reversed.png",
+      "passed": true
+    },
+    {
+      "check": "Inter metadata: horizontal",
+      "passed": true
+    },
+    {
+      "check": "Exact approved glyph paths: horizontal",
+      "passed": true
+    },
+    {
+      "check": "Exact Slab J planes: horizontal",
+      "passed": true
+    },
+    {
+      "check": "60-unit visible mark and 38-unit cap: horizontal",
+      "passed": true
+    },
+    {
+      "check": "Minimum 24-unit outer padding: horizontal",
+      "passed": true,
+      "detail": [
+        24.0,
+        24.0,
+        24.000000224971245,
+        24.982550335575
+      ]
+    },
+    {
+      "check": "Horizontal 20-unit ink gap: horizontal",
+      "passed": true
+    },
+    {
+      "check": "Horizontal baseline 73 and cap/mark center 54: horizontal",
+      "passed": true
+    },
+    {
+      "check": "Primary nickel / correct theme: horizontal",
+      "passed": true
+    },
+    {
+      "check": "4x transparent raster dimensions: horizontal",
+      "passed": true,
+      "detail": {
+        "actual": [
+          1700,
+          436
+        ],
+        "expected": [
+          1700,
+          436
+        ]
+      }
+    },
+    {
+      "check": "Raster bounds inside canvas: horizontal",
+      "passed": true
+    },
+    {
+      "check": "SVG render matches PNG pixels: horizontal",
+      "passed": true
+    },
+    {
+      "check": "Inter metadata: horizontal-reversed",
+      "passed": true
+    },
+    {
+      "check": "Exact approved glyph paths: horizontal-reversed",
+      "passed": true
+    },
+    {
+      "check": "Exact Slab J planes: horizontal-reversed",
+      "passed": true
+    },
+    {
+      "check": "60-unit visible mark and 38-unit cap: horizontal-reversed",
+      "passed": true
+    },
+    {
+      "check": "Minimum 24-unit outer padding: horizontal-reversed",
+      "passed": true,
+      "detail": [
+        24.0,
+        24.0,
+        24.000000224971245,
+        24.982550335575
+      ]
+    },
+    {
+      "check": "Horizontal 20-unit ink gap: horizontal-reversed",
+      "passed": true
+    },
+    {
+      "check": "Horizontal baseline 73 and cap/mark center 54: horizontal-reversed",
+      "passed": true
+    },
+    {
+      "check": "Primary nickel / correct theme: horizontal-reversed",
+      "passed": true
+    },
+    {
+      "check": "4x transparent raster dimensions: horizontal-reversed",
+      "passed": true,
+      "detail": {
+        "actual": [
+          1700,
+          436
+        ],
+        "expected": [
+          1700,
+          436
+        ]
+      }
+    },
+    {
+      "check": "Raster bounds inside canvas: horizontal-reversed",
+      "passed": true
+    },
+    {
+      "check": "SVG render matches PNG pixels: horizontal-reversed",
+      "passed": true
+    },
+    {
+      "check": "Inter metadata: horizontal-monochrome",
+      "passed": true
+    },
+    {
+      "check": "Exact approved glyph paths: horizontal-monochrome",
+      "passed": true
+    },
+    {
+      "check": "Exact Slab J planes: horizontal-monochrome",
+      "passed": true
+    },
+    {
+      "check": "60-unit visible mark and 38-unit cap: horizontal-monochrome",
+      "passed": true
+    },
+    {
+      "check": "Minimum 24-unit outer padding: horizontal-monochrome",
+      "passed": true,
+      "detail": [
+        24.0,
+        24.0,
+        24.000000224971245,
+        24.982550335575
+      ]
+    },
+    {
+      "check": "Horizontal 20-unit ink gap: horizontal-monochrome",
+      "passed": true
+    },
+    {
+      "check": "Horizontal baseline 73 and cap/mark center 54: horizontal-monochrome",
+      "passed": true
+    },
+    {
+      "check": "Primary nickel / correct theme: horizontal-monochrome",
+      "passed": true
+    },
+    {
+      "check": "4x transparent raster dimensions: horizontal-monochrome",
+      "passed": true,
+      "detail": {
+        "actual": [
+          1700,
+          436
+        ],
+        "expected": [
+          1700,
+          436
+        ]
+      }
+    },
+    {
+      "check": "Raster bounds inside canvas: horizontal-monochrome",
+      "passed": true
+    },
+    {
+      "check": "SVG render matches PNG pixels: horizontal-monochrome",
+      "passed": true
+    },
+    {
+      "check": "Inter metadata: stacked",
+      "passed": true
+    },
+    {
+      "check": "Exact approved glyph paths: stacked",
+      "passed": true
+    },
+    {
+      "check": "Exact Slab J planes: stacked",
+      "passed": true
+    },
+    {
+      "check": "60-unit visible mark and 38-unit cap: stacked",
+      "passed": true
+    },
+    {
+      "check": "Minimum 24-unit outer padding: stacked",
+      "passed": true,
+      "detail": [
+        23.99999977046947,
+        24.0,
+        24.000000224971245,
+        24.600000000005025
+      ]
+    },
+    {
+      "check": "Stacked 20-unit vertical ink gap: stacked",
+      "passed": true
+    },
+    {
+      "check": "Stacked centered ink bounds: stacked",
+      "passed": true
+    },
+    {
+      "check": "Primary nickel / correct theme: stacked",
+      "passed": true
+    },
+    {
+      "check": "4x transparent raster dimensions: stacked",
+      "passed": true,
+      "detail": {
+        "actual": [
+          1476,
+          712
+        ],
+        "expected": [
+          1476,
+          712
+        ]
+      }
+    },
+    {
+      "check": "Raster bounds inside canvas: stacked",
+      "passed": true
+    },
+    {
+      "check": "SVG render matches PNG pixels: stacked",
+      "passed": true
+    },
+    {
+      "check": "Inter metadata: stacked-reversed",
+      "passed": true
+    },
+    {
+      "check": "Exact approved glyph paths: stacked-reversed",
+      "passed": true
+    },
+    {
+      "check": "Exact Slab J planes: stacked-reversed",
+      "passed": true
+    },
+    {
+      "check": "60-unit visible mark and 38-unit cap: stacked-reversed",
+      "passed": true
+    },
+    {
+      "check": "Minimum 24-unit outer padding: stacked-reversed",
+      "passed": true,
+      "detail": [
+        23.99999977046947,
+        24.0,
+        24.000000224971245,
+        24.600000000005025
+      ]
+    },
+    {
+      "check": "Stacked 20-unit vertical ink gap: stacked-reversed",
+      "passed": true
+    },
+    {
+      "check": "Stacked centered ink bounds: stacked-reversed",
+      "passed": true
+    },
+    {
+      "check": "Primary nickel / correct theme: stacked-reversed",
+      "passed": true
+    },
+    {
+      "check": "4x transparent raster dimensions: stacked-reversed",
+      "passed": true,
+      "detail": {
+        "actual": [
+          1476,
+          712
+        ],
+        "expected": [
+          1476,
+          712
+        ]
+      }
+    },
+    {
+      "check": "Raster bounds inside canvas: stacked-reversed",
+      "passed": true
+    },
+    {
+      "check": "SVG render matches PNG pixels: stacked-reversed",
+      "passed": true
+    }
+  ],
+  "canonical_source_sha256": "ad35333d47945a1342137977a5be60099fc972d78a3f1f0f8a338893818bb4cc",
+  "visual_review": {
+    "reviewed": [
+      "proofs/asset-overview.png",
+      "proofs/pixel-proof.png",
+      "proofs/family-fit.png",
+      "proofs/lockups.png"
+    ],
+    "canonical_fidelity": "Exact selected A polygons preserved across canonical exports.",
+    "optical_16": "Crisper vertical edges and stronger nickel return after direct light, dark and monochrome inspection. Broken-J or hook reading remains possible.",
+    "app_masks": "Square, rounded-square, circle and central safe-circle retain all three pieces.",
+    "minimum_app_tile": "16px app tile contains a roughly 9px-tall mark; recognition is weaker than the full-canvas optical favicon."
+  },
+  "lockup_contract": "lockup-contract.json",
+  "lockup_review": "Approved horizontal files are exact; Inter 780 outlines and horizontal/stacked measurements verified.",
+  "browser_verification": {
+    "receipt": "browser-verification.json",
+    "scope": "Earlier favicon checks; horizontal and stacked lockups verified by current asset checks."
+  },
+  "apple_catalog_compiler": "apple-catalog-validation.json",
+  "product_integration": "Not applied"
+}

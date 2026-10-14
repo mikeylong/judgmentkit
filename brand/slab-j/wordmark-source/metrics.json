@@ -1,0 +1,22 @@
+{
+  "advanceWidth" : 396.35792922973633,
+  "baseline" : 0,
+  "capHeight" : 46.5625,
+  "fallbackRuns" : 0,
+  "fontFamily" : "Inter",
+  "fontFile" : "/Users/mike/Library/Fonts/Inter-VariableFont_opsz,wght.ttf",
+  "fontSize" : 64,
+  "format" : "CoreText shaped vector outlines",
+  "glyphCount" : 11,
+  "inkBounds" : {
+    "height" : 60.53125,
+    "width" : 393.3469409942627,
+    "x" : 1.67236328125,
+    "y" : -47.03125
+  },
+  "opticalSizeAxis" : 32,
+  "postScriptName" : "Inter-Regular_opsz200000_wght30C0000",
+  "text" : "JudgmentKit",
+  "weightAxis" : 780,
+  "xHeight" : 33
+}
