@@ -1,0 +1,13 @@
+{
+  "generator": "scripts/build-site-brand-assets.py",
+  "canonical_lockup": "brand/slab-j/lockups/horizontal.svg",
+  "canonical_lockup_sha256": "c3dd637eddba7584ec4ccc42775a7fb8fe24ec3d9bdc8df17a6c52e5a0250a86",
+  "canvas": [
+    1200,
+    630
+  ],
+  "outputs": {
+    "site/assets/judgmentkit-social-thumbnail.svg": "4462ef95bc76db8d0e42cd6536ad5a67e000e4812c063d711a1bb4e524677fad",
+    "site/assets/judgmentkit-social-thumbnail.png": "78aef859399e7da67322b76295530d9067fbdf78cb0d2fd3412dae41946e8190"
+  }
+}

@@ -1839,15 +1839,15 @@ assert.equal(homepage.includes("Open system map"), false);
 assert.equal(homepage.includes("not the final renderer"), false);
 assert.ok(homepage.includes('rel="canonical" href="https://judgmentkit.ai/"'));
 assert.ok(homepage.includes('rel="icon" href="/favicon.svg"'));
-assert.ok(homepage.includes('rel="image_src" href="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723-v2.png"'));
-assert.ok(homepage.includes('property="og:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723-v2.png"'));
-assert.ok(homepage.includes('property="og:image:secure_url" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723-v2.png"'));
+assert.ok(homepage.includes('rel="image_src" href="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png"'));
+assert.ok(homepage.includes('property="og:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png"'));
+assert.ok(homepage.includes('property="og:image:secure_url" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png"'));
 assert.ok(homepage.includes('property="og:image:type" content="image/png"'));
 assert.ok(homepage.includes('property="og:image:width" content="1200"'));
 assert.ok(homepage.includes('property="og:image:height" content="630"'));
 assert.ok(homepage.includes('property="og:image:alt" content="JudgmentKit. Before the UI."'));
 assert.ok(homepage.includes('name="twitter:card" content="summary_large_image"'));
-assert.ok(homepage.includes('name="twitter:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723-v2.png"'));
+assert.ok(homepage.includes('name="twitter:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png"'));
 assert.ok(homepage.includes('name="twitter:image:alt" content="JudgmentKit. Before the UI."'));
 assert.ok(llms.includes("- /evals/judgmentkit-mcp/"));
 assert.ok(llms.includes("- /evals/site-rebuild-log/"));
@@ -4301,19 +4301,20 @@ assert.equal(socialThumbnail.readUInt32BE(16), 1200);
 assert.equal(socialThumbnail.readUInt32BE(20), 630);
 assert.equal(
   crypto.createHash("sha256").update(socialThumbnail).digest("hex"),
-  "969df7ef71c748a151f58357b67d4100e3ee2dbf799da0cd22dbb3c5bc0375ea",
+  "78aef859399e7da67322b76295530d9067fbdf78cb0d2fd3412dae41946e8190",
   "social thumbnail must match the visually approved direct SVG render",
 );
 const socialThumbnailSvg = fs.readFileSync(
   new URL("../site/assets/judgmentkit-social-thumbnail.svg", import.meta.url),
   "utf8",
 );
-assert.match(
-  socialThumbnailSvg,
-  /<text x="190" y="158"[\s\S]*?>JudgmentKit<\/text>/,
-  "social thumbnail wordmark must retain its optically balanced baseline",
+assert.ok(
+  socialThumbnailSvg.includes(fs.readFileSync("brand/slab-j/lockups/horizontal.svg", "utf8").trim()),
+  "social card embeds the entire approved outlined lockup without changing its paths or proportions",
 );
-const versionedSocialThumbnail = fs.readFileSync(path.join(tempDir, "assets", "judgmentkit-social-thumbnail-20260723-v2.png"));
+assert.equal(/<text[^>]*>JudgmentKit<\/text>/.test(socialThumbnailSvg), false, "the wordmark stays outlined");
+assert.match(socialThumbnailSvg, /Before the UI\.<\/text>/, "retain the existing social positioning copy");
+const versionedSocialThumbnail = fs.readFileSync(path.join(tempDir, "assets", "judgmentkit-social-thumbnail-20261014-slab-j-v1.png"));
 assert.equal(versionedSocialThumbnail.subarray(1, 4).toString("ascii"), "PNG");
 assert.equal(versionedSocialThumbnail.readUInt32BE(16), 1200);
 assert.equal(versionedSocialThumbnail.readUInt32BE(20), 630);

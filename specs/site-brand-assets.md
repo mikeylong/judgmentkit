@@ -1,0 +1,19 @@
+# JudgmentKit website identity
+
+Visitors should recognize JudgmentKit in a browser tab, saved home-screen shortcut, installed web app, or shared link. These surfaces use the approved Slab J and outlined Inter 780 lockup from `brand/slab-j/`. Page titles, descriptions, navigation, and the existing “Before the UI.” social copy retain their meaning.
+
+`site/brand-assets.json` defines the published files, canonical sources, palette, and social-card placement. `site/brand-assets.mjs` copies those files byte for byte, writes `/site.webmanifest`, and supplies every published HTML head. The final head pass covers copied examples, reports, and experiments as well as the shared site template. It preserves page bodies, titles, descriptions, existing canonical URLs, and page-specific Open Graph/Twitter context such as article type, video metadata, locale, and creator. It updates managed image/identity fields and fills missing title, description, URL, and type metadata from the page. 
+
+The sole exception is `/assets/releases/visual-composition-runtime-demo.html`: this noindex recording-source asset must remain byte-identical to its authored source, uses a data-only image CSP, and intentionally has an empty `data:,` favicon. Its head is preserved; it advertises no stale brand or social artwork.
+
+- `/favicon.svg` uses the package's responsive SVG: optical geometry at 16px, canonical geometry at 32px, ink in light appearance, ivory in dark appearance, and a nickel return in both.
+- `/favicon.ico` provides optical 16px and canonical 32px/48px frames on an ink tile. The two explicit PNG favicon links use the package's 16px and 32px exports.
+- `/apple-touch-icon.png` uses the opaque 180px app icon. `/safari-pinned-tab.svg` uses the canonical monochrome silhouette with the declared ink color.
+- `/site.webmanifest` names JudgmentKit, starts at `/`, and declares separate regular and maskable 192px/512px icons. The canonical placement fits the package's maskable safe zone. The manifest supplies app identity; it does not add offline behavior or a service worker.
+- Open Graph, Twitter, and `image_src` metadata use the absolute versioned PNG URL `/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png`, with 1200 × 630 dimensions, PNG MIME, and the existing image description. A new visual requires a new versioned URL so an old sharing cache key cannot conceal it. The unversioned PNG, former July PNG URL, and SVG route serve the current canonical derivative.
+
+The social SVG embeds the entire canonical `horizontal.svg` without redrawing its symbol, retyping its wordmark, changing its internal spacing, or cropping its canvas. Its outer transform scales all content uniformly. Ink, ivory, and nickel remain intact. The separate tagline preserves the existing Georgia typography and copy. Browser header/footer lockups retain their approved bytes and behavior.
+
+Regenerate the committed social SVG, PNG, and hash receipt with `python3 scripts/build-site-brand-assets.py`. This rendering step uses ImageMagick and `/System/Library/Fonts/Supplemental/Georgia.ttf` on macOS. The normal Node site build copies the committed output and works without those rendering tools. PNG metadata is stripped so repeated local renders produce identical bytes.
+
+Run `node tests/site.test.mjs`, `node tests/site-brand-assets.test.mjs`, and `node tests/site-header-browser.test.mjs`. The checks cover every published head, public static routes and MIME types, exact canonical copies, PNG dimensions, ICO frames, manifest purposes, source hashes, and the unchanged header/footer contract. Inspect actual 16px/32px SVG favicon renders in both appearances, the touch/app icon, and the crawler PNG before handoff. Link-preview provider caches refresh on their own schedules; local PNG and metadata checks do not prove a provider has refreshed an existing post.

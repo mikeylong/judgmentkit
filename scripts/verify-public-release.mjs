@@ -11,6 +11,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 import { JUDGMENTKIT_MCP_TOOL_NAMES } from "./install-mcp.mjs";
+import { SITE_BRAND } from "../site/brand-assets.mjs";
 import { validateParsed } from "./capture-model-ui-matrix.mjs";
 import {
   COMPARISON_COLUMNS,
@@ -1325,14 +1326,24 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   const designSystemSurfaceProfiles =
     await verifyDesignSystemSurfaceProfiles(baseUrl);
 
-  for (const [route, source] of [
-    ["/favicon.svg", "brand/slab-j/favicon/favicon.svg"],
-    ["/assets/brand/judgmentkit-lockup.svg", "brand/slab-j/lockups/horizontal.svg"],
-    ["/assets/brand/judgmentkit-lockup-reversed.svg", "brand/slab-j/lockups/horizontal-reversed.svg"],
+  for (const { route, source } of [
+    ...SITE_BRAND.copies,
+    ...[SITE_BRAND.social.route, ...SITE_BRAND.social.aliases].map(route => ({ route, source: SITE_BRAND.social.source })),
   ]) {
-    const asset = await fetchText(baseUrl, route);
-    assert.equal(asset.text, await fs.readFile(path.join(PROJECT_ROOT, source), "utf8"), `${route} must preserve canonical source bytes`);
+    const asset = await fetchBytes(baseUrl, route);
+    assert.deepEqual(asset.bytes, await fs.readFile(path.join(PROJECT_ROOT, source)), `${route} must preserve canonical source bytes`);
   }
+  const webManifest = JSON.parse((await fetchText(baseUrl, "/site.webmanifest")).text);
+  assert.equal(webManifest.name, "JudgmentKit");
+  assert.deepEqual(webManifest.icons.map(icon => [icon.sizes, icon.purpose]), [["192x192", "any"], ["512x512", "any"], ["192x192", "maskable"], ["512x512", "maskable"]]);
+  for (const fragment of [
+    'rel="icon" href="/favicon.ico"',
+    'rel="apple-touch-icon" href="/apple-touch-icon.png"',
+    'rel="mask-icon" href="/safari-pinned-tab.svg"',
+    'rel="manifest" href="/site.webmanifest"',
+    `property="og:image" content="${SITE_BRAND.origin}${SITE_BRAND.social.route}"`,
+    `name="twitter:image" content="${SITE_BRAND.origin}${SITE_BRAND.social.route}"`,
+  ]) assert.ok(home.text.includes(fragment), `homepage brand metadata: ${fragment}`);
 
   for (const artifactRoute of [
     "/examples/one-shot-demo.html",

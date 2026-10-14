@@ -1,0 +1,91 @@
+{
+  "origin": "https://judgmentkit.ai",
+  "name": "JudgmentKit",
+  "ink": "#0B0D0E",
+  "ivory": "#F7F6F2",
+  "social": {
+    "source": "site/assets/judgmentkit-social-thumbnail.png",
+    "route": "/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png",
+    "aliases": [
+      "/assets/judgmentkit-social-thumbnail.png",
+      "/assets/judgmentkit-social-thumbnail-20260723-v2.png"
+    ],
+    "width": 1200,
+    "height": 630,
+    "alt": "JudgmentKit. Before the UI.",
+    "lockup_source": "brand/slab-j/lockups/horizontal.svg",
+    "lockup_translation": [
+      16,
+      40
+    ],
+    "lockup_scale": 2.2,
+    "tagline": "Before the UI.",
+    "tagline_position": [
+      68,
+      438
+    ],
+    "tagline_font": "Georgia",
+    "tagline_size": 138
+  },
+  "copies": [
+    {
+      "source": "brand/slab-j/lockups/horizontal.svg",
+      "route": "/assets/brand/judgmentkit-lockup.svg"
+    },
+    {
+      "source": "brand/slab-j/lockups/horizontal-reversed.svg",
+      "route": "/assets/brand/judgmentkit-lockup-reversed.svg"
+    },
+    {
+      "source": "brand/slab-j/favicon/favicon.svg",
+      "route": "/favicon.svg"
+    },
+    {
+      "source": "brand/slab-j/favicon/favicon.ico",
+      "route": "/favicon.ico"
+    },
+    {
+      "source": "brand/slab-j/favicon/favicon-16.png",
+      "route": "/favicon-16x16.png"
+    },
+    {
+      "source": "brand/slab-j/favicon/favicon-32.png",
+      "route": "/favicon-32x32.png"
+    },
+    {
+      "source": "brand/slab-j/favicon/safari-pinned-tab.svg",
+      "route": "/safari-pinned-tab.svg"
+    },
+    {
+      "source": "brand/slab-j/app-icons/apple-touch-icon.png",
+      "route": "/apple-touch-icon.png"
+    },
+    {
+      "source": "brand/slab-j/app-icons/app-icon-192.png",
+      "route": "/assets/brand/app-icon-192.png"
+    },
+    {
+      "source": "brand/slab-j/app-icons/app-icon-512.png",
+      "route": "/assets/brand/app-icon-512.png"
+    },
+    {
+      "source": "brand/slab-j/app-icons/maskable-192.png",
+      "route": "/assets/brand/maskable-192.png"
+    },
+    {
+      "source": "brand/slab-j/app-icons/maskable-512.png",
+      "route": "/assets/brand/maskable-512.png"
+    },
+    {
+      "source": "site/assets/judgmentkit-social-thumbnail.svg",
+      "route": "/assets/judgmentkit-social-thumbnail.svg"
+    }
+  ],
+  "head_exceptions": [
+    {
+      "route": "/assets/releases/visual-composition-runtime-demo.html",
+      "source": "scripts/visual-composition-film/visual-composition-runtime-demo.html",
+      "reason": "Byte-exact sandboxed recording source; noindex/nofollow, data-only image CSP, and intentionally empty data:, favicon."
+    }
+  ]
+}
