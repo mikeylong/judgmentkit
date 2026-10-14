@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "compiler": "xcrun actool",
+  "exit_code": 0,
+  "platform": "iphoneos",
+  "minimum_deployment_target": "18.0",
+  "targets": [
+    "iphone",
+    "ipad"
+  ],
+  "outputs": [
+    "AppIcon60x60@2x.png",
+    "AppIcon76x76@2x~ipad.png",
+    "Assets.car"
+  ],
+  "limitations": "Sandbox prevented simulator service access; standalone catalog compilation succeeded. No application build, install or device test was performed."
+}
