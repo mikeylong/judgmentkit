@@ -16,7 +16,7 @@ import {
   MODEL_UI_INDEX_FILE,
   MODEL_UI_USE_CASES,
 } from "../scripts/model-ui-use-cases.mjs";
-import { assertValueAppearanceContract } from "../scripts/verify-public-release.mjs";
+import { assertReleaseFooter, assertValueAppearanceContract } from "../scripts/verify-public-release.mjs";
 import { getHostedMcpMetadata } from "../src/mcp-http.mjs";
 import {
   createUiImplementationContract,
@@ -310,10 +310,13 @@ for (const route of result.routes.filter((candidate) => candidate.endsWith("/"))
   );
   assert.ok(
     html.includes(
-      '<span class="site-footer-brand">JudgmentKit</span>',
+      '<a class="site-footer-brand" href="/" aria-label="JudgmentKit home">',
     ),
     `${route} footer should retain the JudgmentKit identity`,
   );
+  assertReleaseFooter(html, packageJson.version, route);
+  assert.ok(html.includes('srcset="/assets/brand/judgmentkit-lockup-reversed.svg" media="(prefers-color-scheme: dark)"'));
+  assert.ok(html.includes('class="site-brand-lockup" src="/assets/brand/judgmentkit-lockup.svg"'));
   assert.ok(
     html.includes(
       `<a class="site-footer-release" href="https://github.com/mikeylong/judgmentkit/releases/tag/v${packageJson.version}" aria-label="Release v${packageJson.version} on GitHub">`,
@@ -439,10 +442,9 @@ for (const [href, label] of [
 ]) {
   assert.ok(platformNavMarkup.includes(`<a href="${href}">${label}</a>`));
 }
-assert.ok(platformNavMarkup.includes('class="surfaces-brand-mark"'));
-assert.ok(platformNavMarkup.includes('<img class="surfaces-brand-mark" src="/favicon.svg" width="32" height="32" alt="">'));
-assert.equal(platformNavMarkup.includes("<polygon"), false, "JudgmentKit must use its own favicon mark");
-assert.ok(platformNavMarkup.includes('<span>JudgmentKit</span>'));
+assert.ok(platformNavMarkup.includes('<img class="surfaces-brand-lockup" src="/assets/brand/judgmentkit-lockup-reversed.svg" width="425" height="109" alt="">'));
+assert.equal(platformNavMarkup.includes("<polygon"), false, "The header consumes the complete canonical SVG");
+assert.equal(platformNavMarkup.includes('<span>JudgmentKit</span>'), false, "The outlined wordmark must not be duplicated as live text");
 assert.ok(platformNavMarkup.includes('href="https://handbooks.surfaces.systems/" target="_blank" rel="noopener noreferrer" title="Opens in a new tab">Handbooks<svg'));
 assert.ok(platformNavMarkup.includes('href="https://surfaces.systems/">surfaces.systems</a>'));
 for (const removed of ["surfaces-system-switch", "data-surfaces-system-menu", "surfaceops.ai", "interfacectl.com", "surfaces.dev"]) {
@@ -608,8 +610,8 @@ assert.ok(siteCss.includes(".site-shell {\n  width: 100%;\n  max-width: var(--si
 assert.ok(siteCss.includes(".site-footer {\n  padding: 18px var(--site-gutter) 20px;"));
 assert.match(
   siteCss,
-  /\.site-footer-brand \{[^}]*font-family: Inter, sans-serif;[^}]*font-weight: 600;/s,
-  "the footer brand should use the same restrained sans-serif weight as the site navigation",
+  /\.site-brand-lockup \{[^}]*width: auto;[^}]*height: 44px;[^}]*object-fit: contain;/s,
+  "the footer must preserve the complete lockup canvas and natural ratio",
 );
 assert.match(
   siteCss,
@@ -4285,7 +4287,13 @@ assert.ok(install.includes("cursor-agent"));
 assert.equal(install.includes("git clone"), false);
 assert.equal(install.includes("npm install"), false);
 assert.equal(install.includes("mcp:stdio"), false);
-assert.equal(fs.existsSync(path.join(tempDir, "favicon.svg")), true);
+for (const [built, source] of [
+  ["favicon.svg", "brand/slab-j/favicon/favicon.svg"],
+  ["assets/brand/judgmentkit-lockup.svg", "brand/slab-j/lockups/horizontal.svg"],
+  ["assets/brand/judgmentkit-lockup-reversed.svg", "brand/slab-j/lockups/horizontal-reversed.svg"],
+]) {
+  assert.deepEqual(fs.readFileSync(path.join(tempDir, built)), fs.readFileSync(source), `${built} must match canonical source bytes`);
+}
 assert.equal(fs.readFileSync(path.join(tempDir, "robots.txt"), "utf8"), "User-agent: *\nAllow: /\n");
 const socialThumbnail = fs.readFileSync(path.join(tempDir, "assets", "judgmentkit-social-thumbnail.png"));
 assert.equal(socialThumbnail.subarray(1, 4).toString("ascii"), "PNG");

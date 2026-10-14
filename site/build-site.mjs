@@ -583,8 +583,7 @@ function renderPlatformHeader(pathName = "/") {
   return `    <nav class="surfaces-navigation" aria-label="Primary navigation" data-surfaces-navigation>
       <div class="surfaces-navigation-inner">
         <a class="surfaces-navigation-identifier" href="/" aria-label="JudgmentKit home"${pathName === "/" ? ' aria-current="page"' : ""}>
-          <img class="surfaces-brand-mark" src="/favicon.svg" width="32" height="32" alt="">
-          <span>JudgmentKit</span>
+          <img class="surfaces-brand-lockup" src="/assets/brand/judgmentkit-lockup-reversed.svg" width="425" height="109" alt="">
         </a>
         <div class="surfaces-navigation-right">
           <div class="surfaces-navigation-sections">
@@ -839,7 +838,12 @@ ${platformNavigationScript()}
 function renderSiteFooter() {
   return `    <footer class="site-footer">
       <div class="site-shell site-footer-inner">
-        <span class="site-footer-brand">JudgmentKit</span>
+        <a class="site-footer-brand" href="/" aria-label="JudgmentKit home">
+          <picture>
+            <source srcset="/assets/brand/judgmentkit-lockup-reversed.svg" media="(prefers-color-scheme: dark)">
+            <img class="site-brand-lockup" src="/assets/brand/judgmentkit-lockup.svg" width="425" height="109" alt="">
+          </picture>
+        </a>
         <a class="site-footer-release" href="${escapeHtml(GITHUB_RELEASE_URL)}" aria-label="Release v${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)} on GitHub">
           <span>Release v${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}</span>
           <span aria-hidden="true">↗</span>
@@ -1141,11 +1145,11 @@ a {
   text-decoration: none;
   white-space: nowrap;
 }
-.surfaces-brand-mark {
+.surfaces-brand-lockup {
   display: block;
-  width: 32px;
-  height: 32px;
-  flex: 0 0 32px;
+  width: auto;
+  height: 56px;
+  max-width: 100%;
   object-fit: contain;
 }
 .surfaces-navigation-right,
@@ -1266,10 +1270,16 @@ a {
   .surfaces-navigation-inner {
     width: min(1120px, calc(100% - 32px));
   }
+  .surfaces-brand-lockup {
+    height: 48px;
+  }
 }
 @media (max-width: 359px) {
   .surfaces-navigation-inner {
-    gap: 12px;
+    gap: 8px;
+  }
+  .surfaces-brand-lockup {
+    height: 44px;
   }
 }
 @media (forced-colors: active) {
@@ -1312,13 +1322,27 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 24px;
 }
 .site-footer-brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  max-width: 100%;
   color: var(--ink);
-  font-family: Inter, sans-serif;
-  font-size: 13px;
-  font-weight: 600;
+  text-decoration: none;
+}
+.site-brand-lockup {
+  display: block;
+  width: auto;
+  height: 44px;
+  max-width: 100%;
+  object-fit: contain;
+}
+.site-footer-brand:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 4px;
 }
 .site-footer-release {
   display: inline-flex;
@@ -11438,10 +11462,16 @@ export async function buildSite(
   );
   await buildSystemMapFlowAssets(outDir);
   await buildComponentSpecimenAssets(outDir);
-  await fs.writeFile(
-    path.join(outDir, "favicon.svg"),
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#133f4e"/><path d="M18 34.5 28 44l19-24" fill="none" stroke="#f8f7f2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>\n`,
-  );
+  const brandSource = path.join(ROOT, "brand", "slab-j");
+  const brandAssets = path.join(outDir, "assets", "brand");
+  await fs.mkdir(brandAssets, { recursive: true });
+  for (const [source, target] of [
+    ["horizontal.svg", "judgmentkit-lockup.svg"],
+    ["horizontal-reversed.svg", "judgmentkit-lockup-reversed.svg"],
+  ]) {
+    await fs.copyFile(path.join(brandSource, "lockups", source), path.join(brandAssets, target));
+  }
+  await fs.copyFile(path.join(brandSource, "favicon", "favicon.svg"), path.join(outDir, "favicon.svg"));
   await fs.writeFile(
     path.join(outDir, "index.html"),
     renderHomepage({ homepageFilmEnabled }),
