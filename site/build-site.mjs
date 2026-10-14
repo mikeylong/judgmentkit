@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { build as buildWithEsbuild } from "esbuild";
 import React, { createElement } from "react";
 import { renderToString } from "react-dom/server";
+import { applyPublishedBrandHeads, copySiteBrandAssets, siteBrandHead } from "./brand-assets.mjs";
 import {
   ActionButton,
   ActionGroup,
@@ -59,10 +60,6 @@ const COMPONENT_SPECIMEN_ASSET_VERSION =
 const SITE_ORIGIN = "https://judgmentkit.ai";
 const GITHUB_RELEASE_URL =
   `https://github.com/mikeylong/judgmentkit/releases/tag/v${JUDGMENTKIT_PACKAGE_VERSION}`;
-const SOCIAL_THUMBNAIL_SOURCE_FILENAME = "judgmentkit-social-thumbnail.png";
-const SOCIAL_THUMBNAIL_FILENAME = "judgmentkit-social-thumbnail-20260723-v2.png";
-const SOCIAL_THUMBNAIL_PATH = `/assets/${SOCIAL_THUMBNAIL_FILENAME}`;
-const SOCIAL_THUMBNAIL_ALT = "JudgmentKit. Before the UI.";
 const HOMEPAGE_HERO_ART_FILENAME = "judgment-lens-hero.webp";
 const HOMEPAGE_HERO_ART_PATH = `/assets/${HOMEPAGE_HERO_ART_FILENAME}`;
 const MARKETING_PATTERN_HERO_FILENAME =
@@ -793,7 +790,6 @@ function page(title, body, options = {}) {
     "JudgmentKit is an activity-first judgment layer for AI-generated product work.";
   const pathName = options.path ?? "/";
   const canonicalUrl = `${SITE_ORIGIN}${pathName}`;
-  const socialThumbnailUrl = `${SITE_ORIGIN}${SOCIAL_THUMBNAIL_PATH}`;
 
   return `<!doctype html>
 <html lang="en">
@@ -803,24 +799,7 @@ function page(title, body, options = {}) {
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}">
     <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    <link rel="image_src" href="${escapeHtml(socialThumbnailUrl)}">
-    <meta property="og:site_name" content="JudgmentKit">
-    <meta property="og:title" content="${escapeHtml(title)}">
-    <meta property="og:description" content="${escapeHtml(description)}">
-    <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="${escapeHtml(socialThumbnailUrl)}">
-    <meta property="og:image:secure_url" content="${escapeHtml(socialThumbnailUrl)}">
-    <meta property="og:image:type" content="image/png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="${escapeHtml(SOCIAL_THUMBNAIL_ALT)}">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${escapeHtml(title)}">
-    <meta name="twitter:description" content="${escapeHtml(description)}">
-    <meta name="twitter:image" content="${escapeHtml(socialThumbnailUrl)}">
-    <meta name="twitter:image:alt" content="${escapeHtml(SOCIAL_THUMBNAIL_ALT)}">
+    ${siteBrandHead({ title: escapeHtml(title), description: escapeHtml(description), canonicalUrl: escapeHtml(canonicalUrl) })}
     <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/assets/site.css">
 ${options.headExtra ?? ""}
@@ -11363,15 +11342,6 @@ export async function buildSite(
 
   await fs.writeFile(path.join(outDir, "assets", "site.css"), stylesheet.trimStart());
   await fs.cp(path.join(__dirname, "assets", "fonts"), path.join(outDir, "assets", "fonts"), { recursive: true });
-  const socialThumbnailSourcePath = path.join(__dirname, "assets", SOCIAL_THUMBNAIL_SOURCE_FILENAME);
-  await fs.copyFile(
-    socialThumbnailSourcePath,
-    path.join(outDir, "assets", SOCIAL_THUMBNAIL_FILENAME),
-  );
-  await fs.copyFile(
-    socialThumbnailSourcePath,
-    path.join(outDir, "assets", SOCIAL_THUMBNAIL_SOURCE_FILENAME),
-  );
   await fs.copyFile(
     path.join(__dirname, "assets", HOMEPAGE_HERO_ART_FILENAME),
     path.join(outDir, "assets", HOMEPAGE_HERO_ART_FILENAME),
@@ -11462,16 +11432,7 @@ export async function buildSite(
   );
   await buildSystemMapFlowAssets(outDir);
   await buildComponentSpecimenAssets(outDir);
-  const brandSource = path.join(ROOT, "brand", "slab-j");
-  const brandAssets = path.join(outDir, "assets", "brand");
-  await fs.mkdir(brandAssets, { recursive: true });
-  for (const [source, target] of [
-    ["horizontal.svg", "judgmentkit-lockup.svg"],
-    ["horizontal-reversed.svg", "judgmentkit-lockup-reversed.svg"],
-  ]) {
-    await fs.copyFile(path.join(brandSource, "lockups", source), path.join(brandAssets, target));
-  }
-  await fs.copyFile(path.join(brandSource, "favicon", "favicon.svg"), path.join(outDir, "favicon.svg"));
+  await copySiteBrandAssets(outDir);
   await fs.writeFile(
     path.join(outDir, "index.html"),
     renderHomepage({ homepageFilmEnabled }),
@@ -11597,6 +11558,7 @@ export async function buildSite(
   await writePublicModelUiManifests(outDir);
   await removePublicModelUiDiagnosticFiles(outDir);
   await copyDirectoryIfExists("experiments", path.join(outDir, "experiments"));
+  await applyPublishedBrandHeads(outDir);
 
   return {
     out_dir: outDir,
