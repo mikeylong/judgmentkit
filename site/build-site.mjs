@@ -1278,6 +1278,9 @@ a {
   .surfaces-navigation-inner {
     gap: 8px;
   }
+  .surfaces-brand-lockup {
+    height: 44px;
+  }
 }
 @media (forced-colors: active) {
   .surfaces-navigation,

@@ -6,7 +6,7 @@ import path from "node:path";
 import { buildSite } from "../site/build-site.mjs";
 import { listenSiteLocalServer } from "../scripts/site-local-server.mjs";
 import {
-  captureElementScreenshot, captureScreenshot, evaluate, getAxNode, openPage, pointerActivate, pressKey, tabUntil,
+  captureScreenshot, evaluate, getAxNode, openPage, pointerActivate, pressKey, tabUntil,
   waitForExpression, withChromium,
 } from "./components/support/chromium-harness.mjs";
 
@@ -20,6 +20,7 @@ const CASES = [
   { width: 820, gutter: 16, menu: true },
   { width: 390, gutter: 16, menu: true },
   { width: 320, gutter: 16, menu: true },
+  { width: 320, gutter: 16, menu: true, scrollbarMode: "classic-15px" },
 ];
 const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-header-"));
 let server;
@@ -29,6 +30,19 @@ const brandQa = [];
 const menuQa = [];
 const schemeChanges = [];
 const LOCKUP_RATIO = 425.013342449 / 109;
+
+async function applyScrollbarMode(client, sessionId, mode) {
+  if (mode !== 'classic-15px') return;
+  await evaluate(client, sessionId, `(() => {
+    let style = document.querySelector('[data-test-classic-scrollbar]');
+    if (!style) {
+      style = document.createElement('style');
+      style.setAttribute('data-test-classic-scrollbar', '');
+      document.head.append(style);
+    }
+    style.textContent = 'html::-webkit-scrollbar { width: 15px; height: 15px; }';
+  })()`);
+}
 
 async function measure(client, sessionId) {
   return evaluate(client, sessionId, `(async () => {
@@ -78,8 +92,24 @@ async function measure(client, sessionId) {
   })()`);
 }
 
+async function captureBrandElement(client, sessionId, selector, outputPath) {
+  const clip = await evaluate(client, sessionId, `(() => {
+    const element = document.querySelector(${JSON.stringify(selector)});
+    element.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    const bounds = element.getBoundingClientRect();
+    return { x: bounds.left + scrollX, y: bounds.top + scrollY, width: bounds.width, height: bounds.height, scale: 1 };
+  })()`);
+  // Every brand target fits in the viewport. Keeping capture within it prevents
+  // screenshot capture from hiding a classic scrollbar and changing the layout.
+  const screenshot = await client.send('Page.captureScreenshot', {
+    format: 'png', fromSurface: true, captureBeyondViewport: false, clip,
+  }, sessionId);
+  assert.ok(screenshot.data, `${selector}: screenshot pixels`);
+  fs.writeFileSync(outputPath, Buffer.from(screenshot.data, 'base64'));
+}
+
 async function assertBrand(client, sessionId, measurement, context) {
-  const label = `${context.width}px ${context.colorScheme} ${context.route}`;
+  const label = `${context.width}px ${context.colorScheme} ${context.route} ${context.scrollbarMode}`;
   assert.equal(measurement.headerImage.currentSrc, '/assets/brand/judgmentkit-lockup-reversed.svg', `${label}: fixed ink header uses reversed asset`);
   assert.equal(measurement.footerImage.currentSrc, context.colorScheme === 'dark'
     ? '/assets/brand/judgmentkit-lockup-reversed.svg' : '/assets/brand/judgmentkit-lockup.svg', `${label}: footer follows its surface`);
@@ -103,12 +133,12 @@ async function assertBrand(client, sessionId, measurement, context) {
   assert.equal(measurement.overflow, false, label);
   brandQa.push({ ...context, ...measurement });
   if (artifactDir && [1280, 390, 320].includes(context.width)) {
-    const prefix = `${context.route === '/' ? 'home' : 'docs'}-${context.width}-${context.colorScheme}`;
+    const prefix = `${context.route === '/' ? 'home' : 'docs'}-${context.width}-${context.colorScheme}${context.scrollbarMode === 'classic-15px' ? '-classic-15px' : ''}`;
     await captureScreenshot(client, sessionId, path.join(artifactDir, `${prefix}.png`));
-    await captureElementScreenshot(client, sessionId, '[data-surfaces-navigation]', path.join(artifactDir, `${prefix}-header.png`));
-    await captureElementScreenshot(client, sessionId, '.surfaces-navigation-identifier', path.join(artifactDir, `${prefix}-header-brand.png`));
-    await captureElementScreenshot(client, sessionId, '.site-footer', path.join(artifactDir, `${prefix}-footer.png`));
-    await captureElementScreenshot(client, sessionId, '.site-footer-brand', path.join(artifactDir, `${prefix}-footer-brand.png`));
+    await captureBrandElement(client, sessionId, '[data-surfaces-navigation]', path.join(artifactDir, `${prefix}-header.png`));
+    await captureBrandElement(client, sessionId, '.surfaces-navigation-identifier', path.join(artifactDir, `${prefix}-header-brand.png`));
+    await captureBrandElement(client, sessionId, '.site-footer', path.join(artifactDir, `${prefix}-footer.png`));
+    await captureBrandElement(client, sessionId, '.site-footer-brand', path.join(artifactDir, `${prefix}-footer-brand.png`));
     await evaluate(client, sessionId, 'window.scrollTo(0, 0)');
   }
 }
@@ -158,8 +188,12 @@ try {
         });
         const sid = page.sessionId;
         try {
+          await applyScrollbarMode(client, sid, expected.scrollbarMode);
           const home = await measure(client, sid);
-          const label = `${expected.width}px ${colorScheme}`;
+          const label = `${expected.width}px ${colorScheme} ${expected.scrollbarMode ?? 'system'}`;
+          if (expected.scrollbarMode === 'classic-15px') {
+            assert.equal(home.layoutWidth, expected.width - 15, `${label}: fixture reserves a real scrollbar gutter`);
+          }
           // Classic scrollbars consume layout width; overlay scrollbars do not.
           const gutter = Math.max(expected.width <= 820 ? 16 : 24, (home.layoutWidth - 1120) / 2);
           assert.equal(home.header.height, 72, label);
@@ -167,12 +201,12 @@ try {
           assert.equal(home.header.width, home.layoutWidth, label);
           assert.equal(home.shell.x, gutter, label);
           assert.equal(home.shell.right, home.layoutWidth - gutter, label);
-          const lockupHeight = expected.width <= 820 ? 48 : 56;
+          const lockupHeight = expected.width < 360 ? 44 : expected.width <= 820 ? 48 : 56;
           assert.equal(home.lockup.x, gutter, label);
           assert.equal(home.lockup.height, lockupHeight, label);
           assert.equal(home.brand.y, (72 - lockupHeight) / 2, label);
           assert.equal(home.brand.height, lockupHeight, label);
-          await assertBrand(client, sid, home, { route: '/', width: expected.width, colorScheme });
+          await assertBrand(client, sid, home, { route: '/', width: expected.width, colorScheme, scrollbarMode: expected.scrollbarMode ?? 'system' });
           if (expected.width === 390) {
             const alternate = colorScheme === 'light' ? 'dark' : 'light';
             await client.send('Emulation.setEmulatedMedia', { media: 'screen', features: [{ name: 'prefers-color-scheme', value: alternate }] }, sid);
@@ -205,7 +239,7 @@ try {
             })()`);
             assert.deepEqual(menu, { hidden: false, top: 72, count: 8, last: "https://surfaces.systems/" });
             await assertVisibleExternalLink(client, sid, label);
-            menuQa.push({ width: expected.width, colorScheme, ...menu });
+            menuQa.push({ width: expected.width, colorScheme, scrollbarMode: expected.scrollbarMode ?? 'system', ...menu });
             if (artifactDir && expected.width === 390) {
               await captureScreenshot(client, sid, path.join(artifactDir, `home-390-${colorScheme}-menu-open.png`));
             }
@@ -225,8 +259,9 @@ try {
             : '.surfaces-navigation-sections a[href="/docs/"]';
           await pointerActivate(client, sid, docsSelector);
           await waitForExpression(client, sid, `location.pathname === '/docs/' && document.readyState === 'complete'`);
+          await applyScrollbarMode(client, sid, expected.scrollbarMode);
           const docs = await measure(client, sid);
-          await assertBrand(client, sid, docs, { route: '/docs/', width: expected.width, colorScheme });
+          await assertBrand(client, sid, docs, { route: '/docs/', width: expected.width, colorScheme, scrollbarMode: expected.scrollbarMode ?? 'system' });
           for (const key of ["header", "shell", "brand", "lockup", "button", "links"]) {
             assert.deepEqual(docs[key], home[key], `${label}: ${key} must not move on navigation`);
           }
@@ -238,6 +273,7 @@ try {
           await evaluate(client, sid, "history.back()");
           await waitForExpression(client, sid, "location.pathname === '/' && document.readyState === 'complete'");
           assert.equal(await evaluate(client, sid, `document.querySelector('[data-surfaces-primary-menu-list]').hidden`), true);
+          await applyScrollbarMode(client, sid, expected.scrollbarMode);
           assert.deepEqual((await measure(client, sid)).lockup, home.lockup, `${label}: Back must preserve alignment`);
           assert.deepEqual(page.runtimeExceptions, []);
         } finally {
@@ -247,7 +283,7 @@ try {
     }
   });
   if (artifactDir) fs.writeFileSync(path.join(artifactDir, 'browser-qa.json'), JSON.stringify({ status: 'passed', canonicalRatio: LOCKUP_RATIO, cases: brandQa, menuCases: menuQa, runtimeSchemeChanges: schemeChanges }, null, 2) + '\n');
-  console.log("Header/footer browser checks passed: 14 viewport/appearance cases on home and docs, canonical asset selection and ratios, accessible names, runtime theme changes, external-link indicators, keyboard menu, dismissal, sticky positioning, and Back restoration.");
+  console.log("Header/footer browser checks passed: 14 system viewport/appearance cases plus 2 forced classic-scrollbar cases on home and docs, canonical asset selection and ratios, accessible names, runtime theme changes, external-link indicators, keyboard menu, dismissal, sticky positioning, and Back restoration.");
 } finally {
   if (server) await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
   fs.rmSync(outDir, { recursive: true, force: true });
