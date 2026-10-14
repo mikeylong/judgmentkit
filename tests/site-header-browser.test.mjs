@@ -46,7 +46,57 @@ async function applyScrollbarMode(client, sessionId, mode) {
 
 async function measure(client, sessionId) {
   return evaluate(client, sessionId, `(async () => {
-    await document.fonts.ready;
+    const imageSelectors = ['.surfaces-brand-lockup', '.site-brand-lockup'];
+    const readiness = () => ({
+      document: document.readyState, fonts: document.fonts.status,
+      images: imageSelectors.map(selector => {
+        const image = document.querySelector(selector);
+        return { selector, src: image?.getAttribute('src'), currentSrc: image?.currentSrc,
+          complete: image?.complete, width: image?.naturalWidth, height: image?.naturalHeight };
+      }),
+    });
+    const imagesReady = state => state.document === 'complete' && state.fonts === 'loaded'
+      && state.images.every(image => image.currentSrc && image.complete && image.width > 0 && image.height > 0);
+    const layout = () => ['[data-surfaces-navigation]', '.surfaces-navigation-identifier', ...imageSelectors]
+      .map(selector => {
+        const bounds = document.querySelector(selector)?.getBoundingClientRect();
+        return bounds && [bounds.x, bounds.y, bounds.width, bounds.height];
+      });
+    const frame = () => new Promise(resolve => requestAnimationFrame(resolve));
+    const deadline = performance.now() + 10000;
+    const notReady = () => new Error('Brand images/fonts/layout not ready after 10000ms: ' + JSON.stringify(readiness()));
+    let timer;
+    try {
+      await Promise.race([
+        (async () => {
+          while (performance.now() < deadline) {
+            const state = readiness();
+            if (imagesReady(state)) {
+              try {
+                await Promise.all([document.fonts.ready, ...imageSelectors.map(selector => document.querySelector(selector).decode())]);
+              } catch (error) {
+                const changed = readiness();
+                if (JSON.stringify(changed.images) === JSON.stringify(state.images)) {
+                  throw new Error('Brand image decode failed: ' + JSON.stringify(changed), { cause: error });
+                }
+                await new Promise(resolve => setTimeout(resolve, 25));
+                continue;
+              }
+              const before = layout();
+              await frame();
+              await frame();
+              const after = readiness();
+              if (imagesReady(after) && after.images.every((image, index) => image.currentSrc === state.images[index].currentSrc)
+                && before.every(bounds => bounds && bounds[2] > 0 && bounds[3] > 0)
+                && JSON.stringify(before) === JSON.stringify(layout())) return;
+            }
+            await new Promise(resolve => setTimeout(resolve, 25));
+          }
+          throw notReady();
+        })(),
+        new Promise((_, reject) => { timer = setTimeout(() => reject(notReady()), 10000); }),
+      ]);
+    } finally { clearTimeout(timer); }
     const nav = document.querySelector('[data-surfaces-navigation]');
     const brand = nav.querySelector('.surfaces-navigation-identifier');
     const lockup = brand.querySelector('.surfaces-brand-lockup');
@@ -210,11 +260,11 @@ try {
           if (expected.width === 390) {
             const alternate = colorScheme === 'light' ? 'dark' : 'light';
             await client.send('Emulation.setEmulatedMedia', { media: 'screen', features: [{ name: 'prefers-color-scheme', value: alternate }] }, sid);
-            await waitForExpression(client, sid, `new URL(document.querySelector('.site-brand-lockup').currentSrc).pathname === '${alternate === 'dark' ? '/assets/brand/judgmentkit-lockup-reversed.svg' : '/assets/brand/judgmentkit-lockup.svg'}'`);
+            await waitForExpression(client, sid, `document.querySelector('.site-brand-lockup').currentSrc && new URL(document.querySelector('.site-brand-lockup').currentSrc).pathname === '${alternate === 'dark' ? '/assets/brand/judgmentkit-lockup-reversed.svg' : '/assets/brand/judgmentkit-lockup.svg'}'`);
             assert.equal((await measure(client, sid)).headerImage.currentSrc, '/assets/brand/judgmentkit-lockup-reversed.svg');
             schemeChanges.push({ width: expected.width, from: colorScheme, to: alternate, footerUpdated: true, fixedInkHeaderPreserved: true });
             await client.send('Emulation.setEmulatedMedia', { media: 'screen', features: [{ name: 'prefers-color-scheme', value: colorScheme }] }, sid);
-            await waitForExpression(client, sid, `new URL(document.querySelector('.site-brand-lockup').currentSrc).pathname === '${colorScheme === 'dark' ? '/assets/brand/judgmentkit-lockup-reversed.svg' : '/assets/brand/judgmentkit-lockup.svg'}'`);
+            await waitForExpression(client, sid, `document.querySelector('.site-brand-lockup').currentSrc && new URL(document.querySelector('.site-brand-lockup').currentSrc).pathname === '${colorScheme === 'dark' ? '/assets/brand/judgmentkit-lockup-reversed.svg' : '/assets/brand/judgmentkit-lockup.svg'}'`);
           }
           assert.equal(home.menuVisible, expected.menu, label);
           assert.equal(home.overflow, false, label);
@@ -272,9 +322,10 @@ try {
           // Return through browser history rather than reload to exercise pageshow.
           await evaluate(client, sid, "history.back()");
           await waitForExpression(client, sid, "location.pathname === '/' && document.readyState === 'complete'");
-          assert.equal(await evaluate(client, sid, `document.querySelector('[data-surfaces-primary-menu-list]').hidden`), true);
           await applyScrollbarMode(client, sid, expected.scrollbarMode);
-          assert.deepEqual((await measure(client, sid)).lockup, home.lockup, `${label}: Back must preserve alignment`);
+          const restored = await measure(client, sid);
+          assert.equal(await evaluate(client, sid, `document.querySelector('[data-surfaces-primary-menu-list]').hidden`), true);
+          assert.deepEqual(restored.lockup, home.lockup, `${label}: Back must preserve alignment`);
           assert.deepEqual(page.runtimeExceptions, []);
         } finally {
           await page.close();
