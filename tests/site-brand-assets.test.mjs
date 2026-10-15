@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { inflateSync } from "node:zlib";
 import { buildSite } from "../site/build-site.mjs";
-import { applySiteBrandHead, createSiteBrandIconBundle, SITE_BRAND, SITE_BRAND_ICON_BUNDLE } from "../site/brand-assets.mjs";
+import { applySiteBrandHead, createSiteBrandIconBundle, SITE_BRAND, SITE_BRAND_ICON_BUNDLE, SITE_BRAND_LEGACY_ICON_COPIES, SITE_BRAND_LEGACY_MANIFEST_ROUTES } from "../site/brand-assets.mjs";
 import { listenSiteLocalServer } from "../scripts/site-local-server.mjs";
 
 const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-site-brand-"));
@@ -51,6 +51,20 @@ const pngPixels = bytes => {
 let server;
 try {
   await buildSite(outDir);
+  const historicalAlias = (file, key) => ({
+    route: `/assets/brand/${path.parse(file).name}-${key}${path.extname(file)}`,
+    target: `${/^(?:app-icon-|maskable-|favicon-(?:light|dark))/.test(file) ? "/assets/brand/" : "/"}${file}`,
+  });
+  const historicalAliases = [
+    ...["favicon.svg", "favicon.ico", "favicon-16x16.png", "favicon-32x32.png", "safari-pinned-tab.svg", "apple-touch-icon.png", "app-icon-192.png", "app-icon-512.png", "maskable-192.png", "maskable-512.png", "site.webmanifest"]
+      .map(file => historicalAlias(file, "2cbf1750a49bf439")),
+    ...["favicon-light.svg", "favicon-light-16.png", "favicon-light-32.png", "favicon-dark.svg", "favicon-dark-16.png", "favicon-dark-32.png", "favicon.ico", "safari-pinned-tab.svg", "apple-touch-icon.png", "app-icon-192.png", "app-icon-512.png", "maskable-192.png", "maskable-512.png", "site.webmanifest"]
+      .map(file => historicalAlias(file, "86b6a01d9795231a")),
+  ];
+  assert.equal(historicalAliases.length, 25);
+  assert.deepEqual(SITE_BRAND.legacy_icon_aliases, historicalAliases, "retain exactly the 25 recorded URLs and their current equivalents");
+  assert.equal(SITE_BRAND_LEGACY_ICON_COPIES.length, 23);
+  assert.equal(SITE_BRAND_LEGACY_MANIFEST_ROUTES.length, 2);
   const htmlFiles = files(outDir).filter(file => file.endsWith(".html"));
   for (const file of htmlFiles) {
     const label = path.relative(outDir, file);
@@ -244,7 +258,7 @@ try {
   for (const icon of manifest.icons) assert.equal(pngSize(fs.readFileSync(path.join(outDir, icon.src.slice(1)))).join("x"), icon.sizes);
 
   const local = await listenSiteLocalServer({ siteDir: outDir, host: "127.0.0.1", port: 0 }); server = local.server;
-  const mounted = [...SITE_BRAND.copies, ...SITE_BRAND_ICON_BUNDLE.copies, ...[SITE_BRAND.social.route, ...SITE_BRAND.social.aliases].map(route => ({ source: SITE_BRAND.social.source, route }))];
+  const mounted = [...SITE_BRAND.copies, ...SITE_BRAND_ICON_BUNDLE.copies, ...SITE_BRAND_LEGACY_ICON_COPIES, ...[SITE_BRAND.social.route, ...SITE_BRAND.social.aliases].map(route => ({ source: SITE_BRAND.social.source, route }))];
   for (const { source, route } of mounted) {
     const response = await fetch(new URL(route, local.url));
     assert.equal(response.status, 200, route);
@@ -262,7 +276,20 @@ try {
   assert.deepEqual(await versionedManifest.json(), manifest, "legacy and advertised manifest bytes share stable app identity");
   assert.deepEqual(manifest, SITE_BRAND_ICON_BUNDLE.manifest);
   for (const icon of manifest.icons) assert.ok(icon.src.includes(SITE_BRAND_ICON_BUNDLE.key), "version all app/maskable icon cache URLs");
-  console.log(`Website brand checks passed: ${htmlFiles.length - SITE_BRAND.head_exceptions.length} branded HTML heads + ${SITE_BRAND.head_exceptions.length} explicit sandboxed source exception, ${mounted.length} exact public asset routes, ICO frames, PNG dimensions, manifest purposes, complete canonical lockup, and current social aliases.`);
+  for (const route of SITE_BRAND_LEGACY_MANIFEST_ROUTES) {
+    const get = await fetch(new URL(route, local.url));
+    assert.equal(get.status, 200, `${route}: historical manifest GET`);
+    assert.equal(get.headers.get("content-type"), "application/manifest+json; charset=utf-8");
+    assert.deepEqual(Buffer.from(await get.arrayBuffer()), fs.readFileSync(path.join(outDir, "site.webmanifest")), `${route}: current manifest bytes and stable identity`);
+    const head = await fetch(new URL(route, local.url), { method: "HEAD" });
+    assert.equal(head.status, 200, `${route}: historical manifest HEAD`);
+    assert.equal(head.headers.get("content-type"), "application/manifest+json; charset=utf-8");
+    assert.equal((await head.arrayBuffer()).byteLength, 0);
+  }
+  for (const route of ["/assets/brand/favicon-ffffffffffffffff.ico", "/assets/brand/site-ffffffffffffffff.webmanifest"]) {
+    for (const method of ["GET", "HEAD"]) assert.equal((await fetch(new URL(route, local.url), { method })).status, 404, "unrecorded fingerprint routes remain absent");
+  }
+  console.log(`Website brand checks passed: ${htmlFiles.length - SITE_BRAND.head_exceptions.length} branded HTML heads + ${SITE_BRAND.head_exceptions.length} explicit sandboxed source exception, ${mounted.length} exact public asset routes, all 25 historical URLs checked with GET/HEAD, ICO frames, PNG dimensions, manifest purposes, complete canonical lockup, and current social aliases.`);
 } finally {
   server?.closeAllConnections?.();
   if (server) await new Promise(resolve => server.close(resolve));

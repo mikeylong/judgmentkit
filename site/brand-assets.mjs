@@ -35,6 +35,20 @@ export function createSiteBrandIconBundle(root = ROOT) {
 }
 export const SITE_BRAND_ICON_BUNDLE = createSiteBrandIconBundle();
 
+// Native favicon stores can remember an older published URL. Keep only the
+// recorded routes, resolving each to its current equivalent without changing
+// the content-derived bundle or advertising the old addresses again.
+export const SITE_BRAND_LEGACY_ICON_COPIES = SITE_BRAND.legacy_icon_aliases
+  .filter(entry => entry.target !== SITE_BRAND.manifest.route)
+  .map(({ route, target }) => {
+    const active = SITE_BRAND.copies.find(entry => entry.route === target);
+    if (!active) throw new Error(`Unknown legacy icon target: ${target}`);
+    return { route, source: active.source };
+  });
+export const SITE_BRAND_LEGACY_MANIFEST_ROUTES = SITE_BRAND.legacy_icon_aliases
+  .filter(entry => entry.target === SITE_BRAND.manifest.route)
+  .map(entry => entry.route);
+
 export function siteBrandHead({ title, description, canonicalUrl, existingContext = [] }) {
   const context = [
     ["property", "og:title", title], ["property", "og:description", description],
@@ -71,7 +85,7 @@ export function siteBrandHead({ title, description, canonicalUrl, existingContex
 
 export async function copySiteBrandAssets(outDir) {
   for (const { source, route } of [
-    ...SITE_BRAND.copies, ...SITE_BRAND_ICON_BUNDLE.copies,
+    ...SITE_BRAND.copies, ...SITE_BRAND_ICON_BUNDLE.copies, ...SITE_BRAND_LEGACY_ICON_COPIES,
     ...[SITE_BRAND.social.route, ...SITE_BRAND.social.aliases].map(route => ({ source: SITE_BRAND.social.source, route })),
   ]) {
     const target = path.join(outDir, route.slice(1));
@@ -79,7 +93,7 @@ export async function copySiteBrandAssets(outDir) {
     await fs.copyFile(path.join(ROOT, source), target);
   }
   const manifest = JSON.stringify(SITE_BRAND_ICON_BUNDLE.manifest, null, 2) + "\n";
-  for (const route of [SITE_BRAND.manifest.route, SITE_BRAND_ICON_BUNDLE.manifestRoute]) {
+  for (const route of [SITE_BRAND.manifest.route, SITE_BRAND_ICON_BUNDLE.manifestRoute, ...SITE_BRAND_LEGACY_MANIFEST_ROUTES]) {
     const target = path.join(outDir, route.slice(1));
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.writeFile(target, manifest);
