@@ -97,13 +97,13 @@ with tempfile.TemporaryDirectory(prefix='judgmentkit-web-icons-') as temporary:
             source = temporary / f'{theme}-{size}.svg'
             source.write_text(icon_svg(theme, optical=size == 16))
             render(source, icons_dir / f'favicon-{theme}-{size}.png', (size, size))
-    frames = [Image.open(icons_dir / f'favicon-light-{size}.png').convert('RGBA') for size in [16, 32, 48]]
+    frames = [Image.open(icons_dir / f'favicon-{ICONS["fallback_theme"]}-{size}.png').convert('RGBA') for size in [16, 32, 48]]
     ico = icons_dir / 'favicon.ico'
     frames[-1].save(ico, format='ICO', sizes=[(16, 16), (32, 32), (48, 48)], append_images=frames[:-1])
     OUTPUTS.append(ico)
     write(f'{ICONS["output_directory"]}/safari-pinned-tab.svg', icon_svg(monochrome=True))
     for name, height in [('app-icon', ICONS['visible_mark_height']), ('maskable', ICONS['maskable_visible_mark_height'])]:
-        source = write(f'{ICONS["output_directory"]}/{name}.svg', icon_svg(height=height, radius=0))
+        source = write(f'{ICONS["output_directory"]}/{name}.svg', icon_svg(theme=ICONS['fallback_theme'], height=height, radius=0))
         for size in ([180, 192, 512] if name == 'app-icon' else [192, 512]):
             target = icons_dir / ('apple-touch-icon.png' if size == 180 else f'{name}-{size}.png')
             render(source, target, (size, size), True)
