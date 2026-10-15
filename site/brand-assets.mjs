@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import fsSync from "node:fs";
 import path from "node:path";
@@ -5,6 +6,32 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const SITE_BRAND = JSON.parse(fsSync.readFileSync(new URL("./brand-assets.json", import.meta.url), "utf8"));
+
+// Favicon stores may retain an old URL independently of ordinary page caching.
+// A new canonical icon byte changes every advertised identity/cache URL.
+export function createSiteBrandIconBundle(root = ROOT) {
+  const sources = SITE_BRAND.copies.filter(entry => entry.content_versioned);
+  const assetHashes = sources.map(({ source, route }) => ({ route, sha256: crypto.createHash("sha256").update(fsSync.readFileSync(path.join(root, source))).digest("hex") }))
+    .sort((a, b) => a.route < b.route ? -1 : a.route > b.route ? 1 : 0);
+  const logicalManifest = {
+    ...SITE_BRAND.manifest.content,
+    icons: [
+      ...[192, 512].map(size => ({ src: `/assets/brand/app-icon-${size}.png`, sizes: `${size}x${size}`, type: "image/png", purpose: "any" })),
+      ...[192, 512].map(size => ({ src: `/assets/brand/maskable-${size}.png`, sizes: `${size}x${size}`, type: "image/png", purpose: "maskable" })),
+    ],
+  };
+  const sha256 = crypto.createHash("sha256").update(JSON.stringify({ assets: assetHashes, manifest: logicalManifest })).digest("hex");
+  const key = sha256.slice(0, SITE_BRAND.icon_cache.hex_length);
+  const versioned = route => {
+    const file = path.parse(route);
+    return `${SITE_BRAND.icon_cache.prefix}/${file.name}-${key}${file.ext}`;
+  };
+  const routes = Object.fromEntries(sources.map(entry => [entry.route, versioned(entry.route)]));
+  const copies = sources.map(entry => ({ ...entry, alias: entry.route, route: routes[entry.route] }));
+  const manifest = { ...logicalManifest, icons: logicalManifest.icons.map(icon => ({ ...icon, src: routes[icon.src] })) };
+  return { key, sha256, routes, copies, manifest, manifestRoute: versioned(SITE_BRAND.manifest.route) };
+}
+export const SITE_BRAND_ICON_BUNDLE = createSiteBrandIconBundle();
 
 export function siteBrandHead({ title, description, canonicalUrl, existingContext = [] }) {
   const context = [
@@ -14,13 +41,13 @@ export function siteBrandHead({ title, description, canonicalUrl, existingContex
   ].filter(([, key]) => !existingContext.includes(key))
     .map(([attribute, key, value]) => `<meta ${attribute}="${key}" content="${value}">`).join("\n    ");
   const social = SITE_BRAND.origin + SITE_BRAND.social.route;
-  return `<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
-    <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16">
-    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="${SITE_BRAND.ink}">
-    <link rel="manifest" href="/site.webmanifest">
+  return `<link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon.ico"]}" sizes="16x16 32x32 48x48">
+    <link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon-16x16.png"]}" type="image/png" sizes="16x16">
+    <link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon-32x32.png"]}" type="image/png" sizes="32x32">
+    <link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon.svg"]}" type="image/svg+xml" sizes="any">
+    <link rel="apple-touch-icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/apple-touch-icon.png"]}" sizes="180x180">
+    <link rel="mask-icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/safari-pinned-tab.svg"]}" color="${SITE_BRAND.ink}">
+    <link rel="manifest" href="${SITE_BRAND_ICON_BUNDLE.manifestRoute}">
     <meta name="application-name" content="JudgmentKit">
     <meta name="apple-mobile-web-app-title" content="JudgmentKit">
     <meta name="theme-color" content="${SITE_BRAND.ink}">
@@ -40,22 +67,19 @@ export function siteBrandHead({ title, description, canonicalUrl, existingContex
 
 export async function copySiteBrandAssets(outDir) {
   for (const { source, route } of [
-    ...SITE_BRAND.copies,
+    ...SITE_BRAND.copies, ...SITE_BRAND_ICON_BUNDLE.copies,
     ...[SITE_BRAND.social.route, ...SITE_BRAND.social.aliases].map(route => ({ source: SITE_BRAND.social.source, route })),
   ]) {
     const target = path.join(outDir, route.slice(1));
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.copyFile(path.join(ROOT, source), target);
   }
-  const manifest = {
-    id: "/", name: "JudgmentKit", short_name: "JudgmentKit", start_url: "/", scope: "/",
-    display: "standalone", background_color: SITE_BRAND.ink, theme_color: SITE_BRAND.ink,
-    icons: [
-      ...[192, 512].map(size => ({ src: `/assets/brand/app-icon-${size}.png`, sizes: `${size}x${size}`, type: "image/png", purpose: "any" })),
-      ...[192, 512].map(size => ({ src: `/assets/brand/maskable-${size}.png`, sizes: `${size}x${size}`, type: "image/png", purpose: "maskable" })),
-    ],
-  };
-  await fs.writeFile(path.join(outDir, "site.webmanifest"), JSON.stringify(manifest, null, 2) + "\n");
+  const manifest = JSON.stringify(SITE_BRAND_ICON_BUNDLE.manifest, null, 2) + "\n";
+  for (const route of [SITE_BRAND.manifest.route, SITE_BRAND_ICON_BUNDLE.manifestRoute]) {
+    const target = path.join(outDir, route.slice(1));
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.writeFile(target, manifest);
+  }
 }
 
 function attribute(tag, name) {

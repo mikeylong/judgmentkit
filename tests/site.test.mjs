@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { buildSite, renderHomepage } from "../site/build-site.mjs";
+import { SITE_BRAND_ICON_BUNDLE } from "../site/brand-assets.mjs";
 import { SYSTEM_MAP_EDGES, SYSTEM_MAP_NODES, SYSTEM_MAP_VIEWBOX, systemMapEdgePath } from "../site/system-map-model.mjs";
 import {
   COMPARISON_COLUMNS,
@@ -1838,7 +1839,7 @@ assert.equal(homepage.includes("optional styling path"), false);
 assert.equal(homepage.includes("Open system map"), false);
 assert.equal(homepage.includes("not the final renderer"), false);
 assert.ok(homepage.includes('rel="canonical" href="https://judgmentkit.ai/"'));
-assert.ok(homepage.includes('rel="icon" href="/favicon.svg"'));
+assert.ok(homepage.includes(`rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon.svg"]}"`));
 assert.ok(homepage.includes('rel="image_src" href="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png"'));
 assert.ok(homepage.includes('property="og:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png"'));
 assert.ok(homepage.includes('property="og:image:secure_url" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png"'));

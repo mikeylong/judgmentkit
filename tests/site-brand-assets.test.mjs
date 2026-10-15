@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { buildSite } from "../site/build-site.mjs";
-import { applySiteBrandHead, SITE_BRAND } from "../site/brand-assets.mjs";
+import { applySiteBrandHead, createSiteBrandIconBundle, SITE_BRAND, SITE_BRAND_ICON_BUNDLE } from "../site/brand-assets.mjs";
 import { listenSiteLocalServer } from "../scripts/site-local-server.mjs";
 
 const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-site-brand-"));
@@ -40,9 +40,15 @@ try {
       assert.equal(matches.length, 1, `${label}: one ${key}`);
       return matches[0].content;
     };
-    for (const [rel, href] of [["icon", "/favicon.ico"], ["icon", "/favicon.svg"], ["icon", "/favicon-16x16.png"], ["icon", "/favicon-32x32.png"], ["apple-touch-icon", "/apple-touch-icon.png"], ["mask-icon", "/safari-pinned-tab.svg"], ["manifest", "/site.webmanifest"], ["image_src", SITE_BRAND.origin + SITE_BRAND.social.route]]) {
+    for (const [rel, alias] of [["icon", "/favicon.ico"], ["icon", "/favicon.svg"], ["icon", "/favicon-16x16.png"], ["icon", "/favicon-32x32.png"], ["apple-touch-icon", "/apple-touch-icon.png"], ["mask-icon", "/safari-pinned-tab.svg"]]) {
+      const href = SITE_BRAND_ICON_BUNDLE.routes[alias];
+      assert.equal(links.filter(item => item.rel === rel && item.href === href).length, 1, `${label}: one content-versioned ${href}`);
+      assert.equal(links.some(item => item.rel === rel && item.href === alias), false, `${label}: do not advertise cached legacy ${alias}`);
+    }
+    for (const [rel, href] of [["manifest", SITE_BRAND_ICON_BUNDLE.manifestRoute], ["image_src", SITE_BRAND.origin + SITE_BRAND.social.route]]) {
       assert.equal(links.filter(item => item.rel === rel && item.href === href).length, 1, `${label}: one ${href}`);
     }
+    assert.equal(links.some(item => item.rel === "manifest" && item.href === "/site.webmanifest"), false, `${label}: version the manifest cache URL`);
     assert.equal(links.find(item => item.rel === "mask-icon").color, SITE_BRAND.ink);
     const canonical = links.filter(item => item.rel === "canonical");
     assert.equal(canonical.length, 1, label);
@@ -83,6 +89,23 @@ try {
   assert.ok(contextual.includes(SITE_BRAND.origin + SITE_BRAND.social.route));
   assert.equal(contextual.match(/<body>[\s\S]*<\/body>/)[0], body);
 
+  const iconSourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-icon-source-"));
+  try {
+    for (const { source } of SITE_BRAND_ICON_BUNDLE.copies) {
+      const target = path.join(iconSourceRoot, source);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.copyFileSync(source, target);
+    }
+    const first = createSiteBrandIconBundle(iconSourceRoot);
+    assert.equal(first.key, SITE_BRAND_ICON_BUNDLE.key, "identical source bytes produce identical cache URLs");
+    fs.appendFileSync(path.join(iconSourceRoot, "brand/slab-j/favicon/favicon.svg"), "<!-- changed source fixture -->\n");
+    const changed = createSiteBrandIconBundle(iconSourceRoot);
+    assert.notEqual(changed.key, first.key, "canonical source byte changes invalidate the identity bundle automatically");
+    for (const alias of Object.keys(first.routes)) assert.notEqual(changed.routes[alias], first.routes[alias], alias);
+    assert.notEqual(changed.manifestRoute, first.manifestRoute);
+    for (const key of ["id", "start_url", "scope"]) assert.equal(changed.manifest[key], "/", "app identity survives cache-key changes");
+  } finally { fs.rmSync(iconSourceRoot, { recursive: true, force: true }); }
+
   const receipt = JSON.parse(fs.readFileSync("site/assets/brand-generation.json", "utf8"));
   for (const [file, expectedHash] of Object.entries(receipt.outputs)) assert.equal(hash(fs.readFileSync(file)), expectedHash, file);
   assert.equal(receipt.canonical_lockup_sha256, hash(fs.readFileSync(receipt.canonical_lockup)));
@@ -105,7 +128,7 @@ try {
   for (const icon of manifest.icons) assert.equal(pngSize(fs.readFileSync(path.join(outDir, icon.src.slice(1)))).join("x"), icon.sizes);
 
   const local = await listenSiteLocalServer({ siteDir: outDir, host: "127.0.0.1", port: 0 }); server = local.server;
-  const mounted = [...SITE_BRAND.copies, ...[SITE_BRAND.social.route, ...SITE_BRAND.social.aliases].map(route => ({ source: SITE_BRAND.social.source, route }))];
+  const mounted = [...SITE_BRAND.copies, ...SITE_BRAND_ICON_BUNDLE.copies, ...[SITE_BRAND.social.route, ...SITE_BRAND.social.aliases].map(route => ({ source: SITE_BRAND.social.source, route }))];
   for (const { source, route } of mounted) {
     const response = await fetch(new URL(route, local.url));
     assert.equal(response.status, 200, route);
@@ -118,6 +141,11 @@ try {
   const response = await fetch(new URL("/site.webmanifest", local.url));
   assert.equal(response.headers.get("content-type"), "application/manifest+json; charset=utf-8");
   assert.deepEqual(await response.json(), manifest);
+  const versionedManifest = await fetch(new URL(SITE_BRAND_ICON_BUNDLE.manifestRoute, local.url));
+  assert.equal(versionedManifest.headers.get("content-type"), "application/manifest+json; charset=utf-8");
+  assert.deepEqual(await versionedManifest.json(), manifest, "legacy and advertised manifest bytes share stable app identity");
+  assert.deepEqual(manifest, SITE_BRAND_ICON_BUNDLE.manifest);
+  for (const icon of manifest.icons) assert.ok(icon.src.includes(SITE_BRAND_ICON_BUNDLE.key), "version all app/maskable icon cache URLs");
   console.log(`Website brand checks passed: ${htmlFiles.length - SITE_BRAND.head_exceptions.length} branded HTML heads + ${SITE_BRAND.head_exceptions.length} explicit sandboxed source exception, ${mounted.length} exact public asset routes, ICO frames, PNG dimensions, manifest purposes, complete canonical lockup, and current social aliases.`);
 } finally {
   server?.closeAllConnections?.();
