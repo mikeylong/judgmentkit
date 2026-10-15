@@ -59,11 +59,11 @@ def mark(parts, foreground, height, identifier='', monochrome=False):
     return f'<g{identifier_attribute} transform="translate({x:g} {y:g}) scale({scale:g})">{polygons}</g>'
 
 
-def icon_svg(theme='light', height=None, radius=None, optical=False, responsive=False, monochrome=False):
+def icon_svg(theme='light', height=None, radius=None, optical=False, responsive=False, monochrome=False, transparent=False):
     height = height if height is not None else ICONS['visible_mark_height']
     radius = radius if radius is not None else ICONS['browser_radius']
     background, foreground = (CONFIG['ivory'], CONFIG['ink']) if theme == 'light' else (CONFIG['ink'], CONFIG['ivory'])
-    body = '' if monochrome else f'<rect width="64" height="64" rx="{radius:g}" fill="{background}"/>'
+    body = '' if monochrome or transparent else f'<rect width="64" height="64" rx="{radius:g}" fill="{background}"/>'
     if responsive:
         body += f'<style>#optical{{display:none}}@media(max-width:{ICONS["optical_max_size"]}px){{#canonical{{display:none}}#optical{{display:inline}}}}</style>'
         body += mark(GEOMETRY['canonical'], foreground, height, 'canonical') + mark(GEOMETRY['optical_16'], foreground, height, 'optical')
@@ -92,14 +92,17 @@ icons_dir.mkdir(parents=True, exist_ok=True)
 with tempfile.TemporaryDirectory(prefix='judgmentkit-web-icons-') as temporary:
     temporary = Path(temporary)
     for theme in ['light', 'dark']:
-        write(f'{ICONS["output_directory"]}/favicon-{theme}.svg', icon_svg(theme, responsive=True))
+        write(f'{ICONS["output_directory"]}/favicon-{theme}.svg', icon_svg(theme, responsive=True, transparent=ICONS['browser_background'] == 'transparent'))
         for size in [16, 32, 48]:
             source = temporary / f'{theme}-{size}.svg'
-            source.write_text(icon_svg(theme, optical=size == 16))
+            source.write_text(icon_svg(theme, optical=size == 16, transparent=ICONS['browser_background'] == 'transparent'))
             render(source, icons_dir / f'favicon-{theme}-{size}.png', (size, size))
-    frames = [Image.open(icons_dir / f'favicon-{ICONS["fallback_theme"]}-{size}.png').convert('RGBA') for size in [16, 32, 48]]
+        frames = [Image.open(icons_dir / f'favicon-{theme}-{size}.png').convert('RGBA') for size in [16, 32, 48]]
+        ico = icons_dir / f'favicon-{theme}.ico'
+        frames[-1].save(ico, format='ICO', sizes=[(16, 16), (32, 32), (48, 48)], append_images=frames[:-1])
+        OUTPUTS.append(ico)
     ico = icons_dir / 'favicon.ico'
-    frames[-1].save(ico, format='ICO', sizes=[(16, 16), (32, 32), (48, 48)], append_images=frames[:-1])
+    ico.write_bytes((icons_dir / f'favicon-{ICONS["fallback_theme"]}.ico').read_bytes())
     OUTPUTS.append(ico)
     write(f'{ICONS["output_directory"]}/safari-pinned-tab.svg', icon_svg(monochrome=True))
     for name, height in [('app-icon', ICONS['visible_mark_height']), ('maskable', ICONS['maskable_visible_mark_height'])]:
@@ -115,7 +118,7 @@ record = {
     'generator': 'scripts/build-site-brand-assets.py',
     'canonical_lockup': SOCIAL['lockup_source'],
     'canonical_lockup_sha256': digest(lockup_path),
-    'sources': {p: digest(ROOT / p) for p in [ICONS['geometry_source'], ICONS['master_source'], 'site/brand-assets.json']},
+    'sources': {p: digest(ROOT / p) for p in [ICONS['geometry_source'], ICONS['master_source'], 'site/brand-assets.json', 'site/assets/brand/favicon-theme.js']},
     'canvas': [1200, 630],
     'social_placement': {'scale': scale, 'translation': [x, y], 'source_viewBox': [0, 0, social_width, social_height]},
     'web_icons': ICONS,

@@ -109,6 +109,21 @@
     {
       "source": "site/assets/judgmentkit-social-thumbnail.svg",
       "route": "/assets/judgmentkit-social-thumbnail.svg"
+    },
+    {
+      "source": "site/assets/brand/favicon-light.ico",
+      "route": "/assets/brand/favicon-light.ico",
+      "content_versioned": true
+    },
+    {
+      "source": "site/assets/brand/favicon-dark.ico",
+      "route": "/assets/brand/favicon-dark.ico",
+      "content_versioned": true
+    },
+    {
+      "source": "site/assets/brand/favicon-theme.js",
+      "route": "/assets/brand/favicon-theme.js",
+      "content_versioned": true
     }
   ],
   "head_exceptions": [
@@ -141,7 +156,7 @@
     "geometry_source": "brand/slab-j/geometry.json",
     "master_source": "brand/slab-j/judgmentkit.svg",
     "canvas": 64,
-    "browser_radius": 8,
+    "browser_radius": 0,
     "visible_mark_height": 48,
     "center": [
       32,
@@ -152,7 +167,8 @@
     "maskable_safe_radius": 25.6,
     "fallback_theme": "dark",
     "output_directory": "site/assets/brand",
-    "raster_density": 384
+    "raster_density": 384,
+    "browser_background": "transparent"
   },
   "legacy_icon_aliases": [
     {
@@ -253,6 +269,62 @@
     },
     {
       "route": "/assets/brand/site-86b6a01d9795231a.webmanifest",
+      "target": "/site.webmanifest"
+    },
+    {
+      "route": "/assets/brand/favicon-light-cfee0c66322f931c.svg",
+      "target": "/assets/brand/favicon-light.svg"
+    },
+    {
+      "route": "/assets/brand/favicon-light-16-cfee0c66322f931c.png",
+      "target": "/assets/brand/favicon-light-16.png"
+    },
+    {
+      "route": "/assets/brand/favicon-light-32-cfee0c66322f931c.png",
+      "target": "/assets/brand/favicon-light-32.png"
+    },
+    {
+      "route": "/assets/brand/favicon-dark-cfee0c66322f931c.svg",
+      "target": "/assets/brand/favicon-dark.svg"
+    },
+    {
+      "route": "/assets/brand/favicon-dark-16-cfee0c66322f931c.png",
+      "target": "/assets/brand/favicon-dark-16.png"
+    },
+    {
+      "route": "/assets/brand/favicon-dark-32-cfee0c66322f931c.png",
+      "target": "/assets/brand/favicon-dark-32.png"
+    },
+    {
+      "route": "/assets/brand/favicon-cfee0c66322f931c.ico",
+      "target": "/favicon.ico"
+    },
+    {
+      "route": "/assets/brand/safari-pinned-tab-cfee0c66322f931c.svg",
+      "target": "/safari-pinned-tab.svg"
+    },
+    {
+      "route": "/assets/brand/apple-touch-icon-cfee0c66322f931c.png",
+      "target": "/apple-touch-icon.png"
+    },
+    {
+      "route": "/assets/brand/app-icon-192-cfee0c66322f931c.png",
+      "target": "/assets/brand/app-icon-192.png"
+    },
+    {
+      "route": "/assets/brand/app-icon-512-cfee0c66322f931c.png",
+      "target": "/assets/brand/app-icon-512.png"
+    },
+    {
+      "route": "/assets/brand/maskable-192-cfee0c66322f931c.png",
+      "target": "/assets/brand/maskable-192.png"
+    },
+    {
+      "route": "/assets/brand/maskable-512-cfee0c66322f931c.png",
+      "target": "/assets/brand/maskable-512.png"
+    },
+    {
+      "route": "/assets/brand/site-cfee0c66322f931c.webmanifest",
       "target": "/site.webmanifest"
     }
   ]

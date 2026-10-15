@@ -1180,7 +1180,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "See a screen repaired",
       "Explore examples",
       '<link rel="canonical" href="https://judgmentkit.ai/">',
-      `<link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-light.svg"]}"`,
+      `<script src="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-theme.js"]}" data-brand-favicon-controller`,
       '<meta property="og:site_name" content="JudgmentKit">',
     ],
     "homepage",
@@ -1227,6 +1227,18 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   const docs = await fetchText(baseUrl, "/docs/");
   assert.equal(getAnalyticsScriptSrc(docs.text, "docs"), analyticsScriptSrc);
   assertReleaseFooter(docs.text, expectedPackageVersion, "docs");
+  for (const [label, html] of [["home", home.text], ["value", value.text], ["docs", docs.text]]) {
+    const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1];
+    assert.ok(head, `${label}: document head`);
+    const controllers = [...head.matchAll(/<script\b[^>]*\bdata-brand-favicon-controller[^>]*>/gi)];
+    assert.equal(controllers.length, 1, `${label}: one synchronous favicon controller`);
+    assert.equal(/\s(?:async|defer|type)(?:\s|=|>)/i.test(controllers[0][0]), false, `${label}: classic parser-blocking script`);
+    const active = head.replace(/<!--[\s\S]*?-->|<noscript\b[^>]*>[\s\S]*?<\/noscript>|<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "");
+    assert.equal(/<link\b[^>]*\brel=["'](?:shortcut )?icon["']/i.test(active), false, `${label}: no competing static favicon`);
+    for (const fragment of [`src="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-theme.js"]}"`, `data-light-icon="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-light.ico"]}"`, `data-dark-icon="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-dark.ico"]}"`]) assert.ok(controllers[0][0].includes(fragment), `${label}: current controller and themed ICO URLs`);
+    assert.ok(head.includes(`<noscript data-brand-favicon-fallback><link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-light.ico"]}" type="image/x-icon" sizes="16x16 32x32 48x48"></noscript>`), `${label}: light no-script fallback`);
+  }
+
   assertIncludes(
     docs.text,
     [
@@ -1342,7 +1354,9 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   }
   assert.deepEqual(webManifest.icons.map(icon => [icon.sizes, icon.purpose]), [["192x192", "any"], ["512x512", "any"], ["192x192", "maskable"], ["512x512", "maskable"]]);
   for (const fragment of [
-    `rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon.ico"]}"`,
+    `data-light-icon="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-light.ico"]}"`,
+    `data-dark-icon="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-dark.ico"]}"`,
+    `<noscript data-brand-favicon-fallback><link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-light.ico"]}"`,
     `rel="apple-touch-icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/apple-touch-icon.png"]}"`,
     `rel="mask-icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/safari-pinned-tab.svg"]}"`,
     `rel="manifest" href="${SITE_BRAND_ICON_BUNDLE.manifestRoute}"`,
