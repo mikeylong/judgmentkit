@@ -4289,7 +4289,7 @@ assert.equal(install.includes("git clone"), false);
 assert.equal(install.includes("npm install"), false);
 assert.equal(install.includes("mcp:stdio"), false);
 for (const [built, source] of [
-  ["favicon.svg", "site/assets/brand/favicon-light.svg"],
+  ["favicon.svg", "site/assets/brand/favicon-dark.svg"],
   ["assets/brand/judgmentkit-lockup.svg", "brand/slab-j/lockups/horizontal.svg"],
   ["assets/brand/judgmentkit-lockup-reversed.svg", "brand/slab-j/lockups/horizontal-reversed.svg"],
 ]) {

@@ -65,15 +65,15 @@
       "content_versioned": true
     },
     {
-      "source": "site/assets/brand/favicon-light.svg",
+      "source": "site/assets/brand/favicon-dark.svg",
       "route": "/favicon.svg"
     },
     {
-      "source": "site/assets/brand/favicon-light-16.png",
+      "source": "site/assets/brand/favicon-dark-16.png",
       "route": "/favicon-16x16.png"
     },
     {
-      "source": "site/assets/brand/favicon-light-32.png",
+      "source": "site/assets/brand/favicon-dark-32.png",
       "route": "/favicon-32x32.png"
     },
     {
@@ -132,7 +132,7 @@
       "start_url": "/",
       "scope": "/",
       "display": "standalone",
-      "background_color": "#F7F6F2",
+      "background_color": "#0B0D0E",
       "theme_color": "#0B0D0E"
     }
   },
@@ -150,7 +150,7 @@
     "optical_max_size": 20,
     "maskable_visible_mark_height": 36,
     "maskable_safe_radius": 25.6,
-    "fallback_theme": "light",
+    "fallback_theme": "dark",
     "output_directory": "site/assets/brand",
     "raster_density": 384
   }

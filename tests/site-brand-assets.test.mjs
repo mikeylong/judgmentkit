@@ -3,6 +3,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { inflateSync } from "node:zlib";
 import { buildSite } from "../site/build-site.mjs";
 import { applySiteBrandHead, createSiteBrandIconBundle, SITE_BRAND, SITE_BRAND_ICON_BUNDLE } from "../site/brand-assets.mjs";
 import { listenSiteLocalServer } from "../scripts/site-local-server.mjs";
@@ -12,6 +13,41 @@ const hash = bytes => crypto.createHash("sha256").update(bytes).digest("hex");
 const attrs = tag => Object.fromEntries([...tag.matchAll(/([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)].map(([, key, a, b]) => [key.toLowerCase(), a ?? b]));
 const files = directory => fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => entry.isDirectory() ? files(path.join(directory, entry.name)) : [path.join(directory, entry.name)]);
 const pngSize = bytes => { assert.equal(bytes.subarray(1, 4).toString(), "PNG"); return [bytes.readUInt32BE(16), bytes.readUInt32BE(20)]; };
+// Decode the committed RGB/RGBA PNGs, including PNG frames inside the ICO.
+// Pixel checks catch a light fallback or white edge even when dimensions match.
+const pngPixels = bytes => {
+  const [width, height] = pngSize(bytes);
+  assert.equal(bytes[24], 8, "8-bit channel exports");
+  assert.ok([2, 6].includes(bytes[25]), "RGB or RGBA export");
+  const channels = bytes[25] === 6 ? 4 : 3, chunks = [];
+  for (let offset = 8; offset < bytes.length;) {
+    const length = bytes.readUInt32BE(offset), type = bytes.subarray(offset + 4, offset + 8).toString();
+    if (type === "IDAT") chunks.push(bytes.subarray(offset + 8, offset + 8 + length));
+    offset += length + 12;
+  }
+  const raw = inflateSync(Buffer.concat(chunks)), stride = width * channels;
+  const pixels = Buffer.alloc(width * height * 4), rows = Buffer.alloc(height * stride);
+  const paeth = (a, b, c) => {
+    const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+    return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
+  };
+  assert.equal(raw.length, height * (stride + 1));
+  for (let y = 0; y < height; y++) {
+    const filter = raw[y * (stride + 1)];
+    assert.ok(filter <= 4, "supported PNG row filter");
+    for (let x = 0; x < stride; x++) {
+      const left = x >= channels ? rows[y * stride + x - channels] : 0;
+      const up = y ? rows[(y - 1) * stride + x] : 0;
+      const diagonal = y && x >= channels ? rows[(y - 1) * stride + x - channels] : 0;
+      rows[y * stride + x] = raw[y * (stride + 1) + x + 1] + [0, left, up, Math.floor((left + up) / 2), paeth(left, up, diagonal)][filter];
+    }
+    for (let x = 0; x < width; x++) {
+      rows.copy(pixels, (y * width + x) * 4, y * stride + x * channels, y * stride + x * channels + 3);
+      pixels[(y * width + x) * 4 + 3] = channels === 4 ? rows[y * stride + x * channels + 3] : 255;
+    }
+  }
+  return pixels;
+};
 let server;
 try {
   await buildSite(outDir);
@@ -131,6 +167,7 @@ try {
   assert.ok(SITE_BRAND.social.aliases.includes("/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png"));
 
   assert.equal(SITE_BRAND.web_icons.raster_density, 384);
+  assert.equal(SITE_BRAND.web_icons.fallback_theme, "dark");
   assert.equal(SITE_BRAND.social.raster_density, 192);
   const geometry = JSON.parse(fs.readFileSync("brand/slab-j/geometry.json", "utf8"));
   const close = (actual, expected, message) => assert.ok(Math.abs(actual - expected) < 1e-9, `${message}: ${actual} vs ${expected}`);
@@ -165,26 +202,44 @@ try {
   }
   for (const [name, height] of [["app-icon", 48], ["maskable", 36]]) {
     const svg = fs.readFileSync(`site/assets/brand/${name}.svg`, "utf8");
-    assert.equal(attrs(svg.match(/<rect\b([^>]+)>/)[1]).rx, "0", "platform owns rounding");
-    const radius = inspectGroup([...svg.matchAll(/<g\b([^>]*)>([\s\S]*?)<\/g>/g)][0], geometry.canonical, height, [SITE_BRAND.ink, SITE_BRAND.ink, SITE_BRAND.nickel]);
+    const rect = attrs(svg.match(/<rect\b([^>]+)>/)[1]);
+    assert.equal(rect.rx, "0", "platform owns rounding");
+    assert.equal(rect.fill, SITE_BRAND.ink, "installed app fallback uses Ink plate");
+    const radius = inspectGroup([...svg.matchAll(/<g\b([^>]*)>([\s\S]*?)<\/g>/g)][0], geometry.canonical, height, [SITE_BRAND.ivory, SITE_BRAND.ivory, SITE_BRAND.nickel]);
     if (name === "maskable") assert.ok(radius < 25.6, "36-unit alternate fits central80% diameter safe circle");
   }
   const pinned = fs.readFileSync("site/assets/brand/safari-pinned-tab.svg", "utf8");
   assert.equal(pinned.includes("<rect"), false, "pinned icon is a single-color silhouette");
   inspectGroup([...pinned.matchAll(/<g\b([^>]*)>([\s\S]*?)<\/g>/g)][0], geometry.canonical, 48, ["#000000", "#000000", "#000000"]);
-  for (const [route, source] of [["favicon.svg", "favicon-light.svg"], ["favicon-16x16.png", "favicon-light-16.png"], ["favicon-32x32.png", "favicon-light-32.png"]]) assert.deepEqual(fs.readFileSync(path.join(outDir, route)), fs.readFileSync(`site/assets/brand/${source}`), "legacy icon fallback is light");
+  for (const [route, source] of [["favicon.svg", "favicon-dark.svg"], ["favicon-16x16.png", "favicon-dark-16.png"], ["favicon-32x32.png", "favicon-dark-32.png"]]) assert.deepEqual(fs.readFileSync(path.join(outDir, route)), fs.readFileSync(`site/assets/brand/${source}`), "legacy icon fallback is dark");
   assert.deepEqual(pngSize(fs.readFileSync(SITE_BRAND.social.source)), [1200, 630]);
   const ico = fs.readFileSync(path.join(outDir, "favicon.ico"));
   assert.equal(ico.readUInt16LE(0), 0); assert.equal(ico.readUInt16LE(2), 1);
   assert.equal(ico.readUInt16LE(4), 3);
   assert.deepEqual([0, 1, 2].map(index => [ico[6 + index * 16], ico[7 + index * 16]]), [[16, 16], [32, 32], [48, 48]]);
+  for (const [index, size] of [16, 32, 48].entries()) {
+    const png = fs.readFileSync(`site/assets/brand/favicon-dark-${size}.png`), dark = pngPixels(png);
+    const entry = 6 + index * 16, length = ico.readUInt32LE(entry + 8), offset = ico.readUInt32LE(entry + 12);
+    assert.deepEqual(pngPixels(ico.subarray(offset, offset + length)), dark, `${size}px ICO frame preserves every dark fallback pixel`);
+    let partial = 0;
+    for (let pixel = 0; pixel < dark.length; pixel += 4) if (dark[pixel + 3] > 0 && dark[pixel + 3] < 255) {
+      assert.deepEqual([...dark.subarray(pixel, pixel + 3)], [11, 13, 14], "partial-alpha outer edge has Ink RGB, without a white matte");
+      partial++;
+    }
+    assert.ok(partial > 0, "rounded tile has antialiased edges");
+  }
+  for (const name of ["apple-touch-icon", "app-icon-192", "app-icon-512", "maskable-192", "maskable-512"]) {
+    const pixels = pngPixels(fs.readFileSync(`site/assets/brand/${name}.png`));
+    assert.deepEqual([...pixels.subarray(0, 4)], [11, 13, 14, 255], `${name}: opaque Ink corner`);
+    for (let pixel = 3; pixel < pixels.length; pixel += 4) assert.equal(pixels[pixel], 255, `${name}: platform icon is opaque`);
+  }
   for (const [route, size] of [["favicon-16x16.png", 16], ["favicon-32x32.png", 32], ["apple-touch-icon.png", 180]]) assert.deepEqual(pngSize(fs.readFileSync(path.join(outDir, route))), [size, size]);
   const placement = JSON.parse(fs.readFileSync("brand/slab-j/placement.json", "utf8"));
   assert.ok(placement.maximum_mark_vertex_radius < placement.safe_zone_radius, "canonical mark fits maskable safe zone");
   const manifest = JSON.parse(fs.readFileSync(path.join(outDir, "site.webmanifest"), "utf8"));
   assert.equal(manifest.name, "JudgmentKit"); assert.equal(manifest.short_name, "JudgmentKit");
   assert.equal(manifest.start_url, "/"); assert.equal(manifest.scope, "/"); assert.equal(manifest.id, "/");
-  assert.equal(manifest.theme_color, SITE_BRAND.ink); assert.equal(manifest.background_color, SITE_BRAND.ivory);
+  assert.equal(manifest.theme_color, SITE_BRAND.ink); assert.equal(manifest.background_color, SITE_BRAND.ink);
   assert.deepEqual(manifest.icons.map(icon => [icon.sizes, icon.purpose]), [["192x192", "any"], ["512x512", "any"], ["192x192", "maskable"], ["512x512", "maskable"]]);
   for (const icon of manifest.icons) assert.equal(pngSize(fs.readFileSync(path.join(outDir, icon.src.slice(1)))).join("x"), icon.sizes);
 
