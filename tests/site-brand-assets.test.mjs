@@ -40,11 +40,18 @@ try {
       assert.equal(matches.length, 1, `${label}: one ${key}`);
       return matches[0].content;
     };
-    for (const [rel, alias] of [["icon", "/favicon.ico"], ["icon", "/favicon.svg"], ["icon", "/favicon-16x16.png"], ["icon", "/favicon-32x32.png"], ["apple-touch-icon", "/apple-touch-icon.png"], ["mask-icon", "/safari-pinned-tab.svg"]]) {
+    for (const [rel, alias] of [["icon", "/favicon.ico"], ...["light", "dark"].flatMap(theme => [["icon", `/assets/brand/favicon-${theme}.svg`], ...[16, 32].map(size => ["icon", `/assets/brand/favicon-${theme}-${size}.png`])]), ["apple-touch-icon", "/apple-touch-icon.png"], ["mask-icon", "/safari-pinned-tab.svg"]]) {
       const href = SITE_BRAND_ICON_BUNDLE.routes[alias];
       assert.equal(links.filter(item => item.rel === rel && item.href === href).length, 1, `${label}: one content-versioned ${href}`);
       assert.equal(links.some(item => item.rel === rel && item.href === alias), false, `${label}: do not advertise cached legacy ${alias}`);
     }
+    assert.equal(links.filter(item => item.rel === "icon").length, 7, `${label}: ICO plus both themes of SVG/16px/32px PNG`);
+    for (const theme of ["light", "dark"]) {
+      const themed = links.filter(item => item.rel === "icon" && item.href.includes(`favicon-${theme}`));
+      assert.equal(themed.length, 3, `${label}: explicit ${theme} alternatives`);
+      for (const link of themed) assert.equal(link.media, `(prefers-color-scheme: ${theme})`, `${label}: Safari PNG and SVG media`);
+    }
+    for (const alias of ["/favicon.svg", "/favicon-16x16.png", "/favicon-32x32.png"]) assert.equal(links.some(item => item.href === alias), false);
     for (const [rel, href] of [["manifest", SITE_BRAND_ICON_BUNDLE.manifestRoute], ["image_src", SITE_BRAND.origin + SITE_BRAND.social.route]]) {
       assert.equal(links.filter(item => item.rel === rel && item.href === href).length, 1, `${label}: one ${href}`);
     }
@@ -63,7 +70,7 @@ try {
     assert.equal(meta("og:image:width"), "1200", label);
     assert.equal(meta("og:image:height"), "630", label);
     assert.equal(meta("twitter:card"), "summary_large_image", label);
-    for (const key of ["og:image:alt", "twitter:image:alt"]) assert.equal(meta(key), "JudgmentKit. Before the UI.", label);
+    for (const key of ["og:image:alt", "twitter:image:alt"]) assert.equal(meta(key), "JudgmentKit", label);
     assert.equal(meta("og:title"), meta("twitter:title"), label);
     assert.equal(meta("og:description"), meta("twitter:description"), label);
     assert.ok(meta("og:title").length > 0 && meta("og:description").length > 0, label);
@@ -98,7 +105,7 @@ try {
     }
     const first = createSiteBrandIconBundle(iconSourceRoot);
     assert.equal(first.key, SITE_BRAND_ICON_BUNDLE.key, "identical source bytes produce identical cache URLs");
-    fs.appendFileSync(path.join(iconSourceRoot, "brand/slab-j/favicon/favicon.svg"), "<!-- changed source fixture -->\n");
+    fs.appendFileSync(path.join(iconSourceRoot, "site/assets/brand/favicon-light.svg"), "<!-- changed source fixture -->\n");
     const changed = createSiteBrandIconBundle(iconSourceRoot);
     assert.notEqual(changed.key, first.key, "canonical source byte changes invalidate the identity bundle automatically");
     for (const alias of Object.keys(first.routes)) assert.notEqual(changed.routes[alias], first.routes[alias], alias);
@@ -111,7 +118,61 @@ try {
   assert.equal(receipt.canonical_lockup_sha256, hash(fs.readFileSync(receipt.canonical_lockup)));
   const socialSvg = fs.readFileSync("site/assets/judgmentkit-social-thumbnail.svg", "utf8");
   assert.ok(socialSvg.includes(fs.readFileSync(receipt.canonical_lockup, "utf8").trim()), "embed complete approved source bytes");
-  assert.equal(/<text[^>]*>JudgmentKit<\/text>/.test(socialSvg), false, "outlined wordmark");
+  assert.equal(/<text\b/.test(socialSvg), false, "sharing art contains only the approved outlined lockup");
+  assert.equal(socialSvg.includes("Before the UI."), false, "no in-image tagline");
+  assert.ok(socialSvg.includes('<rect width="1200" height="630" fill="#0B0D0E"/>'));
+  assert.equal(receipt.canonical_lockup, "brand/slab-j/lockups/horizontal-reversed.svg");
+  const sourceViewBox = fs.readFileSync(receipt.canonical_lockup, "utf8").match(/viewBox="([^"]+)"/)[1].split(" ").map(Number);
+  assert.deepEqual(receipt.social_placement.source_viewBox, sourceViewBox, "source dimensions cannot be shadowed by icon height");
+  const scale = Math.min(2.8, 960 / sourceViewBox[2]);
+  assert.equal(receipt.social_placement.scale, scale);
+  assert.deepEqual(receipt.social_placement.translation, [(1200 - sourceViewBox[2] * scale) / 2, (630 - sourceViewBox[3] * scale) / 2]);
+  assert.equal(SITE_BRAND.social.route, `${SITE_BRAND.social.route_prefix}-${hash(fs.readFileSync(SITE_BRAND.social.source)).slice(0, 16)}.png`, "sharing URL follows content bytes");
+  assert.ok(SITE_BRAND.social.aliases.includes("/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png"));
+
+  assert.equal(SITE_BRAND.web_icons.raster_density, 384);
+  assert.equal(SITE_BRAND.social.raster_density, 192);
+  const geometry = JSON.parse(fs.readFileSync("brand/slab-j/geometry.json", "utf8"));
+  const close = (actual, expected, message) => assert.ok(Math.abs(actual - expected) < 1e-9, `${message}: ${actual} vs ${expected}`);
+  const inspectGroup = (group, parts, height, fills) => {
+    const attributes = attrs(group[1]);
+    const polygons = [...group[2].matchAll(/<polygon\b([^>]+)>/g)].map(([, tag]) => attrs(tag));
+    assert.deepEqual(polygons.map(p => p.points), parts, "retain exact approved polygon coordinates");
+    assert.deepEqual(polygons.map(p => p.fill), fills);
+    const transform = attributes.transform.match(/^translate\(([-\d.]+) ([-\d.]+)\) scale\(([-\d.]+)\)$/);
+    assert.ok(transform, "one uniform external transform");
+    const [, tx, ty, factor] = transform.map(Number);
+    const points = parts.flatMap(p => p.split(" ").map(point => point.split(",").map(Number))).map(([x, y]) => [x * factor + tx, y * factor + ty]);
+    const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
+    close(Math.max(...ys) - Math.min(...ys), height, "visible height");
+    close((Math.max(...xs) + Math.min(...xs)) / 2, 32, "actual ink horizontal center");
+    close((Math.max(...ys) + Math.min(...ys)) / 2, 32, "actual ink vertical center");
+    return Math.max(...points.map(([x, y]) => Math.hypot(x - 32, y - 32)));
+  };
+  for (const theme of ["light", "dark"]) {
+    const svg = fs.readFileSync(`site/assets/brand/favicon-${theme}.svg`, "utf8");
+    const rect = attrs(svg.match(/<rect\b([^>]+)>/)[1]);
+    assert.equal(rect.rx, "8"); assert.equal(rect.fill, SITE_BRAND[theme === "light" ? "ivory" : "ink"]);
+    assert.match(svg, /@media\(max-width:20px\)/);
+    const groups = [...svg.matchAll(/<g\b([^>]*)>([\s\S]*?)<\/g>/g)];
+    assert.deepEqual(groups.map(g => attrs(g[1]).id), ["canonical", "optical"]);
+    for (const [index, parts] of [geometry.canonical, geometry.optical_16].entries()) inspectGroup(groups[index], parts, 48, [SITE_BRAND[theme === "light" ? "ink" : "ivory"], SITE_BRAND[theme === "light" ? "ink" : "ivory"], SITE_BRAND.nickel]);
+    for (const size of [16, 32]) {
+      const png = fs.readFileSync(`site/assets/brand/favicon-${theme}-${size}.png`);
+      assert.deepEqual(pngSize(png), [size, size]);
+      assert.equal(png[25], 6, "browser PNG preserves alpha outside rounded corners");
+    }
+  }
+  for (const [name, height] of [["app-icon", 48], ["maskable", 36]]) {
+    const svg = fs.readFileSync(`site/assets/brand/${name}.svg`, "utf8");
+    assert.equal(attrs(svg.match(/<rect\b([^>]+)>/)[1]).rx, "0", "platform owns rounding");
+    const radius = inspectGroup([...svg.matchAll(/<g\b([^>]*)>([\s\S]*?)<\/g>/g)][0], geometry.canonical, height, [SITE_BRAND.ink, SITE_BRAND.ink, SITE_BRAND.nickel]);
+    if (name === "maskable") assert.ok(radius < 25.6, "36-unit alternate fits central80% diameter safe circle");
+  }
+  const pinned = fs.readFileSync("site/assets/brand/safari-pinned-tab.svg", "utf8");
+  assert.equal(pinned.includes("<rect"), false, "pinned icon is a single-color silhouette");
+  inspectGroup([...pinned.matchAll(/<g\b([^>]*)>([\s\S]*?)<\/g>/g)][0], geometry.canonical, 48, ["#000000", "#000000", "#000000"]);
+  for (const [route, source] of [["favicon.svg", "favicon-light.svg"], ["favicon-16x16.png", "favicon-light-16.png"], ["favicon-32x32.png", "favicon-light-32.png"]]) assert.deepEqual(fs.readFileSync(path.join(outDir, route)), fs.readFileSync(`site/assets/brand/${source}`), "legacy icon fallback is light");
   assert.deepEqual(pngSize(fs.readFileSync(SITE_BRAND.social.source)), [1200, 630]);
   const ico = fs.readFileSync(path.join(outDir, "favicon.ico"));
   assert.equal(ico.readUInt16LE(0), 0); assert.equal(ico.readUInt16LE(2), 1);
@@ -123,7 +184,7 @@ try {
   const manifest = JSON.parse(fs.readFileSync(path.join(outDir, "site.webmanifest"), "utf8"));
   assert.equal(manifest.name, "JudgmentKit"); assert.equal(manifest.short_name, "JudgmentKit");
   assert.equal(manifest.start_url, "/"); assert.equal(manifest.scope, "/"); assert.equal(manifest.id, "/");
-  assert.equal(manifest.theme_color, SITE_BRAND.ink); assert.equal(manifest.background_color, SITE_BRAND.ink);
+  assert.equal(manifest.theme_color, SITE_BRAND.ink); assert.equal(manifest.background_color, SITE_BRAND.ivory);
   assert.deepEqual(manifest.icons.map(icon => [icon.sizes, icon.purpose]), [["192x192", "any"], ["512x512", "any"], ["192x192", "maskable"], ["512x512", "maskable"]]);
   for (const icon of manifest.icons) assert.equal(pngSize(fs.readFileSync(path.join(outDir, icon.src.slice(1)))).join("x"), icon.sizes);
 

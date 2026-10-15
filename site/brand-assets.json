@@ -5,27 +5,20 @@
   "ivory": "#F7F6F2",
   "social": {
     "source": "site/assets/judgmentkit-social-thumbnail.png",
-    "route": "/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png",
     "aliases": [
       "/assets/judgmentkit-social-thumbnail.png",
-      "/assets/judgmentkit-social-thumbnail-20260723-v2.png"
+      "/assets/judgmentkit-social-thumbnail-20260723-v2.png",
+      "/assets/judgmentkit-social-thumbnail-20261014-slab-j-v1.png"
     ],
     "width": 1200,
     "height": 630,
-    "alt": "JudgmentKit. Before the UI.",
-    "lockup_source": "brand/slab-j/lockups/horizontal.svg",
-    "lockup_translation": [
-      16,
-      40
-    ],
-    "lockup_scale": 2.2,
-    "tagline": "Before the UI.",
-    "tagline_position": [
-      68,
-      438
-    ],
-    "tagline_font": "Georgia",
-    "tagline_size": 138
+    "alt": "JudgmentKit",
+    "lockup_source": "brand/slab-j/lockups/horizontal-reversed.svg",
+    "route_prefix": "/assets/judgmentkit-social",
+    "background": "#0B0D0E",
+    "maximum_scale": 2.8,
+    "maximum_width": 960,
+    "raster_density": 192
   },
   "copies": [
     {
@@ -37,52 +30,79 @@
       "route": "/assets/brand/judgmentkit-lockup-reversed.svg"
     },
     {
-      "source": "brand/slab-j/favicon/favicon.svg",
-      "route": "/favicon.svg",
+      "source": "site/assets/brand/favicon-light.svg",
+      "route": "/assets/brand/favicon-light.svg",
       "content_versioned": true
     },
     {
-      "source": "brand/slab-j/favicon/favicon.ico",
+      "source": "site/assets/brand/favicon-light-16.png",
+      "route": "/assets/brand/favicon-light-16.png",
+      "content_versioned": true
+    },
+    {
+      "source": "site/assets/brand/favicon-light-32.png",
+      "route": "/assets/brand/favicon-light-32.png",
+      "content_versioned": true
+    },
+    {
+      "source": "site/assets/brand/favicon-dark.svg",
+      "route": "/assets/brand/favicon-dark.svg",
+      "content_versioned": true
+    },
+    {
+      "source": "site/assets/brand/favicon-dark-16.png",
+      "route": "/assets/brand/favicon-dark-16.png",
+      "content_versioned": true
+    },
+    {
+      "source": "site/assets/brand/favicon-dark-32.png",
+      "route": "/assets/brand/favicon-dark-32.png",
+      "content_versioned": true
+    },
+    {
+      "source": "site/assets/brand/favicon.ico",
       "route": "/favicon.ico",
       "content_versioned": true
     },
     {
-      "source": "brand/slab-j/favicon/favicon-16.png",
-      "route": "/favicon-16x16.png",
-      "content_versioned": true
+      "source": "site/assets/brand/favicon-light.svg",
+      "route": "/favicon.svg"
     },
     {
-      "source": "brand/slab-j/favicon/favicon-32.png",
-      "route": "/favicon-32x32.png",
-      "content_versioned": true
+      "source": "site/assets/brand/favicon-light-16.png",
+      "route": "/favicon-16x16.png"
     },
     {
-      "source": "brand/slab-j/favicon/safari-pinned-tab.svg",
+      "source": "site/assets/brand/favicon-light-32.png",
+      "route": "/favicon-32x32.png"
+    },
+    {
+      "source": "site/assets/brand/safari-pinned-tab.svg",
       "route": "/safari-pinned-tab.svg",
       "content_versioned": true
     },
     {
-      "source": "brand/slab-j/app-icons/apple-touch-icon.png",
+      "source": "site/assets/brand/apple-touch-icon.png",
       "route": "/apple-touch-icon.png",
       "content_versioned": true
     },
     {
-      "source": "brand/slab-j/app-icons/app-icon-192.png",
+      "source": "site/assets/brand/app-icon-192.png",
       "route": "/assets/brand/app-icon-192.png",
       "content_versioned": true
     },
     {
-      "source": "brand/slab-j/app-icons/app-icon-512.png",
+      "source": "site/assets/brand/app-icon-512.png",
       "route": "/assets/brand/app-icon-512.png",
       "content_versioned": true
     },
     {
-      "source": "brand/slab-j/app-icons/maskable-192.png",
+      "source": "site/assets/brand/maskable-192.png",
       "route": "/assets/brand/maskable-192.png",
       "content_versioned": true
     },
     {
-      "source": "brand/slab-j/app-icons/maskable-512.png",
+      "source": "site/assets/brand/maskable-512.png",
       "route": "/assets/brand/maskable-512.png",
       "content_versioned": true
     },
@@ -112,8 +132,26 @@
       "start_url": "/",
       "scope": "/",
       "display": "standalone",
-      "background_color": "#0B0D0E",
+      "background_color": "#F7F6F2",
       "theme_color": "#0B0D0E"
     }
+  },
+  "nickel": "#8B9096",
+  "web_icons": {
+    "geometry_source": "brand/slab-j/geometry.json",
+    "master_source": "brand/slab-j/judgmentkit.svg",
+    "canvas": 64,
+    "browser_radius": 8,
+    "visible_mark_height": 48,
+    "center": [
+      32,
+      32
+    ],
+    "optical_max_size": 20,
+    "maskable_visible_mark_height": 36,
+    "maskable_safe_radius": 25.6,
+    "fallback_theme": "light",
+    "output_directory": "site/assets/brand",
+    "raster_density": 384
   }
 }

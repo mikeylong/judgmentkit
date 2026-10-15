@@ -1,13 +1,75 @@
 {
   "generator": "scripts/build-site-brand-assets.py",
-  "canonical_lockup": "brand/slab-j/lockups/horizontal.svg",
-  "canonical_lockup_sha256": "c3dd637eddba7584ec4ccc42775a7fb8fe24ec3d9bdc8df17a6c52e5a0250a86",
+  "canonical_lockup": "brand/slab-j/lockups/horizontal-reversed.svg",
+  "canonical_lockup_sha256": "bdeb284c4ae97572a16b28763ccd43a5b4a99d4930bf31902ea0a97fb5fe5f52",
+  "sources": {
+    "brand/slab-j/geometry.json": "26e03b985e09c029e627fdf7a4bb347906dea0fc8cea8ba437e7333a782003d0",
+    "brand/slab-j/judgmentkit.svg": "bd33c93b9493a8e2e19a3f78d8ff30c34a5a53bfb48b524a5e9a9acd1d9443dd",
+    "site/brand-assets.json": "ca7a73f4dfed339d2af7efc8883fcf7848b09d853186b88e0014ceb81c72a3cf"
+  },
   "canvas": [
     1200,
     630
   ],
+  "social_placement": {
+    "scale": 2.2587526181373856,
+    "translation": [
+      120.0,
+      191.89798231151246
+    ],
+    "source_viewBox": [
+      0,
+      0,
+      425.013342449,
+      109.0
+    ]
+  },
+  "web_icons": {
+    "geometry_source": "brand/slab-j/geometry.json",
+    "master_source": "brand/slab-j/judgmentkit.svg",
+    "canvas": 64,
+    "browser_radius": 8,
+    "visible_mark_height": 48,
+    "center": [
+      32,
+      32
+    ],
+    "optical_max_size": 20,
+    "maskable_visible_mark_height": 36,
+    "maskable_safe_radius": 25.6,
+    "fallback_theme": "light",
+    "output_directory": "site/assets/brand",
+    "raster_density": 384
+  },
+  "maskable_placement": {
+    "visible_mark_height": 36,
+    "translation": [
+      12.8,
+      12.8
+    ],
+    "scale": 0.6,
+    "maximum_vertex_radius": 20.99142682144308,
+    "safe_radius": 25.6
+  },
   "outputs": {
-    "site/assets/judgmentkit-social-thumbnail.svg": "4462ef95bc76db8d0e42cd6536ad5a67e000e4812c063d711a1bb4e524677fad",
-    "site/assets/judgmentkit-social-thumbnail.png": "78aef859399e7da67322b76295530d9067fbdf78cb0d2fd3412dae41946e8190"
+    "site/assets/judgmentkit-social-thumbnail.svg": "767c41ede48bb426ca3c8df288618c1fb0a79ddc40415130fac603f5ad241dbb",
+    "site/assets/judgmentkit-social-thumbnail.png": "c67b13e33c69cbc6782363b7b349176b5680e3aa39ec6724c36b6fb5e9783f08",
+    "site/assets/brand/favicon-light.svg": "1c4c2a6022d2e50c341e9522620470f79174898632eda9fe01c32f3f352325ae",
+    "site/assets/brand/favicon-light-16.png": "359b1e88b0201d55d64d0360b730f5dc6c0317960173ac12ba4f75c7b8402e84",
+    "site/assets/brand/favicon-light-32.png": "a552d29c0c088f003ed9fe542a4d6e7fa62d3c02252e3c87fbe0c0afd6896710",
+    "site/assets/brand/favicon-light-48.png": "0c1c18c67187439a32845d5e3ff80a2aed85a134077961c9ea6ab8a85ba65baf",
+    "site/assets/brand/favicon-dark.svg": "53f9a529ec4752bbd30dfccc866b664d81ce659cc53487501362e32bc5f17808",
+    "site/assets/brand/favicon-dark-16.png": "e917ba316d3a368ea4dc6d13998acb25411f61b8b4a45562d1621935afaf1ada",
+    "site/assets/brand/favicon-dark-32.png": "7baa4434d5370411737a564a7c759679c501bd6548e0bddca445f5685b9e462d",
+    "site/assets/brand/favicon-dark-48.png": "79217a48024d4e5da5a5a284fa397c6fe8fb4a40e794a4120c5fadd119c440b4",
+    "site/assets/brand/favicon.ico": "0608263662fc5ee8f462e68f96aeb3f08e360125d4565f4dcae857b651050f48",
+    "site/assets/brand/safari-pinned-tab.svg": "87e3cec474f28a2bc320d72c7baf2f577c60d7e5e2becbcb39730d20bf56fa82",
+    "site/assets/brand/app-icon.svg": "887b1e112574d65d4b3102cf8eed561ffec8c966538bbb03d973c6bad87bb966",
+    "site/assets/brand/apple-touch-icon.png": "6c0c98c5ca5fda93279227a6982711050e3191ba7a533de0a6b8f2b6ce012d17",
+    "site/assets/brand/app-icon-192.png": "5b5b93756a998cc1d58a54c888a495cac8252bcd244a83fa793eee8a19384f1a",
+    "site/assets/brand/app-icon-512.png": "85abbb85e621c3555a1b2a2a62ee14a7b510786abdc11a8cfca8b1407243e7d4",
+    "site/assets/brand/maskable.svg": "9e3d9aeb77325daec9dca89f9d734a8084080ac78ce7b7438ff81bddb6a34b3b",
+    "site/assets/brand/maskable-192.png": "89ec5c953b66b3b9ec37d7295125212f2be1e15be7c78a739df3ee0dee827188",
+    "site/assets/brand/maskable-512.png": "3d09fef5906b1d71ebc624fe6777cc5099cb217e09e6c124384e21447593d860"
   }
 }
