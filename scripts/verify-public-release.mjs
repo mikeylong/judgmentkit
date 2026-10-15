@@ -11,7 +11,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 import { JUDGMENTKIT_MCP_TOOL_NAMES } from "./install-mcp.mjs";
-import { SITE_BRAND } from "../site/brand-assets.mjs";
+import { SITE_BRAND, SITE_BRAND_ICON_BUNDLE } from "../site/brand-assets.mjs";
 import { validateParsed } from "./capture-model-ui-matrix.mjs";
 import {
   COMPARISON_COLUMNS,
@@ -1180,7 +1180,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "See a screen repaired",
       "Explore examples",
       '<link rel="canonical" href="https://judgmentkit.ai/">',
-      '<link rel="icon" href="/favicon.svg"',
+      `<link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon.svg"]}"`,
       '<meta property="og:site_name" content="JudgmentKit">',
     ],
     "homepage",
@@ -1327,20 +1327,22 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     await verifyDesignSystemSurfaceProfiles(baseUrl);
 
   for (const { route, source } of [
-    ...SITE_BRAND.copies,
+    ...SITE_BRAND.copies, ...SITE_BRAND_ICON_BUNDLE.copies,
     ...[SITE_BRAND.social.route, ...SITE_BRAND.social.aliases].map(route => ({ route, source: SITE_BRAND.social.source })),
   ]) {
     const asset = await fetchBytes(baseUrl, route);
     assert.deepEqual(asset.bytes, await fs.readFile(path.join(PROJECT_ROOT, source)), `${route} must preserve canonical source bytes`);
   }
   const webManifest = JSON.parse((await fetchText(baseUrl, "/site.webmanifest")).text);
-  assert.equal(webManifest.name, "JudgmentKit");
+  assert.deepEqual(webManifest, SITE_BRAND_ICON_BUNDLE.manifest);
+  const advertisedManifest = JSON.parse((await fetchText(baseUrl, SITE_BRAND_ICON_BUNDLE.manifestRoute)).text);
+  assert.deepEqual(advertisedManifest, webManifest);
   assert.deepEqual(webManifest.icons.map(icon => [icon.sizes, icon.purpose]), [["192x192", "any"], ["512x512", "any"], ["192x192", "maskable"], ["512x512", "maskable"]]);
   for (const fragment of [
-    'rel="icon" href="/favicon.ico"',
-    'rel="apple-touch-icon" href="/apple-touch-icon.png"',
-    'rel="mask-icon" href="/safari-pinned-tab.svg"',
-    'rel="manifest" href="/site.webmanifest"',
+    `rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon.ico"]}"`,
+    `rel="apple-touch-icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/apple-touch-icon.png"]}"`,
+    `rel="mask-icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/safari-pinned-tab.svg"]}"`,
+    `rel="manifest" href="${SITE_BRAND_ICON_BUNDLE.manifestRoute}"`,
     `property="og:image" content="${SITE_BRAND.origin}${SITE_BRAND.social.route}"`,
     `name="twitter:image" content="${SITE_BRAND.origin}${SITE_BRAND.social.route}"`,
   ]) assert.ok(home.text.includes(fragment), `homepage brand metadata: ${fragment}`);

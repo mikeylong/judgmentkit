@@ -38,43 +38,53 @@
     },
     {
       "source": "brand/slab-j/favicon/favicon.svg",
-      "route": "/favicon.svg"
+      "route": "/favicon.svg",
+      "content_versioned": true
     },
     {
       "source": "brand/slab-j/favicon/favicon.ico",
-      "route": "/favicon.ico"
+      "route": "/favicon.ico",
+      "content_versioned": true
     },
     {
       "source": "brand/slab-j/favicon/favicon-16.png",
-      "route": "/favicon-16x16.png"
+      "route": "/favicon-16x16.png",
+      "content_versioned": true
     },
     {
       "source": "brand/slab-j/favicon/favicon-32.png",
-      "route": "/favicon-32x32.png"
+      "route": "/favicon-32x32.png",
+      "content_versioned": true
     },
     {
       "source": "brand/slab-j/favicon/safari-pinned-tab.svg",
-      "route": "/safari-pinned-tab.svg"
+      "route": "/safari-pinned-tab.svg",
+      "content_versioned": true
     },
     {
       "source": "brand/slab-j/app-icons/apple-touch-icon.png",
-      "route": "/apple-touch-icon.png"
+      "route": "/apple-touch-icon.png",
+      "content_versioned": true
     },
     {
       "source": "brand/slab-j/app-icons/app-icon-192.png",
-      "route": "/assets/brand/app-icon-192.png"
+      "route": "/assets/brand/app-icon-192.png",
+      "content_versioned": true
     },
     {
       "source": "brand/slab-j/app-icons/app-icon-512.png",
-      "route": "/assets/brand/app-icon-512.png"
+      "route": "/assets/brand/app-icon-512.png",
+      "content_versioned": true
     },
     {
       "source": "brand/slab-j/app-icons/maskable-192.png",
-      "route": "/assets/brand/maskable-192.png"
+      "route": "/assets/brand/maskable-192.png",
+      "content_versioned": true
     },
     {
       "source": "brand/slab-j/app-icons/maskable-512.png",
-      "route": "/assets/brand/maskable-512.png"
+      "route": "/assets/brand/maskable-512.png",
+      "content_versioned": true
     },
     {
       "source": "site/assets/judgmentkit-social-thumbnail.svg",
@@ -87,5 +97,23 @@
       "source": "scripts/visual-composition-film/visual-composition-runtime-demo.html",
       "reason": "Byte-exact sandboxed recording source; noindex/nofollow, data-only image CSP, and intentionally empty data:, favicon."
     }
-  ]
+  ],
+  "icon_cache": {
+    "prefix": "/assets/brand",
+    "digest": "sha256",
+    "hex_length": 16
+  },
+  "manifest": {
+    "route": "/site.webmanifest",
+    "content": {
+      "id": "/",
+      "name": "JudgmentKit",
+      "short_name": "JudgmentKit",
+      "start_url": "/",
+      "scope": "/",
+      "display": "standalone",
+      "background_color": "#0B0D0E",
+      "theme_color": "#0B0D0E"
+    }
+  }
 }
