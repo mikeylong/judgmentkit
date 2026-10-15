@@ -11,7 +11,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 import { JUDGMENTKIT_MCP_TOOL_NAMES } from "./install-mcp.mjs";
-import { SITE_BRAND, SITE_BRAND_ICON_BUNDLE } from "../site/brand-assets.mjs";
+import { SITE_BRAND, SITE_BRAND_ICON_BUNDLE, SITE_BRAND_LEGACY_ICON_COPIES, SITE_BRAND_LEGACY_MANIFEST_ROUTES } from "../site/brand-assets.mjs";
 import { validateParsed } from "./capture-model-ui-matrix.mjs";
 import {
   COMPARISON_COLUMNS,
@@ -1327,7 +1327,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     await verifyDesignSystemSurfaceProfiles(baseUrl);
 
   for (const { route, source } of [
-    ...SITE_BRAND.copies, ...SITE_BRAND_ICON_BUNDLE.copies,
+    ...SITE_BRAND.copies, ...SITE_BRAND_ICON_BUNDLE.copies, ...SITE_BRAND_LEGACY_ICON_COPIES,
     ...[SITE_BRAND.social.route, ...SITE_BRAND.social.aliases].map(route => ({ route, source: SITE_BRAND.social.source })),
   ]) {
     const asset = await fetchBytes(baseUrl, route);
@@ -1337,6 +1337,9 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   assert.deepEqual(webManifest, SITE_BRAND_ICON_BUNDLE.manifest);
   const advertisedManifest = JSON.parse((await fetchText(baseUrl, SITE_BRAND_ICON_BUNDLE.manifestRoute)).text);
   assert.deepEqual(advertisedManifest, webManifest);
+  for (const route of SITE_BRAND_LEGACY_MANIFEST_ROUTES) {
+    assert.deepEqual(JSON.parse((await fetchText(baseUrl, route)).text), webManifest, `${route}: historical manifest retains current app identity`);
+  }
   assert.deepEqual(webManifest.icons.map(icon => [icon.sizes, icon.purpose]), [["192x192", "any"], ["512x512", "any"], ["192x192", "maskable"], ["512x512", "maskable"]]);
   for (const fragment of [
     `rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon.ico"]}"`,

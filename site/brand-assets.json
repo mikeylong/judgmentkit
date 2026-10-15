@@ -153,5 +153,107 @@
     "fallback_theme": "dark",
     "output_directory": "site/assets/brand",
     "raster_density": 384
-  }
+  },
+  "legacy_icon_aliases": [
+    {
+      "route": "/assets/brand/favicon-2cbf1750a49bf439.svg",
+      "target": "/favicon.svg"
+    },
+    {
+      "route": "/assets/brand/favicon-2cbf1750a49bf439.ico",
+      "target": "/favicon.ico"
+    },
+    {
+      "route": "/assets/brand/favicon-16x16-2cbf1750a49bf439.png",
+      "target": "/favicon-16x16.png"
+    },
+    {
+      "route": "/assets/brand/favicon-32x32-2cbf1750a49bf439.png",
+      "target": "/favicon-32x32.png"
+    },
+    {
+      "route": "/assets/brand/safari-pinned-tab-2cbf1750a49bf439.svg",
+      "target": "/safari-pinned-tab.svg"
+    },
+    {
+      "route": "/assets/brand/apple-touch-icon-2cbf1750a49bf439.png",
+      "target": "/apple-touch-icon.png"
+    },
+    {
+      "route": "/assets/brand/app-icon-192-2cbf1750a49bf439.png",
+      "target": "/assets/brand/app-icon-192.png"
+    },
+    {
+      "route": "/assets/brand/app-icon-512-2cbf1750a49bf439.png",
+      "target": "/assets/brand/app-icon-512.png"
+    },
+    {
+      "route": "/assets/brand/maskable-192-2cbf1750a49bf439.png",
+      "target": "/assets/brand/maskable-192.png"
+    },
+    {
+      "route": "/assets/brand/maskable-512-2cbf1750a49bf439.png",
+      "target": "/assets/brand/maskable-512.png"
+    },
+    {
+      "route": "/assets/brand/site-2cbf1750a49bf439.webmanifest",
+      "target": "/site.webmanifest"
+    },
+    {
+      "route": "/assets/brand/favicon-light-86b6a01d9795231a.svg",
+      "target": "/assets/brand/favicon-light.svg"
+    },
+    {
+      "route": "/assets/brand/favicon-light-16-86b6a01d9795231a.png",
+      "target": "/assets/brand/favicon-light-16.png"
+    },
+    {
+      "route": "/assets/brand/favicon-light-32-86b6a01d9795231a.png",
+      "target": "/assets/brand/favicon-light-32.png"
+    },
+    {
+      "route": "/assets/brand/favicon-dark-86b6a01d9795231a.svg",
+      "target": "/assets/brand/favicon-dark.svg"
+    },
+    {
+      "route": "/assets/brand/favicon-dark-16-86b6a01d9795231a.png",
+      "target": "/assets/brand/favicon-dark-16.png"
+    },
+    {
+      "route": "/assets/brand/favicon-dark-32-86b6a01d9795231a.png",
+      "target": "/assets/brand/favicon-dark-32.png"
+    },
+    {
+      "route": "/assets/brand/favicon-86b6a01d9795231a.ico",
+      "target": "/favicon.ico"
+    },
+    {
+      "route": "/assets/brand/safari-pinned-tab-86b6a01d9795231a.svg",
+      "target": "/safari-pinned-tab.svg"
+    },
+    {
+      "route": "/assets/brand/apple-touch-icon-86b6a01d9795231a.png",
+      "target": "/apple-touch-icon.png"
+    },
+    {
+      "route": "/assets/brand/app-icon-192-86b6a01d9795231a.png",
+      "target": "/assets/brand/app-icon-192.png"
+    },
+    {
+      "route": "/assets/brand/app-icon-512-86b6a01d9795231a.png",
+      "target": "/assets/brand/app-icon-512.png"
+    },
+    {
+      "route": "/assets/brand/maskable-192-86b6a01d9795231a.png",
+      "target": "/assets/brand/maskable-192.png"
+    },
+    {
+      "route": "/assets/brand/maskable-512-86b6a01d9795231a.png",
+      "target": "/assets/brand/maskable-512.png"
+    },
+    {
+      "route": "/assets/brand/site-86b6a01d9795231a.webmanifest",
+      "target": "/site.webmanifest"
+    }
+  ]
 }
