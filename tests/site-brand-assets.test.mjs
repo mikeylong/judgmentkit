@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
+import vm from "node:vm";
 import path from "node:path";
 import { inflateSync } from "node:zlib";
 import { buildSite } from "../site/build-site.mjs";
@@ -60,11 +61,13 @@ try {
       .map(file => historicalAlias(file, "2cbf1750a49bf439")),
     ...["favicon-light.svg", "favicon-light-16.png", "favicon-light-32.png", "favicon-dark.svg", "favicon-dark-16.png", "favicon-dark-32.png", "favicon.ico", "safari-pinned-tab.svg", "apple-touch-icon.png", "app-icon-192.png", "app-icon-512.png", "maskable-192.png", "maskable-512.png", "site.webmanifest"]
       .map(file => historicalAlias(file, "86b6a01d9795231a")),
+    ...["favicon-light.svg", "favicon-light-16.png", "favicon-light-32.png", "favicon-dark.svg", "favicon-dark-16.png", "favicon-dark-32.png", "favicon.ico", "safari-pinned-tab.svg", "apple-touch-icon.png", "app-icon-192.png", "app-icon-512.png", "maskable-192.png", "maskable-512.png", "site.webmanifest"]
+      .map(file => historicalAlias(file, "cfee0c66322f931c")),
   ];
-  assert.equal(historicalAliases.length, 25);
-  assert.deepEqual(SITE_BRAND.legacy_icon_aliases, historicalAliases, "retain exactly the 25 recorded URLs and their current equivalents");
-  assert.equal(SITE_BRAND_LEGACY_ICON_COPIES.length, 23);
-  assert.equal(SITE_BRAND_LEGACY_MANIFEST_ROUTES.length, 2);
+  assert.equal(historicalAliases.length, 39);
+  assert.deepEqual(SITE_BRAND.legacy_icon_aliases, historicalAliases, "retain exactly the 39 recorded URLs and their current equivalents");
+  assert.equal(SITE_BRAND_LEGACY_ICON_COPIES.length, 36);
+  assert.equal(SITE_BRAND_LEGACY_MANIFEST_ROUTES.length, 3);
   const htmlFiles = files(outDir).filter(file => file.endsWith(".html"));
   for (const file of htmlFiles) {
     const label = path.relative(outDir, file);
@@ -90,18 +93,24 @@ try {
       assert.equal(matches.length, 1, `${label}: one ${key}`);
       return matches[0].content;
     };
-    for (const [rel, alias] of [["icon", "/favicon.ico"], ...["light", "dark"].flatMap(theme => [["icon", `/assets/brand/favicon-${theme}.svg`], ...[16, 32].map(size => ["icon", `/assets/brand/favicon-${theme}-${size}.png`])]), ["apple-touch-icon", "/apple-touch-icon.png"], ["mask-icon", "/safari-pinned-tab.svg"]]) {
+    const controllers = [...head.matchAll(/<script\b[^>]*\bdata-brand-favicon-controller[^>]*>/gi)].map(([tag]) => attrs(tag));
+    assert.equal(controllers.length, 1, `${label}: exactly one controller before document parsing completes`);
+    const controller = controllers[0];
+    assert.equal(controller.src, SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-theme.js"]);
+    assert.equal(controller["data-light-icon"], SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-light.ico"]);
+    assert.equal(controller["data-dark-icon"], SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-dark.ico"]);
+    assert.equal(/\s(?:async|defer|type)(?:\s|=|>)/i.test(head.match(/<script\b[^>]*\bdata-brand-favicon-controller[^>]*>/i)[0]), false, `${label}: synchronous classic script`);
+    const fallback = head.match(/<noscript\b[^>]*data-brand-favicon-fallback[^>]*>([\s\S]*?)<\/noscript>/i);
+    assert.ok(fallback, `${label}: readable no-script fallback`);
+    const fallbackLinks = [...fallback[1].matchAll(/<link\b[^>]*>/gi)].map(([tag]) => attrs(tag));
+    assert.deepEqual(fallbackLinks, [{ rel: "icon", href: controller["data-light-icon"], type: "image/x-icon", sizes: "16x16 32x32 48x48" }]);
+    assert.equal([...tags.replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript>/gi, "").matchAll(/<link\b[^>]*>/gi)].map(([tag]) => attrs(tag)).filter(link => link.rel === "icon").length, 0, `${label}: no competing static favicon candidates`);
+    assert.equal(redecorated.match(/data-brand-favicon-controller/g).length, 1, `${label}: repeated head pass cannot duplicate controller`);
+    assert.equal(redecorated.match(/data-brand-favicon-fallback/g).length, 1, `${label}: repeated head pass cannot duplicate fallback`);
+    for (const [rel, alias] of [["apple-touch-icon", "/apple-touch-icon.png"], ["mask-icon", "/safari-pinned-tab.svg"]]) {
       const href = SITE_BRAND_ICON_BUNDLE.routes[alias];
       assert.equal(links.filter(item => item.rel === rel && item.href === href).length, 1, `${label}: one content-versioned ${href}`);
-      assert.equal(links.some(item => item.rel === rel && item.href === alias), false, `${label}: do not advertise cached legacy ${alias}`);
     }
-    assert.equal(links.filter(item => item.rel === "icon").length, 7, `${label}: ICO plus both themes of SVG/16px/32px PNG`);
-    for (const theme of ["light", "dark"]) {
-      const themed = links.filter(item => item.rel === "icon" && item.href.includes(`favicon-${theme}`));
-      assert.equal(themed.length, 3, `${label}: explicit ${theme} alternatives`);
-      for (const link of themed) assert.equal(link.media, `(prefers-color-scheme: ${theme})`, `${label}: Safari PNG and SVG media`);
-    }
-    for (const alias of ["/favicon.svg", "/favicon-16x16.png", "/favicon-32x32.png"]) assert.equal(links.some(item => item.href === alias), false);
     for (const [rel, href] of [["manifest", SITE_BRAND_ICON_BUNDLE.manifestRoute], ["image_src", SITE_BRAND.origin + SITE_BRAND.social.route]]) {
       assert.equal(links.filter(item => item.rel === rel && item.href === href).length, 1, `${label}: one ${href}`);
     }
@@ -146,6 +155,23 @@ try {
   assert.ok(contextual.includes(SITE_BRAND.origin + SITE_BRAND.social.route));
   assert.equal(contextual.match(/<body>[\s\S]*<\/body>/)[0], body);
 
+  const controllerSource = fs.readFileSync("site/assets/brand/favicon-theme.js", "utf8");
+  assert.equal(hash(controllerSource), "438e2c44cada8c2a0ae77ff4000d87f5d943b00afda39a786850f5fe3871140e", "exact approved shared controller bytes");
+  for (const initialDark of [false, true]) {
+    const nodes = [], listeners = [];
+    const appearance = { matches: initialDark, addEventListener: (event, listener) => { assert.equal(event, "change"); listeners.push(listener); } };
+    const dataset = { lightIcon: "light.ico", darkIcon: "dark.ico" };
+    vm.runInNewContext(controllerSource, {
+      window: { matchMedia: query => { assert.equal(query, "(prefers-color-scheme: dark)"); return appearance; } },
+      document: { currentScript: { dataset }, createElement: tag => { assert.equal(tag, "link"); return { dataset: {} }; }, head: { append: icon => { assert.equal(icon.href, initialDark ? "dark.ico" : "light.ico", "choose href before insertion"); nodes.push(icon); } } },
+    });
+    assert.equal(nodes.length, 1); assert.equal(listeners.length, 1);
+    assert.equal(nodes[0].rel, "icon"); assert.equal(nodes[0].type, "image/x-icon"); assert.equal(nodes[0].sizes, "16x16 32x32 48x48");
+    appearance.matches = !initialDark; listeners[0]();
+    assert.equal(nodes.length, 1, "scheme updates reuse the same candidate");
+    assert.equal(nodes[0].href, initialDark ? "light.ico" : "dark.ico");
+  }
+
   const iconSourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-icon-source-"));
   try {
     for (const { source } of SITE_BRAND_ICON_BUNDLE.copies) {
@@ -161,6 +187,8 @@ try {
     for (const alias of Object.keys(first.routes)) assert.notEqual(changed.routes[alias], first.routes[alias], alias);
     assert.notEqual(changed.manifestRoute, first.manifestRoute);
     for (const key of ["id", "start_url", "scope"]) assert.equal(changed.manifest[key], "/", "app identity survives cache-key changes");
+    fs.appendFileSync(path.join(iconSourceRoot, "site/assets/brand/favicon-theme.js"), "\n// changed controller fixture\n");
+    assert.notEqual(createSiteBrandIconBundle(iconSourceRoot).key, changed.key, "controller bytes participate in every advertised identity URL");
   } finally { fs.rmSync(iconSourceRoot, { recursive: true, force: true }); }
 
   const receipt = JSON.parse(fs.readFileSync("site/assets/brand-generation.json", "utf8"));
@@ -182,6 +210,8 @@ try {
 
   assert.equal(SITE_BRAND.web_icons.raster_density, 384);
   assert.equal(SITE_BRAND.web_icons.fallback_theme, "dark");
+  assert.equal(SITE_BRAND.web_icons.browser_radius, 0);
+  assert.equal(SITE_BRAND.web_icons.browser_background, "transparent");
   assert.equal(SITE_BRAND.social.raster_density, 192);
   const geometry = JSON.parse(fs.readFileSync("brand/slab-j/geometry.json", "utf8"));
   const close = (actual, expected, message) => assert.ok(Math.abs(actual - expected) < 1e-9, `${message}: ${actual} vs ${expected}`);
@@ -202,8 +232,7 @@ try {
   };
   for (const theme of ["light", "dark"]) {
     const svg = fs.readFileSync(`site/assets/brand/favicon-${theme}.svg`, "utf8");
-    const rect = attrs(svg.match(/<rect\b([^>]+)>/)[1]);
-    assert.equal(rect.rx, "8"); assert.equal(rect.fill, SITE_BRAND[theme === "light" ? "ivory" : "ink"]);
+    assert.equal(svg.includes("<rect"), false, "browser icon has no plate or corner radius");
     assert.match(svg, /@media\(max-width:20px\)/);
     const groups = [...svg.matchAll(/<g\b([^>]*)>([\s\S]*?)<\/g>/g)];
     assert.deepEqual(groups.map(g => attrs(g[1]).id), ["canonical", "optical"]);
@@ -211,7 +240,7 @@ try {
     for (const size of [16, 32]) {
       const png = fs.readFileSync(`site/assets/brand/favicon-${theme}-${size}.png`);
       assert.deepEqual(pngSize(png), [size, size]);
-      assert.equal(png[25], 6, "browser PNG preserves alpha outside rounded corners");
+      assert.equal(png[25], 6, "browser PNG preserves transparent canvas");
     }
   }
   for (const [name, height] of [["app-icon", 48], ["maskable", 36]]) {
@@ -227,21 +256,27 @@ try {
   inspectGroup([...pinned.matchAll(/<g\b([^>]*)>([\s\S]*?)<\/g>/g)][0], geometry.canonical, 48, ["#000000", "#000000", "#000000"]);
   for (const [route, source] of [["favicon.svg", "favicon-dark.svg"], ["favicon-16x16.png", "favicon-dark-16.png"], ["favicon-32x32.png", "favicon-dark-32.png"]]) assert.deepEqual(fs.readFileSync(path.join(outDir, route)), fs.readFileSync(`site/assets/brand/${source}`), "legacy icon fallback is dark");
   assert.deepEqual(pngSize(fs.readFileSync(SITE_BRAND.social.source)), [1200, 630]);
-  const ico = fs.readFileSync(path.join(outDir, "favicon.ico"));
-  assert.equal(ico.readUInt16LE(0), 0); assert.equal(ico.readUInt16LE(2), 1);
-  assert.equal(ico.readUInt16LE(4), 3);
-  assert.deepEqual([0, 1, 2].map(index => [ico[6 + index * 16], ico[7 + index * 16]]), [[16, 16], [32, 32], [48, 48]]);
-  for (const [index, size] of [16, 32, 48].entries()) {
-    const png = fs.readFileSync(`site/assets/brand/favicon-dark-${size}.png`), dark = pngPixels(png);
-    const entry = 6 + index * 16, length = ico.readUInt32LE(entry + 8), offset = ico.readUInt32LE(entry + 12);
-    assert.deepEqual(pngPixels(ico.subarray(offset, offset + length)), dark, `${size}px ICO frame preserves every dark fallback pixel`);
-    let partial = 0;
-    for (let pixel = 0; pixel < dark.length; pixel += 4) if (dark[pixel + 3] > 0 && dark[pixel + 3] < 255) {
-      assert.deepEqual([...dark.subarray(pixel, pixel + 3)], [11, 13, 14], "partial-alpha outer edge has Ink RGB, without a white matte");
-      partial++;
+  for (const theme of ["light", "dark"]) {
+    const ico = fs.readFileSync(`site/assets/brand/favicon-${theme}.ico`);
+    assert.equal(ico.readUInt16LE(0), 0); assert.equal(ico.readUInt16LE(2), 1); assert.equal(ico.readUInt16LE(4), 3);
+    assert.deepEqual([0, 1, 2].map(index => [ico[6 + index * 16], ico[7 + index * 16]]), [[16, 16], [32, 32], [48, 48]]);
+    for (const [index, size] of [16, 32, 48].entries()) {
+      const pixels = pngPixels(fs.readFileSync(`site/assets/brand/favicon-${theme}-${size}.png`));
+      const entry = 6 + index * 16, length = ico.readUInt32LE(entry + 8), offset = ico.readUInt32LE(entry + 12);
+      assert.deepEqual(pngPixels(ico.subarray(offset, offset + length)), pixels, `${theme} ${size}px ICO frame preserves every themed PNG pixel`);
+      const foreground = theme === "light" ? [11, 13, 14] : [247, 246, 242];
+      let primary = 0, nickel = 0, partial = 0;
+      for (let pixel = 0; pixel < pixels.length; pixel += 4) {
+        const x = (pixel / 4) % size, y = Math.floor(pixel / 4 / size), alpha = pixels[pixel + 3];
+        if (x === 0 || y === 0 || x === size - 1 || y === size - 1) assert.equal(alpha, 0, `${theme} ${size}px outer canvas is transparent`);
+        if (alpha === 255 && pixels.subarray(pixel, pixel + 3).equals(Buffer.from(foreground))) primary++;
+        if (alpha === 255 && pixels.subarray(pixel, pixel + 3).equals(Buffer.from([139, 144, 150]))) nickel++;
+        if (alpha > 0 && alpha < 255) partial++;
+      }
+      assert.ok(primary > 0 && nickel > 0 && partial > 0, `${theme} ${size}px canonical primary, Nickel and antialiased mark edges`);
     }
-    assert.ok(partial > 0, "rounded tile has antialiased edges");
   }
+  assert.deepEqual(fs.readFileSync(path.join(outDir, "favicon.ico")), fs.readFileSync("site/assets/brand/favicon-dark.ico"), "root fallback keeps transparent dark ICO");
   for (const name of ["apple-touch-icon", "app-icon-192", "app-icon-512", "maskable-192", "maskable-512"]) {
     const pixels = pngPixels(fs.readFileSync(`site/assets/brand/${name}.png`));
     assert.deepEqual([...pixels.subarray(0, 4)], [11, 13, 14, 255], `${name}: opaque Ink corner`);
@@ -262,7 +297,7 @@ try {
   for (const { source, route } of mounted) {
     const response = await fetch(new URL(route, local.url));
     assert.equal(response.status, 200, route);
-    const expectedType = route.endsWith(".ico") ? "image/x-icon" : route.endsWith(".png") ? "image/png" : "image/svg+xml; charset=utf-8";
+    const expectedType = route.endsWith(".ico") ? "image/x-icon" : route.endsWith(".png") ? "image/png" : route.endsWith(".js") ? "application/javascript; charset=utf-8" : "image/svg+xml; charset=utf-8";
     assert.equal(response.headers.get("content-type"), expectedType, route);
     assert.deepEqual(Buffer.from(await response.arrayBuffer()), fs.readFileSync(source), `${route}: canonical bytes`);
     const head = await fetch(new URL(route, local.url), { method: "HEAD" });
@@ -289,7 +324,7 @@ try {
   for (const route of ["/assets/brand/favicon-ffffffffffffffff.ico", "/assets/brand/site-ffffffffffffffff.webmanifest"]) {
     for (const method of ["GET", "HEAD"]) assert.equal((await fetch(new URL(route, local.url), { method })).status, 404, "unrecorded fingerprint routes remain absent");
   }
-  console.log(`Website brand checks passed: ${htmlFiles.length - SITE_BRAND.head_exceptions.length} branded HTML heads + ${SITE_BRAND.head_exceptions.length} explicit sandboxed source exception, ${mounted.length} exact public asset routes, all 25 historical URLs checked with GET/HEAD, ICO frames, PNG dimensions, manifest purposes, complete canonical lockup, and current social aliases.`);
+  console.log(`Website brand checks passed: ${htmlFiles.length - SITE_BRAND.head_exceptions.length} branded HTML heads + ${SITE_BRAND.head_exceptions.length} explicit sandboxed source exception, ${mounted.length} exact public asset routes, all 39 historical URLs checked with GET/HEAD, ICO frames, PNG dimensions, manifest purposes, complete canonical lockup, and current social aliases.`);
 } finally {
   server?.closeAllConnections?.();
   if (server) await new Promise(resolve => server.close(resolve));

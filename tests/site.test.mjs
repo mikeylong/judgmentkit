@@ -1839,7 +1839,7 @@ assert.equal(homepage.includes("optional styling path"), false);
 assert.equal(homepage.includes("Open system map"), false);
 assert.equal(homepage.includes("not the final renderer"), false);
 assert.ok(homepage.includes('rel="canonical" href="https://judgmentkit.ai/"'));
-assert.ok(homepage.includes(`rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-light.svg"]}"`));
+assert.ok(homepage.includes(`src="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-theme.js"]}" data-brand-favicon-controller`));
 assert.ok(homepage.includes(`rel="image_src" href="${SITE_BRAND.origin}${SITE_BRAND.social.route}"`));
 assert.ok(homepage.includes(`property="og:image" content="${SITE_BRAND.origin}${SITE_BRAND.social.route}"`));
 assert.ok(homepage.includes(`property="og:image:secure_url" content="${SITE_BRAND.origin}${SITE_BRAND.social.route}"`));

@@ -5,7 +5,8 @@
   "sources": {
     "brand/slab-j/geometry.json": "26e03b985e09c029e627fdf7a4bb347906dea0fc8cea8ba437e7333a782003d0",
     "brand/slab-j/judgmentkit.svg": "bd33c93b9493a8e2e19a3f78d8ff30c34a5a53bfb48b524a5e9a9acd1d9443dd",
-    "site/brand-assets.json": "c5fd87e74129effce4a330d035d88b808f2335f2839fcf6d41785eea6ffaa336"
+    "site/brand-assets.json": "a67e11455014cc22a452799900aafe52a5ba015e4b8b5d9c63e558e9063b0f55",
+    "site/assets/brand/favicon-theme.js": "438e2c44cada8c2a0ae77ff4000d87f5d943b00afda39a786850f5fe3871140e"
   },
   "canvas": [
     1200,
@@ -28,7 +29,7 @@
     "geometry_source": "brand/slab-j/geometry.json",
     "master_source": "brand/slab-j/judgmentkit.svg",
     "canvas": 64,
-    "browser_radius": 8,
+    "browser_radius": 0,
     "visible_mark_height": 48,
     "center": [
       32,
@@ -39,7 +40,8 @@
     "maskable_safe_radius": 25.6,
     "fallback_theme": "dark",
     "output_directory": "site/assets/brand",
-    "raster_density": 384
+    "raster_density": 384,
+    "browser_background": "transparent"
   },
   "maskable_placement": {
     "visible_mark_height": 36,
@@ -54,15 +56,17 @@
   "outputs": {
     "site/assets/judgmentkit-social-thumbnail.svg": "767c41ede48bb426ca3c8df288618c1fb0a79ddc40415130fac603f5ad241dbb",
     "site/assets/judgmentkit-social-thumbnail.png": "c67b13e33c69cbc6782363b7b349176b5680e3aa39ec6724c36b6fb5e9783f08",
-    "site/assets/brand/favicon-light.svg": "1c4c2a6022d2e50c341e9522620470f79174898632eda9fe01c32f3f352325ae",
-    "site/assets/brand/favicon-light-16.png": "359b1e88b0201d55d64d0360b730f5dc6c0317960173ac12ba4f75c7b8402e84",
-    "site/assets/brand/favicon-light-32.png": "a552d29c0c088f003ed9fe542a4d6e7fa62d3c02252e3c87fbe0c0afd6896710",
-    "site/assets/brand/favicon-light-48.png": "0c1c18c67187439a32845d5e3ff80a2aed85a134077961c9ea6ab8a85ba65baf",
-    "site/assets/brand/favicon-dark.svg": "53f9a529ec4752bbd30dfccc866b664d81ce659cc53487501362e32bc5f17808",
-    "site/assets/brand/favicon-dark-16.png": "e917ba316d3a368ea4dc6d13998acb25411f61b8b4a45562d1621935afaf1ada",
-    "site/assets/brand/favicon-dark-32.png": "7baa4434d5370411737a564a7c759679c501bd6548e0bddca445f5685b9e462d",
-    "site/assets/brand/favicon-dark-48.png": "79217a48024d4e5da5a5a284fa397c6fe8fb4a40e794a4120c5fadd119c440b4",
-    "site/assets/brand/favicon.ico": "26ef197cc6939ba27079c5e7abde5221f59b5a81cf9f2a4fce270a70a52f9169",
+    "site/assets/brand/favicon-light.svg": "df03d49d63c285d414ec74d5c6e230365a8466c6580c4178445db1401c392c2b",
+    "site/assets/brand/favicon-light-16.png": "479534679f88fa1d40bd223e2320f2a952a621340ed6ad46269b2f38cd81e6ea",
+    "site/assets/brand/favicon-light-32.png": "7a7ae3a8e6f45c07b85b3c56275ec7e47bef3b340468143778783617aa66922a",
+    "site/assets/brand/favicon-light-48.png": "366bae7d8abaed9d3b2da2e7842ba52a16c1c050d79a189a8fa0cafcef15e6a6",
+    "site/assets/brand/favicon-light.ico": "4612b20cadd4c0f3c2a2320ece628544dc1b38900a743f5345b690a9ee6af27f",
+    "site/assets/brand/favicon-dark.svg": "90267474375f5953b5cad24698e06f8e1a4a1e68b7993260e70ae32639cb4852",
+    "site/assets/brand/favicon-dark-16.png": "f895ed537c628d25feeb14daa962510611588fae0a0e6552010fd32dd1150634",
+    "site/assets/brand/favicon-dark-32.png": "309bb4263e5bb781d06020a209dbeb6a36bec6a79ca2d206fa42d9c39490f51c",
+    "site/assets/brand/favicon-dark-48.png": "1a136fe5053cbaeb03fa7572a9365e1631ebe1180eb4fb081fe26fe08cdf0ccd",
+    "site/assets/brand/favicon-dark.ico": "d6e5567d5beee7e7e1b789fd560b9c3725eaa18fafd47c53d20f199da5776824",
+    "site/assets/brand/favicon.ico": "d6e5567d5beee7e7e1b789fd560b9c3725eaa18fafd47c53d20f199da5776824",
     "site/assets/brand/safari-pinned-tab.svg": "87e3cec474f28a2bc320d72c7baf2f577c60d7e5e2becbcb39730d20bf56fa82",
     "site/assets/brand/app-icon.svg": "be2f013ffc8129208a1ce3e98b843662ea931c9421bb0ac99d7e9c94333689ba",
     "site/assets/brand/apple-touch-icon.png": "6a0750bb93a2e2d9a6d69d19193dfaa8de42e99916bba77a697c821c5825b628",

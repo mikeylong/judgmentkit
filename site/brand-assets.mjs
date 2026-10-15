@@ -57,12 +57,8 @@ export function siteBrandHead({ title, description, canonicalUrl, existingContex
   ].filter(([, key]) => !existingContext.includes(key))
     .map(([attribute, key, value]) => `<meta ${attribute}="${key}" content="${value}">`).join("\n    ");
   const social = SITE_BRAND.origin + SITE_BRAND.social.route;
-  return `<link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon.ico"]}" sizes="16x16 32x32 48x48">
-    ${["light", "dark"].map(theme => {
-      const media = `(prefers-color-scheme: ${theme})`;
-      return [...[16, 32].map(size => `<link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes[`/assets/brand/favicon-${theme}-${size}.png`]}" type="image/png" sizes="${size}x${size}" media="${media}">`),
-        `<link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes[`/assets/brand/favicon-${theme}.svg`]}" type="image/svg+xml" sizes="any" media="${media}">`].join("\n    ");
-    }).join("\n    ")}
+  return `<script src="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-theme.js"]}" data-brand-favicon-controller data-light-icon="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-light.ico"]}" data-dark-icon="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-dark.ico"]}"></script>
+    <noscript data-brand-favicon-fallback><link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-light.ico"]}" type="image/x-icon" sizes="16x16 32x32 48x48"></noscript>
     <link rel="apple-touch-icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/apple-touch-icon.png"]}" sizes="180x180">
     <link rel="mask-icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/safari-pinned-tab.svg"]}" color="${SITE_BRAND.ink}">
     <link rel="manifest" href="${SITE_BRAND_ICON_BUNDLE.manifestRoute}">
@@ -118,7 +114,8 @@ export function applySiteBrandHead(html, relativePath) {
     const route = "/" + relativePath.replace(/index\.html$/, "");
     const canonicalUrl = canonicalTag ? attribute(canonicalTag, "href") : SITE_BRAND.origin + route;
     const existingContext = [...active.matchAll(/<meta\b[^>]*>/gi)].map(([tag]) => (attribute(tag, "name") || attribute(tag, "property")).toLowerCase());
-    const head = original.replace(/<!--[\s\S]*?-->|<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>|<(?:link|meta)\b[^>]*>/gi, tag => {
+    const head = original.replace(/<noscript\b[^>]*\bdata-brand-favicon-fallback[^>]*>[\s\S]*?<\/noscript\s*>/gi, "").replace(/<!--[\s\S]*?-->|<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>|<(?:link|meta)\b[^>]*>/gi, tag => {
+      if (/^<script\b/i.test(tag) && /\bdata-brand-favicon-controller(?:\s|=|>)/i.test(tag)) return "";
       if (/^<!--|^<(?:script|style)\b/i.test(tag)) return tag;
       const rel = attribute(tag, "rel").toLowerCase();
       const meta = (attribute(tag, "name") || attribute(tag, "property")).toLowerCase();
