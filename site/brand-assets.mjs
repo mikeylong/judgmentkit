@@ -5,7 +5,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-export const SITE_BRAND = JSON.parse(fsSync.readFileSync(new URL("./brand-assets.json", import.meta.url), "utf8"));
+const config = JSON.parse(fsSync.readFileSync(new URL("./brand-assets.json", import.meta.url), "utf8"));
+const socialHash = crypto.createHash("sha256").update(fsSync.readFileSync(path.join(ROOT, config.social.source))).digest("hex");
+export const SITE_BRAND = { ...config, social: { ...config.social, route: `${config.social.route_prefix}-${socialHash.slice(0, 16)}.png` } };
 
 // Favicon stores may retain an old URL independently of ordinary page caching.
 // A new canonical icon byte changes every advertised identity/cache URL.
@@ -42,9 +44,11 @@ export function siteBrandHead({ title, description, canonicalUrl, existingContex
     .map(([attribute, key, value]) => `<meta ${attribute}="${key}" content="${value}">`).join("\n    ");
   const social = SITE_BRAND.origin + SITE_BRAND.social.route;
   return `<link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon.ico"]}" sizes="16x16 32x32 48x48">
-    <link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon-16x16.png"]}" type="image/png" sizes="16x16">
-    <link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon-32x32.png"]}" type="image/png" sizes="32x32">
-    <link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon.svg"]}" type="image/svg+xml" sizes="any">
+    ${["light", "dark"].map(theme => {
+      const media = `(prefers-color-scheme: ${theme})`;
+      return [...[16, 32].map(size => `<link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes[`/assets/brand/favicon-${theme}-${size}.png`]}" type="image/png" sizes="${size}x${size}" media="${media}">`),
+        `<link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes[`/assets/brand/favicon-${theme}.svg`]}" type="image/svg+xml" sizes="any" media="${media}">`].join("\n    ");
+    }).join("\n    ")}
     <link rel="apple-touch-icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/apple-touch-icon.png"]}" sizes="180x180">
     <link rel="mask-icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/safari-pinned-tab.svg"]}" color="${SITE_BRAND.ink}">
     <link rel="manifest" href="${SITE_BRAND_ICON_BUNDLE.manifestRoute}">

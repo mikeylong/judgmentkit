@@ -1180,7 +1180,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "See a screen repaired",
       "Explore examples",
       '<link rel="canonical" href="https://judgmentkit.ai/">',
-      `<link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/favicon.svg"]}"`,
+      `<link rel="icon" href="${SITE_BRAND_ICON_BUNDLE.routes["/assets/brand/favicon-light.svg"]}"`,
       '<meta property="og:site_name" content="JudgmentKit">',
     ],
     "homepage",
