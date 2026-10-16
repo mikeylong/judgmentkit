@@ -35,7 +35,8 @@
       "Read"
     ],
     "websiteURL": "https://judgmentkit.ai",
-    "brandColor": "#255C99",
+    "brandColor": "#0B0D0E",
+    "brandColorDark": "#F7F6F2",
     "defaultPrompt": [
       "Make a first UI pass from this brief. Infer what you can, show the working premise and key decisions, and ask only if a missing decision would materially change the design.",
       "Turn this sanitized Figma or generated screen into a reviewed activity case and implementation handoff.",
