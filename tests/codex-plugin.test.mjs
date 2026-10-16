@@ -69,6 +69,8 @@ async function createFixture(overrides = {}) {
       category: "Productivity",
       capabilities: ["Interactive", "Read"],
       websiteURL: "https://judgmentkit.ai",
+      brandColor: "#0B0D0E",
+      brandColorDark: "#F7F6F2",
       defaultPrompt:
         overrides.pluginDefaultPrompt ??
         ["Make a first UI pass, show the working premise, and ask only if a missing decision would materially change the design."],
@@ -188,6 +190,22 @@ for (const phrase of [
   assert.equal(result.mcp_url, DEFAULT_MCP_URL);
   assert.ok(result.files_checked.includes(".codex-plugin/plugin.json"));
   assert.ok(result.files_checked.includes("skills/judgmentkit-hosted-mcp/agents/openai.yaml"));
+}
+
+for (const field of ["brandColor", "brandColorDark"]) {
+  for (const value of [undefined, "#255C99"]) {
+    const fixture = await createFixture();
+    const manifestPath = path.join(fixture.sourceDir, ".codex-plugin", "plugin.json");
+    const manifest = await readJson(manifestPath);
+    if (value === undefined) delete manifest.interface[field];
+    else manifest.interface[field] = value;
+    await writeJson(manifestPath, manifest);
+
+    await assertVerifyRejects(
+      { sourceDir: fixture.sourceDir, packageJsonPath: fixture.packageJsonPath },
+      ["canonical_brand_colors"],
+    );
+  }
 }
 
 {

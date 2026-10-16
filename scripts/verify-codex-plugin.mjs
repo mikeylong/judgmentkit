@@ -18,6 +18,12 @@ export const DEFAULT_CANONICAL_SKILL_DIR = path.join(
 export const CODEX_PLUGIN_MCP_URL = "https://judgmentkit.ai/mcp";
 export const STRICT_BASE_SEMVER_PATTERN = /^\d+\.\d+\.\d+$/;
 
+// Approved Ink/Ivory palette in brand/slab-j/README.md.
+const CANONICAL_PLUGIN_COLORS = {
+  brandColor: "#0B0D0E",
+  brandColorDark: "#F7F6F2",
+};
+
 export const PORTABLE_SKILL_FILES = [
   "SKILL.md",
   "references/ui-handoff-and-acceptance.md",
@@ -394,6 +400,16 @@ function collectMissingWordingFailures({ skillText, uiReferenceText, deckReferen
 
 function collectManifestFailures(pluginJson) {
   const failures = [];
+
+  for (const [field, expected] of Object.entries(CANONICAL_PLUGIN_COLORS)) {
+    if (pluginJson?.interface?.[field] !== expected) {
+      failures.push({
+        check: "canonical_brand_colors",
+        file: ".codex-plugin/plugin.json",
+        message: `Plugin manifest interface.${field} must use canonical color ${expected}.`,
+      });
+    }
+  }
 
   if (pluginJson?.name !== "judgmentkit") {
     failures.push({
