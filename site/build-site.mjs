@@ -5906,9 +5906,10 @@ export function renderHomepage({ homepageFilmEnabled = HOMEPAGE_FILM_ENABLED } =
       <img class="homepage-scene" src="${HOMEPAGE_HERO_ART_PATH}" width="1983" height="793" alt="" aria-hidden="true" loading="eager" fetchpriority="high" decoding="async">
       <div class="site-shell homepage-hero-shell">
         <div class="homepage-hero-copy">
-          <p class="eyebrow">Judgment before components.</p>
-          <h1 id="homepage-title">Guide interface design with your AI agent.</h1>
-          <p class="lede">JudgmentKit gives your AI agent interaction guidance, implementation checks, and repair instructions.</p>
+          <p class="eyebrow">The judgment layer for AI-generated UI</p>
+          <h1 id="homepage-title">Stop AI from building the wrong interface.</h1>
+          <p class="lede">A design system tells an agent how interface elements should look and behave. JudgmentKit tells it which interface the user’s work requires, what should stay hidden, and what must be repaired.</p>
+          <p><strong>Use JudgmentKit’s design system—or bring your own.</strong></p>
           <div class="hero-actions" aria-label="Primary next steps">
             <a class="hero-action hero-action-primary" data-hero-action="primary" href="/value/">See a screen repaired</a>
             <a class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/">Explore examples</a>
