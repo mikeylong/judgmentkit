@@ -105,6 +105,7 @@ const APPEARANCE_INVARIANT_SITE_TOKENS = [
   "--site-reading-wide",
   "--site-reading-width",
   "--site-shell-width",
+  "--website-nickel",
 ];
 
 function canonicalizeJsonValue(value) {
@@ -179,6 +180,7 @@ function cssRuleBlocks(css) {
 function cssCustomPropertyMap(ruleBody) {
   return new Map(
     ruleBody
+      .replace(/\/\*[\s\S]*?\*\//g, "")
       .split(";")
       .map((declaration) => declaration.trim().match(/^(--[\w-]+)\s*:\s*([\s\S]+)$/))
       .filter(Boolean)
@@ -316,8 +318,8 @@ for (const route of result.routes.filter((candidate) => candidate.endsWith("/"))
     `${route} footer should retain the JudgmentKit identity`,
   );
   assertReleaseFooter(html, packageJson.version, route);
-  assert.ok(html.includes('srcset="/assets/brand/judgmentkit-lockup-reversed.svg" media="(prefers-color-scheme: dark)"'));
-  assert.ok(html.includes('class="site-brand-lockup" src="/assets/brand/judgmentkit-lockup.svg"'));
+  assert.ok(html.includes('class="site-brand-lockup" src="/assets/brand/judgmentkit-lockup-reversed.svg"'));
+  assert.equal(html.includes(' class="site-presentation"'), !route.startsWith("/evals/"), `${route}: family presentation applies to owned public pages, not reports`);
   assert.ok(
     html.includes(
       `<a class="site-footer-release" href="https://github.com/mikeylong/judgmentkit/releases/tag/v${packageJson.version}" aria-label="Release v${packageJson.version} on GitHub">`,
@@ -334,6 +336,60 @@ function assertAnalyticsBootstrap(html, label) {
   assert.ok(html.includes('data-sdkn="@vercel/analytics"'), `${label} should name the analytics SDK`);
   assert.ok(html.includes('data-sdkv="2.0.1"'), `${label} should include the analytics SDK version`);
 }
+
+// Approved document titles are independent of visible headings and source catalog names.
+const expectedPublicTitles = {
+  "/": "Interface Design Guidance for AI Agents | JudgmentKit",
+  "/value/": "Interface checks and repair examples | JudgmentKit",
+  "/docs/": "Setup and agent workflow | JudgmentKit",
+  "/examples/": "Interface examples and repair fixtures | JudgmentKit",
+  "/design-system/": "Interface design system reference | JudgmentKit",
+  "/design-system/tokens/": "Design token reference | JudgmentKit",
+  "/design-system/fonts/": "Interface typography reference | JudgmentKit",
+  "/design-system/icons/": "Interface icon reference | JudgmentKit",
+  "/design-system/components/": "Component contracts and states | JudgmentKit",
+  "/design-system/patterns/": "Activity-based interface patterns | JudgmentKit",
+  "/design-system/accessibility/": "Accessibility evidence requirements | JudgmentKit",
+  "/evals/": "Historical UI evaluation reports | JudgmentKit",
+  "/evals/judgmentkit-mcp/": "Historical paired-artifact evaluation | JudgmentKit",
+  "/evals/site-rebuild-log/": "Website rebuild evidence log | JudgmentKit"
+};
+const authoredTitleFiles = new Set();
+const actualPublicTitles = [];
+for (const [route, expectedTitle] of Object.entries(expectedPublicTitles)) {
+  const relativeFile = `${route.slice(1)}index.html`;
+  authoredTitleFiles.add(relativeFile);
+  const html = fs.readFileSync(path.join(tempDir, relativeFile), "utf8");
+  const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] ?? "";
+  const titles = [...head.matchAll(/<title>([^<]*)<\/title>/g)].map(([, text]) => text);
+  assert.deepEqual(titles, [expectedTitle], `${route}: one descriptive document title`);
+  for (const [attribute, key] of [["property", "og:title"], ["name", "twitter:title"]]) {
+    const fields = [...head.matchAll(new RegExp(`<meta ${attribute}="${key}" content="([^"]*)">`, "g"))].map(([, value]) => value);
+    assert.deepEqual(fields, [expectedTitle], `${route}: one matching ${key}`);
+  }
+  assert.equal((expectedTitle.match(/JudgmentKit/g) ?? []).length, 1, `${route}: brand appears once`);
+  assert.ok(expectedTitle.endsWith(" | JudgmentKit"), `${route}: canonical brand suffix`);
+  actualPublicTitles.push(titles[0]);
+}
+assert.equal(new Set(actualPublicTitles).size, 14, "authored titles describe distinct page purposes");
+const copiedTitleAliases = {
+  "examples/one-shot-demo.html": "examples/demo/one-shot-demo.html",
+  "examples/comparison/refund/version-a.html": "examples/comparison/version-a.html",
+  "examples/comparison/refund/version-b.html": "examples/comparison/version-b.html",
+};
+let preservedReferenceTitles = 0;
+for (const relativeFile of listRelativeFiles(tempDir).filter((file) => file.endsWith(".html") && !authoredTitleFiles.has(file))) {
+  const exception = SITE_BRAND.head_exceptions.find((entry) => entry.route === `/${relativeFile}`);
+  const sourceFile = exception?.source ?? copiedTitleAliases[relativeFile] ??
+    (relativeFile.startsWith("evals/") ? `evals/reports/${relativeFile.slice(6)}` : relativeFile);
+  const original = fs.readFileSync(path.join(root, sourceFile), "utf8");
+  const published = fs.readFileSync(path.join(tempDir, relativeFile), "utf8");
+  const titleMarkup = (html) => html.match(/<title\b[^>]*>[\s\S]*?<\/title>/i)?.[0];
+  assert.ok(titleMarkup(original), `${relativeFile}: source title exists`);
+  assert.equal(titleMarkup(published), titleMarkup(original), `${relativeFile}: reference or historical title stays byte-exact`);
+  preservedReferenceTitles += 1;
+}
+assert.ok(preservedReferenceTitles >= 101, "cover all existing copied references and the immutable recording");
 
 const homepage = fs.readFileSync(path.join(tempDir, "index.html"), "utf8");
 const llms = fs.readFileSync(path.join(tempDir, "llms.txt"), "utf8");
@@ -420,12 +476,9 @@ assert.ok(
   ),
 );
 assert.ok(platformNavMarkup.includes('<div class="surfaces-navigation-sections">'));
-assert.ok(platformNavMarkup.includes('href="/value/"'));
+assert.ok(platformNavMarkup.includes('href="/#why-judgmentkit"'));
+assert.ok(platformNavMarkup.includes('href="/#how-it-works"'));
 assert.ok(platformNavMarkup.includes('href="/docs/"'));
-assert.ok(platformNavMarkup.includes('href="/design-system/"'));
-assert.ok(platformNavMarkup.includes('href="/examples/"'));
-assert.ok(platformNavMarkup.includes('href="/evals/"'));
-assert.ok(platformNavMarkup.includes('href="/mcp"'));
 assert.ok(platformNavMarkup.includes('class="surfaces-primary-menu-button"'));
 assert.ok(platformNavMarkup.includes('aria-label="Open primary navigation"'));
 assert.ok(platformNavMarkup.includes('aria-controls="surfaces-primary-menu"'));
@@ -434,20 +487,18 @@ assert.ok(platformNavMarkup.includes('data-surfaces-primary-menu-backdrop'));
 assert.ok(platformNavMarkup.includes('id="surfaces-primary-menu" hidden data-surfaces-primary-menu-list'));
 assert.ok(platformNavMarkup.includes('data-surfaces-primary-menu-list'));
 for (const [href, label] of [
-  ["/value/", "Value"],
+  ["/#why-judgmentkit", "Why JudgmentKit"],
+  ["/#how-it-works", "How it works"],
   ["/docs/", "Docs"],
-  ["/design-system/", "Design System"],
-  ["/examples/", "Examples"],
-  ["/evals/", "Evals"],
-  ["/mcp", "MCP"],
+  ["https://surfaces.systems/", "Surfaces"],
 ]) {
   assert.ok(platformNavMarkup.includes(`<a href="${href}">${label}</a>`));
 }
 assert.ok(platformNavMarkup.includes('<img class="surfaces-brand-lockup" src="/assets/brand/judgmentkit-lockup-reversed.svg" width="425" height="109" alt="">'));
 assert.equal(platformNavMarkup.includes("<polygon"), false, "The header consumes the complete canonical SVG");
 assert.equal(platformNavMarkup.includes('<span>JudgmentKit</span>'), false, "The outlined wordmark must not be duplicated as live text");
-assert.ok(platformNavMarkup.includes('href="https://handbooks.surfaces.systems/" target="_blank" rel="noopener noreferrer" title="Opens in a new tab">Handbooks<svg'));
-assert.ok(platformNavMarkup.includes('href="https://surfaces.systems/">surfaces.systems</a>'));
+assert.equal((platformNavMarkup.match(/<a href=/g) ?? []).length, 8, "four primary destinations appear in desktop and compact navigation");
+assert.ok(platformNavMarkup.includes('href="https://surfaces.systems/">Surfaces</a>'));
 for (const removed of ["surfaces-system-switch", "data-surfaces-system-menu", "surfaceops.ai", "interfacectl.com", "surfaces.dev"]) {
   assert.equal(platformNavMarkup.includes(removed), false, `${removed} must not return to the header`);
 }
@@ -458,9 +509,10 @@ assert.equal(platformNavMarkup.includes('role="menuitem"'), false);
 assert.equal(platformNavMarkup.includes('aria-haspopup="menu"'), false);
 assert.ok(homepage.includes('href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin'));
 assert.ok(fs.statSync(path.join(tempDir, "assets", "fonts", "inter-latin.woff2")).size > 0);
+assert.equal(crypto.createHash("sha256").update(fs.readFileSync(path.join(tempDir, "assets", "fonts", "inter-latin.woff2"))).digest("hex"), "c940764593d0fe5d596be327ca7558855e018039fb78509aa21921fd3644c3e4", "the audited variable Inter font matches the Surfaces Latin face");
 assert.ok(fs.readFileSync(path.join(tempDir, "assets", "fonts", "OFL.txt"), "utf8").includes("SIL OPEN FONT LICENSE"));
-assert.equal((platformNavMarkup.match(/target="_blank"/g) ?? []).length, 2);
-assert.equal((platformNavMarkup.match(/rel="noopener noreferrer"/g) ?? []).length, 2);
+assert.equal((platformNavMarkup.match(/target="_blank"/g) ?? []).length, 0);
+assert.equal((platformNavMarkup.match(/rel="noopener noreferrer"/g) ?? []).length, 0);
 assert.equal(platformNavMarkup.includes("pop-out"), false);
 const platformNavCss = siteCss.match(/\.surfaces-navigation \{[^}]*\}/)?.[0] ?? "";
 assert.ok(siteCss.includes("body {\n  margin: 0;\n  padding-top: 0;"));
@@ -496,7 +548,7 @@ assert.equal(
   "site CSS should define only the governed site and design-system light/dark roots",
 );
 assert.deepEqual(
-  rawColorCustomPropertyDeclarations(siteCssRuleBlocks, new Set([":root"])),
+  rawColorCustomPropertyDeclarations(siteCssRuleBlocks, new Set([":root", ".site-presentation"])),
   [],
   "raw color custom properties must stay in governed appearance roots",
 );
@@ -542,19 +594,21 @@ assert.ok(siteCss.includes(`.system-map-canvas {\n  aspect-ratio: ${SYSTEM_MAP_V
 assert.ok(siteCss.includes("contain: layout paint;\n  overflow: hidden;"));
 assert.ok(siteCss.includes(".system-map-flow-root .react-flow,\n.system-map-flow-root .react-flow__renderer,\n.system-map-flow-root .react-flow__pane"));
 assert.ok(siteCss.includes("box-shadow: 0 0 0 2px var(--focus-ring);"));
-const stepMarkerBackgrounds = cssCustomPropertyValues(siteCss, "--step-marker-bg");
-const stepMarkerTextColors = cssCustomPropertyValues(siteCss, "--step-marker-ink");
-const heroPrimaryBackgrounds = cssCustomPropertyValues(siteCss, "--accent-strong");
-const heroPrimaryTextColors = cssCustomPropertyValues(siteCss, "--bg");
-const siteBackgrounds = cssCustomPropertyValues(siteCss, "--bg");
-const sitePanelBackgrounds = cssCustomPropertyValues(siteCss, "--panel");
-const siteTextColors = cssCustomPropertyValues(siteCss, "--ink");
-const siteMutedColors = cssCustomPropertyValues(siteCss, "--muted");
-const softSurfaceBackgrounds = cssCustomPropertyValues(siteCss, "--soft-surface");
-const accentBackgrounds = cssCustomPropertyValues(siteCss, "--accent");
-const accentTextColors = cssCustomPropertyValues(siteCss, "--accent-ink");
-const designSystemFocusBackgrounds = cssCustomPropertyValues(siteCss, "--jk-color-focus");
-const warningColors = cssCustomPropertyValues(siteCss, "--warn");
+const familyStyles = fs.readFileSync(new URL("../site/website-presentation.css", import.meta.url), "utf8");
+const referenceSiteCss = siteCss.slice(0, -familyStyles.length);
+const stepMarkerBackgrounds = cssCustomPropertyValues(referenceSiteCss, "--step-marker-bg");
+const stepMarkerTextColors = cssCustomPropertyValues(referenceSiteCss, "--step-marker-ink");
+const heroPrimaryBackgrounds = cssCustomPropertyValues(referenceSiteCss, "--accent-strong");
+const heroPrimaryTextColors = cssCustomPropertyValues(referenceSiteCss, "--bg");
+const siteBackgrounds = cssCustomPropertyValues(referenceSiteCss, "--bg");
+const sitePanelBackgrounds = cssCustomPropertyValues(referenceSiteCss, "--panel");
+const siteTextColors = cssCustomPropertyValues(referenceSiteCss, "--ink");
+const siteMutedColors = cssCustomPropertyValues(referenceSiteCss, "--muted");
+const softSurfaceBackgrounds = cssCustomPropertyValues(referenceSiteCss, "--soft-surface");
+const accentBackgrounds = cssCustomPropertyValues(referenceSiteCss, "--accent");
+const accentTextColors = cssCustomPropertyValues(referenceSiteCss, "--accent-ink");
+const designSystemFocusBackgrounds = cssCustomPropertyValues(referenceSiteCss, "--jk-color-focus");
+const warningColors = cssCustomPropertyValues(referenceSiteCss, "--warn");
 assert.deepEqual(stepMarkerBackgrounds, ["#245f73", "#a9d7e4"]);
 assert.deepEqual(stepMarkerTextColors, ["#ffffff", "#101312"]);
 assert.deepEqual(heroPrimaryBackgrounds, ["#133f4e", "#a9d7e4"]);
@@ -564,8 +618,8 @@ assert.deepEqual(accentTextColors, ["#ffffff", "#101312"]);
 assert.deepEqual(designSystemFocusBackgrounds, ["#245f73", "#7db6c7"]);
 assertContrastPair("light design-system step marker", stepMarkerTextColors[0], stepMarkerBackgrounds[0]);
 assertContrastPair("dark design-system step marker", stepMarkerTextColors[1], stepMarkerBackgrounds[1]);
-assertContrastPair("light homepage hero primary action", heroPrimaryTextColors[0], heroPrimaryBackgrounds[0]);
-assertContrastPair("dark homepage hero primary action", heroPrimaryTextColors[1], heroPrimaryBackgrounds[1]);
+assertContrastPair("light reference primary action", heroPrimaryTextColors[0], heroPrimaryBackgrounds[0]);
+assertContrastPair("dark reference primary action", heroPrimaryTextColors[1], heroPrimaryBackgrounds[1]);
 for (const [index, mode] of ["light", "dark"].entries()) {
   assertContrastPair(`${mode} text on soft surface`, siteTextColors[index], softSurfaceBackgrounds[index]);
   assertContrastPair(`${mode} muted text on soft surface`, siteMutedColors[index], softSurfaceBackgrounds[index]);
@@ -597,7 +651,8 @@ assert.ok(siteCss.includes("@media (max-width: 820px)"));
 assert.ok(siteCss.includes(".surfaces-navigation-sections {\n    display: none;"));
 assert.ok(siteCss.includes(".surfaces-primary-menu {\n    display: block;"));
 assert.ok(siteCss.includes('font-family: "Header Inter"'));
-assert.ok(siteCss.includes("font-display: optional;"));
+assert.ok(siteCss.includes("font-display: swap;"));
+assert.match(siteCss, /@font-face \{\s*font-family: "Header Inter";\s*font-style: normal;\s*font-weight: 100 900;\s*font-display: swap;/, "the website face covers regular through display weights and swaps to the loaded Inter font");
 assert.ok(siteCss.includes("--site-gutter: clamp(18px, 4vw, 56px);"));
 assert.ok(siteCss.includes("--site-shell-width: 1220px;"));
 assert.ok(siteCss.includes("--site-reading-width: 820px;"));
@@ -608,7 +663,7 @@ assert.ok(siteCss.includes("--site-page-top: clamp(36px, 5vw, 62px);"));
 assert.ok(siteCss.includes("--site-navigation-height: 72px;"));
 assert.ok(siteCss.includes("--section-rail-top: calc(var(--site-navigation-height) + var(--site-page-top));"));
 assert.ok(siteCss.includes(".site-shell {\n  width: 100%;\n  max-width: var(--site-shell-width);"));
-assert.ok(siteCss.includes(".site-footer {\n  padding: 18px var(--site-gutter) 20px;"));
+assert.ok(siteCss.includes(".site-footer {\n  padding: 28px 24px;"));
 assert.match(
   siteCss,
   /\.site-brand-lockup \{[^}]*width: auto;[^}]*height: 44px;[^}]*object-fit: contain;/s,
@@ -616,8 +671,8 @@ assert.match(
 );
 assert.match(
   siteCss,
-  /\.site-footer-release \{[^}]*color: var\(--accent-strong\);[^}]*font-family: Inter, sans-serif;[^}]*font-weight: 400;[^}]*text-decoration: none;/s,
-  "the peripheral release link should use the site link color and regular sans-serif text without an inline-link underline at rest",
+  /\.site-footer-release \{[^}]*color: var\(--nav-muted\);[^}]*font-family: inherit;[^}]*font-weight: 400;[^}]*text-decoration: none;/s,
+  "the peripheral release link should use the Ink footer's supporting color and regular Inter text without an underline at rest",
 );
 assert.doesNotMatch(
   siteCss,
@@ -631,6 +686,23 @@ assert.match(
 );
 assert.ok(siteCss.includes(".site-footer-release:focus-visible"));
 assert.ok(siteCss.includes(".site-page-header {\n  max-width: var(--site-reading-width);"));
+assert.ok(siteCss.endsWith(familyStyles), "the build must publish the source presentation stylesheet after legacy reference rules");
+const familyLight = cssCustomPropertyMap(cssRuleBody(familyStyles, ".site-presentation"));
+const familyDark = cssCustomPropertyMap(familyStyles.match(/@media \(prefers-color-scheme: dark\) \{\s*\.site-presentation\s*\{([^}]*)\}/)?.[1] ?? "");
+for (const [mode, tokens, expected] of [
+  ["light", familyLight, { "--bg": "#F7F6F2", "--ink": "#0B0D0E", "--line": "#DAD7CF", "--panel": "#ffffff" }],
+  ["dark", familyDark, { "--bg": "#0B0D0E", "--ink": "#F7F6F2", "--line": "#8B9096", "--panel": "#24282b" }],
+]) {
+  for (const [name, value] of Object.entries(expected)) assert.equal(tokens.get(name), value, `${mode} website ${name}`);
+  for (const surface of ["--bg", "--panel"]) {
+    assertContrastPair(`${mode} website text on ${surface}`, tokens.get("--ink"), tokens.get(surface));
+    assertContrastPair(`${mode} website muted text on ${surface}`, tokens.get("--muted"), tokens.get(surface));
+  }
+  assertContrastPair(`${mode} website action`, tokens.get("--accent-ink"), tokens.get("--accent-strong"));
+}
+assert.ok(familyStyles.includes(':not(.jk-specimen-preview *)'), "website heading rules must exclude reference specimen descendants");
+assert.match(familyStyles, /\.site-presentation \.jk-specimen-preview \{\s*font-family: ui-sans-serif, system-ui,/, "reference previews preserve their existing inherited system font");
+assert.equal(familyStyles.includes("--jk-"), false, "website presentation must not replace design-system adapter tokens");
 assert.ok(siteCss.includes(".site-page-header-wide {\n  max-width: var(--site-reading-wide);"));
 assert.ok(siteCss.includes(".section-rail-nav {\n  position: fixed;\n  top: var(--section-rail-top);"));
 assert.equal(siteCss.includes(".section-rail-nav {\n  position: fixed;\n  top: 88px;"), false);
@@ -661,91 +733,28 @@ assert.ok(homepage.includes("[data-section-rail-menu]"));
 assert.ok(homepage.includes('class="site-shell homepage-section-shell"'));
 assert.ok(homepage.includes("[data-surfaces-primary-menu-button]"));
 assert.equal(homepage.includes("[data-surfaces-system-menu-button]"), false);
-assert.ok(homepageHeroCopy.includes("Stop AI from building the wrong interface."));
-assert.ok(homepageHeroCopy.includes("The judgment layer for AI-generated UI"));
-assert.ok(
-  homepageHeroCopy.includes(
-    "A design system tells an agent how interface elements should look and behave.",
-  ),
-);
-assert.ok(
-  homepageHeroCopy.includes(
-    "JudgmentKit tells it which interface the user’s work requires, what should stay hidden, and what must be repaired.",
-  ),
-);
-assert.ok(homepageHeroCopy.includes("Use JudgmentKit’s design system—or bring your own."));
-assert.equal(homepageHeroCopy.includes("Product judgment for AI-generated UI"), false);
-assert.equal(
-  homepageHeroCopy.includes(
-    "JudgmentKit checks the user's work before generation and tells the agent what to fix when the concept is wrong.",
-  ),
-  false,
-);
-assert.equal(homepage.includes("Judgment before generation."), false);
-assert.equal(homepage.includes("Human-centered judgment for AI agents"), false);
-assert.equal(homepage.includes("Activity-first judgment for AI agents"), false);
-assert.equal(homepage.includes("JudgmentKit catches implementation-shaped UI before it ships"), false);
+assert.ok(homepageHeroCopy.includes("Judgment before components."));
+assert.ok(homepageHeroCopy.includes("Guide interface design with your AI agent."));
+assert.ok(homepageHeroCopy.includes("JudgmentKit gives your AI agent interaction guidance, implementation checks, and repair instructions."));
+assert.ok(homepage.includes('name="description" content="JudgmentKit gives your AI agent interaction guidance, implementation checks, and repair instructions."'), "metadata must carry the same bounded promise");
+assert.ok(homepage.includes('<p class="site-footer-description">Guide interface design with your AI agent.</p>'));
+assert.doesNotMatch(homepageMain, /choose the right interface|before the work ships|one short loop|Where AI goes wrong/);
+assert.equal((homepageHeroCopy.match(/<p\b/g) ?? []).length, 2, "one eyebrow and one lead sentence");
 assert.equal((homepageMain.match(/<h1\b/g) ?? []).length, 1);
 assert.ok(homepage.includes('href="/value/"'));
-assert.ok(homepage.includes('href="/evals/"'));
+assert.ok(homepage.includes('href="/examples/"'));
 assert.ok(homepage.includes('class="site-shell homepage-hero-shell"'));
-assert.ok(homepage.includes('class="homepage-hero-visual"'));
-assert.ok(
-  homepage.includes(
-    '<img src="/assets/judgment-lens-hero.webp" width="1122" height="1402" alt="Rough stone fragments pass through a teal glass lens and emerge as an ordered path." loading="eager" fetchpriority="high" decoding="async">',
-  ),
-);
-assert.equal(
-  homepage.includes(
-    "<figcaption>Raw structure, judged against the work, becomes purposeful product direction.</figcaption>",
-  ),
-  false,
-);
-assert.equal(homepage.includes('src="/assets/judgment-lens-hero.webp" loading="lazy"'), false);
-assert.equal(
-  (homepage.match(/href="\/releases\/visual-composition\/"/g) ?? []).length,
-  0,
-  "homepage should not link to a separate visual-composition release page",
-);
-assert.equal(
-  homepage.includes('class="release-notice"'),
-  false,
-  "homepage should not restore the retired release banner",
-);
-assert.equal(
-  (homepageMain.match(/<video\b/gi) ?? []).length,
-  0,
-  "the public homepage should not render the retired film",
-);
-assert.doesNotMatch(
-  homepageMain,
-  /homepage-film|data-homepage-film|judgmentkit-select-field-agent-demo/,
-  "the public homepage should not ship dormant film markup or behavior",
-);
-assert.match(
-  homepageMain,
-  /^\s*<section class="hero homepage-hero">/,
-  "the public homepage story should begin with the hero",
-);
-const homepageCategory = homepageMain.match(
-  /<section class="section homepage-category"[^>]*>([\s\S]*?)<\/section>/,
-)?.[0] ?? "";
-assert.ok(homepageCategory, "homepage should explain JudgmentKit's category directly after the hero");
-assert.ok(homepageCategory.includes("A design system can make the wrong interface consistent."));
-assert.ok(homepageCategory.includes("JudgmentKit prevents that mistake before the components are composed."));
-assert.ok(homepageCategory.includes("Traditional design system"));
-assert.ok(homepageCategory.includes("Defines how interface elements look, behave, and remain consistent."));
-assert.ok(homepageCategory.includes("Defines what the interface must help someone do, decide, and understand."));
-assert.ok(homepageCategory.includes("JudgmentKit uses the design system you choose and tells the agent what to repair."));
-const homepageHeroIndex = homepageMain.search(/class="[^"]*\bhomepage-hero\b[^"]*"/);
-const homepageCategoryIndex = homepageMain.search(/class="[^"]*\bhomepage-category\b[^"]*"/);
-const homepagePreviewIndex = homepageMain.search(/class="[^"]*\bhomepage-preview\b[^"]*"/);
-assert.ok(
-  homepageHeroIndex >= 0 &&
-    homepageCategoryIndex > homepageHeroIndex &&
-    homepagePreviewIndex > homepageCategoryIndex,
-  "the category explanation should be the first substantive section after the hero",
-);
+assert.ok(homepage.includes('class="homepage-scene" src="/assets/judgment-lens-environment-v2.webp" width="1983" height="793" alt="" aria-hidden="true" loading="eager" fetchpriority="high" decoding="async"'));
+assert.doesNotMatch(homepageMain, /homepage-hero-visual|homepage-hero-art|<figure|<video|homepage-film|release-notice/);
+assert.match(homepageMain, /^\s*<section class="hero homepage-hero"[^>]*>/);
+const homepageSections = [...homepageMain.matchAll(/<section\b[^>]*class="([^"]+)"/g)].map(match => match[1]);
+assert.deepEqual(homepageSections, ["hero homepage-hero", "homepage-problem", "homepage-workflow"], "homepage has exactly the hero, problem row and workflow");
+const homepageWords = homepageMain.replace(/<[^>]*>/g, " ").trim().split(/\s+/);
+assert.ok(homepageWords.length <= 220, `homepage main copy stays within 220 words (${homepageWords.length})`);
+for (const [label, max] of [["eyebrow", 12], ["h1", 10], ["lede", 32]]) {
+  const text = label === "h1" ? homepageHeroCopy.match(/<h1[^>]*>([^<]+)<\/h1>/)?.[1] : homepageHeroCopy.match(new RegExp('<p class="' + label + '">([^<]+)<\\/p>'))?.[1];
+  assert.ok(text && text.trim().split(/\s+/).length <= max, `hero ${label} copy budget`);
+}
 
 const homepageFilmFrameMatch = homepageFilmPreview.match(
   /<(div|section)\b[^>]*class="[^"]*\bhomepage-film-frame\b[^"]*"[^>]*>([\s\S]*?)<\/\1>/,
@@ -1726,55 +1735,21 @@ assert.ok(homepage.includes('class="hero-action hero-action-secondary" data-hero
 assert.ok(homepage.includes("See a screen repaired"));
 assert.ok(homepage.includes("Explore examples"));
 assert.equal(homepage.includes('data-hero-action="evidence"'), false);
-assert.ok(homepage.includes('class="proof-panel evaluation-panel" aria-label="JudgmentKit repair preview"'));
-assert.ok(homepage.includes("The screen follows the system, not the work."));
-assert.ok(homepage.includes("The activity is named before the UI."));
-assert.ok(homepage.includes("The agent gets a ready handoff."));
-assert.ok(homepage.includes("Better first drafts. Less cleanup theater."));
-assert.ok(homepage.includes('class="section homepage-failure" aria-labelledby="failure-title"'));
-assert.ok(homepage.includes("The problem is not ugly UI. It is the wrong concept of the work."));
-assert.ok(homepage.includes("Before judgment"));
-assert.ok(homepage.includes("With JudgmentKit"));
-assert.ok(homepage.includes("After repair"));
-const homepageFailureIndex = homepage.indexOf('class="section homepage-failure"');
-const homepageArtifactInspectorIndex = homepage.indexOf(
-  'class="section homepage-artifact-inspector"',
-);
-const homepageProofPathsIndex = homepage.indexOf('class="section proof-paths"');
-assert.ok(
-  homepageFailureIndex < homepageArtifactInspectorIndex &&
-    homepageArtifactInspectorIndex < homepageProofPathsIndex,
-  "Artifact Inspector should follow failure recognition and precede proof paths",
-);
-const homepageArtifactInspector = homepage.slice(
-  homepageArtifactInspectorIndex,
-  homepageProofPathsIndex,
-);
-assert.ok(homepageArtifactInspector.includes("Artifact Inspector"));
-assert.ok(homepageArtifactInspector.includes("Proposed"));
-assert.ok(homepageArtifactInspector.includes("one rendered artifact stays primary"));
-assert.ok(homepageArtifactInspector.includes("inspector chrome and inspection overlay"));
-assert.ok(homepageArtifactInspector.includes("The artifact keeps its own visual language."));
-assert.ok(homepageArtifactInspector.includes("review remains required"));
-assert.ok(homepageArtifactInspector.includes('href="/docs/#artifact-inspector"'));
-assert.ok(
-  homepageArtifactInspector.includes(
-    `href="https://github.com/mikeylong/judgmentkit/releases/tag/v${packageJson.version}"`,
-  ),
-);
-assert.ok(homepage.includes('class="section proof-paths" aria-labelledby="proof-paths-title"'));
-assert.ok(homepage.includes("Inspect the loop from product value to repeatable evidence."));
-assert.ok(homepage.includes("What it prevents"));
-assert.ok(homepage.includes("Replayable examples"));
-assert.ok(homepage.includes("Evaluation evidence"));
-assert.ok(homepage.includes('class="section adoption-paths" aria-labelledby="adoption-title"'));
-assert.ok(homepage.includes("Choose the next surface for the work you are doing."));
-assert.ok(homepage.includes("Read the docs"));
-assert.ok(homepage.includes("Review the design-system assets"));
-assert.ok(homepage.includes("Start installation"));
+const homepageProblem = homepageMain.match(/<ol class="family-problem-row">([\s\S]*?)<\/ol>/)?.[1] ?? "";
+assert.equal((homepageProblem.match(/<li>/g) ?? []).length, 3, "one three-item problem row");
+for (const label of ["Internal record labels", "Irrelevant form fields", "Tool names as actions"]) assert.ok(homepageProblem.includes(label));
+for (const condition of ["translate database terms into their own work", "task does not require", "instead of the user’s action"]) assert.ok(homepageProblem.includes(condition), "identify the condition that makes a pattern unsuitable");
+const homepageWorkflow = homepageMain.match(/<ol class="family-workflow-row">([\s\S]*?)<\/ol>/)?.[1] ?? "";
+assert.equal((homepageWorkflow.match(/<li class="family-workflow-step">/g) ?? []).length, 5, "one five-step workflow");
+assert.equal((homepageWorkflow.match(/class="family-workflow-icon"/g) ?? []).length, 5, "each workflow step has an outline icon");
+for (const label of ["Describe the work", "Correct the premise", "Build the interface", "Try important tasks", "Review the result"]) assert.ok(homepageWorkflow.includes(label));
+const homepageSupport = homepageMain.match(/<div class="homepage-support">([\s\S]*?)<\/div>/)?.[1] ?? "";
+assert.equal((homepageSupport.match(/<p>/g) ?? []).length, 1, "keep only the non-redundant responsibility sentence");
+assert.ok(homepageWorkflow.includes("Correct the agent’s task assumptions."));
+assert.ok(homepageWorkflow.includes("Your agent creates or revises the interface."));
+assert.ok(homepageSupport.includes("The builder owns the product decisions."));
+assert.doesNotMatch(homepageMain, /evaluation-panel|homepage-failure|homepage-artifact-inspector|proof-paths|adoption-paths/);
 assert.ok(homepage.includes('href="/docs/"'));
-assert.ok(homepage.includes('href="/design-system/"'));
-assert.ok(homepage.includes('href="/install"'));
 assert.equal(
   fs.existsSync(path.join(tempDir, "releases", "visual-composition", "index.html")),
   false,
@@ -1806,7 +1781,7 @@ assert.equal(siteCss.includes("text-decoration-line: underline;"), false);
 assert.equal(homepageMain.includes("Prompt"), false);
 assert.equal(homepageMain.includes("JSON schema"), false);
 assert.equal(homepageMain.includes("prompt template"), false);
-assert.equal(homepageMain.includes("tool call"), false);
+assert.equal(homepageMain.includes("tool call traces"), false);
 assert.equal(homepageMain.includes("resource id"), false);
 assert.equal(homepageMain.includes("API endpoint"), false);
 assert.equal(homepageMain.includes("MCP boundary"), false);
@@ -1870,6 +1845,10 @@ for (const forbidden of OLD_FRAMING) {
 }
 
 const docs = fs.readFileSync(path.join(tempDir, "docs", "index.html"), "utf8");
+for (const href of ["/evals/", "/mcp", "/install", "https://handbooks.surfaces.systems/"]) {
+  assert.ok(docs.includes(`href="${href}"`), `Docs keeps ${href} reachable after compact navigation`);
+}
+
 assertAnalyticsBootstrap(docs, "docs");
 assert.ok(docs.includes('<a href="/docs/" aria-current="page">Docs</a>'));
 assert.ok(docs.includes('<section class="section docs-page">'));
@@ -1897,7 +1876,12 @@ assert.ok(docs.includes("curl -fsSL https://judgmentkit.ai/install | bash -s -- 
 assert.ok(docs.includes("curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor"));
 assert.ok(docs.includes("Install JudgmentKit for your MCP client"));
 assert.ok(docs.includes("Codex is the default client"));
-assert.ok(docs.includes("First 10 Minutes"));
+assert.ok(docs.includes("First use"));
+assert.equal(docs.includes("First 10 Minutes"), false, "first use must not imply a measured setup time");
+assert.ok(docs.includes("Hosted requests leave your machine."));
+assert.ok(docs.includes("Use sanitized inputs for confidential work, or a local or self-hosted endpoint."));
+assert.ok(docs.includes("https://github.com/mikeylong/judgmentkit/blob/main/packages/agent-skill/judgmentkit-hosted-mcp/SKILL.md#authorization-and-privacy"));
+assert.ok(docs.includes("important paths actually checked"));
 assert.ok(docs.includes("examples/ai-native-design-system/first-use.json"));
 assert.ok(docs.includes("examples/ai-native-design-system/canonical-examples.json"));
 assert.ok(docs.includes("next_agent_action"));
@@ -2131,7 +2115,7 @@ const designSystemLlmsFull = fs.readFileSync(
 const designSystemManifest = JSON.parse(
   fs.readFileSync(path.join(tempDir, "design-system", "manifest.json"), "utf8"),
 );
-assert.ok(designSystemTokens.includes('<a href="/design-system/" aria-current="page">Design System</a>'));
+assert.ok(designSystemTokens.includes('<a href="/docs/">Docs</a>'));
 assert.ok(designSystemTokens.includes('<a href="/design-system/tokens/" data-section-rail-link aria-current="page">Tokens</a>'));
 const visualTokenAdapterExport = JSON.parse(
   fs.readFileSync(path.join(tempDir, "design-system", "visual-token-adapter.json"), "utf8"),
@@ -3421,24 +3405,29 @@ const valuePrimaryStory = value
   .split('<section class="section value-page">')[1]
   .split('<section class="value-evidence"')[0];
 assertAnalyticsBootstrap(value, "value");
-assert.ok(value.includes('<a href="/value/" aria-current="page">Value</a>'));
+assert.ok(value.includes('<a href="/#why-judgmentkit">Why JudgmentKit</a>'));
 assert.ok(value.includes('class="site-shell value-shell"'));
 assert.ok(value.includes('class="site-page-header site-page-header-wide value-hero"'));
-assert.ok(value.includes("What JudgmentKit Prevents"));
-assert.ok(value.includes("What JudgmentKit prevents"));
-assert.ok(value.includes("JudgmentKit catches when AI-generated UI turns implementation mechanics into UX"));
+assert.ok(value.includes("<title>Interface checks and repair examples | JudgmentKit</title>"));
+assert.ok(value.includes("Interface checks and repair examples"));
+assert.ok(value.includes("JudgmentKit checks declared interface requirements and returns repair guidance from the submitted evidence"));
 assert.equal(valuePrimaryStory.includes('aria-label="Value page actions"'), false);
 assert.equal(valuePrimaryStory.includes('class="hero-actions"'), false);
 assert.equal(valuePrimaryStory.includes("Install JudgmentKit"), false);
 assert.equal(valuePrimaryStory.includes("Review examples"), false);
 assert.ok(value.includes("Implementation language leak"));
-assert.ok(value.includes("Internal objects stop becoming the product surface."));
+assert.ok(value.includes("This example keeps diagnostics secondary."));
 assert.ok(value.includes("Unsafe action boundary"));
-assert.ok(value.includes("Approval work gets a human decision point."));
+assert.ok(value.includes("Make the approval boundary explicit."));
 assert.ok(value.includes("Missing accessibility evidence"));
-assert.ok(value.includes("Claims are not accepted without evidence."));
+assert.ok(value.includes("Required accessibility evidence cannot be omitted."));
 assert.ok(value.includes("Baseline failure"));
-assert.ok(value.includes("JudgmentKit catches"));
+assert.ok(value.includes("JudgmentKit checks"));
+assert.ok(valuePrimaryStory.includes("In this curated refund example"));
+assert.ok(valuePrimaryStory.includes("Curated refund artifacts, shown for comparison."));
+assert.ok(valuePrimaryStory.includes("unresolved review status"));
+assert.ok(valuePrimaryStory.includes("The agent owns repairs, resubmission, and attempt tracking"));
+assert.doesNotMatch(valuePrimaryStory, /What JudgmentKit prevents|before the work ships|A raw generation pass tends to/);
 assert.ok(value.includes("Repaired outcome"));
 assert.ok(value.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png"));
 assert.ok(value.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-with-judgmentkit.png"));
@@ -3479,6 +3468,11 @@ assert.ok(
   "value finding cards must use the appearance-aware soft-surface token",
 );
 assertValueAppearanceContract(value, siteCss);
+assert.throws(
+  () => assertValueAppearanceContract(value, siteCss.replace("--soft-surface: #24282b;", "--soft-surface: #ffffff;")),
+  /website CSS dark appearance root should include --soft-surface: #24282b;/,
+  "production appearance verification must reject a stale scoped website dark surface",
+);
 assert.throws(
   () =>
     assertValueAppearanceContract(
@@ -4321,6 +4315,16 @@ assert.equal(versionedSocialThumbnail.readUInt32BE(16), 1200);
 assert.equal(versionedSocialThumbnail.readUInt32BE(20), 630);
 assert.deepEqual(versionedSocialThumbnail, socialThumbnail);
 const homepageHeroArt = fs.readFileSync(path.join(tempDir, "assets", "judgment-lens-hero.webp"));
+const homepageScene = fs.readFileSync(path.join(tempDir, "assets", "judgment-lens-environment-v2.webp"));
+assert.deepEqual(homepageScene, fs.readFileSync(new URL("../site/assets/judgment-lens-environment-v2.webp", import.meta.url)), "the full-width scene is copied without modification");
+const homepageArtProvenance = JSON.parse(fs.readFileSync(new URL("../docs/site-homepage-art-provenance.json", import.meta.url), "utf8"));
+assert.equal(crypto.createHash("sha256").update(homepageScene).digest("hex"), homepageArtProvenance.sha256);
+assert.equal(homepageScene.length, homepageArtProvenance.bytes);
+assert.ok(homepageScene.length < 250_000, "the wide scene stays within the existing hero asset budget");
+assert.deepEqual(homepageArtProvenance.dimensions, [1983, 793]);
+assert.equal(crypto.createHash("sha256").update(fs.readFileSync(new URL("../specs/website-family-layout.md", import.meta.url))).digest("hex"), homepageArtProvenance.sharedLayoutContract.sha256);
+assert.ok(fs.readFileSync(new URL("../specs/site-homepage-copy.md", import.meta.url), "utf8").includes("VISION.md:17"), "homepage claims have project-local provenance");
+assert.ok(fs.readFileSync(new URL("../specs/site-homepage-copy.md", import.meta.url), "utf8").includes("website-family-copy.md"));
 const homepageHeroArtSource = fs.readFileSync(
   new URL("../site/assets/judgment-lens-hero.webp", import.meta.url),
 );

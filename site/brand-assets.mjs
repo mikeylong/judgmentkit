@@ -49,6 +49,24 @@ export const SITE_BRAND_LEGACY_MANIFEST_ROUTES = SITE_BRAND.legacy_icon_aliases
   .filter(entry => entry.target === SITE_BRAND.manifest.route)
   .map(entry => entry.route);
 
+// Titles are owned by these published pages, independently of their visible headings.
+const PUBLIC_PAGE_PURPOSES = Object.freeze({
+  "/": "Interface Design Guidance for AI Agents",
+  "/value/": "Interface checks and repair examples",
+  "/docs/": "Setup and agent workflow",
+  "/examples/": "Interface examples and repair fixtures",
+  "/design-system/": "Interface design system reference",
+  "/design-system/tokens/": "Design token reference",
+  "/design-system/fonts/": "Interface typography reference",
+  "/design-system/icons/": "Interface icon reference",
+  "/design-system/components/": "Component contracts and states",
+  "/design-system/patterns/": "Activity-based interface patterns",
+  "/design-system/accessibility/": "Accessibility evidence requirements",
+  "/evals/": "Historical UI evaluation reports",
+  "/evals/judgmentkit-mcp/": "Historical paired-artifact evaluation",
+  "/evals/site-rebuild-log/": "Website rebuild evidence log"
+});
+
 export function siteBrandHead({ title, description, canonicalUrl, existingContext = [] }) {
   const context = [
     ["property", "og:title", title], ["property", "og:description", description],
@@ -100,21 +118,31 @@ function attribute(tag, name) {
   return tag.match(new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, "i"))?.slice(1).find(value => value !== undefined) ?? "";
 }
 
-// Copied examples and reports have independent HTML shells. Apply the same
-// public identity to their heads without changing their body or page copy.
+// Authored routes receive their approved document/social titles. Copied examples
+// and reports keep their original titles and context; every body stays unchanged.
 export function applySiteBrandHead(html, relativePath) {
   let found = false;
   const result = html.replace(/(<head\b[^>]*>)([\s\S]*?)(<\/head>)/i, (_, open, original, close) => {
     found = true;
     const active = original.replace(/<!--[\s\S]*?-->|<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "");
-    const title = active.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1].trim() || "JudgmentKit";
+    const route = "/" + relativePath.replace(/index\.html$/, "");
+    const purpose = PUBLIC_PAGE_PURPOSES[route];
+    const title = purpose
+      ? `${purpose} | JudgmentKit`.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+      : active.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1].trim() || "JudgmentKit";
     const descriptionTag = [...active.matchAll(/<meta\b[^>]*>/gi)].map(match => match[0]).find(tag => attribute(tag, "name").toLowerCase() === "description");
     const description = descriptionTag ? attribute(descriptionTag, "content") : "JudgmentKit is an activity-first judgment layer for AI-generated product work.";
     const canonicalTag = [...active.matchAll(/<link\b[^>]*>/gi)].map(match => match[0]).find(tag => attribute(tag, "rel").toLowerCase() === "canonical");
-    const route = "/" + relativePath.replace(/index\.html$/, "");
     const canonicalUrl = canonicalTag ? attribute(canonicalTag, "href") : SITE_BRAND.origin + route;
     const existingContext = [...active.matchAll(/<meta\b[^>]*>/gi)].map(([tag]) => (attribute(tag, "name") || attribute(tag, "property")).toLowerCase());
-    const head = original.replace(/<noscript\b[^>]*\bdata-brand-favicon-fallback[^>]*>[\s\S]*?<\/noscript\s*>/gi, "").replace(/<!--[\s\S]*?-->|<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>|<(?:link|meta)\b[^>]*>/gi, tag => {
+    const titled = original.replace(/<title\b[^>]*>[\s\S]*?<\/title>/i, tag => purpose ? `<title>${title}</title>` : tag)
+      .replace(/<meta\b[^>]*>/gi, tag => {
+        const key = (attribute(tag, "name") || attribute(tag, "property")).toLowerCase();
+        return purpose && ["og:title", "twitter:title"].includes(key)
+          ? tag.replace(/(\bcontent\s*=\s*)(["'])([\s\S]*?)\2/i, (_, prefix, quote) => `${prefix}${quote}${title}${quote}`)
+          : tag;
+      });
+    const head = titled.replace(/<noscript\b[^>]*\bdata-brand-favicon-fallback[^>]*>[\s\S]*?<\/noscript\s*>/gi, "").replace(/<!--[\s\S]*?-->|<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>|<(?:link|meta)\b[^>]*>/gi, tag => {
       if (/^<script\b/i.test(tag) && /\bdata-brand-favicon-controller(?:\s|=|>)/i.test(tag)) return "";
       if (/^<!--|^<(?:script|style)\b/i.test(tag)) return tag;
       const rel = attribute(tag, "rel").toLowerCase();

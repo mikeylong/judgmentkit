@@ -60,7 +60,7 @@ const COMPONENT_SPECIMEN_ASSET_VERSION =
 const SITE_ORIGIN = "https://judgmentkit.ai";
 const GITHUB_RELEASE_URL =
   `https://github.com/mikeylong/judgmentkit/releases/tag/v${JUDGMENTKIT_PACKAGE_VERSION}`;
-const HOMEPAGE_HERO_ART_FILENAME = "judgment-lens-hero.webp";
+const HOMEPAGE_HERO_ART_FILENAME = "judgment-lens-environment-v2.webp";
 const HOMEPAGE_HERO_ART_PATH = `/assets/${HOMEPAGE_HERO_ART_FILENAME}`;
 const MARKETING_PATTERN_HERO_FILENAME =
   "marketing-surface-weeknight-meal-plan.webp";
@@ -421,18 +421,14 @@ function addAnalyticsToHtml(html) {
 }
 
 const primaryNavLinks = [
-  { label: "Value", href: "/value/" },
+  { label: "Why JudgmentKit", href: "/#why-judgmentkit" },
+  { label: "How it works", href: "/#how-it-works" },
   { label: "Docs", href: "/docs/" },
-  { label: "Design System", href: "/design-system/" },
-  { label: "Examples", href: "/examples/" },
-  { label: "Evals", href: "/evals/" },
-  { label: "MCP", href: "/mcp" },
-  { label: "Handbooks", href: "https://handbooks.surfaces.systems/", newTab: true },
-  { label: "surfaces.systems", href: "https://surfaces.systems/" },
+  { label: "Surfaces", href: "https://surfaces.systems/" },
 ];
 
 function isPrimaryNavCurrent(link, pathName) {
-  if (link.href.startsWith("https://")) return false;
+  if (link.href.startsWith("https://") || link.href.includes("#")) return false;
   if (link.href === "/") return pathName === "/";
   if (link.href === "/mcp") return pathName === "/mcp";
   return pathName === link.href || pathName.startsWith(link.href);
@@ -765,7 +761,7 @@ function platformNavigationScript() {
           };
           window.addEventListener("pageshow", closePrimaryMenu);
           window.addEventListener("resize", () => {
-            if (window.matchMedia("(min-width: 1121px)").matches) closePrimaryMenu();
+            if (window.matchMedia("(min-width: 821px)").matches) closePrimaryMenu();
           });
         }
 
@@ -790,6 +786,8 @@ function page(title, body, options = {}) {
     "JudgmentKit is an activity-first judgment layer for AI-generated product work.";
   const pathName = options.path ?? "/";
   const canonicalUrl = `${SITE_ORIGIN}${pathName}`;
+  const familyPresentation = pathName === "/" ||
+    ["/value/", "/docs/", "/design-system/", "/examples/"].some((prefix) => pathName.startsWith(prefix));
 
   return `<!doctype html>
 <html lang="en">
@@ -805,7 +803,7 @@ function page(title, body, options = {}) {
 ${options.headExtra ?? ""}
 ${analyticsBootstrap()}
   </head>
-  <body>
+  <body${familyPresentation ? ' class="site-presentation"' : ""}>
 ${renderPlatformHeader(pathName)}
     <main>${body}</main>
 ${renderSiteFooter()}
@@ -817,12 +815,13 @@ ${platformNavigationScript()}
 function renderSiteFooter() {
   return `    <footer class="site-footer">
       <div class="site-shell site-footer-inner">
-        <a class="site-footer-brand" href="/" aria-label="JudgmentKit home">
-          <picture>
-            <source srcset="/assets/brand/judgmentkit-lockup-reversed.svg" media="(prefers-color-scheme: dark)">
-            <img class="site-brand-lockup" src="/assets/brand/judgmentkit-lockup.svg" width="425" height="109" alt="">
-          </picture>
-        </a>
+        <div class="site-footer-identity">
+          <a class="site-footer-brand" href="/" aria-label="JudgmentKit home">
+            <img class="site-brand-lockup" src="/assets/brand/judgmentkit-lockup-reversed.svg" width="425" height="109" alt="">
+          </a>
+        </div>
+        <p class="site-footer-description">Guide interface design with your AI agent.</p>
+        <small class="site-footer-copyright">© 2026 JudgmentKit</small>
         <a class="site-footer-release" href="${escapeHtml(GITHUB_RELEASE_URL)}" aria-label="Release v${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)} on GitHub">
           <span>Release v${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}</span>
           <span aria-hidden="true">↗</span>
@@ -985,6 +984,7 @@ const stylesheet = `
   --header-ink: #f7f6f2;
   --header-menu-bg: #0b0d0e;
   --header-border: #3c4145;
+  --website-nickel: #8B9096;
   --section-rail-top: calc(var(--site-navigation-height) + var(--site-page-top));
 }
 @media (prefers-color-scheme: dark) {
@@ -1080,7 +1080,7 @@ a {
   font-family: "Header Inter";
   font-style: normal;
   font-weight: 100 900;
-  font-display: optional;
+  font-display: swap;
   src: url("/assets/fonts/inter-latin.woff2") format("woff2");
 }
 @font-face {
@@ -1237,7 +1237,7 @@ a {
   text-decoration: underline;
   text-underline-offset: 5px;
 }
-@media (max-width: 1120px) {
+@media (max-width: 820px) {
   .surfaces-navigation-sections {
     display: none;
   }
@@ -1294,8 +1294,14 @@ a {
   min-width: 0;
 }
 .site-footer {
-  padding: 18px var(--site-gutter) 20px;
-  border-top: 1px solid var(--line);
+  padding: 28px 24px;
+  border-top: 1px solid var(--header-border);
+  background: var(--header-menu-bg);
+  color: var(--header-ink);
+  font-family: "Header Inter", "Header Inter Fallback", Arial, Helvetica, sans-serif;
+}
+.site-footer .site-shell {
+  max-width: 1120px;
 }
 .site-footer-inner {
   display: flex;
@@ -1309,7 +1315,7 @@ a {
   align-items: center;
   min-height: 44px;
   max-width: 100%;
-  color: var(--ink);
+  color: var(--header-ink);
   text-decoration: none;
 }
 .site-brand-lockup {
@@ -1320,29 +1326,29 @@ a {
   object-fit: contain;
 }
 .site-footer-brand:focus-visible {
-  outline: 2px solid var(--accent-strong);
+  outline: 2px solid var(--header-ink);
   outline-offset: 4px;
 }
 .site-footer-release {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--accent-strong);
-  font-family: Inter, sans-serif;
-  font-size: 13px;
+  color: var(--nav-muted);
+  font-family: inherit;
+  font-size: 12px;
   font-weight: 400;
   text-decoration: none;
 }
 .site-footer-release:hover,
 .site-footer-release:focus-visible {
-  color: var(--ink);
+  color: var(--header-ink);
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
 .site-footer-release:focus-visible {
-  outline: 0;
-  box-shadow: 0 0 0 2px var(--focus-ring);
+  outline: 2px solid var(--header-ink);
+  outline-offset: 4px;
 }
 .site-page-header {
   max-width: var(--site-reading-width);
@@ -5896,174 +5902,68 @@ export function renderHomepage({ homepageFilmEnabled = HOMEPAGE_FILM_ENABLED } =
       </div>
     </section>
     ` : ""}
-    <section class="hero homepage-hero">
+    <section class="hero homepage-hero" aria-labelledby="homepage-title">
+      <img class="homepage-scene" src="${HOMEPAGE_HERO_ART_PATH}" width="1983" height="793" alt="" aria-hidden="true" loading="eager" fetchpriority="high" decoding="async">
       <div class="site-shell homepage-hero-shell">
         <div class="homepage-hero-copy">
-          <p class="eyebrow">The judgment layer for AI-generated UI</p>
-          <h1>Stop AI from building the wrong interface.</h1>
-          <p class="lede">A design system tells an agent how interface elements should look and behave. JudgmentKit tells it which interface the user’s work requires, what should stay hidden, and what must be repaired.</p>
-          <p><strong>Use JudgmentKit’s design system—or bring your own.</strong></p>
+          <p class="eyebrow">Judgment before components.</p>
+          <h1 id="homepage-title">Guide interface design with your AI agent.</h1>
+          <p class="lede">JudgmentKit gives your AI agent interaction guidance, implementation checks, and repair instructions.</p>
           <div class="hero-actions" aria-label="Primary next steps">
             <a class="hero-action hero-action-primary" data-hero-action="primary" href="/value/">See a screen repaired</a>
             <a class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/">Explore examples</a>
           </div>
         </div>
-        <figure class="homepage-hero-visual">
-          <div class="homepage-hero-art">
-            <img src="${HOMEPAGE_HERO_ART_PATH}" width="1122" height="1402" alt="Rough stone fragments pass through a teal glass lens and emerge as an ordered path." loading="eager" fetchpriority="high" decoding="async">
-          </div>
-        </figure>
       </div>
     </section>
-    <section class="section homepage-category" aria-labelledby="category-title">
+    <section class="homepage-problem" id="why-judgmentkit" aria-labelledby="problem-title">
       <div class="site-shell homepage-section-shell">
-        <div>
-          <p class="eyebrow">Judgment before components</p>
-          <h2 id="category-title">A design system can make the wrong interface consistent.</h2>
-          <p>JudgmentKit prevents that mistake before the components are composed.</p>
+        <div class="homepage-section-heading">
+          <p class="eyebrow">Risks to check</p>
+          <h2 id="problem-title">Keep the interface in the language of the work.</h2>
         </div>
-        <div class="failure-grid">
-          <article>
-            <h3>Traditional design system</h3>
-            <p>Defines how interface elements look, behave, and remain consistent.</p>
-          </article>
-          <article>
-            <h3>JudgmentKit</h3>
-            <p>Defines what the interface must help someone do, decide, and understand.</p>
-          </article>
-          <article>
-            <h3>Together</h3>
-            <p>JudgmentKit uses the design system you choose and tells the agent what to repair.</p>
-          </article>
-        </div>
+        <ol class="family-problem-row">
+          <li>
+            <span class="family-ordinal" aria-hidden="true">01</span>
+            <h3>Internal record labels</h3>
+            <p>The user has to translate database terms into their own work.</p>
+          </li>
+          <li>
+            <span class="family-ordinal" aria-hidden="true">02</span>
+            <h3>Irrelevant form fields</h3>
+            <p>The form asks for details the person’s task does not require.</p>
+          </li>
+          <li>
+            <span class="family-ordinal" aria-hidden="true">03</span>
+            <h3>Tool names as actions</h3>
+            <p>The control names an implementation command instead of the user’s action.</p>
+          </li>
+        </ol>
       </div>
     </section>
-    <section class="section homepage-preview" aria-labelledby="repair-preview-title">
+    <section class="homepage-workflow" id="how-it-works" aria-labelledby="workflow-title">
       <div class="site-shell homepage-section-shell">
-        <div>
-          <p class="eyebrow">Failure-to-repair preview</p>
-          <h2 id="repair-preview-title">First drafts should start from the work, not from available internals.</h2>
+        <div class="homepage-section-heading">
+          <p class="eyebrow">From activity to interface</p>
+          <h2 id="workflow-title">Build, check, and revise.</h2>
         </div>
-        <div class="proof-panel evaluation-panel" aria-label="JudgmentKit repair preview">
-          <div class="evaluation-step">
-            <span>Failure</span>
-            <strong>The screen follows the system, not the work.</strong>
-            <p>Generated interfaces often mirror available internals instead of the activity a person is trying to complete.</p>
-          </div>
-          <div class="evaluation-step">
-            <span>Judgment</span>
-            <strong>The activity is named before the UI.</strong>
-            <p>JudgmentKit asks what the user is doing, what decision matters, what evidence belongs nearby, and what should stay diagnostic.</p>
-          </div>
-          <div class="evaluation-step">
-            <span>Repair</span>
-            <strong>The agent gets a ready handoff.</strong>
-            <p>The next generation pass receives product-language responsibilities, approved states, and a disclosure boundary.</p>
-          </div>
-          <div class="evaluation-step evaluation-step-status">
-            <span>Result</span>
-            <strong>Better first drafts. Less cleanup theater.</strong>
-            <p>Use the proof paths below to inspect the contract loop before installing anything.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="section homepage-failure" aria-labelledby="failure-title">
-      <div class="site-shell homepage-section-shell">
-        <div>
-          <p class="eyebrow">Failure recognition</p>
-          <h2 id="failure-title">The problem is not ugly UI. It is the wrong concept of the work.</h2>
-        </div>
-        <div class="failure-grid">
-          <article>
-            <h3>Before judgment</h3>
-            <p>The agent sees available structure and turns it into labels, navigation, and actions. The user has to translate the system back into their own work.</p>
-          </article>
-          <article>
-            <h3>With JudgmentKit</h3>
-            <p>The agent must name the activity, participant, decision, outcome, and disclosure boundary before it treats a workflow as ready.</p>
-          </article>
-          <article>
-            <h3>After repair</h3>
-            <p>The interface can be generated from a product-language handoff that makes evidence, decisions, and completion states explicit.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-    <section class="section homepage-artifact-inspector" aria-labelledby="artifact-inspector-title">
-      <div class="site-shell homepage-section-shell">
-        <div>
-          <p class="eyebrow">Artifact Inspector · Proposed</p>
-          <h2 id="artifact-inspector-title">Keep the artifact at the center of the review.</h2>
-          <p>Artifact Inspector is for work where one rendered artifact stays primary and the person must act on a specific part of it.</p>
-        </div>
-        <div class="failure-grid">
-          <article>
-            <h3>Artifact first</h3>
-            <p>People select the exact locus that matters. Evidence, actions, feedback, and results stay attached to that location.</p>
-          </article>
-          <article>
-            <h3>Scoped chrome</h3>
-            <p>JudgmentKit governs the inspector chrome and inspection overlay. The artifact keeps its own visual language.</p>
-          </article>
-          <article>
-            <h3>Current boundary</h3>
-            <p>Version ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)} can guide the model, but it cannot yet verify the complete working interaction, so review remains required.</p>
-          </article>
-        </div>
-        <div class="link-row">
-          <a class="pill-link" href="/docs/#artifact-inspector">Read the Artifact Inspector guide</a>
-          <a class="pill-link" href="${escapeHtml(GITHUB_RELEASE_URL)}">Read the ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)} release notes</a>
-        </div>
-      </div>
-    </section>
-    <section class="section proof-paths" aria-labelledby="proof-paths-title">
-      <div class="site-shell homepage-section-shell">
-        <div>
-          <p class="eyebrow">Proof paths</p>
-          <h2 id="proof-paths-title">Inspect the loop from product value to repeatable evidence.</h2>
-        </div>
-        <div class="route-grid route-grid-proof">
-          <article>
-            <h3>What it prevents</h3>
-            <p>See before-and-after cases for implementation-language leakage, unsafe action boundaries, and missing evidence.</p>
-            <a class="pill-link" href="/value/">Open value examples</a>
-          </article>
-          <article>
-            <h3>Replayable examples</h3>
-            <p>Review generated artifacts, comparison harnesses, and first-use fixtures that show the repair loop in context.</p>
-            <a class="pill-link" href="/examples/">Open examples</a>
-          </article>
-          <article>
-            <h3>Evaluation evidence</h3>
-            <p>Read the bounded reports and model matrices. The reports are audit material, not broad benchmark claims.</p>
-            <a class="pill-link" href="/evals/">Open eval evidence</a>
-          </article>
-        </div>
-      </div>
-    </section>
-    <section class="section adoption-paths" aria-labelledby="adoption-title">
-      <div class="site-shell homepage-section-shell">
-        <div>
-          <p class="eyebrow">Adoption paths</p>
-          <h2 id="adoption-title">Choose the next surface for the work you are doing.</h2>
-        </div>
-        <div class="route-grid route-grid-adoption">
-          <article>
-            <h3>Read the docs</h3>
-            <p>Use the setup and planning guide when you are ready to connect JudgmentKit to an agent workflow.</p>
-            <a class="pill-link" href="/docs/">Open docs</a>
-          </article>
-          <article>
-            <h3>Review the design-system assets</h3>
-            <p>Inspect token roles, typography, icons, component contracts, patterns, and accessibility policy.</p>
-            <a class="pill-link" href="/design-system/">Open design system</a>
-          </article>
-          <article>
-            <h3>Start installation</h3>
-            <p>Go straight to the hosted installer when the product fit and proof are clear enough.</p>
-            <a class="pill-link" href="/install">Open install route</a>
-          </article>
+        <ol class="family-workflow-row">
+          ${[
+            ["file-text", "Describe the work", "Show what someone needs to do."],
+            ["pencil", "Correct the premise", "Correct the agent’s task assumptions."],
+            ["panels-top-left", "Build the interface", "Your agent creates or revises the interface."],
+            ["check", "Try important tasks", "Repair specific failures."],
+            ["clipboard-check", "Review the result", "See what was checked and what remains unresolved."],
+          ].map(([icon, title, description], index) => `
+          <li class="family-workflow-step">
+            <span class="family-ordinal" aria-hidden="true">0${index + 1}</span>
+            <span class="family-workflow-icon" aria-hidden="true">${getIconSvg({ id: icon }).inline_svg}</span>
+            <h3>${title}</h3>
+            <p>${description}</p>
+          </li>`).join("")}
+        </ol>
+        <div class="homepage-support">
+          <p>The builder owns the product decisions.</p>
         </div>
       </div>
     </section>
@@ -6352,7 +6252,7 @@ export function renderHomepage({ homepageFilmEnabled = HOMEPAGE_FILM_ENABLED } =
   `,
     {
       description:
-        "JudgmentKit helps AI agents understand the user's work, choose the right interface, and repair what does not fit.",
+        "JudgmentKit gives your AI agent interaction guidance, implementation checks, and repair instructions.",
       path: "/",
     },
   );
@@ -9354,50 +9254,50 @@ async function valuePage() {
   const evidenceLinks = await buildValueEvidenceLinks();
 
   return page(
-    "What JudgmentKit Prevents",
+    "Interface Checks and Repair Examples",
     `
     <section class="section value-page">
       <div class="site-shell value-shell">
         <div class="site-page-header site-page-header-wide value-hero">
-          <p class="eyebrow">Shippable value</p>
-          <h1>What JudgmentKit prevents</h1>
-          <p class="lede">JudgmentKit catches when AI-generated UI turns implementation mechanics into UX, then gives the agent repair instructions before the work ships.</p>
+          <p class="eyebrow">Selected examples</p>
+          <h1>Interface checks and repair examples</h1>
+          <p class="lede">These examples show how JudgmentKit checks declared interface requirements and returns repair guidance from the submitted evidence.</p>
         </div>
 
         <div class="value-case-grid">
           <article class="value-case" id="implementation-language">
             <div class="value-case-copy">
               <p class="eyebrow">Implementation language leak</p>
-              <h2>Internal objects stop becoming the product surface.</h2>
-              <p>A raw generation pass tends to expose database fields, schema labels, endpoint status, and debug structure. JudgmentKit redirects the agent toward the actual activity: a support lead reviewing refund evidence and leaving a handoff.</p>
+              <h2>This example keeps diagnostics secondary.</h2>
+              <p>In this curated refund example, the baseline exposes database fields, schema labels, endpoint status, and debug structure. The guided version centers on a support lead reviewing refund evidence and leaving a handoff.</p>
               <dl class="value-findings">
                 <div><dt>Baseline failure</dt><dd>Source mechanics become navigation and labels the support lead has to translate.</dd></div>
-                <div><dt>JudgmentKit catches</dt><dd>The activity, participant, decision, outcome, and disclosure boundary are missing or weak.</dd></div>
+                <div><dt>JudgmentKit checks</dt><dd>The activity, participant, decision, outcome, and disclosure boundary are missing or weak.</dd></div>
                 <div><dt>Repaired outcome</dt><dd>The primary surface uses refund review language and keeps diagnostics secondary.</dd></div>
               </dl>
             </div>
             <figure class="value-screenshot-pair" aria-label="Implementation language before and after screenshots">
               <a href="/examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html">
                 <img src="/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png" alt="Raw refund triage artifact screenshot">
-                <span>Raw brief</span>
+                <span>Baseline example</span>
               </a>
               <a href="/examples/model-ui/refund-system-map/artifacts/deterministic-with-judgmentkit.html">
                 <img src="/examples/model-ui/refund-system-map/screenshots/deterministic-with-judgmentkit.png" alt="JudgmentKit-guided refund triage artifact screenshot">
-                <span>JudgmentKit-guided</span>
+                <span>Guided example</span>
               </a>
-              <figcaption>Same refund activity, different source discipline.</figcaption>
+              <figcaption>Curated refund artifacts, shown for comparison.</figcaption>
             </figure>
           </article>
 
           <article class="value-case" id="action-boundary">
             <div class="value-case-copy">
               <p class="eyebrow">Unsafe action boundary</p>
-              <h2>Approval work gets a human decision point.</h2>
-              <p>Refund review is not a generic submit flow. The user needs to approve, send to policy review, or return for missing evidence with a reason the next owner can trust.</p>
+              <h2>Make the approval boundary explicit.</h2>
+              <p>In this refund example, the user approves, sends to policy review, or returns for missing evidence, with a recorded reason for the next owner.</p>
               <dl class="value-findings">
                 <div><dt>Baseline failure</dt><dd>Actions advance the case before the approval boundary and handoff reason are explicit.</dd></div>
-                <div><dt>JudgmentKit catches</dt><dd>The primary action, reversible states, and next-owner receipt are not grounded in the review activity.</dd></div>
-                <div><dt>Repaired outcome</dt><dd>The interface separates decision, reason, and handoff so the case can move forward cleanly.</dd></div>
+                <div><dt>JudgmentKit checks</dt><dd>The primary action, reversible states, and next-owner receipt are not grounded in the review activity.</dd></div>
+                <div><dt>Repaired outcome</dt><dd>The example separates decision, reason, and handoff.</dd></div>
               </dl>
             </div>
             <div class="value-receipt" aria-label="Refund action boundary repair receipt">
@@ -9410,18 +9310,18 @@ async function valuePage() {
           <article class="value-case" id="accessibility-evidence">
             <div class="value-case-copy">
               <p class="eyebrow">Missing accessibility evidence</p>
-              <h2>Claims are not accepted without evidence.</h2>
+              <h2>Required accessibility evidence cannot be omitted.</h2>
               <p>JudgmentKit treats accessibility as part of the implementation contract. An agent cannot pass by saying the UI is accessible in a rationale while leaving required evidence out of the candidate.</p>
               <dl class="value-findings">
                 <div><dt>Baseline failure</dt><dd>Labels, focus-visible behavior, status messaging, or conditional modal evidence are absent.</dd></div>
-                <div><dt>JudgmentKit catches</dt><dd>The failed evidence keys are grouped into repair instructions for the agent.</dd></div>
-                <div><dt>Repaired outcome</dt><dd>The candidate resubmits with concrete accessibility evidence before acceptance.</dd></div>
+                <div><dt>JudgmentKit checks</dt><dd>The failed evidence keys are grouped into repair instructions for the agent.</dd></div>
+                <div><dt>Repaired outcome</dt><dd>The repaired candidate supplies the required accessibility evidence for contract review.</dd></div>
               </dl>
             </div>
             <div class="value-receipt" aria-label="Accessibility repair guidance example">
               <div class="value-receipt-row"><strong>Failed check</strong><p>Missing focus, keyboard, status, or conditional evidence.</p></div>
               <div class="value-receipt-row"><strong>Repair</strong><p>Add the evidence inside the implementation candidate, not only in the rationale.</p></div>
-              <div class="value-receipt-row"><strong>Result</strong><p>The agent repairs, resubmits, and either passes or stops for human review after the attempt limit.</p></div>
+              <div class="value-receipt-row"><strong>Result</strong><p>JudgmentKit returns acceptance, repair instructions, or an unresolved review status. The agent owns repairs, resubmission, and attempt tracking, and stops when human input is required.</p></div>
             </div>
           </article>
         </div>
@@ -9429,7 +9329,7 @@ async function valuePage() {
         <section class="value-evidence" aria-labelledby="value-evidence-title">
           <p class="eyebrow">Evidence, not the main story</p>
           <h2 id="value-evidence-title">Audit material stays available.</h2>
-          <p>The public value path above is the product story. The current hosted MCP release is ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}; linked reports are historical committed eval artifacts for deterministic proof, model matrix, and repair-loop data, not current release acceptance proof. The public archive includes only the evidence intended for external audit.</p>
+          <p>The public value path above is the product story. The current hosted MCP release is ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}; linked reports are historical committed eval artifacts for deterministic rubric results, model matrix, and repair-loop data, not current release acceptance proof. The public archive includes only the evidence intended for external audit.</p>
           <div class="link-row">
             ${renderValueEvidenceLinks(evidenceLinks)}
           </div>
@@ -9439,7 +9339,7 @@ async function valuePage() {
   `,
     {
       description:
-        "Concrete before and after examples of what JudgmentKit prevents in AI-generated product UI.",
+        "Selected interface contract checks and curated repair examples from JudgmentKit.",
       path: "/value/",
     },
   );
@@ -9459,7 +9359,7 @@ function renderSurfaceTypeEntries() {
 
 const DOCS_SECTION_ITEMS = [
   { href: "#quickstart", label: "Quickstart", current: true, currentValue: "location" },
-  { href: "#first-use", label: "First 10 Minutes" },
+  { href: "#first-use", label: "First use" },
   { href: "#planning-examples", label: "Planning Examples" },
   { href: "#mcp", label: "MCP" },
   { href: "#system-map", label: "System Map" },
@@ -9495,19 +9395,26 @@ function docsPage() {
         <div class="doc-content">
           <section class="doc-section" id="quickstart">
             <h1>Docs</h1>
+            <nav class="doc-resources" aria-label="More JudgmentKit resources">
+              <a href="/evals/">Evaluation evidence</a>
+              <a href="/mcp">MCP endpoint</a>
+              <a href="/install">Installer</a>
+              <a href="https://handbooks.surfaces.systems/"${NEW_TAB_LINK_ATTRIBUTES}>Handbooks${renderExternalLinkIcon()}</a>
+            </nav>
             <h2>Quickstart</h2>
             <p>Install JudgmentKit for your MCP client, then connect to the hosted Streamable HTTP endpoint.</p>
+            <p>Hosted requests leave your machine. Use sanitized inputs for confidential work, or a local or self-hosted endpoint. Read the <a href="https://github.com/mikeylong/judgmentkit/blob/main/packages/agent-skill/judgmentkit-hosted-mcp/SKILL.md#authorization-and-privacy">authorization and privacy guidance</a> before choosing the endpoint.</p>
             <pre><code>curl -fsSL https://judgmentkit.ai/install | bash
 curl -fsSL https://judgmentkit.ai/install | bash -s -- --client claude
 curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></pre>
             <p class="note">Codex is the default client. Use <code>--client codex</code>, <code>--client claude</code>, or <code>--client cursor</code> when scripting.</p>
           </section>
           <section class="doc-section" id="first-use">
-            <h2>First 10 Minutes</h2>
+            <h2>First use</h2>
             <p>Start with an interface task in your agent conversation. Describe who needs to do what, or point the agent at an existing interface and the task to improve.</p>
             <pre><code>Use JudgmentKit to build a signup form for a local workshop. Attendees pick an available session, enter their contact details, and receive a clear confirmation. Handle incomplete details and full sessions. Build and check the main task, then show what works and what remains unverified.</code></pre>
             <p>The agent should show a short working premise, build or revise the interface, try the important task, and make focused repairs. You can correct the premise as the work develops. The agent handles the review sequence.</p>
-            <p>Finish with the working interface, the important paths checked, and any missing verification. Contract acceptance is bounded to its checks; observed user task completion is separate evidence.</p>
+            <p>Review the interface, the important paths actually checked, and any missing verification. Contract acceptance is bounded to its checks; observed user task completion is separate evidence.</p>
             <details>
               <summary>Replay the review mechanism</summary>
             <p>Use the replayable first-use fixture to see the AI-native design system as a contract loop, not a renderer. The fixture gives the agent one brief, one implementation contract input, one failing candidate, one repaired candidate, and the expected two-attempt transcript.</p>
@@ -11340,8 +11247,10 @@ export async function buildSite(
   await fs.mkdir(path.join(outDir, "assets", "patterns"), { recursive: true });
   await fs.mkdir(path.join(outDir, "assets", "releases"), { recursive: true });
 
-  await fs.writeFile(path.join(outDir, "assets", "site.css"), stylesheet.trimStart());
+  const websitePresentationStylesheet = await fs.readFile(path.join(__dirname, "website-presentation.css"), "utf8");
+  await fs.writeFile(path.join(outDir, "assets", "site.css"), `${stylesheet.trimStart()}\n${websitePresentationStylesheet}`);
   await fs.cp(path.join(__dirname, "assets", "fonts"), path.join(outDir, "assets", "fonts"), { recursive: true });
+  await fs.copyFile(path.join(__dirname, "assets", "judgment-lens-hero.webp"), path.join(outDir, "assets", "judgment-lens-hero.webp"));
   await fs.copyFile(
     path.join(__dirname, "assets", HOMEPAGE_HERO_ART_FILENAME),
     path.join(outDir, "assets", HOMEPAGE_HERO_ART_FILENAME),
