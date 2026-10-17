@@ -391,7 +391,7 @@ try {
           { label: `${label}: embedded map mounted before keyboard checks` });
         await evaluate(client, sid, "document.fonts.ready");
         assert.equal(await evaluate(client, sid,
-          `document.querySelector('#first-use h2').textContent.trim()`), "First 10 Minutes", label);
+          `document.querySelector('#first-use h2').textContent.trim()`), "First use", label);
         assert.equal(await evaluate(client, sid,
           `document.querySelector('#first-use > pre code').textContent.trim()`), WORKSHOP_PROMPT, label);
         assert.equal(await evaluate(client, sid,
