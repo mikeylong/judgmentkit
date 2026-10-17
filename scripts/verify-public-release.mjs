@@ -1168,9 +1168,10 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   assertIncludes(
     home.text,
     [
-      "Judgment before components.",
-      "Guide interface design with your AI agent.",
-      "JudgmentKit gives your AI agent interaction guidance, implementation checks, and repair instructions.",
+      "The judgment layer for AI-generated UI",
+      "Stop AI from building the wrong interface.",
+      "A design system tells an agent how interface elements should look and behave. JudgmentKit tells it which interface the user’s work requires, what should stay hidden, and what must be repaired.",
+      "<p><strong>Use JudgmentKit’s design system—or bring your own.</strong></p>",
       "Keep the interface in the language of the work.",
       'class="homepage-scene"',
       'class="family-problem-row"',
