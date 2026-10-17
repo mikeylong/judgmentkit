@@ -1,0 +1,452 @@
+.site-presentation {
+  /* Public website presentation. Product adapters and reference artifacts keep their own authority. */
+  --bg: #F7F6F2;
+  --ink: #0B0D0E;
+  --muted: #555B60;
+  --line: #DAD7CF;
+  --panel: #ffffff;
+  --accent: #0B0D0E;
+  --accent-strong: #0B0D0E;
+  --accent-ink: #F7F6F2;
+  --focus-ring: #0B0D0E;
+  --step-marker-bg: #0B0D0E;
+  --step-marker-ink: #F7F6F2;
+  --menu-item-bg: #ffffff;
+  --menu-item-bg-hover: #F7F6F2;
+  --menu-item-bg-current: #DAD7CF;
+  --soft-surface: #ffffff;
+  --code-surface: #ffffff;
+  --media-surface: #ffffff;
+  --table-heading-surface: #F7F6F2;
+  --bar-track: #DAD7CF;
+  --family-signal: var(--website-nickel);
+  --site-gutter: 24px;
+  --site-shell-width: 1120px;
+  font-family: "Header Inter", "Header Inter Fallback", Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+@media (prefers-color-scheme: dark) {
+  .site-presentation {
+    --bg: #0B0D0E;
+    --ink: #F7F6F2;
+    --muted: #8B9096;
+    --line: #8B9096;
+    --panel: #24282b;
+    --accent: #DAD7CF;
+    --accent-strong: #DAD7CF;
+    --accent-ink: #0B0D0E;
+    --focus-ring: #F7F6F2;
+    --step-marker-bg: #DAD7CF;
+    --step-marker-ink: #0B0D0E;
+    --menu-item-bg: #24282b;
+    --menu-item-bg-hover: #3C4145;
+    --menu-item-bg-current: #3C4145;
+    --soft-surface: #24282b;
+    --code-surface: #24282b;
+    --media-surface: #24282b;
+    --table-heading-surface: #3C4145;
+    --bar-track: #3C4145;
+  }
+}
+.site-presentation :is(h1, h2, h3, h4):not(.jk-specimen-preview *) {
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+.site-presentation h1:not(.jk-specimen-preview *) {
+  max-width: 760px;
+  font-size: 40px;
+  margin-bottom: 24px;
+}
+.site-presentation h2:not(.jk-specimen-preview *) {
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+.site-presentation h3:not(.jk-specimen-preview *) {
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+.site-presentation h4:not(.jk-specimen-preview *) {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.site-presentation .lede {
+  font-size: 20px;
+  line-height: 1.45;
+}
+.site-presentation .eyebrow {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.site-presentation .section {
+  padding-block: 96px;
+}
+.site-presentation :is(.docs-page, .design-system-page, .value-page, .examples-page) {
+  padding-top: var(--site-page-top);
+}
+.site-presentation .homepage-hero {
+  position: relative;
+  min-height: 560px;
+  padding: 0;
+  background: var(--header-menu-bg);
+  color: var(--header-ink);
+}
+.site-presentation .homepage-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 56% center;
+}
+.site-presentation .homepage-hero::before {
+  content: none;
+}
+.site-presentation .homepage-hero::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, var(--header-menu-bg) 0%, color-mix(in srgb, var(--header-menu-bg) 92%, transparent) 28%, color-mix(in srgb, var(--header-menu-bg) 66%, transparent) 48%, color-mix(in srgb, var(--header-menu-bg) 24%, transparent) 70%, color-mix(in srgb, var(--header-menu-bg) 4%, transparent) 100%);
+  content: "";
+  pointer-events: none;
+}
+.site-presentation .homepage-hero-shell {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  width: min(1120px, calc(100% - 48px));
+  min-height: 560px;
+}
+.site-presentation .homepage-hero-copy {
+  width: min(100%, 560px);
+  padding: 48px 0 96px;
+}
+.site-presentation .homepage-hero :is(h1, .lede, .eyebrow) {
+  color: var(--header-ink);
+}
+.site-presentation .homepage-hero h1 {
+  max-width: 560px;
+  font-size: 40px;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+.site-presentation .homepage-hero .eyebrow {
+  margin-bottom: 20px;
+  padding-left: 10px;
+  border-left: 2px solid var(--family-signal);
+}
+.site-presentation .homepage-hero .lede {
+  margin-bottom: 28px;
+}
+.site-presentation .homepage-hero .hero-actions {
+  margin-top: 0;
+}
+.site-presentation :is(.proof-panel, .section-rail-menu-list, .example-gallery-modal-panel, .example-gallery-modal-image img) {
+  box-shadow: none;
+}
+.site-presentation .hero-action {
+  min-height: 48px;
+  padding: 10px 18px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+  transition: background-color 120ms linear, color 120ms linear;
+}
+.site-presentation .hero-action:hover {
+  transform: none;
+}
+.site-presentation .hero-action-primary {
+  color: var(--accent-ink);
+  background: var(--accent-strong);
+  box-shadow: none;
+}
+.site-presentation .hero-action-secondary {
+  color: var(--ink);
+  background: transparent;
+  backdrop-filter: none;
+}
+.site-presentation .homepage-hero .hero-action-primary {
+  border-color: var(--header-ink);
+  color: var(--header-menu-bg);
+  background: var(--header-ink);
+}
+.site-presentation .homepage-hero .hero-action-secondary {
+  border-color: var(--header-ink);
+  color: var(--header-ink);
+}
+.site-presentation .homepage-hero .hero-action-primary:hover {
+  background: var(--nav-muted);
+}
+.site-presentation .homepage-hero .hero-action-secondary:hover {
+  background: var(--header-ink);
+  color: var(--header-menu-bg);
+}
+.site-presentation .homepage-hero a:focus-visible {
+  outline: 2px solid var(--header-ink);
+  outline-offset: 4px;
+  box-shadow: none;
+}
+.site-presentation .pill-link {
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+/* The reference previews retain the original system-font contract and token adapter. */
+.site-presentation .jk-specimen-preview {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+/* The homepage follows the rendered family composition, not the reference specimen layout. */
+.site-presentation :is(.homepage-problem, .homepage-workflow) {
+  padding-inline: var(--site-gutter);
+}
+.site-presentation .homepage-problem {
+  padding-block: 80px 56px;
+  background: var(--panel);
+}
+.site-presentation .homepage-workflow {
+  padding-block: 96px;
+  background: var(--bg);
+}
+.site-presentation .homepage-section-heading {
+  max-width: 620px;
+  margin-bottom: 40px;
+}
+.site-presentation .homepage-section-heading h2 {
+  margin-bottom: 0;
+}
+.site-presentation :is(.family-problem-row, .family-workflow-row) {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  list-style: none;
+}
+.site-presentation .family-problem-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.site-presentation .family-workflow-row {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.site-presentation :is(.family-problem-row, .family-workflow-row) > li {
+  position: relative;
+  min-width: 0;
+  padding: 24px;
+  border-right: 1px solid var(--line);
+}
+.site-presentation .family-problem-row > li {
+  min-height: 180px;
+}
+.site-presentation :is(.family-problem-row, .family-workflow-row) > li:last-child {
+  border-right: 0;
+}
+.site-presentation :is(.family-problem-row, .family-workflow-row) > li:not(:last-child)::after {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: -6px;
+  width: 10px;
+  height: 10px;
+  border-top: 1px solid var(--muted);
+  border-right: 1px solid var(--muted);
+  background: var(--bg);
+  transform: translateY(-50%) rotate(45deg);
+  content: "";
+}
+.site-presentation .family-problem-row > li:not(:last-child)::after {
+  background: var(--panel);
+}
+.site-presentation .family-ordinal {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.site-presentation :is(.family-problem-row, .family-workflow-row) h3 {
+  margin: 24px 0 12px;
+  font-size: 20px;
+  font-weight: 600;
+}
+.site-presentation :is(.family-problem-row, .family-workflow-row) p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.site-presentation .family-workflow-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  margin: 36px 0 24px;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  place-items: center;
+}
+.site-presentation .family-workflow-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+}
+.site-presentation .family-workflow-step h3 {
+  margin-top: 0;
+}
+.site-presentation .homepage-support {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin-top: 32px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.site-presentation .homepage-support p {
+  margin: 0;
+}
+.site-footer-identity {
+  margin-right: auto;
+}
+.site-footer-description,
+.site-footer-copyright {
+  margin: 8px 0 0;
+  color: var(--website-nickel);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.surfaces-navigation,
+.site-footer {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+@media (max-width: 820px) {
+  .site-presentation {
+    --site-gutter: 16px;
+  }
+  .site-footer {
+    padding-inline: 16px;
+  }
+  .site-footer-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .site-presentation .section {
+    padding-block: 52px;
+  }
+  .site-presentation :is(.docs-page, .design-system-page, .value-page, .examples-page) {
+    padding-top: var(--site-page-top);
+  }
+  .site-presentation .homepage-hero {
+    min-height: 528px;
+    padding: 0;
+  }
+  .site-presentation .homepage-hero-shell {
+    width: calc(100% - 32px);
+    min-height: 528px;
+  }
+  .site-presentation .homepage-hero-copy {
+    padding: 44px 0 96px;
+  }
+  .site-presentation .homepage-hero .lede {
+    font-size: 16px;
+  }
+  .site-presentation .homepage-hero .hero-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .site-presentation .homepage-hero .hero-action {
+    width: 100%;
+  }
+  .site-presentation .homepage-scene {
+    object-position: 72% center;
+  }
+  .site-presentation .homepage-hero::after {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--header-menu-bg) 94%, transparent), color-mix(in srgb, var(--header-menu-bg) 64%, transparent));
+  }
+  .site-presentation :is(.homepage-problem, .homepage-workflow) {
+    padding-block: 52px;
+  }
+  .site-presentation :is(.family-problem-row, .family-workflow-row) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .site-presentation :is(.family-problem-row, .family-workflow-row) > li {
+    min-height: 0;
+    padding: 20px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .site-presentation :is(.family-problem-row, .family-workflow-row) > li:last-child {
+    border-bottom: 0;
+  }
+  .site-presentation :is(.family-problem-row, .family-workflow-row) > li:not(:last-child)::after {
+    top: auto;
+    right: auto;
+    bottom: -6px;
+    left: 24px;
+    transform: rotate(135deg);
+  }
+  .site-presentation .family-workflow-step {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-areas: "ordinal title" "icon description";
+    column-gap: 16px;
+    align-items: start;
+  }
+  .site-presentation .family-workflow-step .family-ordinal {
+    grid-area: ordinal;
+    align-self: center;
+  }
+  .site-presentation .family-workflow-step .family-workflow-icon {
+    grid-area: icon;
+    width: 40px;
+    height: 40px;
+    margin: 10px 0 0;
+  }
+  .site-presentation .family-workflow-step h3 {
+    grid-area: title;
+    margin: 0;
+    font-size: 20px;
+  }
+  .site-presentation .family-workflow-step p {
+    grid-area: description;
+    margin-top: 10px;
+  }
+}
+@media (max-width: 620px) {
+  .site-presentation h1:not(.jk-specimen-preview *),
+  .site-presentation .homepage-hero h1 {
+    font-size: 32px;
+  }
+  .site-presentation h2:not(.jk-specimen-preview *) {
+    font-size: 24px;
+  }
+  .site-presentation h3:not(.jk-specimen-preview *) {
+    font-size: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-presentation .hero-action {
+    transition: none;
+  }
+}
+
+.site-presentation .doc-resources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-bottom: 28px;
+  font-size: 14px;
+}

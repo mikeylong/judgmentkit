@@ -466,9 +466,10 @@ export function assertValueAppearanceContract(valueHtml, siteCss) {
     [
       '<link rel="canonical" href="https://judgmentkit.ai/value/">',
       '<link rel="stylesheet" href="/assets/site.css">',
+      '<body class="site-presentation">',
       'class="value-findings"',
       "Baseline failure",
-      "JudgmentKit catches",
+      "JudgmentKit checks",
       "Repaired outcome",
     ],
     "value",
@@ -492,6 +493,11 @@ export function assertValueAppearanceContract(valueHtml, siteCss) {
     ["background: var(--soft-surface);"],
     "value finding card rule",
   );
+  const familyDarkRoot = siteCss.match(
+    /@media \(prefers-color-scheme: dark\) \{\s*\.site-presentation\s*\{([^}]*)\}/,
+  )?.[1];
+  assert.ok(familyDarkRoot, "site CSS should include the scoped website dark appearance root");
+  assertIncludes(familyDarkRoot, ["--bg: #0B0D0E;", "--ink: #F7F6F2;", "--soft-surface: #24282b;"], "website CSS dark appearance root");
 }
 
 function evalRunTitle(run) {
@@ -1144,8 +1150,7 @@ export function assertReleaseFooter(html, expectedPackageVersion, label) {
     [
       '<footer class="site-footer">',
       '<a class="site-footer-brand" href="/" aria-label="JudgmentKit home">',
-      'srcset="/assets/brand/judgmentkit-lockup-reversed.svg" media="(prefers-color-scheme: dark)"',
-      'class="site-brand-lockup" src="/assets/brand/judgmentkit-lockup.svg"',
+      'class="site-brand-lockup" src="/assets/brand/judgmentkit-lockup-reversed.svg"',
       `href="https://github.com/mikeylong/judgmentkit/releases/tag/v${expectedPackageVersion}"`,
       `aria-label="Release v${expectedPackageVersion} on GitHub"`,
       `<span>Release v${expectedPackageVersion}</span>`,
@@ -1163,20 +1168,15 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   assertIncludes(
     home.text,
     [
-      "Stop AI from building the wrong interface.",
-      "The judgment layer for AI-generated UI",
-      "A design system tells an agent how interface elements should look and behave.",
-      "JudgmentKit tells it which interface the user’s work requires, what should stay hidden, and what must be repaired.",
-      "Use JudgmentKit’s design system—or bring your own.",
-      "A design system can make the wrong interface consistent.",
-      "JudgmentKit prevents that mistake before the components are composed.",
-      "Artifact Inspector",
-      "Proposed",
-      "one rendered artifact stays primary",
-      "inspector chrome and inspection overlay",
-      "The artifact keeps its own visual language.",
-      'href="/docs/#artifact-inspector"',
-      `href="https://github.com/mikeylong/judgmentkit/releases/tag/v${expectedPackageVersion}"`,
+      "Judgment before components.",
+      "Guide interface design with your AI agent.",
+      "JudgmentKit gives your AI agent interaction guidance, implementation checks, and repair instructions.",
+      "Keep the interface in the language of the work.",
+      'class="homepage-scene"',
+      'class="family-problem-row"',
+      'class="family-workflow-row"',
+      "Your agent creates or revises the interface.",
+      "The builder owns the product decisions.",
       "See a screen repaired",
       "Explore examples",
       '<link rel="canonical" href="https://judgmentkit.ai/">',

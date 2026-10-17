@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-16",
+  "role": "JudgmentKit public homepage environmental background",
+  "asset": "site/assets/judgment-lens-environment-v2.webp",
+  "sha256": "4604767e61b39228ea0b0c079828d905cffd65de7ae2d467047b1ccb7e26979b",
+  "bytes": 154502,
+  "dimensions": [
+    1983,
+    793
+  ],
+  "generator": "built-in image_gen",
+  "mode": "reference-based generation and composition",
+  "prompt": "Use case: compositing. Asset type: full-width website hero background. Image 1 is the EDIT TARGET: JudgmentKit's existing portrait artwork of rough stone fragments passing through a teal glass lens and emerging as an ordered curved path. Image 2 is a STYLE/COMPOSITION REFERENCE ONLY: the Surfaces architectural slab environment. Recompose and extend Image 1 into a very wide 2.5:1 landscape (approximately 2400x960) suitable for a full-bleed homepage hero behind live HTML text. Preserve the recognizable teal glass lens, stone fragments, ordered path, premium realistic materials and quiet lighting. Place the lens and ordered path predominantly in the right half to right third. Extend a spacious, dim Ink/Graphite studio environment across the left 50 percent so white text can be placed there. The artwork must fill the frame naturally with no visible card/container boundary. Use the restrained environmental depth, tonal balance and architectural scale of Image 2 without adding its slabs to this scene. Lens must remain recognizably the same subject, not become a logo, eye or portal to another world. No text, no typography, no logos, no UI, no border, no rounded frame, no watermark. Do not bake a dark gradient text overlay into the bitmap; the left environment should be naturally quiet and dark. Single final landscape image.",
+  "editSource": {
+    "path": "site/assets/judgment-lens-hero.webp",
+    "sha256": "becef95f1088efd5f0e01263bff7d5d74868fd523ba267da347ce722284e81f8",
+    "preserved": true
+  },
+  "styleAndCompositionReference": "https://www.surfaces.systems/",
+  "sharedLayoutContract": {
+    "path": "specs/website-family-layout.md",
+    "sha256": "ce279d508bb304f80a5c95bb8df3be1bc8e8ffe631254412cb3d10df2d57b007",
+    "source": "SurfacesBrand/specs/website-family-layout.md",
+    "observedViewports": [
+      [
+        1280,
+        720
+      ],
+      [
+        390,
+        844
+      ]
+    ]
+  },
+  "artworkReview": "Root visually accepted the wide artwork before browser composition review. Final page acceptance remains separate.",
+  "preservation": "Canonical marks, lockups, favicon geometry and social artwork are unchanged. No text or UI is baked into this asset."
+}

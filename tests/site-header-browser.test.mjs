@@ -15,9 +15,11 @@ import {
 const CASES = [
   { width: 1280, gutter: 80, menu: false },
   { width: 1121, gutter: 24, menu: false },
-  { width: 1120, gutter: 24, menu: true },
-  { width: 821, gutter: 24, menu: true },
+  { width: 1120, gutter: 24, menu: false },
+  { width: 821, gutter: 24, menu: false },
   { width: 820, gutter: 16, menu: true },
+  { width: 621, gutter: 16, menu: true },
+  { width: 620, gutter: 16, menu: true },
   { width: 390, gutter: 16, menu: true },
   { width: 320, gutter: 16, menu: true },
   { width: 320, gutter: 16, menu: true, scrollbarMode: "classic-15px" },
@@ -124,6 +126,16 @@ async function measure(client, sessionId) {
       filter: getComputedStyle(el).filter, objectFit: getComputedStyle(el).objectFit,
     });
     const links = [...nav.querySelectorAll('.surfaces-navigation-sections a')];
+    const bodyStyle = getComputedStyle(document.body);
+    const headingStyle = getComputedStyle(document.querySelector('main h1'));
+    const subheadingStyle = getComputedStyle(document.querySelector('main h2'));
+    const hero = document.querySelector('.homepage-hero');
+    const action = document.querySelector('.hero-action');
+    const scene = document.querySelector('.homepage-scene');
+    const problem = document.querySelector('.homepage-problem');
+    const workflow = document.querySelector('.family-workflow-row');
+    const detailPage = document.querySelector('.docs-page,.design-system-page');
+    const detailLayout = document.querySelector('.doc-layout,.design-system-layout');
     return {
       header: rect(nav), shell: rect(nav.firstElementChild),
       brand: rect(brand), lockup: rect(lockup), button: rect(menu),
@@ -138,6 +150,41 @@ async function measure(client, sessionId) {
       fontLoaded: [...document.fonts].some(f => f.family === 'Header Inter' && f.status === 'loaded'),
       background: getComputedStyle(nav).backgroundColor,
       separateWordmark: brand.querySelector('span') !== null,
+      presentation: {
+        bodyFont: bodyStyle.fontFamily, fontSize: bodyStyle.fontSize, lineHeight: bodyStyle.lineHeight,
+        detailPadding: detailPage && { outer: getComputedStyle(detailPage).paddingTop, inner: getComputedStyle(detailLayout).paddingTop },
+        fontSmoothing: bodyStyle.getPropertyValue('-webkit-font-smoothing'),
+        footerDescriptionColor: getComputedStyle(footer.querySelector('.site-footer-description')).color,
+        bodyBackground: bodyStyle.backgroundColor,
+        shellWidth: bodyStyle.getPropertyValue('--site-shell-width').trim(),
+        gutter: bodyStyle.getPropertyValue('--site-gutter').trim(),
+        headingSize: headingStyle.fontSize, headingWeight: headingStyle.fontWeight,
+        headingLineHeight: headingStyle.lineHeight,
+        headingTracking: headingStyle.letterSpacing,
+        subheadingSize: subheadingStyle.fontSize, subheadingWeight: subheadingStyle.fontWeight,
+        subheadingLineHeight: subheadingStyle.lineHeight,
+        heroBackground: hero && getComputedStyle(hero).backgroundColor,
+        action: action && { height: rect(action).height, size: getComputedStyle(action).fontSize,
+          weight: getComputedStyle(action).fontWeight, radius: getComputedStyle(action).borderRadius },
+        hero: hero && rect(hero),
+        scene: scene && { ...rect(scene), position: getComputedStyle(scene).position, radius: getComputedStyle(scene).borderRadius,
+          border: getComputedStyle(scene).borderWidth, fit: getComputedStyle(scene).objectFit,
+          crop: getComputedStyle(scene).objectPosition, loaded: scene.complete && scene.naturalWidth > 0,
+          src: scene.getAttribute('src') },
+        separateImageCard: document.querySelector('.homepage-hero-visual,.homepage-hero-art') !== null,
+        copyStacks: document.querySelectorAll('.homepage-hero-copy').length,
+        actions: hero && hero.querySelectorAll('.hero-action').length,
+        nextSectionY: problem && problem.getBoundingClientRect().top,
+        problemItems: document.querySelectorAll('.family-problem-row > li').length,
+        sectionEyebrowColor: problem && getComputedStyle(problem.querySelector('.eyebrow')).color,
+        workflow: workflow && [...workflow.children].map(step => {
+          const title = step.querySelector('h3'), description = step.querySelector('p'), ordinal = step.querySelector('.family-ordinal'), icon = step.querySelector('.family-workflow-icon');
+          return { bounds: rect(step), title: rect(title), icon: rect(icon), ordinal: rect(ordinal),
+            titleSize: getComputedStyle(title).fontSize, titleWeight: getComputedStyle(title).fontWeight,
+            descriptionSize: getComputedStyle(description).fontSize, ordinalSize: getComputedStyle(ordinal).fontSize,
+            radius: getComputedStyle(step).borderRadius, shadow: getComputedStyle(step).boxShadow };
+        }),
+      },
     };
   })()`);
 }
@@ -161,9 +208,67 @@ async function captureBrandElement(client, sessionId, selector, outputPath) {
 async function assertBrand(client, sessionId, measurement, context) {
   const label = `${context.width}px ${context.colorScheme} ${context.route} ${context.scrollbarMode}`;
   assert.equal(measurement.headerImage.currentSrc, '/assets/brand/judgmentkit-lockup-reversed.svg', `${label}: fixed ink header uses reversed asset`);
-  assert.equal(measurement.footerImage.currentSrc, context.colorScheme === 'dark'
-    ? '/assets/brand/judgmentkit-lockup-reversed.svg' : '/assets/brand/judgmentkit-lockup.svg', `${label}: footer follows its surface`);
-  assert.equal(measurement.footerBackground, context.colorScheme === 'dark' ? 'rgb(16, 19, 18)' : 'rgb(248, 247, 242)', label);
+  assert.equal(measurement.footerImage.currentSrc, '/assets/brand/judgmentkit-lockup-reversed.svg', `${label}: fixed Ink footer uses reversed asset`);
+  assert.equal(measurement.footerBackground, 'rgb(11, 13, 14)', label);
+  const presentation = measurement.presentation;
+  assert.ok(presentation.bodyFont.includes('Header Inter'), `${label}: shared Inter text`);
+  assert.equal(presentation.fontSize, '16px', label);
+  assert.equal(presentation.lineHeight, '23.2px', label);
+  assert.equal(presentation.fontSmoothing, 'antialiased', `${label}: Surfaces text rendering`);
+  assert.equal(presentation.footerDescriptionColor, 'rgb(139, 144, 150)', `${label}: quiet Nickel footer copy`);
+  assert.equal(presentation.shellWidth, '1120px', label);
+  assert.equal(presentation.gutter, context.width <= 820 ? '16px' : '24px', label);
+  assert.equal(presentation.bodyBackground, context.colorScheme === 'dark' ? 'rgb(11, 13, 14)' : 'rgb(247, 246, 242)', label);
+  assert.equal(presentation.headingSize, context.width <= 620 ? '32px' : '40px', label);
+  assert.equal(presentation.headingWeight, '600', label);
+  assert.equal(presentation.headingLineHeight, context.width <= 620 ? '36.8px' : '46px', label);
+  assert.equal(presentation.headingTracking, 'normal', label);
+  assert.equal(presentation.subheadingSize, context.width <= 620 ? '24px' : '32px', label);
+  assert.equal(presentation.subheadingWeight, '600', label);
+  assert.equal(presentation.subheadingLineHeight, context.width <= 620 ? '27.6px' : '36.8px', label);
+  if (context.route === '/docs/') {
+    assert.ok(presentation.detailPadding, `${label}: detailed-page wrapper exists`);
+    assert.equal(presentation.detailPadding.inner, '0px', `${label}: nested layout must not add a second top inset`);
+    const outerInset = Number.parseFloat(presentation.detailPadding.outer);
+    assert.ok(outerInset >= 36 && outerInset <= 62, `${label}: outer wrapper uses the intended page inset`);
+  }
+  if (context.route === '/') {
+    assert.equal(presentation.heroBackground, 'rgb(11, 13, 14)', `${label}: fixed Ink hero`);
+    assert.deepEqual(presentation.action, { height: 48, size: '14px', weight: '500', radius: '4px' }, label);
+    assert.equal(presentation.separateImageCard, false, label);
+    assert.equal(presentation.copyStacks, 1, label);
+    assert.equal(presentation.actions, 2, label);
+    assert.equal(presentation.scene.loaded, true, label);
+    assert.equal(presentation.scene.src, '/assets/judgment-lens-environment-v2.webp', label);
+    assert.equal(presentation.scene.position, 'absolute', label);
+    assert.equal(presentation.scene.fit, 'cover', label);
+    assert.equal(presentation.scene.crop, context.width <= 820 ? '72% 50%' : '56% 50%', label);
+    assert.equal(presentation.scene.radius, '0px', label);
+    assert.equal(presentation.scene.border, '0px', label);
+    assert.equal(presentation.scene.x, 0, label);
+    assert.equal(presentation.scene.width, measurement.layoutWidth, label);
+    assert.equal(presentation.scene.height, presentation.hero.height, label);
+    if (context.width > 820) assert.equal(presentation.nextSectionY, 632, `${label}: desktop header72 + hero560`);
+    else assert.ok(presentation.hero.height >= 528, `${label}: mobile environment retains its minimum scene height`);
+    assert.equal(presentation.problemItems, 3, label);
+    assert.equal(presentation.sectionEyebrowColor, context.colorScheme === 'dark' ? 'rgb(139, 144, 150)' : 'rgb(85, 91, 96)', `${label}: muted section label`);
+    assert.equal(presentation.workflow.length, 5, label);
+    for (const step of presentation.workflow) {
+      assert.equal(step.titleSize, '20px', label);
+      assert.equal(step.titleWeight, '600', label);
+      assert.equal(step.descriptionSize, '14px', label);
+      assert.equal(step.ordinalSize, '12px', label);
+      assert.equal(step.radius, '0px', label);
+      assert.equal(step.shadow, 'none', label);
+      assert.equal(step.icon.width, context.width <= 820 ? 40 : 44, label);
+      if (context.width <= 820) {
+        assert.equal(step.icon.x, step.ordinal.x, `${label}: icon and ordinal left rail`);
+        assert.ok(step.title.x >= step.icon.right + 15, `${label}: workflow text right of left rail`);
+      }
+    }
+    const positions = presentation.workflow.map(step => step.bounds.x);
+    assert.equal(new Set(positions).size, context.width <= 820 ? 1 : 5, `${label}: connected workflow follows viewport`);
+  }
   assert.equal(measurement.separateWordmark, false, `${label}: whole outlined lockup`);
   for (const image of [measurement.headerImage, measurement.footerImage]) {
     assert.equal(image.loaded, true, `${label}: lockup loaded`);
@@ -193,32 +298,9 @@ async function assertBrand(client, sessionId, measurement, context) {
   }
 }
 
-async function assertVisibleExternalLink(client, sessionId, label) {
-  const links = await evaluate(client, sessionId, `(() => {
-    return [...document.querySelectorAll('[data-surfaces-navigation] a[target="_blank"]')]
-      .filter(link => link.getBoundingClientRect().height > 0)
-      .map(link => {
-        const icon = link.querySelector('.external-link-icon');
-        const bounds = icon?.getBoundingClientRect();
-        return {
-          title: link.title,
-          rel: [...link.relList].sort(),
-          decorative: icon?.getAttribute('aria-hidden'),
-          width: bounds?.width,
-          height: bounds?.height,
-          color: icon && getComputedStyle(icon).color,
-          linkColor: getComputedStyle(link).color,
-        };
-      });
-  })()`);
-  assert.equal(links.length, 1, `${label}: one visible Handbooks link`);
-  const [link] = links;
-  assert.equal(link.title, "Opens in a new tab", label);
-  assert.deepEqual(link.rel, ["noopener", "noreferrer"], label);
-  assert.equal(link.decorative, "true", label);
-  assert.equal(link.width, 14, `${label}: visible external-link icon width`);
-  assert.equal(link.height, 14, `${label}: visible external-link icon height`);
-  assert.equal(link.color, link.linkColor, `${label}: icon follows link color`);
+async function assertPrimaryDestinations(client, sessionId, label) {
+  const links = await evaluate(client, sessionId, `(() => [...document.querySelectorAll('.surfaces-navigation-sections a')].map(link => ({ href: link.getAttribute('href'), target: link.getAttribute('target') })))()`);
+  assert.deepEqual(links, ["/#why-judgmentkit", "/#how-it-works", "/docs/", "https://surfaces.systems/"].map(href => ({ href, target: null })), `${label}: four compact primary destinations`);
 }
 
 try {
@@ -260,20 +342,21 @@ try {
           if (expected.width === 390) {
             const alternate = colorScheme === 'light' ? 'dark' : 'light';
             await client.send('Emulation.setEmulatedMedia', { media: 'screen', features: [{ name: 'prefers-color-scheme', value: alternate }] }, sid);
-            await waitForExpression(client, sid, `document.querySelector('.site-brand-lockup').currentSrc && new URL(document.querySelector('.site-brand-lockup').currentSrc).pathname === '${alternate === 'dark' ? '/assets/brand/judgmentkit-lockup-reversed.svg' : '/assets/brand/judgmentkit-lockup.svg'}'`);
-            assert.equal((await measure(client, sid)).headerImage.currentSrc, '/assets/brand/judgmentkit-lockup-reversed.svg');
-            schemeChanges.push({ width: expected.width, from: colorScheme, to: alternate, footerUpdated: true, fixedInkHeaderPreserved: true });
+            const alternateMeasurement = await measure(client, sid);
+            assert.equal(alternateMeasurement.headerImage.currentSrc, '/assets/brand/judgmentkit-lockup-reversed.svg');
+            assert.equal(alternateMeasurement.footerImage.currentSrc, '/assets/brand/judgmentkit-lockup-reversed.svg');
+            assert.equal(alternateMeasurement.footerBackground, 'rgb(11, 13, 14)');
+            schemeChanges.push({ width: expected.width, from: colorScheme, to: alternate, fixedInkFooterPreserved: true, fixedInkHeaderPreserved: true });
             await client.send('Emulation.setEmulatedMedia', { media: 'screen', features: [{ name: 'prefers-color-scheme', value: colorScheme }] }, sid);
-            await waitForExpression(client, sid, `document.querySelector('.site-brand-lockup').currentSrc && new URL(document.querySelector('.site-brand-lockup').currentSrc).pathname === '${colorScheme === 'dark' ? '/assets/brand/judgmentkit-lockup-reversed.svg' : '/assets/brand/judgmentkit-lockup.svg'}'`);
+            await measure(client, sid);
           }
           assert.equal(home.menuVisible, expected.menu, label);
           assert.equal(home.overflow, false, label);
           assert.equal(home.fontLoaded, true, label);
           assert.equal(home.background, "rgba(11, 13, 14, 0.98)", label);
 
-          assert.equal(home.links.at(-2).href, "https://handbooks.surfaces.systems/", label);
           assert.equal(home.links.at(-1).href, "https://surfaces.systems/", label);
-          if (!expected.menu) await assertVisibleExternalLink(client, sid, label);
+          await assertPrimaryDestinations(client, sid, label);
           if (expected.menu) {
             assert.equal(home.button.y, 14, label);
             assert.equal(home.button.height, 44, label);
@@ -287,8 +370,8 @@ try {
               const el = document.querySelector('[data-surfaces-primary-menu-list]');
               return { hidden: el.hidden, top: el.getBoundingClientRect().top, count: el.querySelectorAll('a').length, last: el.querySelector('a:last-child').href };
             })()`);
-            assert.deepEqual(menu, { hidden: false, top: 72, count: 8, last: "https://surfaces.systems/" });
-            await assertVisibleExternalLink(client, sid, label);
+            assert.deepEqual(menu, { hidden: false, top: 72, count: 4, last: "https://surfaces.systems/" });
+            await assertPrimaryDestinations(client, sid, label);
             menuQa.push({ width: expected.width, colorScheme, scrollbarMode: expected.scrollbarMode ?? 'system', ...menu });
             if (artifactDir && expected.width === 390) {
               await captureScreenshot(client, sid, path.join(artifactDir, `home-390-${colorScheme}-menu-open.png`));
@@ -334,7 +417,7 @@ try {
     }
   });
   if (artifactDir) fs.writeFileSync(path.join(artifactDir, 'browser-qa.json'), JSON.stringify({ status: 'passed', canonicalRatio: LOCKUP_RATIO, cases: brandQa, menuCases: menuQa, runtimeSchemeChanges: schemeChanges }, null, 2) + '\n');
-  console.log("Header/footer browser checks passed: 14 system viewport/appearance cases plus 2 forced classic-scrollbar cases on home and docs, canonical asset selection and ratios, accessible names, runtime theme changes, external-link indicators, keyboard menu, dismissal, sticky positioning, and Back restoration.");
+  console.log(`Header/footer and website presentation browser checks passed: ${CASES.length * 2} viewport/appearance cases including forced classic scrollbars, home/docs responsive type and surfaces, canonical asset selection and ratios, accessible names, runtime theme changes, compact primary destinations, keyboard menu, dismissal, sticky positioning, and Back restoration.`);
 } finally {
   if (server) await new Promise((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
   fs.rmSync(outDir, { recursive: true, force: true });

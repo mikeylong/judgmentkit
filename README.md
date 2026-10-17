@@ -8,11 +8,11 @@ It is not a beautifier, generic design-system linter, prompt library, schema bro
 
 ## Product Thesis
 
-AI-generated UI fails when the implementation model becomes the user experience. Tables become screens, schemas become forms, tool calls become buttons, and internal prompts become product vocabulary.
+Implementation details can obscure the user’s work when record labels replace domain language, forms expose irrelevant fields, or controls name tool commands instead of the user’s actions. Technical detail remains useful for setup, debugging, auditing, and integration.
 
-JudgmentKit catches when AI-generated UI turns implementation mechanics into UX, then gives the agent repair instructions before the work ships.
+JudgmentKit gives the agent interaction guidance, checks declared interface requirements against supplied evidence, and returns repair instructions. The caller’s agent implements changes and resubmits; unresolved required verification remains visible.
 
-The shippable value path is the public `/value/` page: it shows what JudgmentKit prevents with concrete before/after cases for implementation-language leakage, unsafe approval boundaries, and missing accessibility evidence. Eval reports remain supporting evidence for audit and reproduction, not the primary product story.
+The public `/value/` page shows selected checks and curated repair examples for implementation-language leakage, approval boundaries, and missing accessibility evidence. Eval reports remain supporting evidence for audit and reproduction, with their original versions and conditions.
 
 JudgmentKit gives the agent a better order of operations:
 
