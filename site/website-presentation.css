@@ -88,7 +88,7 @@
 .site-presentation .section {
   padding-block: 96px;
 }
-.site-presentation :is(.doc-layout, .design-system-layout, .value-page, .examples-page) {
+.site-presentation :is(.docs-page, .design-system-page, .value-page, .examples-page) {
   padding-top: var(--site-page-top);
 }
 .site-presentation .homepage-hero {
@@ -345,7 +345,7 @@
   .site-presentation .section {
     padding-block: 52px;
   }
-  .site-presentation :is(.doc-layout, .design-system-layout, .value-page, .examples-page) {
+  .site-presentation :is(.docs-page, .design-system-page, .value-page, .examples-page) {
     padding-top: var(--site-page-top);
   }
   .site-presentation .homepage-hero {

@@ -712,9 +712,14 @@ try {
       /homepage-film|data-homepage-film|judgmentkit-select-field-agent-demo/,
       "served homepage should not include the retired film or its behavior",
     );
-    assert.match(main, /^\s*<section class="hero homepage-hero">/);
-    assert.match(main, /<section class="section homepage-category"/);
-    assert.match(main, /A design system can make the wrong interface consistent\./);
+    assert.match(main, /^\s*<section class="hero homepage-hero"[^>]*>/);
+    assert.match(main, /aria-labelledby="homepage-title"/);
+    assert.match(main, /<h1 id="homepage-title">Guide interface design with your AI agent\.<\/h1>/);
+    assert.equal((main.match(/<section\b/g) ?? []).length, 3);
+    const problem = main.match(/<ol class="family-problem-row">([\s\S]*?)<\/ol>/)?.[1] ?? "";
+    const workflow = main.match(/<ol class="family-workflow-row">([\s\S]*?)<\/ol>/)?.[1] ?? "";
+    assert.equal((problem.match(/<li>/g) ?? []).length, 3, "served homepage has three problem items");
+    assert.equal((workflow.match(/<li class="family-workflow-step">/g) ?? []).length, 5, "served homepage has five workflow steps");
     assert.equal(html.includes("/releases/visual-composition/"), false);
   });
 

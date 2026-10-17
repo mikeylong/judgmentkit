@@ -134,6 +134,8 @@ async function measure(client, sessionId) {
     const scene = document.querySelector('.homepage-scene');
     const problem = document.querySelector('.homepage-problem');
     const workflow = document.querySelector('.family-workflow-row');
+    const detailPage = document.querySelector('.docs-page,.design-system-page');
+    const detailLayout = document.querySelector('.doc-layout,.design-system-layout');
     return {
       header: rect(nav), shell: rect(nav.firstElementChild),
       brand: rect(brand), lockup: rect(lockup), button: rect(menu),
@@ -150,6 +152,7 @@ async function measure(client, sessionId) {
       separateWordmark: brand.querySelector('span') !== null,
       presentation: {
         bodyFont: bodyStyle.fontFamily, fontSize: bodyStyle.fontSize, lineHeight: bodyStyle.lineHeight,
+        detailPadding: detailPage && { outer: getComputedStyle(detailPage).paddingTop, inner: getComputedStyle(detailLayout).paddingTop },
         fontSmoothing: bodyStyle.getPropertyValue('-webkit-font-smoothing'),
         footerDescriptionColor: getComputedStyle(footer.querySelector('.site-footer-description')).color,
         bodyBackground: bodyStyle.backgroundColor,
@@ -223,6 +226,12 @@ async function assertBrand(client, sessionId, measurement, context) {
   assert.equal(presentation.subheadingSize, context.width <= 620 ? '24px' : '32px', label);
   assert.equal(presentation.subheadingWeight, '600', label);
   assert.equal(presentation.subheadingLineHeight, context.width <= 620 ? '27.6px' : '36.8px', label);
+  if (context.route === '/docs/') {
+    assert.ok(presentation.detailPadding, `${label}: detailed-page wrapper exists`);
+    assert.equal(presentation.detailPadding.inner, '0px', `${label}: nested layout must not add a second top inset`);
+    const outerInset = Number.parseFloat(presentation.detailPadding.outer);
+    assert.ok(outerInset >= 36 && outerInset <= 62, `${label}: outer wrapper uses the intended page inset`);
+  }
   if (context.route === '/') {
     assert.equal(presentation.heroBackground, 'rgb(11, 13, 14)', `${label}: fixed Ink hero`);
     assert.deepEqual(presentation.action, { height: 48, size: '14px', weight: '500', radius: '4px' }, label);
