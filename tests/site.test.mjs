@@ -666,7 +666,7 @@ assert.ok(siteCss.includes(".site-shell {\n  width: 100%;\n  max-width: var(--si
 assert.ok(siteCss.includes(".site-footer {\n  padding: 28px 24px;"));
 assert.match(
   siteCss,
-  /\.site-brand-lockup \{[^}]*width: auto;[^}]*height: 44px;[^}]*object-fit: contain;/s,
+  /\.site-brand-lockup \{[^}]*width: auto;[^}]*height: 56px;[^}]*object-fit: contain;/s,
   "the footer must preserve the complete lockup canvas and natural ratio",
 );
 assert.match(
