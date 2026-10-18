@@ -134,6 +134,12 @@ async function measure(client, sessionId) {
     const scene = document.querySelector('.homepage-scene');
     const problem = document.querySelector('.homepage-problem');
     const workflow = document.querySelector('.family-workflow-row');
+    const rowGap = section => {
+      if (!section) return null;
+      const heading = section.querySelector('.homepage-section-heading').getBoundingClientRect();
+      const row = section.querySelector('.family-problem-row,.family-workflow-row').getBoundingClientRect();
+      return row.top - heading.bottom;
+    };
     const detailPage = document.querySelector('.docs-page,.design-system-page');
     const detailLayout = document.querySelector('.doc-layout,.design-system-layout');
     return {
@@ -142,6 +148,10 @@ async function measure(client, sessionId) {
       headerImage: image(lockup), footerImage: image(footerLockup),
       headerAccessibleName: brand.getAttribute('aria-label'), footerAccessibleName: footerBrand.getAttribute('aria-label'),
       footerTarget: { ...rect(footerBrand), href: footerBrand.getAttribute('href') },
+      footerItems: [...footer.querySelector('.site-footer-inner').children].map(rect),
+      footerParagraphMargin: getComputedStyle(footer.querySelector('.site-footer-description')).margin,
+      menuLabelClip: getComputedStyle(menu.querySelector('span')).clipPath,
+      menuGlyphs: [...menu.querySelectorAll('path')].filter(path => getComputedStyle(path).display !== 'none').map(path => path.getAttribute('d')),
       headerBackground: background(nav), footerBackground: background(footer),
       links: links.map(el => ({ href: el.getAttribute('href'), rect: rect(el) })),
       menuVisible: menu.getBoundingClientRect().height > 0,
@@ -176,6 +186,8 @@ async function measure(client, sessionId) {
         actions: hero && hero.querySelectorAll('.hero-action').length,
         nextSectionY: problem && problem.getBoundingClientRect().top,
         problemItems: document.querySelectorAll('.family-problem-row > li').length,
+        problemRowGap: rowGap(problem),
+        workflowRowGap: rowGap(document.querySelector('.homepage-workflow')),
         sectionEyebrowColor: problem && getComputedStyle(problem.querySelector('.eyebrow')).color,
         workflow: workflow && [...workflow.children].map(step => {
           const title = step.querySelector('h3'), description = step.querySelector('p'), ordinal = step.querySelector('.family-ordinal'), icon = step.querySelector('.family-workflow-icon');
@@ -251,6 +263,8 @@ async function assertBrand(client, sessionId, measurement, context) {
     if (context.width > 820) assert.equal(presentation.nextSectionY, 632, `${label}: desktop header72 + hero560`);
     else assert.ok(presentation.hero.height >= 528, `${label}: mobile environment retains its minimum scene height`);
     assert.equal(presentation.problemItems, 3, label);
+    assert.equal(presentation.problemRowGap, 40, `${label}: problem heading-to-row gap`);
+    assert.equal(presentation.workflowRowGap, 48, `${label}: workflow heading-to-row gap`);
     assert.equal(presentation.sectionEyebrowColor, context.colorScheme === 'dark' ? 'rgb(139, 144, 150)' : 'rgb(85, 91, 96)', `${label}: muted section label`);
     assert.equal(presentation.workflow.length, 5, label);
     for (const step of presentation.workflow) {
@@ -278,6 +292,14 @@ async function assertBrand(client, sessionId, measurement, context) {
     assert.ok(image.rendered.x >= 0 && image.rendered.right <= measurement.layoutWidth, `${label}: image bounds inside page`);
   }
   assert.ok(measurement.footerTarget.height >= 44, `${label}: footer home target`);
+  assert.equal(measurement.footerImage.rendered.height, 56, `${label}: full footer lockup height`);
+  assert.equal(measurement.footerParagraphMargin, '0px', `${label}: footer copy adds no margin`);
+  if (context.width <= 820) {
+    for (let index = 1; index < measurement.footerItems.length; index++) {
+      const previous = measurement.footerItems[index - 1], current = measurement.footerItems[index];
+      assert.equal(current.y - previous.y - previous.height, 12, `${label}: compact footer rhythm`);
+    }
+  }
   assert.equal(measurement.footerTarget.href, '/', label);
   for (const selector of ['.surfaces-navigation-identifier', '.site-footer-brand']) {
     const node = await getAxNode(client, sessionId, selector);
@@ -333,7 +355,7 @@ try {
           assert.equal(home.header.width, home.layoutWidth, label);
           assert.equal(home.shell.x, gutter, label);
           assert.equal(home.shell.right, home.layoutWidth - gutter, label);
-          const lockupHeight = expected.width < 360 ? 44 : expected.width <= 820 ? 48 : 56;
+          const lockupHeight = 56;
           assert.equal(home.lockup.x, gutter, label);
           assert.equal(home.lockup.height, lockupHeight, label);
           assert.equal(home.brand.y, (72 - lockupHeight) / 2, label);
@@ -361,11 +383,20 @@ try {
             assert.equal(home.button.y, 14, label);
             assert.equal(home.button.height, 44, label);
             assert.equal(home.button.right, home.layoutWidth - gutter, label);
+            assert.deepEqual(home.menuGlyphs, ['M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5'], `${label}: closed menu glyph`);
+            if (expected.width < 375) {
+              assert.equal(home.button.width, 44, `${label}: narrow fit target`);
+              assert.equal(home.menuLabelClip, 'inset(50%)', `${label}: narrow label remains in the DOM`);
+            } else {
+              assert.ok(home.button.width > 44, `${label}: Menu label retains its natural width`);
+              assert.equal(home.menuLabelClip, 'none', `${label}: Menu label stays visible`);
+            }
             await tabUntil(client, sid, '[data-surfaces-primary-menu-button]');
             const focus = await evaluate(client, sid, `getComputedStyle(document.activeElement).outlineStyle`);
             assert.equal(focus, "solid", `${label}: menu focus must be visible`);
             await pressKey(client, sid, "Enter");
             assert.equal(await evaluate(client, sid, `document.querySelector('[data-surfaces-primary-menu-button]').getAttribute('aria-expanded')`), "true");
+            assert.deepEqual(await evaluate(client, sid, `[...document.querySelectorAll('[data-surfaces-primary-menu-button] path')].filter(path => getComputedStyle(path).display !== 'none').map(path => path.getAttribute('d'))`), ['M6 18 18 6M6 6l12 12'], `${label}: open menu uses the Surfaces X glyph`);
             const menu = await evaluate(client, sid, `(() => {
               const el = document.querySelector('[data-surfaces-primary-menu-list]');
               return { hidden: el.hidden, top: el.getBoundingClientRect().top, count: el.querySelectorAll('a').length, last: el.querySelector('a:last-child').href };

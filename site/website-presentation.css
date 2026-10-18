@@ -219,9 +219,15 @@
   padding-block: 96px;
   background: var(--bg);
 }
+.site-presentation :is(.homepage-problem, .homepage-workflow) .homepage-section-shell {
+  gap: 0;
+}
 .site-presentation .homepage-section-heading {
   max-width: 620px;
   margin-bottom: 40px;
+}
+.site-presentation .homepage-workflow .homepage-section-heading {
+  margin-bottom: 48px;
 }
 .site-presentation .homepage-section-heading h2 {
   margin-bottom: 0;
@@ -314,11 +320,12 @@
   margin: 0;
 }
 .site-footer-identity {
+  display: flex;
   margin-right: auto;
 }
 .site-footer-description,
 .site-footer-copyright {
-  margin: 8px 0 0;
+  margin: 0;
   color: var(--website-nickel);
   font-size: 12px;
   line-height: 1.45;
@@ -338,7 +345,7 @@
   .site-footer-inner {
     align-items: flex-start;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
   }
   .site-presentation .section {
     padding-block: 52px;

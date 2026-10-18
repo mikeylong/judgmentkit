@@ -587,7 +587,8 @@ function renderPlatformHeader(pathName = "/") {
               aria-expanded="false" aria-controls="surfaces-primary-menu" data-surfaces-primary-menu-button>
               <span>Menu</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
+                <path class="surfaces-menu-glyph-closed" stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
+                <path class="surfaces-menu-glyph-open" stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"></path>
               </svg>
             </button>
             <div class="surfaces-primary-menu-backdrop" hidden data-surfaces-primary-menu-backdrop></div>
@@ -1194,6 +1195,13 @@ a {
   display: block;
   flex: 0 0 auto;
 }
+.surfaces-menu-glyph-open,
+.surfaces-primary-menu-button[aria-expanded="true"] .surfaces-menu-glyph-closed {
+  display: none;
+}
+.surfaces-primary-menu-button[aria-expanded="true"] .surfaces-menu-glyph-open {
+  display: inline;
+}
 .surfaces-primary-menu-backdrop {
   position: fixed;
   inset: var(--site-navigation-height) 0 auto;
@@ -1249,16 +1257,27 @@ a {
   .surfaces-navigation-inner {
     width: min(1120px, calc(100% - 32px));
   }
-  .surfaces-brand-lockup {
-    height: 48px;
-  }
 }
-@media (max-width: 359px) {
+@media (max-width: 389px) {
   .surfaces-navigation-inner {
     gap: 8px;
   }
-  .surfaces-brand-lockup {
-    height: 44px;
+}
+@media (max-width: 374px) {
+  .surfaces-primary-menu-button {
+    width: 44px;
+    min-width: 44px;
+    padding: 0;
+    gap: 0;
+  }
+  .surfaces-primary-menu-button > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }
 @media (forced-colors: active) {
@@ -1321,7 +1340,7 @@ a {
 .site-brand-lockup {
   display: block;
   width: auto;
-  height: 44px;
+  height: 56px;
   max-width: 100%;
   object-fit: contain;
 }
