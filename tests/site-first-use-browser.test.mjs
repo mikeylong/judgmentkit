@@ -423,6 +423,24 @@ try {
         assert.deepEqual(page.runtimeExceptions, [], `${label}: no runtime exceptions`);
         if (evidenceOut) await captureElementScreenshot(client, sid, MAP,
           path.join(evidenceOut, `${viewport.id}-${appearance}-mounted.png`));
+      } catch (error) {
+        if (evidenceOut) {
+          try {
+            const diagnostics = await evaluate(client, sid, `(() => [...document.querySelectorAll('${MAP} .rf-map-node')].map(card => ({
+              id: card.closest('.react-flow__node').dataset.id,
+              card: {width:card.clientWidth,height:card.clientHeight,gap:getComputedStyle(card).gap,padding:getComputedStyle(card).padding},
+              children:[...card.querySelectorAll('strong,code,span')].map(child=>({text:child.textContent,
+                width:child.clientWidth,height:child.clientHeight,font:getComputedStyle(child).font,
+                margin:getComputedStyle(child).margin,lineHeight:getComputedStyle(child).lineHeight}))
+            })))()`);
+            fs.mkdirSync(evidenceOut, {recursive:true});
+            fs.writeFileSync(path.join(evidenceOut, `${viewport.id}-${appearance}-failure.json`), JSON.stringify({error:String(error),cards:diagnostics},null,2));
+            await captureElementScreenshot(client, sid, MAP, path.join(evidenceOut, `${viewport.id}-${appearance}-failure.png`));
+          } catch (diagnosticError) {
+            console.error("System map failure diagnostics unavailable:", diagnosticError);
+          }
+        }
+        throw error;
       } finally {
         await page.close();
       }

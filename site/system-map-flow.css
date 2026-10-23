@@ -20,7 +20,7 @@
   --rf-map-node-output-bg: #f0f8f2;
   --rf-map-node-blocked-bg: #fff7ec;
   color: var(--rf-map-ink);
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Header Inter", Arial, Helvetica, sans-serif;
   overflow: hidden;
 }
 
@@ -208,5 +208,12 @@
 }
 
 .system-map-flow-root .react-flow__edge-text {
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Header Inter", Arial, Helvetica, sans-serif;
+}
+
+/* Share the packaged font metrics with the no-script map, including Linux. */
+.system-map-fallback .system-map-svg text,
+.system-map-fallback .map-node-content,
+.system-map-fallback .map-zone-content {
+  font-family: "Header Inter", Arial, Helvetica, sans-serif;
 }
