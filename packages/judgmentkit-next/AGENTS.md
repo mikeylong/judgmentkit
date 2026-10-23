@@ -1,0 +1,3 @@
+## Browser VM work in JK Redux
+
+Apply the root [disposable browser VM default](/Users/mike/JudgmentKit2/AGENTS.md#disposable-browser-vm-default) to this candidate too. Read the [local-vm-manager skill](/Users/mike/.codex/skills/local-vm-manager/SKILL.md) and use the manager for new isolated browser guests. This does not authorize replacing a frozen experiment's engine, changing its tests, altering native workflows, or touching existing VMs. If this package's suite layout is unsupported, report the manager capability gap before dispatch; do not create an ad hoc VM or substitute capture evidence for its suite.
